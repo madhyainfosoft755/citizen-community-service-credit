@@ -1,59 +1,41 @@
 const express = require("express");
-
-
-
-// Apply Multer middleware
-
+const router = express.Router();
 
 const {
-
-    GoogleResponse,
-    varifybytoken,
+  GoogleResponse,
+  varifybytoken,
   varifybytiken,
   login,
   profile,
+  updateUserData, 
   CreateActivity,
   AllDetails,
   Register,
-  postsdata
-
-
-
-
-
-
-
-  
-  
-
-
+  postsdata,
+  getNearbyPosts,
 } = require("../controllers/LoginController");
 const { upload } = require("../utils/util");
 // const { uploads } = require("../utils/util");
-const router = express.Router();
-router.post('/GoogleResponse',GoogleResponse)
-router.get('/varifybytoken',varifybytoken)
-router.post('/login',login),
-router.post('/varifybytiken',varifybytiken)
-router.get('/profile',profile)  
-router.get("/AllDetails",AllDetails)
-router.get("/postsdata/:id",postsdata)
-
-
-// router.post('/CreateActivity', upload, CreateActivity);
 // Express route
-	upload,
-router.post('/CreateActivity',upload,CreateActivity);
-router.post('/Register',upload,Register);
+router.post("/GoogleResponse", GoogleResponse);
+router.get("/varifybytoken", varifybytoken);
+router.post("/login", login);
+router.post("/varifybytiken", varifybytiken);
+router.get("/profile", profile);
+router.post("/profile", profile);
+// Assuming you have an Express app instance called 'app'
+router.post('/updateUserData', updateUserData);
 
+router.get("/AllDetails/:id", AllDetails);
+router.post("/AllDetails/:id", AllDetails);
+router.get("/postsdata/:id", postsdata);
+router.post("/postsdata/:id", postsdata);
+// router.post('/CreateActivity', upload, CreateActivity);
+router.get("/CreateActivity", upload, CreateActivity);
+router.post("/CreateActivity", upload, CreateActivity);
+router.post("/Register", upload, Register);
 
-
-
-
-
-
-
-
-  
+// Route to fetch nearby posts
+router.post("/nearbyposts", getNearbyPosts);
 
 module.exports = router;

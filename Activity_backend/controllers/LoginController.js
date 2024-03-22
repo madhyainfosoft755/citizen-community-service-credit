@@ -1,13 +1,15 @@
-
 const db = require("../models");
 const { Sequelize, Op, Model, DataTypes, where } = require("sequelize");
 const config = require("../config/constant");
-const mysql = require('mysql2/promise')
-const jwt_decode = require('jwt-decode');
-const jwtKey = 'g.comm'
-const multer = require('multer');
-
-
+const mysql = require("mysql2/promise");
+const jwt_decode = require("jwt-decode");
+const jwtKey = "g.comm";
+const multer = require("multer");
+const GoogleData = db.users;
+const Users = db.users;
+const Posts = db.Posts;
+const Jwt = require("jsonwebtoken");
+const jwt = require("jsonwebtoken");
 
 // const storage = multer.diskStorage({
 //   destination: (req, file, cb) => {
@@ -18,39 +20,18 @@ const multer = require('multer');
 //   },
 // });
 
-
-
-
-
-
-
-
-
 const sequelize = new Sequelize(config.DB, config.USER_DB, config.PASSWORD_DB, {
   host: "localhost",
   dialect: "mysql",
   pool: { min: 0, max: 10, idle: 10000 },
 });
 
-
-const GoogleData = db.users;
-const Users = db.users;
-const Posts = db.Posts;
-
-
-
-const jwt = require('jsonwebtoken');
-
-
-
-
-
 // const User = sequelize.define("users", {
-  
+
 //   name: {
 //     type: DataTypes.STRING,
 //     allowNull: true,
-//   }, 
+//   },
 //   // email: {
 //   //   type: DataTypes.STRING,
 //   //   allowNull: true,
@@ -68,8 +49,6 @@ const jwt = require('jsonwebtoken');
 //     type: DataTypes.STRING,
 //     allowNull: true,
 //   },
- 
-  
 
 // });
 
@@ -77,116 +56,102 @@ const jwt = require('jsonwebtoken');
 // User.hasMany(db.posts, { foreignKey: 'User', as: 'userTable' });
 // db.posts.belongsTo(User, { foreignKey: 'User', as: 'userTable'});
 
-// const mysql = require('mysql2/promise'); 
+// const mysql = require('mysql2/promise');
 
-
-
-
-
-
-// ths is Register Api 
-
+// ths is Register Api
 
 const Register = async (req, res) => {
   try {
     const userData = req.body;
+    console.log("here is he data", userData);
     const { selectedCategories } = req.body;
-    console.log('category Register',selectedCategories)
+    console.log("category Register", selectedCategories);
 
-    
-    const picture = req.file ? req.file.originalname : '';
-    console.log('file',picture)
-    const Category=selectedCategories
+    // Check if files were uploaded
+    const photos =
+      req.files && req.files.photo
+        ? req.files.photo.map((file) => file.filename)
+        : [];
+    console.log("this is the requested data", req.files);
+    const videos =
+      req.files && req.files.video
+        ? req.files.video.map((file) => file.filename)
+        : [];
 
+    const Category = selectedCategories;
+
+    const photos_ = photos.reduce(
+      (accumulator, currentValue) => accumulator + "," + currentValue
+    );
+    console.log("phots", photos_);
     // Create a new user instance and save it to the database
     const newUser = await Users.create({
-      name: req.body.name, 
+      name: req.body.name,
       email: userData.email,
       password: userData.password,
-      photo: picture,
-      category:Category
-      // idCard:userData.idCard,
-      
-
-      // password: userData.password,
-      
-            
+      photo: photos_,
+      video: videos,
+      category: Category,
+      // Add other fields as needed
     });
-    
-    
 
     // You can add more error handling and validation as needed
 
     return res.status(201).json({
-      status: 'success',
-      message: 'Registration successful',
-
+      status: "success",
+      message: "Registration successful",
     });
   } catch (error) {
-    console.error('Registration failed:', error);
+    console.error("Registration failed:", error);
     return res.status(500).json({
-      status: 'error',
-      message: 'Registration failed',
+      status: "error",
+      message: "Registration failed",
     });
-  
   }
 };
 
-
-
 const login = async (req, res) => {
   const { email, password } = req.body;
-  
-  console.log( "email ",req.body)
- 
+
+  console.log("email ", req.body);
+
   try {
     // Find the user based on the provided email
     const user = await Users.findOne({ where: { email } });
-    console.log(user)
+    console.log(user);
 
     if (!user) {
-      return res.status(401).json({ error: 'Invalid email or password.' });
+      return res.status(401).json({ error: "Invalid email or password." });
     }
 
     // Check if the password matches
     if (user.password !== password) {
-      return res.status(401).json({ error: 'Invalid  password.' });
+      return res.status(401).json({ error: "Invalid  password." });
     }
 
-
-    const token = Jwt.sign({ userId: user.id }, jwtKey, { expiresIn: '1h' });
-    console.log(token, "token")
-
-
+    const token = Jwt.sign({ userId: user.id }, jwtKey, { expiresIn: "1h" });
+    console.log(token, "token");
 
     const userKey = {
       id: user.id,
       email: user.email,
-      name: user.name
+      name: user.name,
       // token:user.token
     };
 
-
     res.json({
-      status: 'success',
+      status: "success",
       userKey: userKey,
-      token: token
+      token: token,
     });
-    console.log(res, "status")
-
-
-
-
+    console.log(res, "status");
 
     // Successful login
-
   } catch (error) {
-    console.log("error or exception", error)
-    res.status(500).json({ error: 'An error occurred during login.' });
-
+    console.log("error or exception", error);
+    res.status(500).json({ error: "An error occurred during login." });
   }
 };
-
 
 const varifybytiken = async (req, res) => {
   const { userKey, token } = req.body;
@@ -194,38 +159,21 @@ const varifybytiken = async (req, res) => {
   console.log("token", token);
 
   try {
-
-
-    const verifytoken = Jwt.verify(token, jwtKey
-
-    );
-    console.log(verifytoken, 'veryfi')
-
+    const verifytoken = Jwt.verify(token, jwtKey);
+    console.log(verifytoken, "verify");
 
     if (!verifytoken) {
-      return res.status(401).json({ error: 'Invalid token ' });
-    }
-    else {
-
+      return res.status(401).json({ error: "Invalid token " });
+    } else {
       res.json({
-        status: 'success'
-
+        status: "success",
       });
     }
-
-
-
-
-
-
   } catch (error) {
     res.status(500).json({ error: error });
   }
 };
 
-
-
-// ...
 const GoogleResponse = async (req, res) => {
   const { access_token, userInfo } = req.body;
 
@@ -234,7 +182,7 @@ const GoogleResponse = async (req, res) => {
     const decodedCredential = access_token.access_token;
 
     if (!decodedCredential) {
-      return res.status(400).json({ message: 'Invalid credential' });
+      return res.status(400).json({ message: "Invalid credential" });
     }
 
     // Extract email and name from the decoded credential
@@ -245,9 +193,9 @@ const GoogleResponse = async (req, res) => {
     console.log("user email", user);
 
     if (user) {
-      const token = Jwt.sign({ userId: user.id }, jwtKey, { expiresIn: '1h' });
+      const token = Jwt.sign({ userId: user.id }, jwtKey, { expiresIn: "1h" });
       return res.status(200).json({
-        message: 'Success',
+        message: "Success",
         name: userInfo.name,
         email: userEmail, // Use userEmail here
         token: token,
@@ -260,15 +208,15 @@ const GoogleResponse = async (req, res) => {
       access_token: access_token.access_token,
       name: userInfo.name,
       email: userInfo.email,
-      picture: userInfo.picture,
+      photo: userInfo.photo,
     });
 
-    const token = Jwt.sign({ userId: newUser.id }, jwtKey, { expiresIn: '1h' });
+    const token = Jwt.sign({ userId: newUser.id }, jwtKey, { expiresIn: "1h" });
     console.log(token, "token");
 
     // Send a success response
     res.status(200).json({
-      message: 'Success',
+      message: "Success",
       name: userInfo.name,
       email: userEmail, // Use userEmail here
       token: token,
@@ -276,13 +224,9 @@ const GoogleResponse = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Internal server error' });
+    res.status(500).json({ message: "Internal server error" });
   }
 };
-
-
-const Jwt = require('jsonwebtoken')
-
 
 const varifybytoken = async (req, res) => {
   const { accessToken, name, id, clientId, Email, credential } = req.body;
@@ -290,22 +234,14 @@ const varifybytoken = async (req, res) => {
   console.log("token", credential);
 
   try {
-
-
-    const verifytoken = Jwt.verify(credential, jwtKey
-
-    );
-    console.log(verifytoken, 'veryfi')
-
+    const verifytoken = Jwt.verify(credential, jwtKey);
+    console.log(verifytoken, "veryfi");
 
     if (!verifytoken) {
-      return res.status(401).json({ error: 'Invalid token ' });
-    }
-    else {
-
+      return res.status(401).json({ error: "Invalid token " });
+    } else {
       res.json({
-        status: 'success'
-
+        status: "success",
       });
     }
   } catch (error) {
@@ -313,14 +249,12 @@ const varifybytoken = async (req, res) => {
   }
 };
 
-
-
 const profile = async (req, res) => {
   try {
-    const authorizationHeader = req.headers['authorization'];
+    const authorizationHeader = req.headers["authorization"];
 
     if (authorizationHeader) {
-      const token = authorizationHeader.split(' ')[1];
+      const token = authorizationHeader.split(" ")[1];
 
       try {
         const decodedToken = Jwt.verify(token, jwtKey);
@@ -328,17 +262,16 @@ const profile = async (req, res) => {
         const userId = decodedToken.userId;
 
         const connection = await mysql.createConnection({
-          host: 'localhost',
-          user: 'root',
-          password: '',
-          database: 'activity'
+          host: "localhost",
+          user: "root",
+          password: "",
+          database: "activity",
         });
 
         const [rows] = await connection.execute(
-          'SELECT `id`, `name`,`picture`, `email` FROM `users` WHERE id = ?',
+          "SELECT `id`, `name`,`photo`, `email` FROM `users` WHERE id = ?",
           [userId]
         );
-
 
         connection.end();
 
@@ -347,93 +280,203 @@ const profile = async (req, res) => {
             id: rows[0].id,
             name: rows[0].name,
             email: rows[0].email,
-            picture: rows[0].picture
-
+            photo: rows[0].photo,
+            totalTime: rows[0].totalTime, // Include totalTime from the database
           };
 
           res.json({
-            status: 'success',
-            userData: userData
+            status: "success",
+            userData: userData,
           });
         } else {
           res.status(404).json({
-            status: 'error',
-            message: 'User not found'
+            status: "error",
+            message: "User not found",
           });
         }
       } catch (error) {
-        if (error.name === 'TokenExpiredError') {
+        if (error.name === "TokenExpiredError") {
           res.json({
-            status: 'error',
-            message: 'Token has expired'
+            status: "error",
+            message: "Token has expired",
           });
         } else {
-          console.error('Error decoding token:', error);
-          res.status(401).send('Invalid token');
+          console.error("Error decoding token:", error);
+          res.status(401).send("Invalid token");
         }
       }
     } else {
-      res.status(401).send('Authorization header missing');
+      res.status(401).send("Authorization header missing");
     }
   } catch (error) {
-    console.error('Error in profile endpoint:', error);
+    console.error("Error in profile endpoint:", error);
     res.status(500).json({
-      status: 'error',
-      message: 'An error occurred while processing your request'
+      status: "error",
+      message: "An error occurred while processing your request",
     });
   }
 };
 
-
-
-
-
-
-// const upload = multer({ storage: storage });
-// const upload = multer({ dest: 'uploads/' }); 
-
- 
-const CreateActivity = async (req, res) => { 
+const updateUserData = async (req, res) => {
   try {
-    const { selectedCategories } = req.body;
-    const { Date } = req.body;
-    console.log('cat',selectedCategories)
+    const authorizationHeader = req.headers["authorization"];
 
-    const photo = req.file ? req.file.originalname : '';
-    const Category=selectedCategories
-     
-    const file= req.body.photo
-    // Create a new activity instance
-    const newActivity = new Posts({ Category, photo,Date }); 
+    if (authorizationHeader) {
+      const token = authorizationHeader.split(" ")[1];
 
-    // Save to the database
-    await Posts.create({ Category, photo,Date});
-    
+      try {
+        const decodedToken = Jwt.verify(token, jwtKey);
 
-    res.status(201).json({ message: 'Activity created successfully' });
+        const userId = decodedToken.userId;
+
+        // Retrieve the calculated time from the request body
+        const { calculatedTime } = req.body;
+
+        const connection = await mysql.createConnection({
+          host: "localhost",
+          user: "root",
+          password: "",
+          database: "activity",
+        });
+
+        // Fetch the user's data from the database
+        const [rows] = await connection.execute(
+          "SELECT `totalTime` FROM `users` WHERE id = ?",
+          [userId]
+        );
+
+        if (rows.length === 1) {
+          const currentTime = rows[0].totalTime || 0;
+
+          // Update the user's total time by adding the new calculated time
+          const newTotalTime = currentTime + calculatedTime;
+
+          await connection.execute(
+            "UPDATE `users` SET `totalTime` = ? WHERE id = ?",
+            [newTotalTime, userId]
+          );
+
+          connection.end();
+
+          res.json({
+            status: "success",
+            message: "User data updated successfully",
+          });
+        } else {
+          res.status(404).json({
+            status: "error",
+            message: "User not found",
+          });
+        }
+      } catch (error) {
+        // ... (existing code)
+      }
+    } else {
+      res.status(401).send("Authorization header missing");
+    }
   } catch (error) {
-    console.error('Error creating activity:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    // ... (existing code)
   }
 };
- 
 
+// const upload = multer({ storage: storage });
+// const upload = multer({ dest: 'uploads/' });
 
+const CreateActivity = async (req, res) => {
+  try {
+    const { selectedCategories, Date, fromTime, toTime, userId, location, latitude, longitude } =
+      req.body;
+
+    console.log("categories", selectedCategories);
+
+    // Check if files were uploaded
+    const photos =
+      req.files && req.files.photo
+        ? req.files.photo.reduce((acc, file) => {
+            // acc.push(file.filename);
+            return acc + file.filename;
+          }, [])
+        : [];
+    const videos =
+      req.files && req.files.video
+        ? req.files.video.reduce((acc, file) => {
+            // acc.push(file.filename);
+            return acc + file.filename;
+          }, [])
+        : [];
+
+    const category = selectedCategories;
+
+    // Create a new activity instance
+    // const newActivity = new Posts({ category, photos, videos, Date });
+
+    const calculateTotalTime = (fromTime, toTime) => {
+      const [fromHour, fromMinute] = fromTime.split(":").map(Number);
+      const [toHour, toMinute] = toTime.split(":").map(Number);
+
+      const totalMinutes =
+        toHour * 60 + toMinute - (fromHour * 60 + fromMinute);
+      const hours = Math.floor(totalMinutes / 60);
+      const minutes = totalMinutes % 60;
+      console.log(`${minutes}:${hours}`);
+      // const totalTimeDate = new Date(0);
+      // console.log("this is the total time",totalTimeDate)
+      // totalTimeDate.setUTCHours(hours);
+      // totalTimeDate.setUTCMinutes(minutes);
+
+      return `${hours}:${minutes}`;
+    };
+    // Calculate total time spent
+    const totalTime = calculateTotalTime(fromTime, toTime);
+
+    // Fetch the current stored time for the user
+    const user = await Users.findByPk(userId);
+    const storedTime = user ? user.totalTime : 0;
+
+    // Update the stored time by adding the current activity time
+    const updatedStoredTime = storedTime + parseInt(totalTime);
+
+    // Update the user's total time in the database
+    await Users.update(
+      { totalTime: updatedStoredTime },
+      { where: { id: userId } }
+    );
+
+    // Save to the database
+    await Posts.create({
+      category,
+      photos,
+      videos,
+      Date,
+      totalTime,
+      location,
+      latitude,
+      longitude,
+      UserId: userId,
+    });
+
+    res.status(201).json({ message: "Activity created successfully" });
+  } catch (error) {
+    console.error("Error creating activity:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
 
 const AllDetails = async (req, res) => {
   try {
     const all_posts = await db.Posts.findAll({
       attributes: [
-      
-      
+        "UserId",
         "Category",
+        "totalTime",
+
         // [sequelize.col("userTable.name"), "name",],
-      
       ],
+      where: { UserId: req.params.id },
       // include: [
       //   {
       //     // model: db.users,
-      //     attributes: [], 
+      //     attributes: [],
       //     as: 'userTable',
       //   },
       // ],
@@ -443,44 +486,79 @@ const AllDetails = async (req, res) => {
     res.status(200).json(all_posts);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Internal server error' });
-  }
-};
-
-
-const postsdata = async (req, res) => {
-  try {
-    const id   = req.params.id;
-
-    if (!id) {
-      return res.json({ error: "User is not authorized" });
-    }
-
-    const userPosts = await db.posts.findAll({
-      where: {
-        id: id, 
-        
-      },
-      
-      order: [["InsertedAt", "DESC"]],
-    });
-
-    if (!userPosts || userPosts.length === 0) {
-      return res.status(404).json({ error: "Not found" });
-    }
-
-    res.status(201).json(userPosts);
-  } catch (error) {
-    console.error(error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
 
+// const postsdata = async (req, res) => {
+//   try {
+//     const id = req.params.id;
+
+//     if (!id) {
+//       return res.json({ error: "User is not authorized" });
+//     }
+
+//     const userPosts = await db.Posts.findAll({
+//       where: {
+//         id: id,
+//       },
+
+//       order: [["InsertedAt", "DESC"]],
+//     });
+
+//     if (!userPosts || userPosts.length === 0) {
+//       return res.status(404).json({ error: "Not found" });
+//     }
+
+//     res.status(201).json(userPosts);
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: "Internal server error" });
+//   }
+// };
+
+const postsdata = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const posts = await db.Posts.findAll({
+      where: { UserId: userId },
+    });
+
+    res.json(posts);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
 
 
+// Controller to fetch nearby posts
+const getNearbyPosts = async (req, res) => {
+  const { userLocation } = req.body; // Assuming userLocation is an object with lat and lng properties
 
+  try {
+    const nearbyPosts = await Posts.findAll({
+      where: {
+        // Example condition to find posts within a range of 4-5 kilometers (adjust as needed)
+        latitude: {
+          [Op.between]: [userLocation.lat - 0.036, userLocation.lat + 0.036],
+        },
+        longitude: {
+          [Op.between]: [userLocation.lng - 0.036, userLocation.lng + 0.036],
+        },
+      },
+      // Additional attributes to include if needed
+      attributes: ["id", "title", "content", "createdAt"],
+    });
 
-
+    res.status(200).json(nearbyPosts);
+  } catch (error) {
+    console.error("Error fetching nearby posts:", error);
+    res
+      .status(500)
+      .json({ error: "An error occurred while fetching nearby posts." });
+  }
+};
 
 module.exports = {
   GoogleResponse,
@@ -488,8 +566,10 @@ module.exports = {
   login,
   varifybytiken,
   profile,
+  updateUserData,
   CreateActivity,
   AllDetails,
   Register,
-  postsdata
+  postsdata,
+  getNearbyPosts
 };

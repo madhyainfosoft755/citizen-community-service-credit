@@ -44,6 +44,7 @@ const Input = React.forwardRef(
   ) => {
     const handleChange = (e) => {
       const value = e?.target?.value; 
+      const name = e?.target?.name; 
       if (onChange) onChange(name, value);
     };
 

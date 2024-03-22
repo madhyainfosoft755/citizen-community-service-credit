@@ -1,0 +1,34 @@
+/* InputWithIconAndText.css */
+.input-with-icon-and-text {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.icon-container {
+  position: absolute;
+  left: 10px;
+}
+
+.icon {
+  transition: color 0.3s ease; /* Add transition for smooth color change */
+}
+
+input {
+  padding-left: 30px;
+  transition: box-shadow 0.3s ease; /* Add transition for smooth box shadow change */
+}
+
+.text-container {
+  margin-left: 10px;
+}
+
+.focused .icon {
+  color: inherit; /* Use the color provided by the iconColor prop */
+}
+
+.focused input {
+  box-shadow: 0 0 5px 2px rgba (77, 194, 116, 0.5); /* Add box shadow with same color */
+  background-color: rgba(255, 255, 255, 1);
+
+}

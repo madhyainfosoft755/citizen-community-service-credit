@@ -13,16 +13,24 @@ app.use(express.static(path.join(__dirname, 'videos')));
 const dotenv = require("dotenv");
 dotenv.config();
 
-// app.get('/image/:image', (req, res) => {
-//     const image = req.params.image;
-//     // Determine the file path of the image
-//     const imagePath = path.join(__dirname, 'uploads',image);
+app.get('/image/:image', (req, res) => {
+    const image = req.params.image;
+    // Determine the file path of the image
+    const imagePath = path.join(__dirname, 'uploads/photos',image);
   
-//     // Send the image file
-//     res.sendFile(imagePath);
+    // Send the image file
+    res.sendFile(imagePath);
 
-//   });
+  });
+app.get('/video/:video', (req, res) => {
+    const video = req.params.video;
+    // Determine the file path of the image
+    const videoPath = path.join(__dirname, 'uploads/videos',video);
+  
+    // Send the image file
+    res.sendFile(videoPath);
 
+  });
 
 
 

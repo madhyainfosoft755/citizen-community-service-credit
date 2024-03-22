@@ -1,8 +1,11 @@
 {
-  "name": "utkarshs-application-3",
+  "name": "Vaibhav's-Application",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^6.5.1",
+    "@fortawesome/free-solid-svg-icons": "^6.5.1",
+    "@fortawesome/react-fontawesome": "^0.2.0",
     "@react-oauth/google": "^0.12.1",
     "@tailwindcss/forms": "0.4.0",
     "@testing-library/jest-dom": "^5.15.1",
@@ -17,6 +20,8 @@
     "react-router-dom": "6.0.2",
     "react-router-hash-link": "^2.4.3",
     "react-scripts": "5.0.0",
+    "react-slick": "^0.30.2",
+    "slick-carousel": "^1.8.1",
     "web-vitals": "^2.1.0"
   },
   "scripts": {

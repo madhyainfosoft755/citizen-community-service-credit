@@ -16,7 +16,7 @@ ReactDOM.render(
     
   
     <App />
-    </GoogleOAuthProvider>;
+    </GoogleOAuthProvider>
     </AuthProvider>
   </React.StrictMode>,
   document.getElementById("root"),

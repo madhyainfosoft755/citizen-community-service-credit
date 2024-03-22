@@ -54,7 +54,7 @@ function MyGoogle() {
                       size="txtInterSemiBold16"
                     >
                       
-                      Google 
+
 
 
                     </Text>
