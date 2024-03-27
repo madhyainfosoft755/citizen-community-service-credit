@@ -12,7 +12,6 @@ const {
   AllDetails,
   Register,
   postsdata,
-  getNearbyPosts,
 } = require("../controllers/LoginController");
 const { upload } = require("../utils/util");
 // const { uploads } = require("../utils/util");
@@ -35,7 +34,6 @@ router.get("/CreateActivity", upload, CreateActivity);
 router.post("/CreateActivity", upload, CreateActivity);
 router.post("/Register", upload, Register);
 
-// Route to fetch nearby posts
-router.post("/nearbyposts", getNearbyPosts);
+
 
 module.exports = router;

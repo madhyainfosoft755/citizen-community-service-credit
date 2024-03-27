@@ -5,6 +5,7 @@ import { API_URL } from "Constant";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "components/AuthProvider/AuthProvider";
 import Slider1 from "components/slider/slider";
+import Location from "pages/Location/Location";
 
 const DesktopFourPage = () => {
   const [userPosts, setUserPosts] = useState([]);
@@ -12,6 +13,12 @@ const DesktopFourPage = () => {
   const { authenticated, setAuthenticated } = useAuth();
   const [userData, setUserData] = useState(null);
   const navigate = useNavigate();
+  const [locationData, setLocationData] = useState(null);
+
+  // Handle location change
+  const handleLocationChange = (address) => {
+    setLocationData(address);
+  };
 
   console.log("userData", userData);
   useEffect(() => {
@@ -160,10 +167,7 @@ const DesktopFourPage = () => {
     }
   };
 
-  
   // console.log("here is the data you are looking for", userData);
-
-  
 
   const direct = () => {
     navigate("/create");
@@ -216,6 +220,13 @@ const DesktopFourPage = () => {
               <div className="sm:h-96 rounded-lg relative  sm:w-full border-[1px] border-gray shadow-2xl  shadow-indigo-300 overflow-hidden">
                 <Slider1 className="w-full h-full p-2" items={userPosts} />
               </div>
+              {/* Display the button with latitude and longitude */}
+              <button className="text-center hidden">
+                <Location
+                  onLocationChange={handleLocationChange}
+                />
+              </button>
+              {/* Other components and JSX */}
 
               <div className="flex flex-row gap-1 items-center justify-between  w-[85%] md:w-full">
                 <Text
@@ -335,15 +346,13 @@ const DesktopFourPage = () => {
                 >
                   SUBMIT
                 </Button>
-
-                
               </form>
               <Button
                 className="cursor-pointer font-semibold w-full  mb-2 text-base text-center"
                 shape="round"
                 color="indigo_A200"
                 onClick={handleLogout} // Add logout functionality
-                >
+              >
                 LOGOUT
               </Button>
             </div>

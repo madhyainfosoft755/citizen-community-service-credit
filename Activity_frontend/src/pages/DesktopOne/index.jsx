@@ -6,6 +6,7 @@ import Googlelogin from "pages/GoogleLogin/Googlelogin";
 
 import { API_URL } from "Constant";
 import { useNavigate } from "react-router-dom";
+import Location from "pages/Location/Location";
 
 const DesktopOnePage = () => {
   const handlebuttonclick = () => {
@@ -29,6 +30,7 @@ const DesktopOnePage = () => {
   const [loginAttempted, setLoginAttempted] = useState(false);
   const [loginSuccess, setLoginSuccess] = useState(false);
   const [currentDate, setCurrentDate] = useState("");
+  const [showLocation, setShowLocation] = useState(false);
 
   useEffect(() => {
     // Function to get and format the current date
@@ -104,16 +106,13 @@ const DesktopOnePage = () => {
     }
 
     try {
-      const response = await fetch(
-        `${API_URL}/activity/login`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-          body: new URLSearchParams(formsDATA).toString(),
-        }
-      );
+      const response = await fetch(`${API_URL}/activity/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams(formsDATA).toString(),
+      });
 
       if (!response.ok) {
         setLoginAttempted(true);
@@ -150,7 +149,9 @@ const DesktopOnePage = () => {
           className=" flex flex-col justify-center items-center pt-10 sm:w-screen sm:h-screen overflow-hidden  bg-cover bg-center "
           style={{ backgroundImage: 'url("./images/img_helping.jpg")' }}
         >
-          <Text className="text-2xl text-white-A700 font-extrabold">Welcome</Text>
+          <Text className="text-2xl text-white-A700 font-extrabold">
+            Welcome
+          </Text>
           <Text className="mt-5 mb-5 font-semibold text-white-A700 ">
             Login to your account
           </Text>
@@ -158,7 +159,7 @@ const DesktopOnePage = () => {
           <Input
             name="email"
             placeholder="Email"
-            className= "p-0 placeholder:text-gray-600 ml-2 w-full "
+            className="p-0 placeholder:text-gray-600 ml-2 w-full "
             wrapClassName="border border-indigo-500_19 border-solid bottom-[0] flex left-[0] rounded-[25px] w-[80%]"
             type="email"
             prefix={
@@ -172,7 +173,6 @@ const DesktopOnePage = () => {
             }
             color="white_A700"
           />
-          
 
           <Input
             name="password"
@@ -197,7 +197,6 @@ const DesktopOnePage = () => {
             }
             color="white_A700"
           ></Input>
-        
 
           <Button
             type="submit"
@@ -292,9 +291,25 @@ const DesktopOnePage = () => {
               color="blue_50"
             >
               <div className="font-medium leading-[normal] text-[15px] text-left">
-                Surat, Gujarat
+                <Location/>
               </div>
             </Button>
+{/* 
+            <Button
+              type="button"
+              className="cursor-pointer flex items-center justify-center min-w-[170px]"
+              onClick={() => setShowLocation(!showLocation)} // Toggle showLocation state
+              shape="round"
+              color="blue_50"
+            >
+              <div className="font-medium leading-[normal] text-[15px] text-left">
+                {showLocation ? (
+                  <Location onLocationChange={onLocationChange} />
+                ) : (
+                  "Show Location"
+                )}
+              </div>
+            </Button> */}
             <Button
               type="button"
               className="cursor-pointer flex items-center justify-center min-w-[170px]"

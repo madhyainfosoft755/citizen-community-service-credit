@@ -384,7 +384,7 @@ const updateUserData = async (req, res) => {
 
 const CreateActivity = async (req, res) => {
   try {
-    const { selectedCategories, Date, fromTime, toTime, userId, location, latitude, longitude } =
+    const { selectedCategories, Date, fromTime, toTime, userId, location } =
       req.body;
 
     console.log("categories", selectedCategories);
@@ -450,8 +450,6 @@ const CreateActivity = async (req, res) => {
       Date,
       totalTime,
       location,
-      latitude,
-      longitude,
       UserId: userId,
     });
 
@@ -532,34 +530,6 @@ const postsdata = async (req, res) => {
 };
 
 
-// Controller to fetch nearby posts
-const getNearbyPosts = async (req, res) => {
-  const { userLocation } = req.body; // Assuming userLocation is an object with lat and lng properties
-
-  try {
-    const nearbyPosts = await Posts.findAll({
-      where: {
-        // Example condition to find posts within a range of 4-5 kilometers (adjust as needed)
-        latitude: {
-          [Op.between]: [userLocation.lat - 0.036, userLocation.lat + 0.036],
-        },
-        longitude: {
-          [Op.between]: [userLocation.lng - 0.036, userLocation.lng + 0.036],
-        },
-      },
-      // Additional attributes to include if needed
-      attributes: ["id", "title", "content", "createdAt"],
-    });
-
-    res.status(200).json(nearbyPosts);
-  } catch (error) {
-    console.error("Error fetching nearby posts:", error);
-    res
-      .status(500)
-      .json({ error: "An error occurred while fetching nearby posts." });
-  }
-};
-
 module.exports = {
   GoogleResponse,
   varifybytoken,
@@ -571,5 +541,4 @@ module.exports = {
   AllDetails,
   Register,
   postsdata,
-  getNearbyPosts
 };

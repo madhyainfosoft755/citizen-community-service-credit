@@ -21,7 +21,7 @@
 //             if (response.ok) {
 //               const data = await response.json();
 //               const address = data.results[0]?.formatted_address || 'Address not found';
-//               setCurrentLocation({ latitude, longitude, address }); 
+//               setCurrentLocation({ latitude, longitude, address });
 //             } else {
 //               console.error('Error fetching address:', response.statusText);
 //             }
@@ -37,12 +37,11 @@
 //       console.error('Geolocation is not supported by your browser');
 //     }
 //     setCurrentLocation({ latitude, longitude, address });
-  
-//   }, []); 
+
+//   }, []);
 //   const navigateToNextPage = () => {
 //     history.push('/create', { location: currentLocation });
 //   };
-  
 
 //   return (
 //     <div>
@@ -60,10 +59,6 @@
 // }
 
 // export default Location;
-
-
-
-
 
 // Location.js
 // import React, { useEffect, useState } from 'react';
@@ -87,7 +82,7 @@
 //               console.log(response);
 //               const data = await response.json();
 //               console.log("the location data is here",data)
-              
+
 //               const address = data.results[0]?.formatted_address || 'Address not found';
 //               // const latitude = data.results[5]?.geometry.location.lat || 'latitude not found'
 //               setCurrentLocation({ latitude, longitude, address });
@@ -123,14 +118,13 @@
 
 // export default Location;
 
-
-
 import React, { useEffect, useState } from 'react';
 
 function Location({ onLocationChange }) {
   const [currentLocation, setCurrentLocation] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showCoordinates, setShowCoordinates] = useState(false); // State to control showing coordinates
 
   useEffect(() => {
     let isMounted = true;
@@ -142,19 +136,18 @@ function Location({ onLocationChange }) {
             async (position) => {
               const { latitude, longitude } = position.coords;
 
-              console.log("this is your current location",{latitude,longitude})
-
               const response = await fetch(
                 `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=AIzaSyAn4eeaT18hannefB6jKR35GmY7iVdDCUs`
               );
-              // console.log("this is the location response", response)
+
               if (response.ok && isMounted) {
                 const data = await response.json();
-                console.log("this is the data of the location" , data)
-
-                const address = data.plus_code?.compound_code|| 'Address not found';
+                const addressComponents = data.results[0]?.address_components || [];
+                const city = addressComponents.find(comp => comp.types.includes('locality'))?.long_name || 'City not found';
+                const state = addressComponents.find(comp => comp.types.includes('administrative_area_level_1'))?.long_name || 'State not found';
+                const address = `${city}, ${state}`;
                 setCurrentLocation({ latitude, longitude, address });
-                onLocationChange(address);
+                onLocationChange({ latitude, longitude, address }); // Send latitude, longitude, and address to the parent component
               } else if (!isMounted) {
                 console.log('Component is unmounted');
               } else {
@@ -182,7 +175,9 @@ function Location({ onLocationChange }) {
     };
   }, []);
 
-  
+  const toggleCoordinates = () => {
+    setShowCoordinates(!showCoordinates);
+  };
 
   return (
     <div style={{ height: '', width: '' }}>
@@ -191,17 +186,14 @@ function Location({ onLocationChange }) {
       ) : error ? (
         <p>{error}</p>
       ) : currentLocation ? (
-        <p>
-          {currentLocation.address} 
-          <br />
-        </p>
+        <button onClick={toggleCoordinates}>
+          {showCoordinates ? `${currentLocation.latitude}, ${currentLocation.longitude}` : `${currentLocation.address}`}
+        </button>
       ) : null}
     </div>
   );
 }
 
 export default Location;
-
-
 
 
