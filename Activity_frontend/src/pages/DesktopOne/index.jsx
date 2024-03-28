@@ -291,7 +291,8 @@ const DesktopOnePage = () => {
               color="blue_50"
             >
               <div className="font-medium leading-[normal] text-[15px] text-left">
-                <Location/>
+              <Location onLocationChange={onLocationChange} />
+
               </div>
             </Button>
 {/* 
