@@ -16,6 +16,7 @@ const DesktopThree = React.lazy(() => import("pages/DesktopThree"));
 const DesktopOne = React.lazy(() => import("pages/DesktopOne"));
 const DesktopNine = React.lazy(() => import("pages/DesktopNine"));
 const DesktopEight = React.lazy(() => import("pages/DesktopEight"));
+const Endorse = React.lazy(()=>import("pages/Endorse"))
 
 const ProjectRoutes = () => {
   // const navigate = useNavigate();
@@ -95,6 +96,7 @@ const ProjectRoutes = () => {
           <Route path="/register" element={<DesktopTwo />} />
           <Route path="/create" element={<DesktopThree />} />
           <Route path="/activity" element={<DesktopFour />} />
+          <Route path="/endorse" element={<Endorse />} />
           <Route path="/report" element={<DesktopFive />} />
           <Route path="/managecategoris" element={<DesktopSix />} />
           <Route path="/aproovehours" element={<DesktopSeven />} />

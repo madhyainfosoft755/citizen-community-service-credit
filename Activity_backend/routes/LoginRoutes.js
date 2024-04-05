@@ -12,6 +12,7 @@ const {
   AllDetails,
   Register,
   postsdata,
+  fetchPostsInArea
 } = require("../controllers/LoginController");
 const { upload } = require("../utils/util");
 // const { uploads } = require("../utils/util");
@@ -33,7 +34,7 @@ router.post("/postsdata/:id", postsdata);
 router.get("/CreateActivity", upload, CreateActivity);
 router.post("/CreateActivity", upload, CreateActivity);
 router.post("/Register", upload, Register);
-
+router.post("/fetchPostsInArea", fetchPostsInArea);
 
 
 module.exports = router;

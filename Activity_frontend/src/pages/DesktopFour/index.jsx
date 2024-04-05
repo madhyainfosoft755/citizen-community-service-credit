@@ -5,7 +5,7 @@ import { API_URL } from "Constant";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "components/AuthProvider/AuthProvider";
 import Slider1 from "components/slider/slider";
-import Location from "pages/Location/Location";
+
 
 const DesktopFourPage = () => {
   const [userPosts, setUserPosts] = useState([]);
@@ -14,13 +14,12 @@ const DesktopFourPage = () => {
   const [userData, setUserData] = useState(null);
   const navigate = useNavigate();
   const [locationData, setLocationData] = useState(null);
+  const [totalTime, setTotalTime] = useState(null); // Added state for total time
 
-  // Handle location change
-  const handleLocationChange = (address) => {
-    setLocationData(address);
-  };
+  // console.log("ye hai user ka data", userPosts)
 
-  console.log("userData", userData);
+
+  // console.log("userData", userData);
   useEffect(() => {
     const fetchUserPosts = async () => {
       try {
@@ -48,13 +47,15 @@ const DesktopFourPage = () => {
         }
       } catch (error) {
         console.error("Error fetching user posts:", error);
+        setError("An error occurred while fetching user posts.");
       }
     };
 
-    fetchUserPosts();
-  }, [userData]);
+    if (userData?.userData?.id) {
+      fetchUserPosts();
+    }
+  }, [userData, navigate]);
 
-  const [totalTime, setTotalTime] = useState(null); // Added state for total time
 
   useEffect(() => {
     // Fetch historical data and calculate total time
@@ -63,6 +64,11 @@ const DesktopFourPage = () => {
         const token = localStorage.getItem("token");
         if (!token) {
           navigate("/login");
+          return;
+        }
+
+        if (!userData || !userData.userData) {
+          // Handle case where userData is not yet loaded
           return;
         }
 
@@ -172,6 +178,9 @@ const DesktopFourPage = () => {
   const direct = () => {
     navigate("/create");
   };
+  const direct1 = () => {
+    navigate("/endorse");
+  };
 
   return (
     <>
@@ -217,136 +226,30 @@ const DesktopFourPage = () => {
               My Activities
             </Text>
             <div className="flex sm:flex-col flex-row gap-[25px] items-center justify-between  w-full">
-              <div className="sm:h-96 rounded-lg relative  sm:w-full border-[1px] border-gray shadow-2xl  shadow-indigo-300 overflow-hidden">
+              <div className="sm:h-[60vh] rounded-xl relative  sm:w-full border-[1px] border-gray shadow-2xl  shadow-indigo-300 overflow-hidden">
                 <Slider1 className="w-full h-full p-2" items={userPosts} />
               </div>
-              {/* Display the button with latitude and longitude */}
-              <button className="text-center hidden">
-                <Location
-                  onLocationChange={handleLocationChange}
-                />
-              </button>
-              {/* Other components and JSX */}
 
-              <div className="flex flex-row gap-1 items-center justify-between  w-[85%] md:w-full">
+              <div className="flex flex-row gap-1 items-center justify-center sm:w-full">
                 <Text
                   className="text-sm text-gray-900"
                   size="txtInterSemiBold16Gray900"
                 >
                   Activities Waiting for Endorsement
                 </Text>
-                <Text
-                  className="text-sm -ml-5   text-indigo-A200"
-                  size="txtInterSemiBold11"
-                >
-                  Select All
-                </Text>
+               
               </div>
-              <form
-                action=""
-                className="bg-white-A700 gap-4 flex flex-col items-center justify-start p-2 rounded-[5px] shadow-bs4  sm:w-full"
+              
+              <Button
+                className="cursor-pointer font-semibold w-full  mb-2 text-base text-center"
+                shape="round"
+                color="indigo_A200"
+                onClick={direct1}
               >
-                <div className="flex flex-col gap-3 items-center justify-between sm:w-full">
-                  <div className="flex flex-row  items-center justify-between  sm:w-full">
-                    <div className="flex flex-col items-center justify-center">
-                      <Text
-                        className="text-gray-800_7e text-xs"
-                        size="txtInterMedium12Gray8007e"
-                      >
-                        CService ID
-                      </Text>
-                      <Text
-                        className="mt-[3px] text-gray-800 text-sm"
-                        size="txtInterSemiBold14"
-                      >
-                        Gardening
-                      </Text>
-                    </div>
-                    <div className="flex flex-col -ml-2 items-start justify-center">
-                      <Text
-                        className="text-gray-800_7e text-xs"
-                        size="txtInterMedium12Gray8007e"
-                      >
-                        Name
-                      </Text>
-                      <Text
-                        className="mt-[3px] text-gray-800 text-sm"
-                        size="txtInterSemiBold14"
-                      >
-                        Roger Milla
-                      </Text>
-                    </div>
-                    <div className="flex flex-col items-center justify-center w-[35px]">
-                      <Text
-                        className="text-gray-800_7e text-xs"
-                        size="txtInterMedium12Gray8007e"
-                      >
-                        Hours
-                      </Text>
-                      <Text
-                        className="mt-0.5 text-gray-800 text-sm"
-                        size="txtInterSemiBold14"
-                      >
-                        2
-                      </Text>
-                    </div>
-                  </div>
-                  <div className="flex flex-row items-start justify-between w-full">
-                    <div className="flex flex-col items-center justify-center">
-                      <Text
-                        className="text-gray-800_7e text-xs"
-                        size="txtInterMedium12Gray8007e"
-                      >
-                        Images
-                      </Text>
-                      <Text
-                        className="mt-[3px] text-indigo-A200 text-xs underline"
-                        size="txtInterSemiBold12"
-                      >
-                        View
-                      </Text>
-                    </div>
-                    <div className="flex flex-col ml-3 items-center justify-start">
-                      <Text
-                        className="text-gray-800_7e text-xs"
-                        size="txtInterMedium12Gray8007e"
-                      >
-                        Location
-                      </Text>
-                      <Text
-                        className="mt-0.5 text-gray-800 text-sm"
-                        size="txtInterSemiBold14"
-                      >
-                        Delhi
-                      </Text>
-                    </div>
-                    <div className="flex flex-col items-end justify-center ">
-                      <div className="flex flex-col items-center justify-center ">
-                        <Text
-                          className="text-gray-800_7e text-xs"
-                          size="txtInterMedium12Gray8007e"
-                        >
-                          Endorsed
-                        </Text>
-                      </div>
-                      <input
-                        type="checkbox"
-                        name="endorsed"
-                        id=""
-                        className="w-5 h-5 border-2 border-double border-orange-300 rounded-2xl "
-                      />
-                    </div>
-                  </div>
-                </div>
+                Endorsment
+              </Button>
 
-                <Button
-                  className="cursor-pointer font-semibold w-full text-base text-center"
-                  shape="round"
-                  color="indigo_A200"
-                >
-                  SUBMIT
-                </Button>
-              </form>
+              
               <Button
                 className="cursor-pointer font-semibold w-full  mb-2 text-base text-center"
                 shape="round"

@@ -4,6 +4,15 @@ const bcrypt = require("bcrypt");
 const { check } = require("express-validator");
 const multer = require("multer");
 const { diskStorage } = require("multer");
+const winston = require('winston');
+
+
+const logger = winston.createLogger({
+	level:'error',
+	format:winston.format.json(),
+	transports:[new winston.transports.File({filename:'logs/error.log', level:'error'}),
+],
+});
 
 const createToken = (user) => {
 	var token = jwt.sign({ sub: user.email }, config.JWT_SECRET, {
@@ -94,4 +103,5 @@ module.exports = {
 	formValidator,
 	createHash,
 	upload,
+	logger,
 };

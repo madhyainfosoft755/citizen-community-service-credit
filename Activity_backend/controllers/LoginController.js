@@ -10,7 +10,10 @@ const Users = db.users;
 const Posts = db.Posts;
 const Jwt = require("jsonwebtoken");
 const jwt = require("jsonwebtoken");
+const { logger } = require("../utils/util");
 
+const dotenv = require("dotenv");
+dotenv.config();
 // const storage = multer.diskStorage({
 //   destination: (req, file, cb) => {
 //     cb(null, 'uploads/'); // Update with your desired folder path
@@ -73,10 +76,6 @@ const Register = async (req, res) => {
         ? req.files.photo.map((file) => file.filename)
         : [];
     console.log("this is the requested data", req.files);
-    const videos =
-      req.files && req.files.video
-        ? req.files.video.map((file) => file.filename)
-        : [];
 
     const Category = selectedCategories;
 
@@ -90,7 +89,6 @@ const Register = async (req, res) => {
       email: userData.email,
       password: userData.password,
       photo: photos_,
-      video: videos,
       category: Category,
       // Add other fields as needed
     });
@@ -102,6 +100,7 @@ const Register = async (req, res) => {
       message: "Registration successful",
     });
   } catch (error) {
+    logger.error("here is the error", error);
     console.error("Registration failed:", error);
     return res.status(500).json({
       status: "error",
@@ -148,6 +147,7 @@ const login = async (req, res) => {
 
     // Successful login
   } catch (error) {
+    logger.error("here is the error", error);
     console.log("error or exception", error);
     res.status(500).json({ error: "An error occurred during login." });
   }
@@ -170,6 +170,7 @@ const varifybytiken = async (req, res) => {
       });
     }
   } catch (error) {
+    logger.error("here is the error", error);
     res.status(500).json({ error: error });
   }
 };
@@ -223,6 +224,7 @@ const GoogleResponse = async (req, res) => {
       user: newUser.id,
     });
   } catch (error) {
+    logger.error("here is the error", error);
     console.error(error);
     res.status(500).json({ message: "Internal server error" });
   }
@@ -245,6 +247,7 @@ const varifybytoken = async (req, res) => {
       });
     }
   } catch (error) {
+    logger.error("here is the error", error);
     res.status(500).json({ error: error });
   }
 };
@@ -263,9 +266,9 @@ const profile = async (req, res) => {
 
         const connection = await mysql.createConnection({
           host: "localhost",
-          user: "root",
-          password: "",
-          database: "activity",
+          user: process.env.USER_DB,
+          password: process.env.PASSWORD_DB,
+          database: process.env.DB,
         });
 
         const [rows] = await connection.execute(
@@ -295,6 +298,7 @@ const profile = async (req, res) => {
           });
         }
       } catch (error) {
+        logger.error("here is the error", error);
         if (error.name === "TokenExpiredError") {
           res.json({
             status: "error",
@@ -309,6 +313,7 @@ const profile = async (req, res) => {
       res.status(401).send("Authorization header missing");
     }
   } catch (error) {
+    logger.error("here is the error", error);
     console.error("Error in profile endpoint:", error);
     res.status(500).json({
       status: "error",
@@ -369,12 +374,14 @@ const updateUserData = async (req, res) => {
           });
         }
       } catch (error) {
+        logger.error("here is the error", error);
         // ... (existing code)
       }
     } else {
       res.status(401).send("Authorization header missing");
     }
   } catch (error) {
+    logger.error("here is the error", error);
     // ... (existing code)
   }
 };
@@ -384,10 +391,20 @@ const updateUserData = async (req, res) => {
 
 const CreateActivity = async (req, res) => {
   try {
-    const { selectedCategories, Date, fromTime, toTime, userId, location } =
-      req.body;
+    const {
+      selectedCategories,
+      Date,
+      fromTime,
+      toTime,
+      userId,
+      latitude,
+      longitude,
+    } = req.body;
 
     console.log("categories", selectedCategories);
+
+    // Extract latitude and longitude from location object
+    //  const { latitude, longitude } = location;
 
     // Check if files were uploaded
     const photos =
@@ -449,12 +466,15 @@ const CreateActivity = async (req, res) => {
       videos,
       Date,
       totalTime,
-      location,
+      latitude,
+      longitude,
+      // location: JSON.stringify({ latitude, longitude }), // Store as JSON string in the database
       UserId: userId,
     });
 
     res.status(201).json({ message: "Activity created successfully" });
   } catch (error) {
+    logger.error("here is the error", error);
     console.error("Error creating activity:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
@@ -483,8 +503,66 @@ const AllDetails = async (req, res) => {
 
     res.status(200).json(all_posts);
   } catch (error) {
+    logger.error("here is the error", error);
     console.error(error);
     res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+const fetchPostsInArea = async (req, res) => {
+  try {
+    const { latitude, longitude, userId } = req.body;
+    const { username } = req.query; // Get the username query parameter
+    // Check if latitude, longitude, and userId are provided in the request body
+    if (!latitude || !longitude || !userId) {
+      return res.status(400).json({ error: "Missing required data" });
+    }
+
+    // Calculate the coordinates of the area's boundaries (50 kilometers around the given coordinates)
+    const earthRadiusKm = 6371;
+    const distanceKm = 50;
+
+    const latRadians = latitude * (Math.PI / 180);
+    // const lonRadians = longitude * (Math.PI / 180);
+
+    const latDelta = distanceKm / earthRadiusKm;
+    const lonDelta = Math.asin(Math.sin(latDelta) / Math.cos(latRadians));
+
+    const minLat = latitude - latDelta * (180 / Math.PI);
+    const maxLat = latitude + latDelta * (180 / Math.PI);
+    const minLon = longitude - lonDelta * (180 / Math.PI);
+    const maxLon = longitude + lonDelta * (180 / Math.PI);
+    console.log("this is minLat", minLat);
+    console.log("this is minLon", minLon);
+    console.log("this is maxLat", maxLat);
+    console.log("this is maxLon", maxLon);
+    console.log(userId);
+    // Fetch posts from all other users within the calculated area
+    const postsInArea = await db.Posts.findAll({
+      where: {
+        UserId: { [Op.ne]: userId }, // Exclude posts from the logged-in user
+        latitude: { [Op.between]: [minLat, maxLat] },
+        longitude: { [Op.between]: [minLon, maxLon] },
+      },
+
+      include: [
+        {
+          model: Users,
+          attributes: ["name"], // Only fetch the 'username' attribute from the User model
+        },
+      ],
+    });
+    console.log("all post from the area", postsInArea);
+
+    // If a username search query is provided, filter posts by username
+    if (username) {
+      postsInArea = postsInArea.filter(post => post.User && post.User.name === username);
+    }
+
+    res.json(postsInArea);
+  } catch (error) {
+    logger.error("Error fetching posts in area:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
@@ -524,11 +602,11 @@ const postsdata = async (req, res) => {
 
     res.json(posts);
   } catch (error) {
+    logger.error("here is the error", error);
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
-
 
 module.exports = {
   GoogleResponse,
@@ -541,4 +619,5 @@ module.exports = {
   AllDetails,
   Register,
   postsdata,
+  fetchPostsInArea,
 };

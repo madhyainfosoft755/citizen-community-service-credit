@@ -15,11 +15,132 @@ const Createpost = () => {
   const [userData, setUserData] = useState();
   const [fromTime, setFromTime] = useState("");
   const [toTime, setToTime] = useState("");
-  // const [calculatedTime, setCalculatedTime] = useState("0 Hours");
-  // const [storedTime, setStoredTime] = useState("");
-
   const [totalTime, setTotalTime] = useState(""); // Added state for total time
+  // Use state to store form data
+  const [formsData, setFormData] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    address: "",
+    idCard: "",
+    password: "",
+    confirmPassword: "",
+  });
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [selectedVideo, setSelectedVideo] = useState(null);
+  const [selectedButton, setSelectedButton] = useState(null);
 
+  
+
+  useEffect(() => {
+    // Function to get and format the current date
+
+    const getCurrentDate = () => {
+      const dateObj = new Date();
+      const formattedDate = `${dateObj.getDate()} ${dateObj.toLocaleString(
+        "default",
+        {
+          month: "short",
+        }
+      )} ${dateObj.getFullYear()}`;
+      setCurrentDate(formattedDate);
+    };
+
+    // Call the function when the component mounts
+    getCurrentDate();
+  }, []);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    setSelectedFile(file);
+    console.log("Photo file", file.name);
+  };
+
+  const handleVideoChange = (e) => {
+    const videoFile = e.target.files[0];
+    setSelectedVideo(videoFile);
+    console.log("Video file", videoFile.name);
+  };
+
+  const handleLocationChange = ({ latitude, longitude }) => {
+    if (latitude !== undefined && longitude !== undefined) {
+      setFormData((prevData) => ({
+        ...prevData,
+        latitude: latitude,
+        longitude: longitude,
+      }));
+    } else {
+      console.error("Latitude or longitude is undefined.");
+      // Handle the error or provide default values as needed
+    }
+  };
+
+  const buttons = [
+    { id: 1, label: "Gardening" },
+    { id: 2, label: "Cleaning" },
+    { id: 3, label: "Teaching Poor" },
+    { id: 4, label: "Planting Tree" },
+    { id: 5, label: "Marathon" },
+    { id: 6, label: "Social Activities" },
+  ];
+
+  const handleButtonClick = (label) => {
+    setSelectedButton(label);
+    setSelectedCategories(label);
+  };
+
+  useEffect(() => {
+    // Check if both token and user key are present in local storage
+    const token = localStorage.getItem("token");
+    const userKey = localStorage.getItem("userKey");
+
+    if (!token || !userKey) {
+      // Redirect to the login page if either token or user key is missing
+      navigate("/login");
+    } else {
+      // Fetch user data when component mounts
+      // fetchUserData(token);
+      setAuthenticated(true);
+    }
+  }, []); // Empty dependency array ensures that this effect runs only once on mount
+
+
+
+  useEffect(()=>{
+  const fetchUserData = async (token) => {
+    try {
+      const response = await fetch(`${API_URL}/activity/profile`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        // Check content type before parsing as JSON
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          const userData = await response.json();
+
+          setUserData(userData); // Update user data in the state
+        } else {
+          console.error("Error fetching user data: Response is not JSON");
+          // Handle non-JSON response accordingly
+        }
+      } else {
+        console.error("Error fetching user data:", response.status);
+        const errorData = await response.text(); // Get the entire response as text
+        console.error("Error details:", errorData);
+        // Handle the error accordingly
+      }
+    } catch (error) {
+      console.error("Error fetching user data:", error);
+    }
+  };
+  if (authenticated) {
+    fetchUserData(localStorage.getItem("token"));
+  }
+}, [authenticated]);
 
   useEffect(() => {
     // Fetch historical data and calculate total time
@@ -31,11 +152,16 @@ const Createpost = () => {
           return;
         }
 
+        if (!userData || !userData.userData) {
+          // Handle case where userData is not yet loaded
+          return;
+        }
+
         const response = await fetch(
           `${API_URL}/activity/AllDetails/${userData.userData.id}`, // Replace with your actual API endpoint
           {
             method: "POST",
-            headers: { 
+            headers: {
               Authorization: `Bearer ${token}`,
             },
           }
@@ -61,8 +187,8 @@ const Createpost = () => {
     fetchHistoricalData();
   }, [userData]);
 
-   // Utility function to calculate total hours from historical data
-   const calculateTotalHours = (historicalData) => {
+  // Utility function to calculate total hours from historical data
+  const calculateTotalHours = (historicalData) => {
     let totalHours = 0;
 
     historicalData.forEach((data) => {
@@ -73,154 +199,6 @@ const Createpost = () => {
     });
 
     return totalHours.toFixed(2); // Limit to two decimal places
-  };
-
-
-
-  
-  useEffect(() => {
-    // Function to get and format the current date
-
-    const getCurrentDate = () => {
-      const dateObj = new Date();
-      const formattedDate = `${dateObj.getDate()} ${dateObj.toLocaleString(
-        "default",
-        {
-          month: "short",
-        }
-      )} ${dateObj.getFullYear()}`;
-      setCurrentDate(formattedDate);
-    };
-
-    // Call the function when the component mounts
-    getCurrentDate();
-  }, []);
-
-  // const myInputRef = React.createRef();
-  // Use state to store form data
-  const [formsData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    address: "",
-    idCard: "",
-    password: "",
-    confirmPassword: "",
-  });
-
-  // console.log(formsData);
-
-  const [selectedFile, setSelectedFile] = useState(null);
-
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    setSelectedFile(file);
-    console.log("Photo file", file.name);
-  };
-  const [selectedVideo, setSelectedVideo] = useState(null);
-
-  const handleVideoChange = (e) => {
-    const videoFile = e.target.files[0];
-    setSelectedVideo(videoFile);
-    console.log("Video file", videoFile.name);
-  };
-
-  const handleLocationChange = (address) => {
-    setFormData((prevData) => ({
-      ...prevData,
-      address: address,
-    }));
-    // console.log(location)
-  };
-
-  const [selectedButton, setSelectedButton] = useState(null);
-
-  const buttons = [
-    { id: 1, label: "Gardening" },
-    { id: 2, label: "Cleaning" },
-    { id: 3, label: "Teaching Poor" },
-    { id: 4, label: "Planting Tree" },
-    { id: 5, label: "Marathon" },
-    { id: 6, label: "Social Activities" },
-  ];
-
-  const handleButtonClick = (label) => {
-    setSelectedButton(label);
-    setSelectedCategories(label);
-  };
-
-  // const [buttonStates, setButtonStates] = useState(Array(6).fill(false)); // Assuming 3 buttons, adjust the size as needed
-
-  // const handleButtonClick = (index, value) => {
-  //   setButtonStates(3);
-
-  //   setSelectedCategories(value);
-  // };
-
-  // const handleInputChange = (e) => {
-  //   // Check if e and e.target are defined
-  //   console.log("handle inpu cahe", e);
-  //   if (e && e.target) {
-  //     const { name, value } = e.target;
-
-  //     // Check if name is defined before updating state
-  //     if (name !== undefined) {
-  //       setFormData((prevData) => ({
-  //         ...prevData,
-  //         [name]: value,
-  //       }));
-  //     }
-  //   }
-  // };
-
-  useEffect(() => {
-    // Check if both token and user key are present in local storage
-    const token = localStorage.getItem("token");
-    const userKey = localStorage.getItem("userKey");
-
-    if (!token || !userKey) {
-      // Redirect to the login page if either token or user key is missing
-      navigate("/login");
-    } else {
-      // Fetch user data when component mounts
-      fetchUserData(token);
-    }
-
-    // You may also want to check the validity of the token here if needed
-  }, []); // Empty dependency array ensures that this effect runs only once on mount
-
-  const fetchUserData = async (token) => {
-    try {
-      const response = await fetch(
-        `${API_URL}/activity/profile`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
-
-      if (response.ok) {
-        // Check content type before parsing as JSON
-        const contentType = response.headers.get("content-type");
-        if (contentType && contentType.includes("application/json")) {
-          const userData = await response.json();
-
-          setUserData(userData); // Update user data in the state
-        } else {
-          console.error("Error fetching user data: Response is not JSON");
-          // Handle non-JSON response accordingly
-        }
-      } else {
-        console.error("Error fetching user data:", response.status);
-        const errorData = await response.text(); // Get the entire response as text
-        console.error("Error details:", errorData);
-        // Handle the error accordingly
-      }
-    } catch (error) {
-      console.error("Error fetching user data:", error);
-    }
   };
 
   const handleLogout = () => {
@@ -237,18 +215,16 @@ const Createpost = () => {
     // Create FormData object
     const formsDATA = new FormData();
     console.log(formsDATA);
-    // formsDATA.append('selectedActivity', selectedActivity);
-    formsDATA.append("name", formsData.name);
-    formsDATA.append("email", formsData.email);
-    formsDATA.append("selectedCategories", (selectedCategories));
-
+    formsDATA.append("selectedCategories", selectedCategories);
     formsDATA.append("date", currentDate);
     formsDATA.append("photo", selectedFile);
     formsDATA.append("video", selectedVideo);
     formsDATA.append("fromTime", fromTime); // Add fromTime
     formsDATA.append("toTime", toTime); // Add toTime
     formsDATA.append("userId", userData && userData.userData.id);
-    formsDATA.append("location", formsData.address); // Include location data
+    // Append latitude and longitude to formData
+    formsDATA.append("latitude", formsData.latitude);
+    formsDATA.append("longitude", formsData.longitude);
 
     console.log(formsDATA.get("name"));
     console.log("formData", formsDATA);
@@ -261,17 +237,14 @@ const Createpost = () => {
     console.log("form data", formDataJson);
 
     try {
-      const response = await fetch(
-        `${API_URL}/activity/CreateActivity`,
-        {
-          method: "POST",
-          // headers: {
-          //   'Content-Type': 'application/json',
-          // },
-          body: formsDATA,
-          // body:formsDATA.stringify()
-        }
-      );
+      const response = await fetch(`${API_URL}/activity/CreateActivity`, {
+        method: "POST",
+        // headers: {
+        //   'Content-Type': 'application/json',
+        // },
+        body: formsDATA,
+        // body:formsDATA.stringify()
+      });
 
       if (response.ok) {
         const data = await response.json();
@@ -299,7 +272,7 @@ const Createpost = () => {
                 <div className="flex flex-row gap-4 items-center justify-center ml-[5px]">
                   {userData && (
                     <Img
-                      className=" sm:w-16 sm:h-14   rounded-full object-cover object-top "
+                      className=" sm:w-16 sm:h-16   rounded-full object-cover object-top "
                       src={`${API_URL}/image/${userData.userData.photo}`}
                       alt="userimage"
                     />
@@ -324,12 +297,12 @@ const Createpost = () => {
                   color="indigo_A200"
                   onClick={direct}
                 >
-                  {`${totalTime ||'0'} hours`}
+                  {`${totalTime || "0"} hours`}
                 </Button>
-                
-                
               </div>
-              <div className="bg-gray-50 w-full h-15 text-center border-2 border-dashed border-zinc-300 rounded-xl"><h1 className="text-xl  font-semibold">Add New Activity</h1></div>
+              <div className="glow-border bg-gray-50 w-full h-15 text-center border-2 border-dashed border-zinc-300 rounded-xl">
+                <h1 className="text-xl  font-semibold">Add New Activity</h1>
+              </div>
 
               <div className=" relative p-5 flex items-center justify-center gap-4 w-full ">
                 Time Spent:{" "}
@@ -364,13 +337,6 @@ const Createpost = () => {
                 />
               </div>
               <div className="flex flex-col items-start justify-center w-[100%] sm:w-full">
-                {/* <Button
-                    className="text-indigo-500 cursor-pointer font-semibold leading-[normal] w-full text-center text-sm"
-                    shape="round"
-                    size="sm"
-                  >
-                    + Add New Activity
-                  </Button> */}
                 <Text
                   className="text-base text-gray-900"
                   size="txtInterSemiBold16Gray900"
@@ -398,7 +364,6 @@ const Createpost = () => {
                   ))}
                 </div>
 
-                
                 <div className="flex flex-row gap-2.5 items-center justify-between mt-[30px] w-full">
                   <Button
                     className="cursor-pointer flex items-center justify-center min-w-[145px]"
@@ -414,7 +379,25 @@ const Createpost = () => {
                     color="blue_50"
                   >
                     <div className="font-medium leading-[normal] text-[15px] text-left ">
-                      <Location onLocationChange={handleLocationChange} />
+                      <Location
+                        onLocationChange={(latitude, longitude) => {
+                          if (
+                            latitude !== undefined &&
+                            longitude !== undefined
+                          ) {
+                            setFormData((prevData) => ({
+                              ...prevData,
+                              latitude: latitude,
+                              longitude: longitude,
+                            }));
+                          } else {
+                            console.error(
+                              "Latitude or longitude is undefined."
+                            );
+                            // Handle the error or provide default values as needed
+                          }
+                        }}
+                      />
                     </div>
                   </Button>
                   <Button
@@ -514,19 +497,17 @@ const Createpost = () => {
                 </Button>
               </div>
             </div>
-          {/* </div> */}
-          <Button
-                className="cursor-pointer font-semibold w-full  text-base text-center"
-                shape="round"
-                color="indigo_A200"
-                onClick={handleLogout} // Add logout functionality
-                >
-                LOGOUT
-              </Button>
-                </div>
+            {/* </div> */}
+            <Button
+              className="cursor-pointer font-semibold w-full  text-base text-center"
+              shape="round"
+              color="indigo_A200"
+              onClick={handleLogout} // Add logout functionality
+            >
+              LOGOUT
+            </Button>
+          </div>
         </form>
-
-        
       )}
     </>
   );

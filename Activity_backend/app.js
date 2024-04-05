@@ -22,6 +22,17 @@ app.get('/image/:image', (req, res) => {
     res.sendFile(imagePath);
 
   });
+// app.get('/api/image/:image', (req, res) => {
+//     const image = req.params.image;
+//     // Determine the file path of the image
+//     const imagePath = path.join(__dirname, 'uploads/photos',image);
+  
+//     // Send the image file
+//     res.sendFile(imagePath);
+
+//   });
+
+
 app.get('/video/:video', (req, res) => {
     const video = req.params.video;
     // Determine the file path of the image
@@ -31,9 +42,19 @@ app.get('/video/:video', (req, res) => {
     res.sendFile(videoPath);
 
   });
+// app.get('/api/video/:video', (req, res) => {
+//     const video = req.params.video;
+//     // Determine the file path of the image
+//     const videoPath = path.join(__dirname, 'uploads/videos',video);
+  
+//     // Send the image file
+//     res.sendFile(videoPath);
+
+//   });
 
 
 
+// app.use("/api/activity",require('./routes/LoginRoutes'));
 app.use("/activity",require('./routes/LoginRoutes'));
 
 

@@ -28,6 +28,10 @@ db.users = require("./LoginRouter")(sequelize, DataTypes);
 // db.Posts = require('./CreatePost')(sequelize,DataTypes);
 db.Posts = require('./CreatePost')(sequelize, DataTypes);
 
+// Define the relationship between User and Post
+db.users.hasMany(db.Posts, { foreignKey: 'UserId' }); // Assuming 'UserId' is the foreign key in the Post model
+db.Posts.belongsTo(db.users, { foreignKey: 'UserId' }); // Assuming 'UserId' is the foreign key in the Post model
+
 db.sequelize.sync().then(() => {
 	console.log("yes sync");
 });

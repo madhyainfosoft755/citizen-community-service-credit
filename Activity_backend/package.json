@@ -26,6 +26,7 @@
 		"nodemon": "^2.0.20",
 		"redis": "^4.6.8",
 		"sequelize": "^6.24.0",
-		"socket.io": "^4.5.3"
+		"socket.io": "^4.5.3",
+		"winston": "^3.13.0"
 	}
 }

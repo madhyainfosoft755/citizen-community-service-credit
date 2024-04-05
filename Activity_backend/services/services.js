@@ -13,10 +13,6 @@ const getDistance = (lat1, lon1, lat2, lon2) => {
   return d;
 };
 
-const deg2rad = (deg) => {
-  return deg * (Math.PI / 180);
-};
-
-module.exports = {
+export default {
   getDistance,
 };

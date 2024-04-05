@@ -30,9 +30,13 @@ module.exports = (sequelize, DataTypes) => {
           type:DataTypes.INTEGER,
           allowNull:true
         },
-        location: {
-          type: DataTypes.STRING, // Assuming location is a string, modify data type accordingly
-          allowNull: true,
+        latitude:{
+          type:DataTypes.FLOAT,
+          allowNull:true
+        },
+        longitude:{
+          type:DataTypes.FLOAT,
+          allowNull:true
         },
       
         
