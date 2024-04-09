@@ -18,7 +18,6 @@ const Register = () => {
   const navigate = useNavigate();
   const [isClicked, setIsClicked] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
-
   const myInputRef = React.createRef();
   // Use state to store form data
   const [formsData, setFormData] = useState({
@@ -30,25 +29,21 @@ const Register = () => {
     password: "",
     confirmPassword: "",
   });
-  console.log("formdata", formsData);
+  const [error, setError] = useState(""); // State for error message
+  // this function for get selected are
+  const [selectedCategories, setSelectedCategories] = useState([]);
 
+  const [buttonStates, setButtonStates] = useState(Array(3).fill(false)); // Assuming 3 buttons, adjust the size as needed
+  
   const [selectedFile, setSelectedFile] = useState(null);
-
+  
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     setSelectedFile(file);
     console.log("file", file.name);
   };
-
-  // this function for get selected are
-  const [selectedCategories, setSelectedCategories] = useState([]);
-
-  const handleButtonClick2 = () => {
-    navigate("/login" || "/createpost, { state: { user: formsData } }");
-  };
-
-  const [buttonStates, setButtonStates] = useState(Array(3).fill(false)); // Assuming 3 buttons, adjust the size as needed
-
+  
+  
   const handleButtonClick = (index, value) => {
     setButtonStates((prevButtonStates) => {
       const newButtonStates = [...prevButtonStates];
@@ -66,9 +61,10 @@ const Register = () => {
       }
     });
   };
-
+  
   // End here
-
+  console.log("formdata", formsData);
+  
   const handleInputChange = (e) => {
     // Check if e and e.target are defined
     console.log("handle input change", e);
@@ -124,17 +120,22 @@ const Register = () => {
           body: formsDATA,
         }
       );
-
+      
+      const data = await response.json();
       if (response.ok) {
-        const data = await response.json();
         console.log("Success:", data);
         navigate("/login" || "/createpost, { state: { user: formsData } }");
       } else {
-        console.error("Error:", response.status);
+        setError(data.message); // Update error message state
+        console.error("Error:", data.error); // Display error message to the user
       }
     } catch (error) {
       console.error("Error:", error);
     }
+  };
+
+  const direct = () => {
+    navigate("/login");
   };
 
   return (
@@ -169,6 +170,8 @@ const Register = () => {
             className="text-xl  pl-10 border-2 bg-inherit rounded-full focus:border-emerald-300 ease-in duration-300"
             onChange={handleInputChange}
           />
+          {error && <div className="error-message">{error}</div>}
+
           <InputWithIconAndText
             icon={faPhone} // Change the icon as needed
             iconColor={"#419f44"}
@@ -256,13 +259,17 @@ const Register = () => {
           <Button className="bg-sky-600 text-white-A700 text-2xl sm:w-5/6 rounded-full mt-[-5px]">
             Create Account
           </Button>
+
+
         </form>
         <h3 className="mb-2">
           Already have an account?{" "}
-          <span className="text-indigo-700 font-bold">Login Here</span>
+          <span className="text-indigo-700 font-bold" onClick={direct}>Login Here</span>
         </h3>
       </div>
+      
     </div>
+    
   );
 };
 

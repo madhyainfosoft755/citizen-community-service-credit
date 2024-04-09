@@ -68,6 +68,13 @@ const Register = async (req, res) => {
   try {
     const userData = req.body;
     console.log("here is he data", userData);
+
+     // Check if user with the same email already exists
+     const existingUser = await Users.findOne({ email: userData.email });
+     if (existingUser) {
+       return res.status(400).json({ message: "Email already exists" });
+     }
+ 
     const { selectedCategories } = req.body;
     console.log("category Register", selectedCategories);
 
