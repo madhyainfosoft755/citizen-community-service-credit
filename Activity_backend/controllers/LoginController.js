@@ -8,6 +8,7 @@ const multer = require("multer");
 const GoogleData = db.users;
 const Users = db.users;
 const Posts = db.Posts;
+const Endorsement = db.Endorsement; 
 const Jwt = require("jsonwebtoken");
 const jwt = require("jsonwebtoken");
 const { logger } = require("../utils/util");
@@ -509,6 +510,21 @@ const AllDetails = async (req, res) => {
   }
 };
 
+const postsdata = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const posts = await db.Posts.findAll({
+      where: { UserId: userId },
+    });
+
+    res.json(posts);
+  } catch (error) {
+    logger.error("here is the error", error);
+    console.error(error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 const fetchPostsInArea = async (req, res) => {
   try {
     const { latitude, longitude, userId } = req.body;
@@ -538,11 +554,12 @@ const fetchPostsInArea = async (req, res) => {
     console.log("this is maxLon", maxLon);
     console.log(userId);
     // Fetch posts from all other users within the calculated area
-    const postsInArea = await db.Posts.findAll({
+    let postsInArea = await db.Posts.findAll({
       where: {
         UserId: { [Op.ne]: userId }, // Exclude posts from the logged-in user
         latitude: { [Op.between]: [minLat, maxLat] },
         longitude: { [Op.between]: [minLon, maxLon] },
+        endorsementCounter: { [Op.lt]: 3 },
       },
 
       include: [
@@ -553,6 +570,9 @@ const fetchPostsInArea = async (req, res) => {
       ],
     });
     console.log("all post from the area", postsInArea);
+
+      
+    
 
     // If a username search query is provided, filter posts by username
     if (username) {
@@ -566,48 +586,44 @@ const fetchPostsInArea = async (req, res) => {
   }
 };
 
-// const postsdata = async (req, res) => {
-//   try {
-//     const id = req.params.id;
 
-//     if (!id) {
-//       return res.json({ error: "User is not authorized" });
-//     }
+const endorsePost = async(req,res)=>{
+  const postId = req.params.id;
+  const userId = req.body.userId;
 
-//     const userPosts = await db.Posts.findAll({
-//       where: {
-//         id: id,
-//       },
-
-//       order: [["InsertedAt", "DESC"]],
-//     });
-
-//     if (!userPosts || userPosts.length === 0) {
-//       return res.status(404).json({ error: "Not found" });
-//     }
-
-//     res.status(201).json(userPosts);
-//   } catch (error) {
-//     console.error(error);
-//     res.status(500).json({ error: "Internal server error" });
-//   }
-// };
-
-const postsdata = async (req, res) => {
   try {
-    const userId = req.params.id;
-    const posts = await db.Posts.findAll({
-      where: { UserId: userId },
+
+     // Check if the user has already endorsed the post
+     const existingEndorsement = await Endorsement.findOne({
+      where: { userId, postId },
     });
 
-    res.json(posts);
-  } catch (error) {
-    logger.error("here is the error", error);
-    console.error(error);
-    res.status(500).json({ error: "Internal Server Error" });
-  }
-};
+    if (existingEndorsement) {
+      return res.status(400).json({ error: "You have already endorsed this post." });
+    }
 
+    const post = await Posts.findByPk(postId);
+    if (!post) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+
+    // Increment the endorsements count
+    post.endorsementCounter = post.endorsementCounter ? post.endorsementCounter + 1 : 1; // Check if endorsements exist before incrementing
+    await post.save();
+
+    // Record the endorsement in the Endorsements table
+    await Endorsement.create({ userId, postId });
+
+    return res.status(200).json({
+      message: "Post endorsed successfully",
+      post: { id: post.id, endorsementCounter: post.endorsementCounter },
+    });
+  } catch (error) {
+    logger.error("Error endorsing post:", error);
+    console.error("Error endorsing post:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+}
 module.exports = {
   GoogleResponse,
   varifybytoken,
@@ -620,4 +636,5 @@ module.exports = {
   Register,
   postsdata,
   fetchPostsInArea,
+  endorsePost
 };

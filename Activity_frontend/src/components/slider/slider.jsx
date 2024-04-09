@@ -8,6 +8,7 @@ import "./slider.css";
 
 const Slider1 = ({ items }) => {
   const [locationData, setLocationData] = useState([]);
+  console.log("kya endrose aa rha hai", items)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -85,7 +86,7 @@ const Slider1 = ({ items }) => {
 
                   <div className="w-24 flex flex-col items-center justify-center">
                     <h3 className="underline mb-1">Endorsed</h3>
-                    <h3>NO</h3>
+                    <h3>{item.endorsementCounter >= 3 ? "YES" : "NO"}</h3>
                   </div>
                 </div>
 

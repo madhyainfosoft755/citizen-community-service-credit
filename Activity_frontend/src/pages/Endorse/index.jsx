@@ -198,6 +198,7 @@ const Endorse = () => {
           userId: userData?.userData?.id,
         }),
       });
+      console.log("kya response aa rha hai" , latitude, longitude)
 
       if (response.ok) {
         const postsData = await response.json();
@@ -324,6 +325,42 @@ const Endorse = () => {
     return cityNames[postId] || "Loading...";
   };
 
+  // Inside the component where the "Endorsement" button is rendered for each post
+const handleEndorsement = async (postId,userId) => {
+  try {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+    console.log("kya hai postId", postId, userId)
+
+    const response = await fetch(`${API_URL}/activity/endorsePost/${postId}`, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ userId }), // Send userId in the request body
+    });
+
+    if (response.ok) {
+      // Update the userPosts or filteredPosts state with the updated data
+      // This depends on how your backend responds after updating the endorsements count
+      // For example, you could refetch the user's posts or update the specific post in the state
+      // fetchUserPosts(userData.userData.id); // Example: Refetch user's posts
+      console.log("Selected post is endorsed PostID:", postId)
+      
+    } else {
+      console.error("You have already endorsed this post:", response.status);
+      // Handle error accordingly
+    }
+  } catch (error) {
+    console.error("Error endorsing post:", error);
+    // Handle error accordingly
+  }
+};
+
   console.log("all filtered post", filteredPosts);
   return (
     <>
@@ -363,7 +400,7 @@ const Endorse = () => {
               </Button>
             </div>
 
-            <div className="w-full h-[75vh]  bg-[#f4f6ff] p-3 rounded-lg overflow-y-hidden flex flex-col items-center justify-top gap-5 ">
+            <div className="w-full h-[75vh]  bg-[#f4f6ff] p-3 rounded-lg overflow-hidden flex flex-col items-center justify-top gap-5 ">
               <h1 className="text-right text-xs w-fit ml-auto hidden">
                 {" "}
                 <Location onLocationChange={handleLocationChange} />
@@ -432,52 +469,69 @@ const Endorse = () => {
                 </div>
               </div>
 
-              <div className="mt-5 w-full overflow-scroll ">
-                {filteredPosts.map((post) => (
-                  <div
-                    className="bg-gradient-to-r from-cyan-300 to-blue-600 mb-3 rounded-xl overflow-hidden flex place-items-start justify-evenly gap-2 flex-wrap p-2"
-                    key={post.id}
-                  >
-                    <div className="flex flex-col items-start justify-center">
-                      <p className="inline text-white-A700">Category</p>
-                      <p className="text-white-A700">{post.category}</p>
-                    </div>
+              <div className="mt-5 w-full overflow-scroll">
+                {filteredPosts.length === 0 ? (
+                  <h2 className=" absolute inset-0 marquee flex items-center justify-center w-full h-full text-2xl font-semibold ">
+                    No posts available for endorsement.
+                  </h2>
+                ) : (
+                  filteredPosts.map((post) => (
+                    <div
+                      className="bg-gradient-to-r from-cyan-300 to-blue-600 mb-3 rounded-xl overflow-hidden flex place-items-start justify-evenly gap-2 flex-wrap p-2"
+                      key={post.id}
+                    >
+                      <div className="flex flex-col items-start justify-center">
+                        <p className="inline text-white-A700">Category</p>
+                        <p className="text-white-A700">{post.category}</p>
+                      </div>
 
-                    <div>
-                      <p>Name</p>
-                      <p>{post.user ? post.user.name : "Unknown"}</p>
-                    </div>
+                      <div>
+                        <p>Name</p>
+                        <p>{post.user ? post.user.name : "Unknown"}</p>
+                      </div>
 
-                    <div>
-                      <p className="text-white-A700">Time </p>
-                      <p className="text-white-A700">{post.totalTime}</p>
-                    </div>
+                      <div>
+                        <p className="text-white-A700">Time </p>
+                        <p className="text-white-A700">{post.totalTime}</p>
+                      </div>
 
-                    <div>
-                      <p className="text-white-A700">Location </p>
-                      <p className="text-white-A700">
-                        {" "}
-                        {post.latitude && post.longitude ? (
-                          <span>{renderCityName(post.id)}</span>
-                        ) : (
-                          "Unknown City"
-                        )}
-                      </p>
-                    </div>
+                      <div>
+                        <p className="text-white-A700">Location </p>
+                        <p className="text-white-A700">
+                          {post.latitude && post.longitude ? (
+                            <span>{renderCityName(post.id)}</span>
+                          ) : (
+                            "Unknown City"
+                          )}
+                        </p>
+                      </div>
 
-                    <div>
-                      <p>Image & Video</p>
-                      <a
-                        href="#"
-                        onClick={() => openPopup(post)}
-                        className="text-yellow-300 underline"
-                      >
-                        View
-                      </a>
+                      <div>
+                        <p>Image</p>
+                        <a
+                          href="#"
+                          onClick={() => openPopup(post)}
+                          className="text-yellow-300 underline"
+                        >
+                          View
+                        </a>
+                      </div>
+                      <div>
+                        <button className="border-2 border-yellow-200 p-2 rounded-lg" onClick={() => handleEndorsement(post.id, userData.userData.id)}>Endorsement</button>
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ))
+                )}
               </div>
+
+              {/* Popup/Modal */}
+              {isPopupOpen && (
+                <div className="popup-overlay">
+                  <div className="popup-content ">
+                    <PopupComponent className = "w-screen h-screen overflow-scroll flex flex-col items-center justify-center gap-5" post={popupData} onClose={closePopup} />
+                  </div>
+                </div>
+              )}
             </div>
 
             <Button
@@ -488,15 +542,6 @@ const Endorse = () => {
             >
               LOGOUT
             </Button>
-
-            {/* Popup/Modal */}
-            {isPopupOpen && (
-              <div className="popup-overlay">
-                <div className="popup-content">
-                  <PopupComponent post={popupData} onClose={closePopup} />
-                </div>
-              </div>
-            )}
           </div>
         </div>
       )}

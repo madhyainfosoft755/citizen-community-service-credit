@@ -7,15 +7,15 @@ const {
   varifybytiken,
   login,
   profile,
-  updateUserData, 
+  updateUserData,
   CreateActivity,
   AllDetails,
   Register,
   postsdata,
-  fetchPostsInArea
+  fetchPostsInArea,
+  endorsePost,
 } = require("../controllers/LoginController");
 const { upload } = require("../utils/util");
-// const { uploads } = require("../utils/util");
 // Express route
 router.post("/GoogleResponse", GoogleResponse);
 router.get("/varifybytoken", varifybytoken);
@@ -23,9 +23,7 @@ router.post("/login", login);
 router.post("/varifybytiken", varifybytiken);
 router.get("/profile", profile);
 router.post("/profile", profile);
-// Assuming you have an Express app instance called 'app'
-router.post('/updateUserData', updateUserData);
-
+router.post("/updateUserData", updateUserData);
 router.get("/AllDetails/:id", AllDetails);
 router.post("/AllDetails/:id", AllDetails);
 router.get("/postsdata/:id", postsdata);
@@ -35,6 +33,6 @@ router.get("/CreateActivity", upload, CreateActivity);
 router.post("/CreateActivity", upload, CreateActivity);
 router.post("/Register", upload, Register);
 router.post("/fetchPostsInArea", fetchPostsInArea);
-
+router.post("/endorsePost/:id", endorsePost);
 
 module.exports = router;
