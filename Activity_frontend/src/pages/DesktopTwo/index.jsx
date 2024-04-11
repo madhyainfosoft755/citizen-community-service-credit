@@ -16,9 +16,6 @@ import { API_URL } from "Constant";
 
 const Register = () => {
   const navigate = useNavigate();
-  const [isClicked, setIsClicked] = useState(false);
-  const [isDisabled, setIsDisabled] = useState(false);
-  const myInputRef = React.createRef();
   // Use state to store form data
   const [formsData, setFormData] = useState({
     name: "",
@@ -30,11 +27,10 @@ const Register = () => {
     confirmPassword: "",
   });
   const [error, setError] = useState(""); // State for error message
-  // this function for get selected are
-  const [selectedCategories, setSelectedCategories] = useState([]);
-
+  const [passwordError, setPasswordError] = useState(false);
+  const [mobileError, setMobileError] = useState(""); // State for mobile number error
+  const [selectedCategories, setSelectedCategories] = useState([]);  // this function for get selected are
   const [buttonStates, setButtonStates] = useState(Array(3).fill(false)); // Assuming 3 buttons, adjust the size as needed
-  
   const [selectedFile, setSelectedFile] = useState(null);
   
   const handleFileChange = (e) => {
@@ -62,8 +58,6 @@ const Register = () => {
     });
   };
   
-  // End here
-  console.log("formdata", formsData);
   
   const handleInputChange = (e) => {
     // Check if e and e.target are defined
@@ -84,33 +78,38 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log("event", e.target[0].value);
+    // Check if passwords match
+    if (formsData.password !== formsData.confirmPassword) {
+      setPasswordError(true);
+      return; // Exit function if passwords don't match
+    }
+     // Reset password error state if passwords match
+     setPasswordError(false);
+
+      // Validate mobile number format
+    if (!validateMobileNumber(formsData.phone)) {
+      setMobileError("Invalid mobile number format");
+      return;
+    }
+    // Reset mobile number error state if valid
+    setMobileError("");
+
 
     const formsDATA = new FormData();
     formsDATA.append("name", e.target[0].value);
     formsDATA.append("email", e.target[1].value);
-    formsDATA.append("groupThree", e.target[2].value);
-    formsDATA.append("groupFour", e.target[3].value);
-    formsDATA.append("groupFive", e.target[4].value);
+    formsDATA.append("phone", e.target[2].value);
+    formsDATA.append("address", e.target[3].value);
+    formsDATA.append("aadhar", e.target[4].value);
     formsDATA.append("password", e.target[5].value);
     formsDATA.append("cpassword", e.target[6].value);
-
     formsDATA.append("selectedCategories", JSON.stringify(selectedCategories));
-
-    console.log(formsDATA);
-    // formsData.append('selectedFile',selectedFile);
-    console.log(selectedFile, "selected file");
     formsDATA.append("photo", selectedFile);
-
-    // Check the console to see if the data is correctly appended
-    console.log(formsDATA.get("name"));
 
     const formDataJson = {};
     for (const [key, value] of formsDATA.entries()) {
       formDataJson[key] = value;
     }
-
-    console.log("form data", formDataJson);
 
     try {
       const response = await fetch(
@@ -134,6 +133,13 @@ const Register = () => {
     }
   };
 
+  
+  const validateMobileNumber = (mobile) => {
+    // Implement your mobile number validation logic here
+    // Example: check if mobile number is 10 digits long and contains only numbers
+    const regex = /^\d{10}$/;
+    return regex.test(mobile);
+  };
   const direct = () => {
     navigate("/login");
   };
@@ -162,6 +168,7 @@ const Register = () => {
             placeholder="Name"
             className="text-xl  pl-10 border-2 bg-inherit rounded-full focus:border-emerald-300 ease-in duration-300"
             onChange={handleInputChange}
+            name="name"
           />
           <InputWithIconAndText
             icon={faEnvelope} // Change the icon as needed
@@ -169,6 +176,7 @@ const Register = () => {
             placeholder="Email"
             className="text-xl  pl-10 border-2 bg-inherit rounded-full focus:border-emerald-300 ease-in duration-300"
             onChange={handleInputChange}
+            name="email"
           />
           {error && <div className="error-message">{error}</div>}
 
@@ -178,13 +186,17 @@ const Register = () => {
             placeholder="Phone"
             className="text-xl  pl-10 border-2 bg-inherit rounded-full focus:border-emerald-300 ease-in duration-300"
             onChange={handleInputChange}
+            name="phone"
+            value= {formsData.phone}
           />
+          {mobileError && <div className="error-message">{mobileError}</div>}
           <InputWithIconAndText
             icon={faLocationCrosshairs} // Change the icon as needed
             iconColor={"#d67500"}
             placeholder="Address"
             className="text-xl  pl-10 border-2 bg-inherit rounded-full focus:border-emerald-300 ease-in duration-300"
             onChange={handleInputChange}
+            name="address"
           />
           <InputWithIconAndText
             icon={faIdCard} // Change the icon as needed
@@ -192,6 +204,7 @@ const Register = () => {
             placeholder="Aadhar Number"
             className="text-xl  pl-10 border-2 bg-inherit rounded-full focus:border-emerald-300 ease-in duration-300"
             onChange={handleInputChange}
+            name="aadhar"
           />
           <InputWithIconAndText
             icon={faKey} // Change the icon as needed
@@ -200,6 +213,7 @@ const Register = () => {
             type="password"
             className="text-xl  pl-10 border-2 bg-inherit rounded-full focus:border-emerald-300 ease-in duration-300"
             onChange={handleInputChange}
+            name="password"
           />
           <InputWithIconAndText
             icon={faLock} // Change the icon as needed
@@ -208,7 +222,9 @@ const Register = () => {
             type="password"
             className="text-xl  pl-10 border-2 bg-inherit rounded-full focus:border-emerald-300 ease-in duration-300"
             onChange={handleInputChange}
+            name="confirmPassword"
           />
+          {passwordError && <div className="error-message">Passwords do not match</div>}
           <InputWithIconAndText
             type="file"
             className=" pt-2 pb-2 pl-1 border-double border-4  rounded-lg focus:border-emerald-300 ease-in duration-300"

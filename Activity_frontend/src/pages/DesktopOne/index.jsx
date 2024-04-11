@@ -76,7 +76,7 @@ const DesktopOnePage = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    console.log(event);
+    // console.log(event);
 
     // if (!validateForm()) {
     //   return;
@@ -122,6 +122,7 @@ const DesktopOnePage = () => {
       }
 
       const data = await response.json();
+      console.log("first page se ye data aa rha hai", data)
       const { token, userKey } = data;
 
       if (token && userKey) {

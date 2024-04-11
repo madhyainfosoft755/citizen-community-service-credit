@@ -8,7 +8,7 @@ const multer = require("multer");
 const GoogleData = db.users;
 const Users = db.users;
 const Posts = db.Posts;
-const Endorsement = db.Endorsement; 
+const Endorsement = db.Endorsement;
 const Jwt = require("jsonwebtoken");
 const jwt = require("jsonwebtoken");
 const { logger } = require("../utils/util");
@@ -70,11 +70,22 @@ const Register = async (req, res) => {
     console.log("here is he data", userData);
 
      // Check if user with the same email already exists
-     const existingUser = await Users.findOne({ email: userData.email });
+     const existingUser = await Users.findOne({where:{ email: userData.email }});
+     console.log("this is the existing user",existingUser)
      if (existingUser) {
+
        return res.status(400).json({ message: "Email already exists" });
      }
+     
  
+    // Check if user with the same mobile number already exists
+    const existingMobileUser = await Users.findOne({where:{ phone: userData.phone }});
+    if (existingMobileUser) {
+      return res
+        .status(400)
+        .json({ message: "Mobile number already registered" });
+    }
+   
     const { selectedCategories } = req.body;
     console.log("category Register", selectedCategories);
 
@@ -96,6 +107,7 @@ const Register = async (req, res) => {
       name: req.body.name,
       email: userData.email,
       password: userData.password,
+      phone:userData.phone,
       photo: photos_,
       category: Category,
       // Add other fields as needed
@@ -135,8 +147,11 @@ const login = async (req, res) => {
     if (user.password !== password) {
       return res.status(401).json({ error: "Invalid  password." });
     }
+    
 
-    const token = Jwt.sign({ userId: user.id }, jwtKey, { expiresIn: "1h" });
+    const token = Jwt.sign({ userId: user.id }, jwtKey, {
+      expiresIn: "1h",
+    });
     console.log(token, "token");
 
     const userKey = {
@@ -168,18 +183,20 @@ const varifybytiken = async (req, res) => {
 
   try {
     const verifytoken = Jwt.verify(token, jwtKey);
-    console.log(verifytoken, "verify");
 
     if (!verifytoken) {
       return res.status(401).json({ error: "Invalid token " });
-    } else {
-      res.json({
-        status: "success",
-      });
     }
+
+    // Check if the user is an admin
+    const { isAdmin } = verifytoken;
+    res.json({
+      status: "success",
+      isAdmin
+    });
   } catch (error) {
-    logger.error("here is the error", error);
-    res.status(500).json({ error: error });
+    logger.error("Error verifying token:", error);
+    res.status(500).json({ error: "An error occurred while verifying token." });
   }
 };
 
@@ -578,12 +595,11 @@ const fetchPostsInArea = async (req, res) => {
     });
     console.log("all post from the area", postsInArea);
 
-      
-    
-
     // If a username search query is provided, filter posts by username
     if (username) {
-      postsInArea = postsInArea.filter(post => post.User && post.User.name === username);
+      postsInArea = postsInArea.filter(
+        (post) => post.User && post.User.name === username
+      );
     }
 
     res.json(postsInArea);
@@ -593,20 +609,20 @@ const fetchPostsInArea = async (req, res) => {
   }
 };
 
-
-const endorsePost = async(req,res)=>{
+const endorsePost = async (req, res) => {
   const postId = req.params.id;
   const userId = req.body.userId;
 
   try {
-
-     // Check if the user has already endorsed the post
-     const existingEndorsement = await Endorsement.findOne({
+    // Check if the user has already endorsed the post
+    const existingEndorsement = await Endorsement.findOne({
       where: { userId, postId },
     });
 
     if (existingEndorsement) {
-      return res.status(400).json({ error: "You have already endorsed this post." });
+      return res
+        .status(400)
+        .json({ error: "You have already endorsed this post." });
     }
 
     const post = await Posts.findByPk(postId);
@@ -615,7 +631,9 @@ const endorsePost = async(req,res)=>{
     }
 
     // Increment the endorsements count
-    post.endorsementCounter = post.endorsementCounter ? post.endorsementCounter + 1 : 1; // Check if endorsements exist before incrementing
+    post.endorsementCounter = post.endorsementCounter
+      ? post.endorsementCounter + 1
+      : 1; // Check if endorsements exist before incrementing
     await post.save();
 
     // Record the endorsement in the Endorsements table
@@ -630,7 +648,7 @@ const endorsePost = async(req,res)=>{
     console.error("Error endorsing post:", error);
     return res.status(500).json({ error: "Internal server error" });
   }
-}
+};
 module.exports = {
   GoogleResponse,
   varifybytoken,
@@ -643,5 +661,5 @@ module.exports = {
   Register,
   postsdata,
   fetchPostsInArea,
-  endorsePost
+  endorsePost,
 };

@@ -9,7 +9,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import PopupComponent from "components/popup";
-// import OpenCageGeocode from "opencage-api-client";
+import "./style.css";
 
 const Endorse = () => {
   const [userPosts, setUserPosts] = useState([]);
@@ -198,7 +198,7 @@ const Endorse = () => {
           userId: userData?.userData?.id,
         }),
       });
-      console.log("kya response aa rha hai" , latitude, longitude)
+      console.log("kya response aa rha hai", latitude, longitude);
 
       if (response.ok) {
         const postsData = await response.json();
@@ -224,13 +224,17 @@ const Endorse = () => {
     const { category, userName } = searchQuery;
     let filtered = userPosts;
     if (category) {
-      filtered = filtered.filter((post) =>
-        post.category.toLowerCase().includes(category.toLowerCase())
+      filtered = filtered.filter(
+        (post) =>
+          post.category &&
+          post.category.toLowerCase().includes(category.toLowerCase())
       );
     }
     if (userName) {
-      filtered = filtered.filter((post) =>
-        post.user.name.toLowerCase().includes(userName.toLowerCase())
+      filtered = filtered.filter(
+        (post) =>
+          post.category &&
+          post.user.name.toLowerCase().includes(userName.toLowerCase())
       );
     }
     setFilteredPosts(filtered);
@@ -299,7 +303,7 @@ const Endorse = () => {
       }, {});
       setCityNames(cityNamesObject);
     };
-    fetchCityNames();
+    fetchCityNames(filteredPosts);
   }, [filteredPosts]);
 
   const fetchCityName = async (latitude, longitude) => {
@@ -326,42 +330,44 @@ const Endorse = () => {
   };
 
   // Inside the component where the "Endorsement" button is rendered for each post
-const handleEndorsement = async (postId,userId) => {
-  try {
-    const token = localStorage.getItem("token");
-    if (!token) {
-      navigate("/login");
-      return;
-    }
-    console.log("kya hai postId", postId, userId)
+  const handleEndorsement = async (postId, userId) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        navigate("/login");
+        return;
+      }
+      console.log("kya hai postId", postId, userId);
 
-    const response = await fetch(`${API_URL}/activity/endorsePost/${postId}`, {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ userId }), // Send userId in the request body
-    });
+      const response = await fetch(
+        `${API_URL}/activity/endorsePost/${postId}`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ userId }), // Send userId in the request body
+        }
+      );
 
-    if (response.ok) {
-      // Update the userPosts or filteredPosts state with the updated data
-      // This depends on how your backend responds after updating the endorsements count
-      // For example, you could refetch the user's posts or update the specific post in the state
-      // fetchUserPosts(userData.userData.id); // Example: Refetch user's posts
-      console.log("Selected post is endorsed PostID:", postId)
-      
-    } else {
-      console.error("You have already endorsed this post:", response.status);
+      if (response.ok) {
+        // Update the userPosts or filteredPosts state with the updated data
+        // This depends on how your backend responds after updating the endorsements count
+        // For example, you could refetch the user's posts or update the specific post in the state
+        // fetchUserPosts(userData.userData.id); // Example: Refetch user's posts
+        console.log("Selected post is endorsed PostID:", postId);
+      } else {
+        console.error("You have already endorsed this post:", response.status);
+        // Handle error accordingly
+      }
+    } catch (error) {
+      console.error("Error endorsing post:", error);
       // Handle error accordingly
     }
-  } catch (error) {
-    console.error("Error endorsing post:", error);
-    // Handle error accordingly
-  }
-};
+  };
 
-  console.log("all filtered post", filteredPosts);
+  // console.log("all filtered post", filteredPosts);
   return (
     <>
       {authenticated && (
@@ -469,9 +475,9 @@ const handleEndorsement = async (postId,userId) => {
                 </div>
               </div>
 
-              <div className="mt-5 w-full overflow-scroll">
+              <div className="relative mt-5 w-full h-full overflow-x-hidden overflow-y-scroll">
                 {filteredPosts.length === 0 ? (
-                  <h2 className=" absolute inset-0 marquee flex items-center justify-center w-full h-full text-2xl font-semibold ">
+                  <h2 className=" absolute top-52 text-center marquee text-4xl whitespace-nowrap font-semibold ">
                     No posts available for endorsement.
                   </h2>
                 ) : (
@@ -517,7 +523,14 @@ const handleEndorsement = async (postId,userId) => {
                         </a>
                       </div>
                       <div>
-                        <button className="border-2 border-yellow-200 p-2 rounded-lg" onClick={() => handleEndorsement(post.id, userData.userData.id)}>Endorsement</button>
+                        <button
+                          className="border-2 border-yellow-200 p-2 rounded-lg"
+                          onClick={() =>
+                            handleEndorsement(post.id, userData.userData.id)
+                          }
+                        >
+                          Endorsement
+                        </button>
                       </div>
                     </div>
                   ))
@@ -528,7 +541,11 @@ const handleEndorsement = async (postId,userId) => {
               {isPopupOpen && (
                 <div className="popup-overlay">
                   <div className="popup-content ">
-                    <PopupComponent className = "w-screen h-screen overflow-scroll flex flex-col items-center justify-center gap-5" post={popupData} onClose={closePopup} />
+                    <PopupComponent
+                      className="w-screen h-screen overflow-scroll flex flex-col items-center justify-center gap-5"
+                      post={popupData}
+                      onClose={closePopup}
+                    />
                   </div>
                 </div>
               )}

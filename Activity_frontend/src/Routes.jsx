@@ -6,6 +6,7 @@ import PageNavigation from "pages/PageNavigation/PageNavigate";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "components/AuthProvider/AuthProvider";
 import { API_URL } from "Constant";
+import Layout from "layout/layout";
 
 const DesktopTwo = React.lazy(() => import("pages/DesktopTwo"));
 const DesktopSeven = React.lazy(() => import("pages/DesktopSeven"));
@@ -54,7 +55,6 @@ const ProjectRoutes = () => {
       }
     };
 
-    console.log("useeffect");
     verifyToken();
   }, []);
 
@@ -62,28 +62,7 @@ const ProjectRoutes = () => {
     setClick(!click);
   };
 
-  // useEffect(() => {
-  //   // Check if both token and user key are present in local storage
-  //   const token = localStorage.getItem("token");
-  //   const userKey = localStorage.getItem("userKey");
-
-  //   if (!token || !userKey) {
-  //     // Redirect to the login page if either token or user key is missing
-  //     navigate("/login");
-  //   }
-
-  //   // You may also want to check the validity of the token here if needed
-
-  //   // eslint-disable-next-line react-hooks/exhaustive-deps
-  // }, []); // Empty dependency array ensures that this effect runs only once on mount
-
-  // const handleLogout = () => {
-  //   // Clear authentication status, remove token and user key, and redirect to the login page
-  //   setAuthenticated(false);
-  //   localStorage.removeItem("token");
-  //   localStorage.removeItem("userKey");
-  //   navigate("/login");
-  // };
+  
 
   return (
     <React.Suspense fallback={<h1 className="w-screen h-screen flex items-center justify-center">Loading...</h1>}>
@@ -94,14 +73,17 @@ const ProjectRoutes = () => {
           {/* <Route path="*" element={<NotFound />} /> */}
           <Route path="/login" element={<DesktopOne />} />
           <Route path="/register" element={<DesktopTwo />} />
+          <Route element={<Layout />}>
           <Route path="/create" element={<DesktopThree />} />
           <Route path="/activity" element={<DesktopFour />} />
           <Route path="/endorse" element={<Endorse />} />
-          <Route path="/report" element={<DesktopFive />} />
+          <Route path="/admin" element={<DesktopFive />} />
           <Route path="/managecategoris" element={<DesktopSix />} />
           <Route path="/aproovehours" element={<DesktopSeven />} />
           <Route path="/aproovers" element={<DesktopEight />} />
           <Route path="/desktopnine" element={<DesktopNine />} />
+          </Route>
+
         </Routes>
       </Router>
     </React.Suspense>
