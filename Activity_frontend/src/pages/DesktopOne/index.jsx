@@ -75,15 +75,7 @@ const DesktopOnePage = () => {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-
-    // console.log(event);
-
-    // if (!validateForm()) {
-    //   return;
-    // }
-
     const formsDATA = new FormData();
-
     const emailValue = event.target[0].value;
     const passwordValue = event.target[1].value;
     formsDATA.append("email", emailValue);
@@ -124,14 +116,19 @@ const DesktopOnePage = () => {
       const data = await response.json();
       console.log("first page se ye data aa rha hai", data)
       const { token, userKey } = data;
-
+      const redirectTo = data.redirectTo; // Define redirectTo variable
+      
       if (token && userKey) {
         localStorage.setItem("token", token);
         localStorage.setItem("userKey", JSON.stringify(userKey));
         // setLoginSuccess(true);
         // setAuthenticated(true);
 
-        navigate("/create");
+        if (redirectTo === "/admin") {
+          navigate(redirectTo);
+        } else {
+          navigate("/create");
+        }
       } else {
         console.log("Response is missing");
       }

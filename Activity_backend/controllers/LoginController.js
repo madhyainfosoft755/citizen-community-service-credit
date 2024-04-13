@@ -161,13 +161,21 @@ const login = async (req, res) => {
       // token:user.token
     };
 
-    res.json({
-      status: "success",
-      userKey: userKey,
-      token: token,
-    });
-    console.log(res, "status");
-
+    if (user.email === 'info@mistpl.com') { // Check if the user is an admin
+      res.json({
+          status: "success",
+          userKey: userKey,
+          token: token,
+          redirectTo: "/admin", // Redirect admin to "/admin" route
+      });
+  } else {
+      res.json({
+          status: "success",
+          userKey: userKey,
+          token: token,
+          redirectTo: "/create", // Redirect normal users to "/create" route
+      });
+    }
     // Successful login
   } catch (error) {
     logger.error("here is the error", error);

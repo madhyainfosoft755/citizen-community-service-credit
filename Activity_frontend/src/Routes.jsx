@@ -19,7 +19,7 @@ const DesktopNine = React.lazy(() => import("pages/DesktopNine"));
 const DesktopEight = React.lazy(() => import("pages/DesktopEight"));
 const Endorse = React.lazy(()=>import("pages/Endorse"))
 
-const ProjectRoutes = () => {
+const ProjectRoutes = () => { 
   // const navigate = useNavigate();
   const { authenticated, setAuthenticated } = useAuth();
   // const [userData, setUserData] = useState(null);

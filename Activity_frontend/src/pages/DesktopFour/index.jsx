@@ -6,7 +6,6 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "components/AuthProvider/AuthProvider";
 import Slider1 from "components/slider/slider";
 
-
 const DesktopFourPage = () => {
   const [userPosts, setUserPosts] = useState([]);
   const [error, setError] = useState(null);
@@ -15,9 +14,6 @@ const DesktopFourPage = () => {
   const navigate = useNavigate();
   const [locationData, setLocationData] = useState(null);
   const [totalTime, setTotalTime] = useState(null); // Added state for total time
-
-  // console.log("ye hai user ka data", userPosts)
-
 
   // console.log("userData", userData);
   useEffect(() => {
@@ -56,9 +52,8 @@ const DesktopFourPage = () => {
     }
   }, [userData, navigate]);
 
-
+  // Fetch historical data and calculate total time
   useEffect(() => {
-    // Fetch historical data and calculate total time
     const fetchHistoricalData = async () => {
       try {
         const token = localStorage.getItem("token");
@@ -185,79 +180,79 @@ const DesktopFourPage = () => {
   return (
     <>
       {authenticated && (
-        <div className="bg-white-A700 flex flex-col items-center justify-center sm:px-5 rounded-[5px] shadow-bs2 w-[33%] sm:w-full sm:h-full">
-          <div className="flex flex-col gap-3 items-center justify-center w-full">
-            <div className="bg-gray-50 flex flex-row items-center justify-between p-7 sm:px-5 w-full  rounded-xl">
-              <div className="flex flex-row gap-4 items-center justify-center ml-[5px]">
-                {userData && (
-                  <Img
-                    className=" sm:w-16 sm:h-14   rounded-full object-cover object-top "
-                    src={`${API_URL}/image/${userData.userData.photo}`}
-                    alt="userimage"
-                  />
-                )}
-                <div className="flex flex-col items-center justify-center w-3/5">
-                  <div className="flex flex-col items-start justify-center w-full">
-                    <Text
-                      className="text-center text-gray-900 uppercase"
-                      size="txtInterSemiBold16Gray900"
-                    >
-                      {userData && userData.userData.name}
-                    </Text>
-                    <Text className="text-center  text-gray-900 uppercase text-sm">
-                      ID: {userData && userData.userData.id}
-                    </Text>
+        <div className="w-screen h-screen bg-white-A700 flex items-center justify-center sm:w-full sm:h-full">
+          <div className="bg-white-A700 flex items-center justify-center sm:px-5 rounded-[5px] shadow-bs2 w-[33%] h-full sm:w-full sm:h-full">
+            <div className="flex flex-col gap-3 items-center justify-center w-4/5 h-full">
+              <div className="bg-gray-50 flex flex-row items-center justify-between p-7 sm:px-5 w-full  rounded-xl">
+                <div className="flex flex-row gap-4 items-center justify-center ml-[5px]">
+                  {userData && (
+                    <Img
+                      className=" h-[55px]  rounded-[50%] w-[71px] object-cover object-center "
+                      src={`${API_URL}/image/${userData.userData.photo}`}
+                      alt="userimage"
+                    />
+                  )}
+                  <div className="flex flex-col items-center justify-center w-3/5">
+                    <div className="flex flex-col items-start justify-center w-full">
+                      <Text
+                        className="text-center text-gray-900 uppercase"
+                        size="txtInterSemiBold16Gray900"
+                      >
+                        {userData && userData.userData.name}
+                      </Text>
+                      <Text className="text-center  text-gray-900 uppercase text-sm">
+                        ID: {userData && userData.userData.id}
+                      </Text>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <Button
-                className="cursor-pointer font-semibold "
-                shape="round"
-                color="indigo_A200"
-                onClick={direct}
-              >
-                {`${totalTime || "0"} Hours`}
-              </Button>
-            </div>
-            <Text
-              className="mt-2 text-base text-gray-900"
-              size="txtInterSemiBold16Gray900"
-            >
-              My Activities
-            </Text>
-            <div className="flex sm:flex-col flex-row gap-[25px] items-center justify-between  w-full">
-              <div className="sm:h-[60vh] rounded-xl relative  sm:w-full border-[1px] border-gray shadow-2xl  shadow-indigo-300 overflow-hidden">
-                <Slider1 className="w-full h-full p-2" items={userPosts} />
-              </div>
-
-              <div className="flex flex-row gap-1 items-center justify-center sm:w-full">
-                <Text
-                  className="text-sm text-gray-900"
-                  size="txtInterSemiBold16Gray900"
+                <Button
+                  className="cursor-pointer font-semibold "
+                  shape="round"
+                  color="indigo_A200"
+                  onClick={direct}
                 >
-                  Activities Waiting for Endorsement
-                </Text>
-               
+                  {`${totalTime || "0"} Hours`}
+                </Button>
               </div>
-              
-              <Button
-                className="cursor-pointer font-semibold w-full  mb-2 text-base text-center"
-                shape="round"
-                color="indigo_A200"
-                onClick={direct1}
+              <Text
+                className="mt-2 text-base text-gray-900"
+                size="txtInterSemiBold16Gray900"
               >
-                Endorsment
-              </Button>
+                My Activities
+              </Text>
+              <div className="flex sm:flex-col flex-col gap-[25px] items-center justify-between bg-cyan-300 w-full h-full">
+                <div className=" w-full bg-red-400 h-full sm:h-[60vh] rounded-xl relative  sm:w-full border-[1px] border-gray shadow-2xl  shadow-indigo-300 overflow-hidden">
+                  <Slider1 className="w-full h-full p-2" items={userPosts} />
+                </div>
 
-              
-              <Button
-                className="cursor-pointer font-semibold w-full  mb-2 text-base text-center"
-                shape="round"
-                color="indigo_A200"
-                onClick={handleLogout} // Add logout functionality
-              >
-                LOGOUT
-              </Button>
+                <div className="flex flex-row gap-1 items-center justify-center sm:w-full">
+                  <Text
+                    className="text-sm text-gray-900"
+                    size="txtInterSemiBold16Gray900"
+                  >
+                    Activities Waiting for Endorsement
+                  </Text>
+                </div>
+
+                <Button
+                  className="cursor-pointer font-semibold w-full  mb-2 text-base text-center"
+                  shape="round"
+                  color="indigo_A200"
+                  onClick={direct1}
+                >
+                  Endorsment
+                </Button>
+
+                <Button
+                  className="cursor-pointer font-semibold w-full  mb-2 text-base text-center"
+                  shape="round"
+                  color="indigo_A200"
+                  onClick={handleLogout} // Add logout functionality
+                >
+                  LOGOUT
+                </Button>
+              </div>
             </div>
           </div>
         </div>
