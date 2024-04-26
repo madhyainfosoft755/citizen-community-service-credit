@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 
 const {
-  GoogleResponse,
   varifybytoken,
   varifybytiken,
   login,
@@ -14,10 +13,11 @@ const {
   postsdata,
   fetchPostsInArea,
   endorsePost,
+  GoogleLogin
 } = require("../controllers/LoginController");
 const { upload } = require("../utils/util");
-// Express route
-router.post("/GoogleResponse", GoogleResponse);
+// Express route 
+router.post('/GoogleLogin', GoogleLogin);
 router.get("/varifybytoken", varifybytoken);
 router.post("/login", login);
 router.post("/varifybytiken", varifybytiken);

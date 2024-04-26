@@ -27,36 +27,43 @@ const ProjectRoutes = () => {
 
   // const navigate = useNavigate();
 
-  useEffect(() => {
-    const verifyToken = async () => {
-      try {
-        const userKey = localStorage.getItem("userKey");
-        const token = localStorage.getItem("token");
+  // useEffect(() => {
+  //   const verifyToken = async () => {
+  //     try {
+  //       const userKey = localStorage.getItem("userKey");
+  //       const token = localStorage.getItem("token");
 
-        const response = await fetch(`${API_URL}/activity/varifybytiken`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ userKey: userKey, token: token }),
-        });
-        const result = await response.json();
-        if (response.ok) {
-          setAuthenticated(true);
-          // const result = await response.json();
-        }
-        // console.log(result, "response");
+  //       // Check if userKey and token are available
+  //     if (!userKey || !token) {
+  //       console.log("User Key: ", userKey );
+  //       console.log("Token: ", token)
+  //       return; // Skip API call if userKey or token is missing
+  //     }
 
-        if (result.error) {
-          // handleLogout();
-        }
-      } catch (error) {
-        console.error("Error verifying token:", error);
-      }
-    };
+  //       const response = await fetch(`${API_URL}/activity/varifybytiken`, {
+  //         method: "POST",
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //         },
+  //         body: JSON.stringify({ userKey: userKey, token: token }),
+  //       });
+  //       const result = await response.json();
+  //       if (response.ok) {
+  //         setAuthenticated(true);
+  //         // const result = await response.json();
+  //       }
+  //       // console.log(result, "response");
 
-    verifyToken();
-  }, []);
+  //       if (result.error) {
+  //         // handleLogout();
+  //       }
+  //     } catch (error) {
+  //       console.error("Error verifying token:", error);
+  //     }
+  //   };
+
+  //   verifyToken();
+  // }, []);
 
   const handleClick = () => {
     setClick(!click);

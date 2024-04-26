@@ -280,7 +280,7 @@ const Register = () => {
         </form>
         <h3 className="mb-2">
           Already have an account?{" "}
-          <span className="text-indigo-700 font-bold" onClick={direct}>Login Here</span>
+          <span className="text-indigo-700 font-bold underline  " onClick={direct}>Login Here</span>
         </h3>
       </div>
       

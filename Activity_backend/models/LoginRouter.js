@@ -11,8 +11,8 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         unique: true,
       },
-      phone:{
-        type:DataTypes.STRING,
+      phone: {
+        type: DataTypes.STRING,
         allowNull: false,
         unique: true,
       },
@@ -29,6 +29,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      googleId: { type: DataTypes.STRING, unique: true },
     },
     {
       timestamps: false,

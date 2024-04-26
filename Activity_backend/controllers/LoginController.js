@@ -7,22 +7,96 @@ const jwtKey = "g.comm";
 const multer = require("multer");
 const GoogleData = db.users;
 const Users = db.users;
+const axios = require('axios')
 const Posts = db.Posts;
 const Endorsement = db.Endorsement;
 const Jwt = require("jsonwebtoken");
-const jwt = require("jsonwebtoken");
 const { logger } = require("../utils/util");
-
+const { CLIENT_ID, CLIENT_SECRET, CALLBACK_URL } = require('../config/constant');
+const {OAuth2Client} = require('google-auth-library');
+const client = new OAuth2Client(CLIENT_ID);
 const dotenv = require("dotenv");
 dotenv.config();
-// const storage = multer.diskStorage({
-//   destination: (req, file, cb) => {
-//     cb(null, 'uploads/'); // Update with your desired folder path
-//   },
-//   filename: (req, file, cb) => {
-//     cb(null, file.originalname);
-//   },
-// });
+
+
+// function to get the google user details
+const  getUserProfile = async (accessToken)=> {
+  try {
+    const response = await axios.get('https://www.googleapis.com/userinfo/v2/me', {
+      headers: {
+        Authorization: `Bearer ${accessToken}`
+      }
+    });
+
+    // Extract user profile from response data
+    const userProfile = response.data;
+    // console.log("this is users profile data", userProfile)
+    return userProfile;
+  } catch (error) {
+    console.error('Failed to fetch user profile:', error.response ? error.response.data : error.message);
+    throw error;
+  }
+}
+
+// Function to generate a random alphanumeric password of a specified length
+const generateRandomPassword = (length) => {
+  const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_-';
+  let password = '';
+
+  for (let i = 0; i < length; i++) {
+    const randomIndex = Math.floor(Math.random() * charset.length);
+    password += charset[randomIndex];
+  }
+
+  return password;
+};
+
+// Example usage:
+const passwordLength = 10;
+const generatedPassword = generateRandomPassword(passwordLength);
+console.log('Generated Password:', generatedPassword);
+
+
+const GoogleLogin = async (req, res) => {
+  const { token } = req.body;
+
+  if (!token) {
+    return res.status(400).json({ error: 'ID token is missing' });
+  }
+
+  try {
+    const userProfile = await getUserProfile(token);
+    console.log("ye rha user ka profile data", userProfile)
+
+    // Check if user exists
+    let user = await Users.findOne({ where: { email: userProfile.email } });
+
+
+    if (!user) {
+      // Create new user if not found
+      user = await Users.create({
+        name: userProfile.name,
+        email: userProfile.email,
+        phone: '', // Add phone if needed
+        password: generatedPassword, // Add password if needed
+        photo: userProfile.picture, // Assuming you store the profile picture
+        category: '', // Add category if needed
+        googleId: userProfile.id
+      });
+    }
+
+    // Generate JWT token for the user
+    // const jwtToken = Jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const jwtToken = Jwt.sign({ userId: user.id }, jwtKey, { expiresIn: "1h"});
+
+    console.log("lo data le lo",user)
+
+    res.status(200).set('Authorization', `Bearer ${jwtToken}`).json({ token: jwtToken,  user: userProfile, redirectTo: '/create' });
+  } catch (error) {
+    console.error('Google login error:', error);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+};
 
 const sequelize = new Sequelize(config.DB, config.USER_DB, config.PASSWORD_DB, {
   host: "localhost",
@@ -30,42 +104,11 @@ const sequelize = new Sequelize(config.DB, config.USER_DB, config.PASSWORD_DB, {
   pool: { min: 0, max: 10, idle: 10000 },
 });
 
-// const User = sequelize.define("users", {
 
-//   name: {
-//     type: DataTypes.STRING,
-//     allowNull: true,
-//   },
-//   // email: {
-//   //   type: DataTypes.STRING,
-//   //   allowNull: true,
-//   //   unique: true,
-//   // },
-//   // password: {
-//   //   type: DataTypes.STRING,
-//   //   allowNull: true,
-//   // },
-//   // Jwt: {
-//   //   type: DataTypes.STRING,
-//   //   allowNull: true,
-//   // },
-//   Jwt: {
-//     type: DataTypes.STRING,
-//     allowNull: true,
-//   },
-
-// });
-
-// Define the association between User and Post
-// User.hasMany(db.posts, { foreignKey: 'User', as: 'userTable' });
-// db.posts.belongsTo(User, { foreignKey: 'User', as: 'userTable'});
-
-// const mysql = require('mysql2/promise');
-
-// ths is Register Api
-
+// this is Register Api
 const Register = async (req, res) => {
   try {
+    
     const userData = req.body;
     console.log("here is he data", userData);
 
@@ -205,61 +248,6 @@ const varifybytiken = async (req, res) => {
   } catch (error) {
     logger.error("Error verifying token:", error);
     res.status(500).json({ error: "An error occurred while verifying token." });
-  }
-};
-
-const GoogleResponse = async (req, res) => {
-  const { access_token, userInfo } = req.body;
-
-  try {
-    // Decode the credential JWT
-    const decodedCredential = access_token.access_token;
-
-    if (!decodedCredential) {
-      return res.status(400).json({ message: "Invalid credential" });
-    }
-
-    // Extract email and name from the decoded credential
-    const userEmail = userInfo.email; // Move the declaration up
-
-    // Find the user based on the provided email
-    const user = await Users.findOne({ where: { email: userInfo.email } });
-    console.log("user email", user);
-
-    if (user) {
-      const token = Jwt.sign({ userId: user.id }, jwtKey, { expiresIn: "1h" });
-      return res.status(200).json({
-        message: "Success",
-        name: userInfo.name,
-        email: userEmail, // Use userEmail here
-        token: token,
-        user: user.id,
-      });
-    }
-
-    // Create a new user if not found
-    const newUser = await GoogleData.create({
-      access_token: access_token.access_token,
-      name: userInfo.name,
-      email: userInfo.email,
-      photo: userInfo.photo,
-    });
-
-    const token = Jwt.sign({ userId: newUser.id }, jwtKey, { expiresIn: "1h" });
-    console.log(token, "token");
-
-    // Send a success response
-    res.status(200).json({
-      message: "Success",
-      name: userInfo.name,
-      email: userEmail, // Use userEmail here
-      token: token,
-      user: newUser.id,
-    });
-  } catch (error) {
-    logger.error("here is the error", error);
-    console.error(error);
-    res.status(500).json({ message: "Internal server error" });
   }
 };
 
@@ -670,4 +658,5 @@ module.exports = {
   postsdata,
   fetchPostsInArea,
   endorsePost,
+  GoogleLogin
 };

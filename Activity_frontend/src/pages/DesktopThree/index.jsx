@@ -6,6 +6,7 @@ import { API_URL } from "Constant";
 import { useNavigate } from "react-router-dom";
 import Location from "pages/Location/Location";
 import { useAuth } from "components/AuthProvider/AuthProvider";
+import axios from "axios";
 
 const Createpost = () => {
   const navigate = useNavigate();
@@ -29,12 +30,21 @@ const Createpost = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [selectedVideo, setSelectedVideo] = useState(null);
   const [selectedButton, setSelectedButton] = useState(null);
+  const [locationData, setLocationData] = useState({
+    city: "",
+    state: "",
+  });
+  const buttons = [
+    { id: 1, label: "Gardening" },
+    { id: 2, label: "Cleaning" },
+    { id: 3, label: "Teaching Poor" },
+    { id: 4, label: "Planting Tree" },
+    { id: 5, label: "Marathon" },
+    { id: 6, label: "Social Activities" },
+  ];
 
-  
-
+  // Function to get and format the current date
   useEffect(() => {
-    // Function to get and format the current date
-
     const getCurrentDate = () => {
       const dateObj = new Date();
       const formattedDate = `${dateObj.getDate()} ${dateObj.toLocaleString(
@@ -62,27 +72,29 @@ const Createpost = () => {
     console.log("Video file", videoFile.name);
   };
 
-  const handleLocationChange = ({ latitude, longitude }) => {
-    if (latitude !== undefined && longitude !== undefined) {
-      setFormData((prevData) => ({
-        ...prevData,
-        latitude: latitude,
-        longitude: longitude,
-      }));
-    } else {
-      console.error("Latitude or longitude is undefined.");
-      // Handle the error or provide default values as needed
+  const handleLocationChange = async (latitude, longitude) => {
+    try {
+      const response = await axios.get(
+        `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
+      );
+
+      if (response.data && response.data.address) {
+        const { city, state } = response.data.address;
+        setLocationData({ city, state });
+
+        // Update formData with latitude, longitude, city, and state
+        setFormData((prevData) => ({
+          ...prevData,
+          latitude: latitude,
+          longitude: longitude,
+        }));
+      } else {
+        console.error("Error fetching location data");
+      }
+    } catch (error) {
+      console.error("Error fetching location data:", error);
     }
   };
-
-  const buttons = [
-    { id: 1, label: "Gardening" },
-    { id: 2, label: "Cleaning" },
-    { id: 3, label: "Teaching Poor" },
-    { id: 4, label: "Planting Tree" },
-    { id: 5, label: "Marathon" },
-    { id: 6, label: "Social Activities" },
-  ];
 
   const handleButtonClick = (label) => {
     setSelectedButton(label);
@@ -94,6 +106,8 @@ const Createpost = () => {
     const token = localStorage.getItem("token");
     const userKey = localStorage.getItem("userKey");
 
+    console.log("token", token)
+    console.log("userkey", userKey)
     if (!token || !userKey) {
       // Redirect to the login page if either token or user key is missing
       navigate("/login");
@@ -104,49 +118,51 @@ const Createpost = () => {
     }
   }, []); // Empty dependency array ensures that this effect runs only once on mount
 
-
-
-  useEffect(()=>{
-  const fetchUserData = async (token) => {
-    try {
-      const response = await fetch(`${API_URL}/activity/profile`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (response.ok) {
-        // Check content type before parsing as JSON
-        const contentType = response.headers.get("content-type");
-        if (contentType && contentType.includes("application/json")) {
-          const userData = await response.json();
-
-          setUserData(userData); // Update user data in the state
-        } else {
-          console.error("Error fetching user data: Response is not JSON");
-          // Handle non-JSON response accordingly
-        }
-      } else {
-        console.error("Error fetching user data:", response.status);
-        const errorData = await response.text(); // Get the entire response as text
-        console.error("Error details:", errorData);
-        // Handle the error accordingly
-      }
-    } catch (error) {
-      console.error("Error fetching user data:", error);
-    }
-  };
-  if (authenticated) {
-    fetchUserData(localStorage.getItem("token"));
-  }
-}, [authenticated]);
-
   useEffect(() => {
-    // Fetch historical data and calculate total time
+    const fetchUserData = async (token) => {
+      // console.log("kya token aa rha hia", token)
+      try {
+        const response = await fetch(`${API_URL}/activity/profile`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (response.ok) {
+          console.log("kya response aya", response)
+          // Check content type before parsing as JSON
+          const contentType = response.headers.get("content-type");
+          if (contentType && contentType.includes("application/json")) {
+            const userData = await response.json();
+
+            setUserData(userData); // Update user data in the state
+          } else {
+            console.error("Error fetching user data: Response is not JSON");
+            // Handle non-JSON response accordingly
+          }
+        } else {
+          console.error("Error fetching user data:", response.status);
+          const errorData = await response.text(); // Get the entire response as text
+          console.error("Error details:", errorData);
+          // Handle the error accordingly
+        }
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+    if (authenticated) {
+      fetchUserData(localStorage.getItem("token"));
+    }
+  }, [authenticated]);
+
+  // Fetch historical data and calculate total time
+  useEffect(() => {
     const fetchHistoricalData = async () => {
       try {
         const token = localStorage.getItem("token");
+        console.log("token is coming", token)
         if (!token) {
           navigate("/login");
           return;
@@ -266,13 +282,17 @@ const Createpost = () => {
     <>
       {authenticated && (
         <form onSubmit={handleSubmit} encType="multipart/form-data">
+          <div className="hidden">
+            <Location onLocationChange={handleLocationChange} />
+          </div>
+
           <div className="bg-white-A700 flex flex-col items-center justify-center sm:px-5 rounded-[5px] shadow-bs2 w-[33%] sm:w-full">
             <div className=" flex flex-col gap-2 items-center justify-center w-full">
               <div className="bg-gray-50 flex flex-row items-center justify-between p-7 sm:px-5 w-full rounded-xl">
                 <div className="flex flex-row gap-4 items-center justify-center ml-[5px]">
                   {userData && (
                     <Img
-                      className=" sm:w-16 sm:h-16   rounded-full object-cover object-top "
+                      className=" sm:w-[68px] sm:h-[58px] md:w-[68px] md:h-[58px] 2xl:w-[68px] 2xl:h-[58px] rounded-full object-cover object-top "
                       src={`${API_URL}/image/${userData.userData.photo}`}
                       alt="userimage"
                     />
@@ -379,25 +399,7 @@ const Createpost = () => {
                     color="blue_50"
                   >
                     <div className="font-medium leading-[normal] text-[15px] text-left ">
-                      <Location
-                        onLocationChange={(latitude, longitude) => {
-                          if (
-                            latitude !== undefined &&
-                            longitude !== undefined
-                          ) {
-                            setFormData((prevData) => ({
-                              ...prevData,
-                              latitude: latitude,
-                              longitude: longitude,
-                            }));
-                          } else {
-                            console.error(
-                              "Latitude or longitude is undefined."
-                            );
-                            // Handle the error or provide default values as needed
-                          }
-                        }}
-                      />
+                      {locationData.city}, {locationData.state}
                     </div>
                   </Button>
                   <Button

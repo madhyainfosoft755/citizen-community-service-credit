@@ -180,9 +180,9 @@ const DesktopFourPage = () => {
   return (
     <>
       {authenticated && (
-        <div className="w-screen h-screen bg-white-A700 flex items-center justify-center sm:w-full sm:h-full">
-          <div className="bg-white-A700 flex items-center justify-center sm:px-5 rounded-[5px] shadow-bs2 w-[33%] h-full sm:w-full sm:h-full">
-            <div className="flex flex-col gap-3 items-center justify-center w-4/5 h-full">
+        <div className="w-screen h-screen bg-white-A700 flex items-center justify-center sm:w-full sm:h-full md:w-screen md:h-screen">
+          <div className="bg-white-A700 flex items-center justify-center sm:px-5 rounded-[5px] shadow-bs2 lg:w-[33%] lg:h-full sm:w-full sm:h-full md:w-full md:h-full">
+            <div className="flex flex-col gap-3 items-center justify-center w-full">
               <div className="bg-gray-50 flex flex-row items-center justify-between p-7 sm:px-5 w-full  rounded-xl">
                 <div className="flex flex-row gap-4 items-center justify-center ml-[5px]">
                   {userData && (
@@ -221,8 +221,8 @@ const DesktopFourPage = () => {
               >
                 My Activities
               </Text>
-              <div className="flex sm:flex-col flex-col gap-[25px] items-center justify-between bg-cyan-300 w-full h-full">
-                <div className=" w-full bg-red-400 h-full sm:h-[60vh] rounded-xl relative  sm:w-full border-[1px] border-gray shadow-2xl  shadow-indigo-300 overflow-hidden">
+              <div className="flex sm:flex-col flex-col gap-[25px] items-center justify-between w-full h-full">
+                <div className=" w-full h-full sm:h-[60vh] rounded-xl relative  sm:w-full border-[1px] border-gray shadow-2xl  shadow-indigo-300 overflow-hidden">
                   <Slider1 className="w-full h-full p-2" items={userPosts} />
                 </div>
 

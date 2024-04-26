@@ -217,7 +217,6 @@ function Location({ onLocationChange }) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude } = position.coords;
-
           try {
             const response = await fetch(
               `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&bounds=lat1,long1|lat2,long2&key=${process.env.REACT_APP_GoogleGeocode}`

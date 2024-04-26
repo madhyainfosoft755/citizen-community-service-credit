@@ -11,7 +11,7 @@ import { AuthProvider } from "components/AuthProvider/AuthProvider";
 ReactDOM.render(
   <React.StrictMode>
     <AuthProvider>
-     <GoogleOAuthProvider clientId="34762084028-m8143jq3dv0q2c7l59e2dus71l02fl8c.apps.googleusercontent.com">
+     <GoogleOAuthProvider clientId= {process.env.REACT_APP_GOOGLE_CLIENT_ID}>
     
     
   

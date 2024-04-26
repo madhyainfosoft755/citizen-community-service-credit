@@ -2,13 +2,20 @@ import React, { useEffect, useState } from "react";
 
 import { Button, Img, Input, Line, Text } from "components";
 // import MyGoogle from 'components/googlelogin/Googlelogin'
-import Googlelogin from "pages/GoogleLogin/Googlelogin";
+// import Googlelogin from "pages/GoogleLogin/Googlelogin";
 
 import { API_URL } from "Constant";
 import { useNavigate } from "react-router-dom";
 import Location from "pages/Location/Location";
+import axios from "axios";
+import { GoogleLogin } from "react-google-login";
+import { useGoogleLogin } from "@react-oauth/google";
 
 const DesktopOnePage = () => {
+  const [locationData, setLocationData] = useState({
+    city: "",
+    state: "",
+  });
   const handlebuttonclick = () => {
     navigate("/register");
   };
@@ -24,7 +31,6 @@ const DesktopOnePage = () => {
   });
 
   const [error, setError] = useState("");
-
   // const { authenticated, setAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [loginAttempted, setLoginAttempted] = useState(false);
@@ -79,7 +85,7 @@ const DesktopOnePage = () => {
     const emailValue = event.target[0].value;
     const passwordValue = event.target[1].value;
     formsDATA.append("email", emailValue);
-    console.log(emailValue, passwordValue);
+    // console.log(emailValue, passwordValue);
 
     // Clear any previous error message
     setError("");
@@ -91,11 +97,11 @@ const DesktopOnePage = () => {
     }
 
     formsDATA.append("password", passwordValue);
-    console.log("from-data", formsDATA);
+    // console.log("from-data", formsDATA);
 
-    for (var pair of formsDATA.entries()) {
-      console.log(pair[0] + ", " + pair[1]);
-    }
+    // for (var pair of formsDATA.entries()) {
+    //   // console.log(pair[0] + ", " + pair[1]);
+    // }
 
     try {
       const response = await fetch(`${API_URL}/activity/login`, {
@@ -114,10 +120,10 @@ const DesktopOnePage = () => {
       }
 
       const data = await response.json();
-      console.log("first page se ye data aa rha hai", data)
+      // console.log("first page se ye data aa rha hai", data);
       const { token, userKey } = data;
       const redirectTo = data.redirectTo; // Define redirectTo variable
-      
+
       if (token && userKey) {
         localStorage.setItem("token", token);
         localStorage.setItem("userKey", JSON.stringify(userKey));
@@ -138,13 +144,110 @@ const DesktopOnePage = () => {
     }
   };
 
-  const onLocationChange = () => {};
+  const handleLocationChange = async (latitude, longitude) => {
+    try {
+      const response = await axios.get(
+        `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
+      );
+
+      if (response.data && response.data.address) {
+        const { city, state } = response.data.address;
+        setLocationData({ city, state });
+      } else {
+        console.error("Error fetching location data");
+      }
+    } catch (error) {
+      console.error("Error fetching location data:", error);
+    }
+  };
+
+  const login = useGoogleLogin({
+    onSuccess: (tokenResponse) => {
+      responseGoogle(tokenResponse);
+    },
+  });
+
+  
+  //code to get the details from an access token
+  // async function getUserProfile(accessToken) {
+  //   try {
+  //     const response = await axios.get(
+  //       "https://www.googleapis.com/userinfo/v2/me",
+  //       {
+  //         headers: {
+  //           Authorization: `Bearer ${accessToken}`,
+  //         },
+  //       }
+  //     );
+
+  //     // Extract user profile from response data
+  //     const userProfile = response.data;
+  //     console.log("this is users profile data", userProfile);
+  //     return userProfile;
+  //   } catch (error) {
+  //     console.error(
+  //       "Failed to fetch user profile:",
+  //       error.response ? error.response.data : error.message
+  //     );
+  //     throw error;
+  //   }
+  // }
+
+  const responseGoogle = async (response) => {
+    console.log("ye rha google ka response", response);
+    try {
+      const { access_token } = response;
+      // console.log("kya humko token mila", access_token)
+      // await getUserProfile(access_token)
+
+      if (!access_token) {
+        console.log("bhaiya token nhi mil rha hai ");
+      }
+      const formData = new FormData();
+      // console.log("aur ye hai formdata", formData)
+      formData.append("token", access_token);
+
+      const loginResponse = await fetch(`${API_URL}/activity/GoogleLogin`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams(formData).toString(),
+      });
+
+      if (!loginResponse.ok) {
+        setError("Google login failed.");
+        return;
+      }
+
+      const data = await loginResponse.json();
+      console.log("google data response", data)
+      const { token, user } = data;
+
+      if (token && user) {
+        localStorage.setItem("token", token);
+        localStorage.setItem("userKey", JSON.stringify(user));
+        navigate("/create");
+      } else {
+        console.log("Response is missing");
+      }
+    } catch (error) {
+      setError("An error occurred while logging in with Google.");
+      console.error("Error:", error);
+    }
+  };
 
   return (
-    <>
-      <form onSubmit={handleSubmit} className="sm:w-screen sm:h-screen">
+    <div className="w-screen h-screen flex items-center justify-center">
+      <form
+        onSubmit={handleSubmit}
+        className="w-1/4 h-full sm:w-screen sm:h-screen"
+      >
+        <div className="hidden">
+          <Location onLocationChange={handleLocationChange} />
+        </div>
         <div
-          className=" flex flex-col justify-center items-center pt-10 sm:w-screen sm:h-screen overflow-hidden  bg-cover bg-center "
+          className="w-full h-full flex flex-col justify-center items-center pt-10 sm:w-screen sm:h-screen overflow-hidden  bg-cover bg-center "
           style={{ backgroundImage: 'url("./images/img_helping.jpg")' }}
         >
           <Text className="text-2xl text-white-A700 font-extrabold">
@@ -218,30 +321,11 @@ const DesktopOnePage = () => {
                 </div>
               </div>
             </div>
-            <div className="flex  items-center justify-between ">
-              <div className="bg-blue-A400 text-center flex flex-row gap-11 items-center justify-start p-[5px] rounded-[22px] w-full">
-                <div className="bg-white-A700 flex flex-col h-[35px] items-center justify-end p-[7px] rounded-[17px] w-[35px]">
-                  <Img
-                    className="h-[40px]"
-                    src="images/img_instagram.svg"
-                    alt="facebook"
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="flex  items-center justify-between ">
-              <div className="bg-blue-A400 text-center flex flex-row gap-11 items-center justify-start p-[5px] rounded-[22px] w-full">
-                <div className="bg-white-A700 flex flex-col h-[35px] items-center justify-end p-[7px] rounded-[17px] w-[35px]">
-                  <Img
-                    className="h-[40px]"
-                    src="images/img_twitter.svg"
-                    alt="facebook"
-                  />
-                </div>
-              </div>
-            </div>
             <div className="flex flex-col items-center justify-start   cursor-pointer  ">
-              <div className="bg-red-500 flex items-center  justify-start p-[5px] rounded-[22px] w-full cursor-pointer ">
+              <div
+                onClick={login}
+                className="bg-red-500 flex items-center  justify-start p-[5px] rounded-[22px] w-full cursor-pointer "
+              >
                 <div className="bg-white-A700 flex flex-col h-[35px] items-center justify-start p-[9px] rounded-[17px] w-[35px] cursor-pointer ">
                   <Img
                     className="h-4 w-4 cursor-pointer "
@@ -249,11 +333,32 @@ const DesktopOnePage = () => {
                     alt="vector"
                   />
                 </div>
-                <div className="flex flex-col items-center justify-center ">
-                  <Googlelogin />
+              </div>
+            </div>
+            <div className="flex  items-center justify-between ">
+              <div className="bg-[#1da1f2] text-center flex flex-row gap-11 items-center justify-start p-[5px] rounded-[22px] w-full">
+                <div className="bg-white-A700 flex flex-col h-[35px] items-center justify-end p-[7px] rounded-[17px] w-[35px]">
+                  <Img
+                    className="h-[40px]"
+                    src="images/img_twitter.svg"
+                    alt="twitter"
+                  />
                 </div>
               </div>
             </div>
+            <div className="flex  items-center justify-between ">
+              <div className="bg-[#cd3e78] text-center flex flex-row gap-11 items-center justify-start p-[5px] rounded-[22px] w-full">
+                <div className="bg-white-A700 flex flex-col h-[35px] items-center justify-end p-[7px] rounded-[17px] w-[35px]">
+                  <Img
+                    className="h-[40px]"
+                    src="images/img_instagram.svg"
+                    alt="instagram"
+                  />
+                </div>
+              </div>
+            </div>
+            
+            
           </div>
           <div className="flex flex-row gap-3.5 items-start justify-between mt-[25px] w-full">
             <Line className="bg-white-A700 h-px my-2 w-2/5" />
@@ -266,34 +371,30 @@ const DesktopOnePage = () => {
             <Line className="bg-white-A700 h-px  my-2 w-2/5" />
           </div>
           <div className="flex flex-col items-center justify-center mt-[25px] w-full">
-            <Input
+            <button
               name="registermessage"
-              placeholder="Register As New User"
-              className="font-semibold leading-[normal]  p-0 placeholder:text-white-A700 text-base text-center w-full"
-              wrapClassName="rounded-[20px] w-5/6"
-              color="indigo_A200"
-              size="sm"
+              className="font-semibold leading-[normal] bg-white-A700/40 text-white-A700 w-5/6 h-10 rounded-lg  text-center border-[1px] border-black-900_99 "
               onClick={handlebuttonclick}
-            ></Input>
+            >
+              Register As New User
+            </button>
           </div>
           <div className="flex justify-between items-center gap-5 mt-10">
             <Button
-              type="button"
-              className="cursor-pointer flex items-center justify-center min-w-[170px]"
+              className="cursor-pointer flex items-center justify-center min-w-[145px]"
               leftIcon={
-                <div className="mb-[3px] mr-[9px] ">
+                <div className="mb-[3px] mr-[9px] h-4 w-4 ">
                   <Img src="images/img_location.svg" alt="location icon" />
                 </div>
               }
               shape="round"
               color="blue_50"
             >
-              <div className="font-medium leading-[normal] text-[15px] text-left">
-              <Location onLocationChange={onLocationChange} />
-
+              <div className="font-medium leading-[normal] text-[15px] text-left ">
+                {locationData.city}, {locationData.state}
               </div>
             </Button>
-{/* 
+            {/* 
             <Button
               type="button"
               className="cursor-pointer flex items-center justify-center min-w-[170px]"
@@ -331,7 +432,7 @@ const DesktopOnePage = () => {
           </div>
         </div>
       </form>
-    </>
+    </div>
   );
 };
 
