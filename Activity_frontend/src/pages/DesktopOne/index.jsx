@@ -10,6 +10,10 @@ import Location from "pages/Location/Location";
 import axios from "axios";
 // import { GoogleLogin } from "react-google-login";
 import { useGoogleLogin } from "@react-oauth/google";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEnvelope, faLock} from "@fortawesome/free-solid-svg-icons";
+import InputWithIconAndText from "components/inputwithicon/InputWithIconAndText";
+
 
 const DesktopOnePage = () => {
   const [locationData, setLocationData] = useState({
@@ -241,10 +245,10 @@ const DesktopOnePage = () => {
   };
 
   return (
-    <div className="w-screen h-screen flex items-center justify-center">
+    <div className="w-screen h-screen flex items-center justify-center pt-5 pb-5 ">
       <form
         onSubmit={handleSubmit}
-        className="w-1/4 h-full sm:w-screen sm:h-screen"
+        className="w-1/4 h-full sm:w-screen sm:h-screen md:w-2/4 md:h-screen  lg:w-3/4 lg:h-3/4 flex flex-col items-center justify-center  shadow-bs2 shadow-black-900"
       >
         <div className="hidden">
           <Location onLocationChange={handleLocationChange} />
@@ -260,7 +264,20 @@ const DesktopOnePage = () => {
             Login to your account
           </Text>
 
-          <Input
+      <div className="bg-white-A700 p-2 rounded-3xl w-3/4 relative flex items-center">
+      <div className="absolute left-4">
+      <FontAwesomeIcon icon={faEnvelope} />
+      </div>
+       <input  type="email" name="email" placeholder="Email"  className="outline-none border-0 ml-5 w-full " />
+      </div>
+      <div className="bg-white-A700 p-2 rounded-3xl w-3/4 mt-8 relative flex items-center">
+      <div className="absolute left-4">
+      <FontAwesomeIcon icon={faLock} />
+      </div>
+       <input  type="password" name="password" placeholder="Pasword"  className="outline-none border-0 ml-5  w-full" />
+      </div>
+
+          {/* <Input
             name="email"
             placeholder="Email"
             className="p-0 placeholder:text-gray-600 ml-2 w-full "
@@ -276,8 +293,8 @@ const DesktopOnePage = () => {
               </div>
             }
             color="white_A700"
-          />
-
+          /> */}
+{/* 
           <Input
             name="password"
             placeholder="Password"
@@ -300,7 +317,7 @@ const DesktopOnePage = () => {
               </div>
             }
             color="white_A700"
-          ></Input>
+          ></Input> */}
 
           <Button
             type="submit"
@@ -316,7 +333,7 @@ const DesktopOnePage = () => {
             Forgot Password
           </h2>
 
-          <div className="flex  items-center justify-center md:ml-[0] ml-[72px] mt-8 w-[58%] md:w-full px-5 gap-2">
+          <div className="flex  items-center justify-center mt-5 gap-2">
             <div className="flex  items-center justify-between ">
               <div className="bg-blue-A400 text-center flex flex-row gap-11 items-center justify-start p-[5px] rounded-[22px] w-full">
                 <div className="bg-white-A700 flex flex-col h-[35px] items-center justify-end p-[7px] rounded-[17px] w-[35px]">

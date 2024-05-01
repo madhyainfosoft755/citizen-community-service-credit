@@ -44,7 +44,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       resetPin: { 
         type: DataTypes.STRING,
-        allowNull:false,
+        allowNull:true,
         
        },
 

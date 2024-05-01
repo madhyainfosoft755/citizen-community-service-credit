@@ -13,7 +13,7 @@ const Verify = () => {
     const verifyEmail = async () => {
       try {
         const uniqueTokenUrl = `
-        ${API_URL}/activity/verify/${token}?_=${new Date().getTime()}`;
+        ${API_URL}/activity/verify/${token}`;
         await axios.get(uniqueTokenUrl);
         // Verification successful, redirect to login page
         navigate("/login"); // Use navigate to redirect

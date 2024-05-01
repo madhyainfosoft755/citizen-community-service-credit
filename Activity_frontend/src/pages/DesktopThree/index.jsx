@@ -281,18 +281,18 @@ const Createpost = () => {
   return (
     <>
       {authenticated && (
-        <form onSubmit={handleSubmit} encType="multipart/form-data">
+        <form className="w-screen h-screen flex items-center justify-center pt-5 pb-5 sm:w-screen sm:h-screen" onSubmit={handleSubmit} encType="multipart/form-data">
           <div className="hidden">
             <Location onLocationChange={handleLocationChange} />
           </div>
 
-          <div className="bg-white-A700 flex flex-col items-center justify-center sm:px-5 rounded-[5px] shadow-bs2 w-[33%] sm:w-full">
-            <div className=" flex flex-col gap-2 items-center justify-center w-full">
+          <div className="w-2/4 h-full sm:w-screen sm:h-screen md:w-2/4 md:h-screen  lg:w-3/4 lg:h-screen  flex flex-col items-center justify-center  shadow-bs2 shadow-black-900">
+            <div className=" flex flex-col gap-2 items-start justify-center w-full h-full">
               <div className="bg-gray-50 flex flex-row items-center justify-between p-7 sm:px-5 w-full rounded-xl">
                 <div className="flex flex-row gap-4 items-center justify-center ml-[5px]">
                   {userData && (
                     <Img
-                      className=" sm:w-[68px] sm:h-[58px] md:w-[68px] md:h-[58px] 2xl:w-[68px] 2xl:h-[58px] rounded-full object-cover object-top "
+                      className=" sm:w-[68px] sm:h-[58px] md:w-[68px] md:h-[58px] lg:w-[68px] lg:h-[58px]  w-[68px] h-[68px] rounded-full object-cover object-top "
                       src={`${API_URL}/image/${userData.userData.photo}`}
                       alt="userimage"
                     />

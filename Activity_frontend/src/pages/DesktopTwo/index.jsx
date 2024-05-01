@@ -165,8 +165,10 @@ const Register = () => {
   };
 
   return (
+    <div className="w-screen h-screen flex items-center justify-center pt-5 pb-5">
+      
     <div
-      className="sm:w-screen sm:h-screen   bg-cover bg-center"
+      className="    bg-cover bg-center w-1/4 h-full sm:w-screen sm:h-screen md:w-2/4 md:h-screen  lg:w-3/4 lg:h-3/4 flex flex-col items-center justify-center shadow-bs2 shadow-black-900"
       style={{ backgroundImage: 'url("./images/img_whitewall.jpg")' }}
     >
       <div className=" flex flex-col items-center justify-center">
@@ -237,7 +239,7 @@ const Register = () => {
             iconColor={"#f4b8c0"}
             placeholder="Password"
             type="password"
-            className="text-xl  pl-10 border-2 bg-inherit rounded-full focus:border-emerald-300 ease-in duration-300"
+            className="h-8 text-xl  pl-10 border-2 bg-inherit rounded-full focus:border-emerald-300 ease-in duration-300"
             // inputClassName="password-input"
             onChange={handleInputChange}
             name="password"
@@ -247,7 +249,7 @@ const Register = () => {
             iconColor={"#f5191c"}
             placeholder="Confirm Password"
             type="password"
-            className="text-xl  pl-10 border-2 bg-inherit rounded-full focus:border-emerald-300 ease-in duration-300"
+            className="h-8 text-xl  pl-10 border-2 bg-inherit rounded-full focus:border-emerald-300 ease-in duration-300"
             // inputClassName="password-input"
             onChange={handleInputChange}
             name="confirmPassword"
@@ -257,9 +259,9 @@ const Register = () => {
           )}
           <InputWithIconAndText
             type="file"
-            placeholder="select profile picture"
             className=" pt-2 pb-2 pl-1 border-double border-4  rounded-lg focus:border-emerald-300 ease-in duration-300"
             onChange={handleFileChange}
+            placeholder="select a file"
           />
 
           <h2 className="text-xl font-bold mt-[-15px]">
@@ -318,6 +320,8 @@ const Register = () => {
         </h3>
       </div>
     </div>
+    </div>
+
   );
 };
 

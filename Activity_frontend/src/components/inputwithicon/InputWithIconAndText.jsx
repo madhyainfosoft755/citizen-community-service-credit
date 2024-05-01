@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "./InputWithIconAndText.css"; // Import the CSS file
 import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
-const InputWithIconAndText = ({ icon, iconColor, text, type,inputClassName, ...rest }) => {
+const InputWithIconAndText = ({ icon, iconColor, type,inputClassName,text, ...rest }) => {
   const [isFocused, setIsFocused] = useState(false);
   const [showPassword, setShowPassword] = useState(false); // State to track password visibility
 
@@ -36,6 +36,11 @@ const InputWithIconAndText = ({ icon, iconColor, text, type,inputClassName, ...r
         {...rest}
       />
 
+ 
+
+      <div className="text-container">{text}</div>
+      
+
       {type === "password" && (
         <div className="eye-icon-container" onClick={togglePasswordVisibility}>
           <FontAwesomeIcon
@@ -44,8 +49,6 @@ const InputWithIconAndText = ({ icon, iconColor, text, type,inputClassName, ...r
           />
         </div>
       )}
-
-      <div className="text-container">{text}</div>
     </div>
   );
 };

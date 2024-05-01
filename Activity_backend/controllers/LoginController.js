@@ -602,9 +602,6 @@ const updateUserData = async (req, res) => {
   }
 };
 
-// const upload = multer({ storage: storage });
-// const upload = multer({ dest: 'uploads/' });
-
 const CreateActivity = async (req, res) => {
   try {
     const {
