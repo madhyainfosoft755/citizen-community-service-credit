@@ -29,17 +29,17 @@ const Register = () => {
   const [error, setError] = useState(""); // State for error message
   const [passwordError, setPasswordError] = useState(false);
   const [mobileError, setMobileError] = useState(""); // State for mobile number error
-  const [selectedCategories, setSelectedCategories] = useState([]);  // this function for get selected are
+  const [selectedCategories, setSelectedCategories] = useState([]); // this function for get selected are
   const [buttonStates, setButtonStates] = useState(Array(3).fill(false)); // Assuming 3 buttons, adjust the size as needed
   const [selectedFile, setSelectedFile] = useState(null);
-  
+  const [isMobileVerified, setIsMobileVerified] = useState(false);
+
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     setSelectedFile(file);
     console.log("file", file.name);
   };
-  
-  
+
   const handleButtonClick = (index, value) => {
     setButtonStates((prevButtonStates) => {
       const newButtonStates = [...prevButtonStates];
@@ -57,13 +57,19 @@ const Register = () => {
       }
     });
   };
-  
-  
+
   const handleInputChange = (e) => {
     // Check if e and e.target are defined
     console.log("handle input change", e);
     if (e && e.target) {
       const { name, value } = e.target;
+
+      // Check if mobile number is verified when it reaches 10 digits
+      if (name === "phone" && value.length === 10) {
+        setIsMobileVerified(true);
+      } else {
+        setIsMobileVerified(false);
+      }
 
       // Check if name is defined before updating state
       if (name !== undefined) {
@@ -75,6 +81,12 @@ const Register = () => {
     }
   };
 
+  const handleVerifyMobile = () => {  
+    // Your logic to verify mobile number can go here
+    console.log("Mobile number verified");
+    // You can set state or perform any action after mobile number verification
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -83,17 +95,16 @@ const Register = () => {
       setPasswordError(true);
       return; // Exit function if passwords don't match
     }
-     // Reset password error state if passwords match
-     setPasswordError(false);
+    // Reset password error state if passwords match
+    setPasswordError(false);
 
-      // Validate mobile number format
+    // Validate mobile number format
     if (!validateMobileNumber(formsData.phone)) {
       setMobileError("Invalid mobile number format");
       return;
     }
     // Reset mobile number error state if valid
     setMobileError("");
-
 
     const formsDATA = new FormData();
     formsDATA.append("name", e.target[0].value);
@@ -112,28 +123,37 @@ const Register = () => {
     }
 
     try {
-      const response = await fetch(
-        `${API_URL}/activity/Register`,
-        {
-          method: "POST",
-          body: formsDATA,
-        }
-      );
-      
+      const response = await fetch(`${API_URL}/activity/Register`, {
+        method: "POST",
+        body: formsDATA,
+      });
+      console.log("kya response aa rha hai", response);
+
       const data = await response.json();
+      console.log("kya data aa rha hai", data);
       if (response.ok) {
         console.log("Success:", data);
         navigate("/login" || "/createpost, { state: { user: formsData } }");
+
+        // Reset form data after successful registration
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          address: "",
+          idCard: "",
+          password: "",
+          confirmPassword: "",
+        });
       } else {
         setError(data.message); // Update error message state
-        console.error("Error:", data.error); // Display error message to the user
+        console.error("Error aa gai re baba:", data.error); // Display error message to the user
       }
     } catch (error) {
-      console.error("Error:", error);
+      console.error("Error aa gai re baba:", error);
     }
   };
 
-  
   const validateMobileNumber = (mobile) => {
     // Implement your mobile number validation logic here
     // Example: check if mobile number is 10 digits long and contains only numbers
@@ -180,16 +200,22 @@ const Register = () => {
           />
           {error && <div className="error-message">{error}</div>}
 
-          <InputWithIconAndText
-            icon={faPhone} // Change the icon as needed
-            iconColor={"#419f44"}
-            placeholder="Phone"
-            className="text-xl  pl-10 border-2 bg-inherit rounded-full focus:border-emerald-300 ease-in duration-300"
-            onChange={handleInputChange}
-            name="phone"
-            value= {formsData.phone}
-          />
-          {mobileError && <div className="error-message">{mobileError}</div>}
+          <div className="flex ">
+            <InputWithIconAndText
+              icon={faPhone} // Change the icon as needed
+              iconColor={"#419f44"}
+              placeholder="Phone"
+              className="text-xl  pl-10 border-2 bg-inherit rounded-full focus:border-emerald-300 ease-in duration-300"
+              onChange={handleInputChange}
+              name="phone"
+              value={formsData.phone}
+            />
+            {mobileError && <div className="error-message">{mobileError}</div>}
+            {isMobileVerified && (
+              <Button type="button" className="bg-blue-400 text-white-A700 rounded-2xl" onClick={handleVerifyMobile}>Verify</Button>
+            )}
+          </div>
+
           <InputWithIconAndText
             icon={faLocationCrosshairs} // Change the icon as needed
             iconColor={"#d67500"}
@@ -212,6 +238,7 @@ const Register = () => {
             placeholder="Password"
             type="password"
             className="text-xl  pl-10 border-2 bg-inherit rounded-full focus:border-emerald-300 ease-in duration-300"
+            // inputClassName="password-input"
             onChange={handleInputChange}
             name="password"
           />
@@ -221,12 +248,16 @@ const Register = () => {
             placeholder="Confirm Password"
             type="password"
             className="text-xl  pl-10 border-2 bg-inherit rounded-full focus:border-emerald-300 ease-in duration-300"
+            // inputClassName="password-input"
             onChange={handleInputChange}
             name="confirmPassword"
           />
-          {passwordError && <div className="error-message">Passwords do not match</div>}
+          {passwordError && (
+            <div className="error-message">Passwords do not match</div>
+          )}
           <InputWithIconAndText
             type="file"
+            placeholder="select profile picture"
             className=" pt-2 pb-2 pl-1 border-double border-4  rounded-lg focus:border-emerald-300 ease-in duration-300"
             onChange={handleFileChange}
           />
@@ -275,17 +306,18 @@ const Register = () => {
           <Button className="bg-sky-600 text-white-A700 text-2xl sm:w-5/6 rounded-full mt-[-5px]">
             Create Account
           </Button>
-
-
         </form>
         <h3 className="mb-2">
           Already have an account?{" "}
-          <span className="text-indigo-700 font-bold underline  " onClick={direct}>Login Here</span>
+          <span
+            className="text-indigo-700 font-bold underline  "
+            onClick={direct}
+          >
+            Login Here
+          </span>
         </h3>
       </div>
-      
     </div>
-    
   );
 };
 

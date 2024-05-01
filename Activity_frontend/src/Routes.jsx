@@ -18,6 +18,8 @@ const DesktopOne = React.lazy(() => import("pages/DesktopOne"));
 const DesktopNine = React.lazy(() => import("pages/DesktopNine"));
 const DesktopEight = React.lazy(() => import("pages/DesktopEight"));
 const Endorse = React.lazy(()=>import("pages/Endorse"))
+const Verify = React.lazy(()=>import("pages/VerifyPage"))
+const Forget = React.lazy(()=>import("pages/ForgetPassword"))
 
 const ProjectRoutes = () => { 
   // const navigate = useNavigate();
@@ -80,16 +82,16 @@ const ProjectRoutes = () => {
           {/* <Route path="*" element={<NotFound />} /> */}
           <Route path="/login" element={<DesktopOne />} />
           <Route path="/register" element={<DesktopTwo />} />
-          <Route element={<Layout />}>
           <Route path="/create" element={<DesktopThree />} />
           <Route path="/activity" element={<DesktopFour />} />
+          <Route path="/verify/:token" element={<Verify />} />
+          <Route path="/forget" element={<Forget />} />
           <Route path="/endorse" element={<Endorse />} />
           <Route path="/admin" element={<DesktopFive />} />
           <Route path="/managecategoris" element={<DesktopSix />} />
           <Route path="/aproovehours" element={<DesktopSeven />} />
           <Route path="/aproovers" element={<DesktopEight />} />
           <Route path="/desktopnine" element={<DesktopNine />} />
-          </Route>
 
         </Routes>
       </Router>

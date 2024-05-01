@@ -9,6 +9,18 @@
   position: absolute;
   left: 10px;
 }
+.eye-icon-container {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+
+}
+.eye-icon-container:hover {
+  opacity: 0.8;
+}
+
 
 .icon {
   transition: color 0.3s ease; /* Add transition for smooth color change */

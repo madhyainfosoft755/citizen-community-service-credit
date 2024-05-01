@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 
 const {
+  output,
   varifybytoken,
   varifybytiken,
   login,
@@ -13,10 +14,19 @@ const {
   postsdata,
   fetchPostsInArea,
   endorsePost,
-  GoogleLogin
+  GoogleLogin,
+  verify,
+  forgetpassword,
+  verifyPin,
+  updatePassword
 } = require("../controllers/LoginController");
 const { upload } = require("../utils/util");
 // Express route 
+router.get("/output", output);  
+router.post("/updatePassword",updatePassword)
+router.post("/forgetpassword",forgetpassword)
+router.post("/verifyPin",verifyPin)
+router.get("/verify/:token", verify);
 router.post('/GoogleLogin', GoogleLogin);
 router.get("/varifybytoken", varifybytoken);
 router.post("/login", login);

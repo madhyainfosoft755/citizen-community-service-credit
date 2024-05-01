@@ -1,10 +1,11 @@
-import React, { useState }  from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import './InputWithIconAndText.css'; // Import the CSS file
+import React, { useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import "./InputWithIconAndText.css"; // Import the CSS file
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
-const InputWithIconAndText = ({ icon,iconColor, text, ...rest }) => {
-  
+const InputWithIconAndText = ({ icon, iconColor, text, type,inputClassName, ...rest }) => {
   const [isFocused, setIsFocused] = useState(false);
+  const [showPassword, setShowPassword] = useState(false); // State to track password visibility
 
   const handleFocus = () => {
     setIsFocused(true);
@@ -14,17 +15,36 @@ const InputWithIconAndText = ({ icon,iconColor, text, ...rest }) => {
     setIsFocused(false);
   };
 
+  const togglePasswordVisibility = () => {
+    setShowPassword((prev) => !prev);
+  };
+
   return (
-    <div className={`input-with-icon-and-text ${isFocused ? 'focused' : ''}`}>
+    <div className={`input-with-icon-and-text ${isFocused ? "focused" : ""}`}>
       <div className="icon-container">
-        <FontAwesomeIcon icon={icon} className="icon" style={{ color: isFocused ? iconColor : '#ccc' }} />
+        <FontAwesomeIcon
+          icon={icon}
+          className="icon"
+          style={{ color: isFocused ? iconColor : "#ccc" }}
+        />
       </div>
       <input
-        type="text"
+        type={showPassword ? "text" : type} // Use 'text' type when showPassword is true
         onFocus={handleFocus}
         onBlur={handleBlur}
+        className={`${inputClassName} ${showPassword ? 'show-password' : ''}`}
         {...rest}
       />
+
+      {type === "password" && (
+        <div className="eye-icon-container" onClick={togglePasswordVisibility}>
+          <FontAwesomeIcon
+            icon={showPassword ? faEyeSlash : faEye}
+            className="eye-icon"
+          />
+        </div>
+      )}
+
       <div className="text-container">{text}</div>
     </div>
   );

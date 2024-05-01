@@ -8,7 +8,7 @@ import { API_URL } from "Constant";
 import { useNavigate } from "react-router-dom";
 import Location from "pages/Location/Location";
 import axios from "axios";
-import { GoogleLogin } from "react-google-login";
+// import { GoogleLogin } from "react-google-login";
 import { useGoogleLogin } from "@react-oauth/google";
 
 const DesktopOnePage = () => {
@@ -31,12 +31,9 @@ const DesktopOnePage = () => {
   });
 
   const [error, setError] = useState("");
-  // const { authenticated, setAuthenticated } = useAuth();
   const navigate = useNavigate();
   const [loginAttempted, setLoginAttempted] = useState(false);
-  const [loginSuccess, setLoginSuccess] = useState(false);
   const [currentDate, setCurrentDate] = useState("");
-  const [showLocation, setShowLocation] = useState(false);
 
   useEffect(() => {
     // Function to get and format the current date
@@ -112,9 +109,12 @@ const DesktopOnePage = () => {
         body: new URLSearchParams(formsDATA).toString(),
       });
 
+      console.log("kya response aa rha hai", response);
+
       if (!response.ok) {
         setLoginAttempted(true);
-        console.log("Invalid Credentials");
+        setError("Email not verified");
+        console.log(error);
         setValidationErrors({ email: "Invalid credentials", password: "" });
         return;
       }
@@ -167,7 +167,6 @@ const DesktopOnePage = () => {
     },
   });
 
-  
   //code to get the details from an access token
   // async function getUserProfile(accessToken) {
   //   try {
@@ -221,7 +220,7 @@ const DesktopOnePage = () => {
       }
 
       const data = await loginResponse.json();
-      console.log("google data response", data)
+      console.log("google data response", data);
       const { token, user } = data;
 
       if (token && user) {
@@ -235,6 +234,10 @@ const DesktopOnePage = () => {
       setError("An error occurred while logging in with Google.");
       console.error("Error:", error);
     }
+  };
+
+  const Forget = () => {
+    navigate("/forget");
   };
 
   return (
@@ -309,6 +312,10 @@ const DesktopOnePage = () => {
           </Button>
           {/* {error && <Text className="text-red-600 mt-2">{error}</Text>} */}
 
+          <h2 className="mt-5 underline text-white-A700" onClick={Forget}>
+            Forgot Password
+          </h2>
+
           <div className="flex  items-center justify-center md:ml-[0] ml-[72px] mt-8 w-[58%] md:w-full px-5 gap-2">
             <div className="flex  items-center justify-between ">
               <div className="bg-blue-A400 text-center flex flex-row gap-11 items-center justify-start p-[5px] rounded-[22px] w-full">
@@ -357,8 +364,6 @@ const DesktopOnePage = () => {
                 </div>
               </div>
             </div>
-            
-            
           </div>
           <div className="flex flex-row gap-3.5 items-start justify-between mt-[25px] w-full">
             <Line className="bg-white-A700 h-px my-2 w-2/5" />

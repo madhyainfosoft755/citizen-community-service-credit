@@ -15,9 +15,25 @@ const { logger } = require("../utils/util");
 const { CLIENT_ID, CLIENT_SECRET, CALLBACK_URL } = require('../config/constant');
 const {OAuth2Client} = require('google-auth-library');
 const client = new OAuth2Client(CLIENT_ID);
+const nodemailer = require("nodemailer");
+const randomstring = require('randomstring'); 
+const crypto = require('crypto'); // For generating a random token
 const dotenv = require("dotenv");
 dotenv.config();
 
+
+
+
+// function to check the server is running or not by making a request to this api
+const output =async (req, res)=> {
+  try {
+    return res.json("abcd");
+  } catch (error) {
+    logger.error("here is the error from output", error);
+    console.error('Failed to fetch user profile:',error);
+    throw error;
+  }
+}
 
 // function to get the google user details
 const  getUserProfile = async (accessToken)=> {
@@ -77,7 +93,7 @@ const GoogleLogin = async (req, res) => {
       user = await Users.create({
         name: userProfile.name,
         email: userProfile.email,
-        phone: '', // Add phone if needed
+        // phone: '', // Add phone if needed
         password: generatedPassword, // Add password if needed
         photo: userProfile.picture, // Assuming you store the profile picture
         category: '', // Add category if needed
@@ -105,6 +121,33 @@ const sequelize = new Sequelize(config.DB, config.USER_DB, config.PASSWORD_DB, {
 });
 
 
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  host: "smtp.gmail.com",
+  port: 465,
+  auth: {
+      user: "vaibhavkurmi786@gmail.com",
+      pass: "kakparbgukhobhwb",
+  },
+});
+
+// Function to send login confirmation email
+const sendLoginConfirmationEmail = async (email, token) => {
+  try {
+    // Send email using nodemailer transporter
+    await transporter.sendMail({
+      from: 'vaibhavkurmi786@gmail.com',
+      to: email,
+      subject: 'Confirm Login',
+      html: `<p>Please click <a href="http://ccsc.helpersin.com/login/${token}">here</a> to confirm your login.</p>`,
+    });
+  } catch (error) {
+    console.error("Error sending login confirmation email:", error);
+    throw new Error("Failed to send login confirmation email.");
+  }
+};
+
+
 // this is Register Api
 const Register = async (req, res) => {
   try {
@@ -128,6 +171,17 @@ const Register = async (req, res) => {
         .status(400)
         .json({ message: "Mobile number already registered" });
     }
+
+    // Generate a unique verification token
+    const verificationToken = crypto.randomBytes(20).toString('hex');
+
+    // Send verification email
+    await transporter.sendMail({
+      from: 'your-email@example.com',
+      to: userData.email,
+      subject: 'Verify your email',
+      html: `<p>Please click <a href="http://localhost:3000/verify/${verificationToken}">here</a> to verify your email address.</p>`,
+    });
    
     const { selectedCategories } = req.body;
     console.log("category Register", selectedCategories);
@@ -153,6 +207,7 @@ const Register = async (req, res) => {
       phone:userData.phone,
       photo: photos_,
       category: Category,
+      verificationToken: verificationToken, // Store verification token in the database
       // Add other fields as needed
     });
 
@@ -160,7 +215,7 @@ const Register = async (req, res) => {
 
     return res.status(201).json({
       status: "success",
-      message: "Registration successful",
+      message: "Registration successful. Please check your email for verification.",
     });
   } catch (error) {
     logger.error("here is the error", error);
@@ -172,6 +227,140 @@ const Register = async (req, res) => {
   }
 };
 
+const verify = async (req, res) => {
+  try {
+    const { token } = req.params;
+    console.log("this is token",token)
+    
+    const user = await Users.findOne({ where: { verificationToken: token } });
+     // Check if user is already verified
+     if (user.verified) {
+      return res.status(400).json({ message: "Email already verified" });
+    } 
+
+    // Find user by verification token
+    if (!user) {
+      return res.status(404).json({ message: "Invalid verification token" });
+    }
+    
+    // Update user's verified status
+    await user.update({ verified: true, verificationToken: null });
+
+    return res.status(200).json({ message: "Email verification successful" });
+  } catch (error) {
+    logger.error("here is the error", error);
+    console.error("Email verification failed:", error);
+    return res.status(500).json({ message: "Email verification failed" });
+  }
+};
+
+
+const forgetpassword = async(req,res)=>{
+  const { email } = req.body;
+  // console.log("this is the email",email)
+  
+  // Check if email exists in the database
+  const user = await Users.findOne({where:{ email }});
+  if (!user) {
+    return res.status(404).json({ message: 'Email not found' });
+  }
+  
+  // Generate 6-digit PIN
+  const pin = randomstring.generate({ length: 6, charset: 'numeric' });
+  console.log("*-*-this is the generated pin*-*-", pin)
+
+  // Update user's resetPin field with the generated PIN
+  user.resetPin = pin;
+  await user.save();
+
+
+  // Send PIN to the user's email
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: 'vaibhavkurmi786@gmail.com',
+      pass: 'kakparbgukhobhwb'
+    }
+  });
+
+  const mailOptions = {
+    from: 'vaibhavkurmi786@gmail.com',
+    to: email,
+    subject: 'Reset Password PIN',
+    text: `Your PIN for resetting the password is: ${pin}`
+  };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      console.error('Error sending email:', error);
+      return res.status(500).json({ message: 'Error sending PIN email' });
+    } else {
+      console.log('Email sent:', info.response);
+      return res.status(200).json({ message: 'PIN sent to your email' });
+    }
+  });
+}
+
+
+const verifyPin = async (req, res) => {
+  try {
+    const { email, pin } = req.body;
+
+    console.log("ye hian email aur pin", email , pin)
+
+    // Find user by email
+    const user = await Users.findOne({where:{ email }});
+    console.log("***ye hai user ka data***", user)
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Check if the entered PIN matches the stored PIN
+    if (pin !== user.resetPin) {
+      return res.status(400).json({ message: 'Invalid PIN' });
+    }
+    user.resetPin = null;
+    return res.status(200).json({ message: 'PIN verified successfully' });
+  } catch (error) {
+    logger.error("Here is the error", error);
+    console.error("PIN verification failed:", error);
+    return res.status(500).json({
+      status: "error",
+      message: "PIN verification failed",
+    });
+  }
+};
+
+const updatePassword = async (req, res) => {
+  const { email, newPassword } = req.body;
+
+  try {
+    // Find user by email
+    const user = await Users.findOne({where:{ email }});
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Check if the entered PIN matches the stored PIN
+    // if (pin !== user.resetPin) {
+    //   return res.status(400).json({ message: 'Invalid PIN' });
+    // }
+
+    // Update user's password and clear resetPin
+    user.password = newPassword;
+    // user.resetPin = null; // Clear the resetPin after successful password reset
+
+    await user.save();
+
+    return res.status(200).json({ message: 'Password updated successfully' });
+  } catch (error) {
+    console.error('Update password error:', error);
+    return res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+
+
 const login = async (req, res) => {
   const { email, password } = req.body;
 
@@ -182,7 +371,9 @@ const login = async (req, res) => {
     const user = await Users.findOne({ where: { email } });
     console.log(user);
 
-    if (!user) {
+
+     // Check if the password matches
+     if (!user) {
       return res.status(401).json({ error: "Invalid email or password." });
     }
 
@@ -191,6 +382,10 @@ const login = async (req, res) => {
       return res.status(401).json({ error: "Invalid  password." });
     }
     
+     // Check if the user is verified
+     if (!user.verified) {
+      return res.status(401).json({ error: "Email is not verified. Please verify your email." });
+    } 
 
     const token = Jwt.sign({ userId: user.id }, jwtKey, {
       expiresIn: "1h",
@@ -646,7 +841,7 @@ const endorsePost = async (req, res) => {
   }
 };
 module.exports = {
-  GoogleResponse,
+  output,
   varifybytoken,
   login,
   varifybytiken,
@@ -658,5 +853,9 @@ module.exports = {
   postsdata,
   fetchPostsInArea,
   endorsePost,
-  GoogleLogin
+  GoogleLogin,
+  verify,
+  forgetpassword,
+  verifyPin,
+  updatePassword
 };
