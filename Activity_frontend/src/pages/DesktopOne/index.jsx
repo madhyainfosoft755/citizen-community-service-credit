@@ -11,9 +11,8 @@ import axios from "axios";
 // import { GoogleLogin } from "react-google-login";
 import { useGoogleLogin } from "@react-oauth/google";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEnvelope, faLock} from "@fortawesome/free-solid-svg-icons";
+import { faEnvelope, faLock } from "@fortawesome/free-solid-svg-icons";
 import InputWithIconAndText from "components/inputwithicon/InputWithIconAndText";
-
 
 const DesktopOnePage = () => {
   const [locationData, setLocationData] = useState({
@@ -254,7 +253,7 @@ const DesktopOnePage = () => {
           <Location onLocationChange={handleLocationChange} />
         </div>
         <div
-          className="w-full h-full flex flex-col justify-center items-center pt-10 sm:w-screen sm:h-screen overflow-hidden  bg-cover bg-center "
+          className="w-full h-full flex flex-col justify-center items-center pt-2 sm:pt-10 sm:w-screen sm:h-screen overflow-hidden  bg-cover bg-center "
           style={{ backgroundImage: 'url("./images/img_helping.jpg")' }}
         >
           <Text className="text-2xl text-white-A700 font-extrabold">
@@ -264,18 +263,28 @@ const DesktopOnePage = () => {
             Login to your account
           </Text>
 
-      <div className="bg-white-A700 p-2 rounded-3xl w-3/4 relative flex items-center">
-      <div className="absolute left-4">
-      <FontAwesomeIcon icon={faEnvelope} />
-      </div>
-       <input  type="email" name="email" placeholder="Email"  className="outline-none border-0 ml-5 w-full " />
-      </div>
-      <div className="bg-white-A700 p-2 rounded-3xl w-3/4 mt-8 relative flex items-center">
-      <div className="absolute left-4">
-      <FontAwesomeIcon icon={faLock} />
-      </div>
-       <input  type="password" name="password" placeholder="Pasword"  className="outline-none border-0 ml-5  w-full" />
-      </div>
+          <div className="bg-white-A700 p-2 rounded-3xl w-3/4 relative flex items-center">
+            <div className="absolute left-4">
+              <FontAwesomeIcon icon={faEnvelope} />
+            </div>
+            <input
+              type="email"
+              name="email"
+              placeholder="Email"
+              className="outline-none border-0 ml-5 w-full "
+            />
+          </div>
+          <div className="bg-white-A700 p-2 rounded-3xl w-3/4 mt-8 relative flex items-center">
+            <div className="absolute left-4">
+              <FontAwesomeIcon icon={faLock} />
+            </div>
+            <input
+              type="password"
+              name="password"
+              placeholder="Pasword"
+              className="outline-none border-0 ml-5  w-full"
+            />
+          </div>
 
           {/* <Input
             name="email"
@@ -294,7 +303,7 @@ const DesktopOnePage = () => {
             }
             color="white_A700"
           /> */}
-{/* 
+          {/* 
           <Input
             name="password"
             placeholder="Password"
@@ -382,7 +391,7 @@ const DesktopOnePage = () => {
               </div>
             </div>
           </div>
-          <div className="flex flex-row gap-3.5 items-start justify-between mt-[25px] w-full">
+          <div className="flex flex-row gap-3.5 items-start justify-between mt-5 sm:mt-[25px] w-full">
             <Line className="bg-white-A700 h-px my-2 w-2/5" />
             <Text
               className="text-[15px] text-white-A700"
@@ -392,7 +401,7 @@ const DesktopOnePage = () => {
             </Text>
             <Line className="bg-white-A700 h-px  my-2 w-2/5" />
           </div>
-          <div className="flex flex-col items-center justify-center mt-[25px] w-full">
+          <div className="flex flex-col items-center justify-center mt-4 sm:mt-[25px]  w-full">
             <button
               name="registermessage"
               className="font-semibold leading-[normal] bg-white-A700/40 text-white-A700 w-5/6 h-10 rounded-lg  text-center border-[1px] border-black-900_99 "
@@ -401,7 +410,7 @@ const DesktopOnePage = () => {
               Register As New User
             </button>
           </div>
-          <div className="flex justify-between items-center gap-5 mt-10">
+          <div className="flex justify-between items-center gap-5 mt-4 sm:mt-10">
             <Button
               className="cursor-pointer flex items-center justify-center min-w-[145px]"
               leftIcon={
@@ -416,22 +425,7 @@ const DesktopOnePage = () => {
                 {locationData.city}, {locationData.state}
               </div>
             </Button>
-            {/* 
-            <Button
-              type="button"
-              className="cursor-pointer flex items-center justify-center min-w-[170px]"
-              onClick={() => setShowLocation(!showLocation)} // Toggle showLocation state
-              shape="round"
-              color="blue_50"
-            >
-              <div className="font-medium leading-[normal] text-[15px] text-left">
-                {showLocation ? (
-                  <Location onLocationChange={onLocationChange} />
-                ) : (
-                  "Show Location"
-                )}
-              </div>
-            </Button> */}
+            
             <Button
               type="button"
               className="cursor-pointer flex items-center justify-center min-w-[170px]"
