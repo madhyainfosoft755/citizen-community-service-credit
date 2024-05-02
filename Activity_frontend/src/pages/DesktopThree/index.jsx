@@ -281,14 +281,14 @@ const Createpost = () => {
   return (
     <>
       {authenticated && (
-        <form className="w-screen h-screen flex items-center justify-center pt-5 pb-5 sm:w-screen sm:h-screen" onSubmit={handleSubmit} encType="multipart/form-data">
+        <form className="w-screen h-screen  flex items-center justify-center pt-5 pb-5 sm:w-screen sm:h-screen md:pt-5 md:pb-5" onSubmit={handleSubmit} encType="multipart/form-data">
           <div className="hidden">
             <Location onLocationChange={handleLocationChange} />
           </div>
 
-          <div className="w-2/4 h-full sm:w-screen sm:h-screen md:w-2/4 md:h-screen  lg:w-3/4 lg:h-screen  flex flex-col items-center justify-center  shadow-bs2 shadow-black-900">
-            <div className=" flex flex-col gap-2 items-start justify-center w-full h-full">
-              <div className="bg-gray-50 flex flex-row items-center justify-between p-7 sm:px-5 w-full rounded-xl">
+          <div className="w-1/4 h-full sm:w-screen sm:h-screen md:w-2/4 md:h-screen  lg:w-3/4 lg:h-screen  flex flex-col items-center justify-center  shadow-bs2 shadow-black-900 sm:shadow-blue-300 md:pl-8 md:pr-8 md:pt-2 ">
+            <div className=" flex flex-col gap-2 items-center justify-start w-full h-full ">
+              <div className="bg-gray-50 flex flex-row items-center justify-between p-5  sm:px-5 w-full rounded-xl">
                 <div className="flex flex-row gap-4 items-center justify-center ml-[5px]">
                   {userData && (
                     <Img
@@ -305,9 +305,9 @@ const Createpost = () => {
                       >
                         {userData && userData.userData.name}
                       </Text>
-                      <Text className="text-center  text-gray-900 uppercase text-sm">
+                      {/* <Text className="text-center  text-gray-900 uppercase text-sm">
                         ID: {userData && userData.userData.id}
-                      </Text>
+                      </Text> */}
                     </div>
                   </div>
                 </div>
@@ -338,7 +338,7 @@ const Createpost = () => {
                   id="fromTime"
                   value={fromTime}
                   onChange={(e) => setFromTime(e.target.value)}
-                  className="rounded-lg border-2 border-dashed"
+                  className="rounded-lg border-2 border-dashed text-xs"
                 />{" "}
                 <label
                   htmlFor="fromTime"
@@ -353,7 +353,7 @@ const Createpost = () => {
                   value={toTime}
                   placeholder="To time"
                   onChange={(e) => setToTime(e.target.value)}
-                  className="rounded-lg border-2 border-dashed"
+                  className="rounded-lg border-2 border-dashed text-xs"
                 />
               </div>
               <div className="flex flex-col items-start justify-center w-[100%] sm:w-full">
@@ -491,14 +491,13 @@ const Createpost = () => {
                     Add Hours Spent
                   </Text> */}
                 <Button
-                  className="cursor-pointer font-semibold w-full mt-5 mb-3 text-base text-center"
+                  className="cursor-pointer font-semibold w-full mt-5 mb-1 text-base text-center"
                   shape="round"
                   color="indigo_A200"
                 >
                   SUBMIT
                 </Button>
               </div>
-            </div>
             {/* </div> */}
             <Button
               className="cursor-pointer font-semibold w-full  text-base text-center"
@@ -508,6 +507,7 @@ const Createpost = () => {
             >
               LOGOUT
             </Button>
+            </div>
           </div>
         </form>
       )}
