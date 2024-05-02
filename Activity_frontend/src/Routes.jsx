@@ -7,6 +7,8 @@ import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "components/AuthProvider/AuthProvider";
 import { API_URL } from "Constant";
 import Layout from "layout/layout";
+// import { ToastContainer } from "react-toastify";
+// import "react-toastify/dist/ReactToastify.css";
 
 const DesktopTwo = React.lazy(() => import("pages/DesktopTwo"));
 const DesktopSeven = React.lazy(() => import("pages/DesktopSeven"));
@@ -78,6 +80,7 @@ const ProjectRoutes = () => {
       <Router>
         {/* <PageNavigation/>  */}
         <Routes>
+          {/* <ToastContainer/> */}
           <Route path="/" element={<DesktopOne />} />
           {/* <Route path="*" element={<NotFound />} /> */}
           <Route path="/login" element={<DesktopOne />} />

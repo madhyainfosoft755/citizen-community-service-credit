@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from "react";
-
 import { Button, Img, Input, Line, Text } from "components";
 // import MyGoogle from 'components/googlelogin/Googlelogin'
 // import Googlelogin from "pages/GoogleLogin/Googlelogin";
-
 import { API_URL } from "Constant";
 import { useNavigate } from "react-router-dom";
 import Location from "pages/Location/Location";
@@ -12,7 +10,10 @@ import axios from "axios";
 import { useGoogleLogin } from "@react-oauth/google";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEnvelope, faLock } from "@fortawesome/free-solid-svg-icons";
-import InputWithIconAndText from "components/inputwithicon/InputWithIconAndText";
+import {  toast } from "react-toastify";
+// import 'react-toastify/dist/ReactToastify.css';
+
+
 
 const DesktopOnePage = () => {
   const [locationData, setLocationData] = useState({
@@ -37,6 +38,8 @@ const DesktopOnePage = () => {
   const navigate = useNavigate();
   const [loginAttempted, setLoginAttempted] = useState(false);
   const [currentDate, setCurrentDate] = useState("");
+  const notify = (e) => toast(e);
+
 
   useEffect(() => {
     // Function to get and format the current date
@@ -117,8 +120,10 @@ const DesktopOnePage = () => {
       if (!response.ok) {
         setLoginAttempted(true);
         setError("Email not verified");
+        notify(error)
         console.log(error);
         setValidationErrors({ email: "Invalid credentials", password: "" });
+        notify(validationErrors)
         return;
       }
 
@@ -132,18 +137,20 @@ const DesktopOnePage = () => {
         localStorage.setItem("userKey", JSON.stringify(userKey));
         // setLoginSuccess(true);
         // setAuthenticated(true);
-
         if (redirectTo === "/admin") {
           navigate(redirectTo);
         } else {
           navigate("/create");
         }
+        notify("Login Successful")
       } else {
         console.log("Response is missing");
-      }
+        notify("response is missing")
+      } 
     } catch (error) {
       setError("An error occurred while logging in. Please try again.");
       console.error("Error:", error);
+      notify(error)
     }
   };
 
@@ -218,6 +225,7 @@ const DesktopOnePage = () => {
       });
 
       if (!loginResponse.ok) {
+
         setError("Google login failed.");
         return;
       }
@@ -245,6 +253,7 @@ const DesktopOnePage = () => {
 
   return (
     <div className="w-screen h-screen flex items-center justify-center pt-5 pb-5 ">
+      {/* <ToastContainer /> */}
       <form
         onSubmit={handleSubmit}
         className="w-1/4 h-full sm:w-screen sm:h-screen md:w-2/4 md:h-screen  lg:w-3/4 lg:h-3/4 flex flex-col items-center justify-center  shadow-bs2 shadow-black-900"
@@ -281,7 +290,7 @@ const DesktopOnePage = () => {
             <input
               type="password"
               name="password"
-              placeholder="Pasword"
+              placeholder="Password"
               className="outline-none border-0 ml-5  w-full"
             />
           </div>
@@ -425,7 +434,7 @@ const DesktopOnePage = () => {
                 {locationData.city}, {locationData.state}
               </div>
             </Button>
-            
+
             <Button
               type="button"
               className="cursor-pointer flex items-center justify-center min-w-[170px]"

@@ -13,6 +13,8 @@ import { Button } from "components";
 import { useNavigate } from "react-router-dom";
 import "./style.css";
 import { API_URL } from "Constant";
+import { toast } from "react-toastify";
+
 
 const Register = () => {
   const navigate = useNavigate();
@@ -83,6 +85,10 @@ const Register = () => {
 
   const handleVerifyMobile = () => {  
     // Your logic to verify mobile number can go here
+    toast.success("Mobile number verified", {
+      position: toast.POSITION.TOP_RIGHT,
+    autoClose: 3000,
+    })
     console.log("Mobile number verified");
     // You can set state or perform any action after mobile number verification
   };
