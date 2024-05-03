@@ -39,7 +39,8 @@ const DesktopOnePage = () => {
   const [loginAttempted, setLoginAttempted] = useState(false);
   const [currentDate, setCurrentDate] = useState("");
   const notify = (e) => toast(e);
-
+  const [isEmailVerified, setIsEmailVerified] = useState(true); // Initially assuming email is verified
+  const [showResendButton, setShowResendButton] = useState(false);
 
   useEffect(() => {
     // Function to get and format the current date
@@ -81,11 +82,13 @@ const DesktopOnePage = () => {
     setValidationErrors(errors);
     return isValid;
   };
+  const [emailvalue, setEmailvalue] = useState("")
 
   const handleSubmit = async (event) => {
     event.preventDefault();
     const formsDATA = new FormData();
     const emailValue = event.target[0].value;
+    setEmailvalue(emailValue)
     const passwordValue = event.target[1].value;
     formsDATA.append("email", emailValue);
     // console.log(emailValue, passwordValue);
@@ -115,25 +118,24 @@ const DesktopOnePage = () => {
         body: new URLSearchParams(formsDATA).toString(),
       });
 
-      console.log("kya response aa rha hai", response);
+      const data = await response.json();
+
+      console.log("kya response aa rha hai", data);
 
       if (!response.ok) {
         setLoginAttempted(true);
+        if (data.error === 'Email is not verified. Please verify your email.') {
+          setIsEmailVerified(false);
+          setShowResendButton(true)
+      }
         setError("Email Not Verified");
         console.log(error);
         setValidationErrors({ email: "Invalid credentials", password: "" });
         // notify(validationErrors)
-        notify(error, () => {
-
-          if (error) {
-            toast(error )
-          }
-
-        })
+        notify(data.error)
         return;
       }
 
-      const data = await response.json();
       // console.log("first page se ye data aa rha hai", data);
       const { token, userKey } = data;
       const redirectTo = data.redirectTo; // Define redirectTo variable
@@ -259,6 +261,28 @@ const DesktopOnePage = () => {
     navigate("/forget");
   };
 
+
+  const handleResendVerification = async () => {
+    try {
+        // Send a request to your backend to resend verification email
+        const response = await fetch(`${API_URL}/activity/resendVerification`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ email: emailvalue }),
+          });
+          const data = await response.json();
+          notify(data.message); // Show a notification based on the response
+    } catch (error) {
+        console.error("Error resending verification:", error);
+        notify("An error occurred while resending verification.");
+    }
+    finally{
+      setShowResendButton(false)
+    }
+};
+
   return (
     <div className="w-screen h-screen flex items-center justify-center pt-5 pb-5 ">
       {/* <ToastContainer /> */}
@@ -281,26 +305,36 @@ const DesktopOnePage = () => {
           </Text>
 
           <div className="bg-white-A700 p-2 rounded-3xl w-3/4 relative flex items-center">
-            <div className="absolute left-4">
+            <div className="absolute left-2">
               <FontAwesomeIcon icon={faEnvelope} />
             </div>
             <input
               type="email"
               name="email"
               placeholder="Email"
-              className="outline-none border-0 ml-5 w-full "
+              className="outline-none border-0 ml-2 w-full "
               required
             />
+            
           </div>
+          {showResendButton && (  
+        <button
+            type="button"
+            className="bg-blue-500 text-white px-3 py-1 rounded-md mt-2 ml-2"
+            onClick={handleResendVerification}
+        >
+            Send Verification Mail Again
+        </button>
+    )}
           <div className="bg-white-A700 p-2 rounded-3xl w-3/4 mt-8 relative flex items-center">
-            <div className="absolute left-4">
+            <div className="absolute left-2">
               <FontAwesomeIcon icon={faLock} />
             </div>
             <input
               type="password"
               name="password"
               placeholder="Password"
-              className="outline-none border-0 ml-5  w-full"
+              className="outline-none border-0 ml-3 w-full"
               required
             />
           </div>

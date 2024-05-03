@@ -84,11 +84,11 @@ const Register = () => {
     }
   };
 
-  const handleVerifyMobile = () => {  
+  const handleVerifyMobile = () => {
     // Your logic to verify mobile number can go here
     toast.success("Mobile number verified", {
       position: toast.POSITION.TOP_RIGHT,
-    autoClose: 3000,
+      autoClose: 3000,
     })
     console.log("Mobile number verified");
     // You can set state or perform any action after mobile number verification
@@ -152,9 +152,12 @@ const Register = () => {
           password: "",
           confirmPassword: "",
         });
+        notify("Registration Successful")
+
       } else {
         setError(data.message); // Update error message state
         console.error("Error aa gai re baba:", data.error); // Display error message to the user
+        notify("Registraiton Failed")
       }
     } catch (error) {
       console.error("Error aa gai re baba:", error);
@@ -173,160 +176,183 @@ const Register = () => {
 
   return (
     <div className="w-screen h-screen sm:w-screen sm:h-screen flex items-center justify-center pt-5 pb-5">
-      
-    <div
-      className="    bg-cover bg-center w-1/4 h-full sm:w-screen sm:h-screen md:w-2/4 md:h-screen  lg:w-3/4 lg:h-3/4 flex flex-col items-center justify-center shadow-bs2 shadow-black-900"
-      style={{ backgroundImage: 'url("./images/img_whitewall.jpg")' }}
-    >
-      <div className=" flex flex-col items-center justify-center">
-        <h3 className=" text-xl font-bold font-sans pt-4 mb-1 text-white-A700 ">
-          Lets get started
-        </h3>
-        <h3 className="  text-center text-slate-600 font-medium mb-5 ">
-          Create an account to access all features
-        </h3>
 
-        <form
-          onSubmit={handleSubmit}
-          action=""
-          className="flex flex-col items-center justify-center  w-4/6 max-w-sm gap-y-6 "
-        >
-          <InputWithIconAndText
-            icon={faUser} // Change the icon as needed
-            iconColor={"#578be5"}
-            placeholder="Name"
-            className="text-xl  pl-10 border-2 bg-inherit rounded-full focus:border-emerald-300 ease-in duration-300"
-            onChange={handleInputChange}
-            name="name"
-          />
-          <InputWithIconAndText
-            icon={faEnvelope} // Change the icon as needed
-            iconColor={"#645a9f"}
-            placeholder="Email"
-            className="text-xl  pl-10 border-2 bg-inherit rounded-full focus:border-emerald-300 ease-in duration-300"
-            onChange={handleInputChange}
-            name="email"
-          />
-          {error && <div className="error-message">{error}</div>}
+      <div
+        className=" bg-cover bg-center w-1/4 h-full sm:w-screen sm:h-screen md:w-2/4 md:h-screen  lg:w-3/4 lg:h-3/4 flex flex-col items-center justify-center shadow-bs2 shadow-black-900"
 
-          <div className="flex ">
-            <InputWithIconAndText
-              icon={faPhone} // Change the icon as needed
-              iconColor={"#419f44"}
-              placeholder="Phone"
-              className="text-xl  pl-10 border-2 bg-inherit rounded-full focus:border-emerald-300 ease-in duration-300"
-              onChange={handleInputChange}
-              name="phone"
-              value={formsData.phone}
-            />
-            {mobileError && <div className="error-message">{mobileError}</div>}
-            {isMobileVerified && (
-              <Button type="button" className="bg-blue-400 text-white-A700 rounded-2xl" onClick={handleVerifyMobile}>Verify</Button>
-            )}
-          </div>
+      >
+        <div className="w-full h-full sm:w-full sm:h-full flex flex-col items-center justify-center">
+          <h3 className=" text-xl font-bold font-sans  sm:mt-4  text-black-900 ">
+            Lets get started
+          </h3>
+          <h3 className="  text-center text-slate-600 font-medium">
+            Create an account to access all features
+          </h3>
 
-          <InputWithIconAndText
-            icon={faLocationCrosshairs} // Change the icon as needed
-            iconColor={"#d67500"}
-            placeholder="Address"
-            className="text-xl  pl-10 border-2 bg-inherit rounded-full focus:border-emerald-300 ease-in duration-300"
-            onChange={handleInputChange}
-            name="address"
-          />
-          <InputWithIconAndText
-            icon={faIdCard} // Change the icon as needed
-            iconColor={"#ffe93f"}
-            placeholder="Aadhar Number"
-            className="text-xl  pl-10 border-2 bg-inherit rounded-full focus:border-emerald-300 ease-in duration-300"
-            onChange={handleInputChange}
-            name="aadhar"
-          />
-          <InputWithIconAndText
-            icon={faKey} // Change the icon as needed
-            iconColor={"#f4b8c0"}
-            placeholder="Password"
-            type="password"
-            className="h-8 text-xl  pl-10 border-2 bg-inherit rounded-full focus:border-emerald-300 ease-in duration-300"
-            // inputClassName="password-input"
-            onChange={handleInputChange}
-            name="password"
-          />
-          <InputWithIconAndText
-            icon={faLock} // Change the icon as needed
-            iconColor={"#f5191c"}
-            placeholder="Confirm Password"
-            type="password"
-            className="h-8 text-xl  pl-10 border-2 bg-inherit rounded-full focus:border-emerald-300 ease-in duration-300"
-            // inputClassName="password-input"
-            onChange={handleInputChange}
-            name="confirmPassword"
-          />
-          {passwordError && (
-            <div className="error-message">Passwords do not match</div>
-          )}
-          <InputWithIconAndText
-            type="file"
-            className=" pt-2 pb-2 pl-1 border-double border-4  rounded-lg focus:border-emerald-300 ease-in duration-300"
-            onChange={handleFileChange}
-            placeholder="select a file"
-          />
-
-          <h2 className="text-xl font-bold mt-[-15px]">
-            Select Intrested Areas
-          </h2>
-          <div className="sm:w-screen grid grid-cols-2  gap-2 pl-3 pr-3  ">
-            <InputWithIconAndText
-              type="checkbox"
-              text={"Planting Tree"}
-              className=" p-2 border-double border-4  rounded-lg focus:border-emerald-300  ease-in duration-300"
-              onClick={() => handleButtonClick(0, "Planting tree")}
-            />
-            <InputWithIconAndText
-              type="checkbox"
-              text={"Teaching Kids"}
-              className=" p-2 border-double border-4  rounded-lg focus:border-emerald-300 ease-in duration-300"
-              onClick={() => handleButtonClick(1, "Teaching Kids")}
-            />
-            <InputWithIconAndText
-              type="checkbox"
-              text={"Feeding the poor"}
-              className=" p-2 border-double border-4  rounded-lg focus:border-emerald-300 ease-in duration-300"
-              onClick={() => handleButtonClick(2, "Feeding the poor")}
-            />
-            <InputWithIconAndText
-              type="checkbox"
-              text={"Local Cleaning"}
-              className=" p-2 border-double border-4  rounded-lg focus:border-emerald-300 ease-in duration-300"
-              onClick={() => handleButtonClick(3, "Local Cleaning")}
-            />
-            <InputWithIconAndText
-              type="checkbox"
-              text={"Blood Donation"}
-              className=" p-2 border-double border-4  rounded-lg focus:border-emerald-300 ease-in duration-300"
-              onClick={() => handleButtonClick(4, "Blood Donation")}
-            />
-            <InputWithIconAndText
-              type="checkbox"
-              text={"Running a marathon"}
-              className=" p-2 border-double border-4  rounded-lg focus:border-emerald-300 ease-in duration-300"
-              onClick={() => handleButtonClick(5, "Running a marathon")}
-            />
-          </div>
-          <Button className="bg-sky-600 text-white-A700 text-2xl sm:w-5/6 rounded-full mt-[-5px]">
-            Create Account
-          </Button>
-        </form>
-        <h3 className="mb-2">
-          Already have an account?{" "}
-          <span
-            className="text-indigo-700 font-bold underline  "
-            onClick={direct}
+          <form
+            onSubmit={handleSubmit}
+            action=""
+            className=" w-5/6 h-full flex flex-col items-center justify-center sm:justify-start gap-y-2 sm:gap-y-4 sm:mt-2  "
           >
-            Login Here
-          </span>
-        </h3>
+
+          <div className="w-full h-8 flex flex-col items-center justify-center relative">
+            <InputWithIconAndText
+              icon={faUser} // Change the icon as needed
+              iconColor={"#578be5"}
+              placeholder="Name"
+              className="text-lg w-full h-8 pl-10 border-2 bg-inherit rounded-full focus:border-emerald-300 ease-in duration-300"
+              onChange={handleInputChange}
+              name="name"
+              required
+            />
+            </div>
+            <div className="w-full h-8 flex flex-col items-center justify-center relative">
+              <InputWithIconAndText
+                icon={faEnvelope} // Change the icon as needed
+                iconColor={"#645a9f"}
+                placeholder="Email"
+                className="text-lg w-full h-8 pl-10 border-2 bg-inherit rounded-full focus:border-emerald-300 ease-in duration-300"
+                onChange={handleInputChange}
+                name="email"
+                type="email"
+              />
+              {error && <div className="error-message">{error}</div>}
+            </div>
+            <div className="w-full h-8 flex  items-center justify-center relative">
+              <InputWithIconAndText
+                icon={faPhone} // Change the icon as needed
+                iconColor={"#419f44"}
+                placeholder="Phone"
+                className="text-lg w-full h-8 pl-10 border-2 bg-inherit rounded-full focus:border-emerald-300 ease-in duration-300"
+                onChange={handleInputChange}
+                name="phone"
+                value={formsData.phone}
+                type="number"
+              />
+              {mobileError && <div className="error-message ">{mobileError}</div>}
+              {isMobileVerified && (
+                <Button type="button" className="bg-blue-400 text-white-A700 rounded-2xl absolute right-0" onClick={handleVerifyMobile}>Verify</Button>
+              )}
+            </div>
+
+            <div className="w-full h-8 flex flex-col items-center justify-center relative">
+            <InputWithIconAndText
+              icon={faLocationCrosshairs} // Change the icon as needed
+              iconColor={"#d67500"}
+              placeholder="Address"
+              className="text-lg w-full h-8 pl-10 border-2 bg-inherit rounded-full focus:border-emerald-300 ease-in duration-300"
+              onChange={handleInputChange}
+              name="address"
+            />
+            </div>
+            <div className="w-full h-8 flex flex-col items-center justify-center relative">
+            <InputWithIconAndText
+              icon={faIdCard} // Change the icon as needed
+              iconColor={"#ffe93f"}
+              placeholder="Aadhar Number"
+              className="text-lg w-full h-8 pl-10 border-2 bg-inherit rounded-full focus:border-emerald-300 ease-in duration-300"
+              onChange={handleInputChange}
+              name="aadhar"
+              type="number"
+            />
+            </div>
+
+            <div className="w-full h-8 flex flex-col items-center justify-center relative">
+            <InputWithIconAndText
+              icon={faKey} // Change the icon as needed
+              iconColor={"#f4b8c0"}
+              placeholder="Password"
+              type="password"
+              className="w-full h-8 text-lg  pl-10 border-2 bg-inherit rounded-full focus:border-emerald-300 ease-in duration-300"
+              // inputClassName="password-input"
+              onChange={handleInputChange}
+              name="password"
+            />
+            </div>
+            <div className="w-full h-8 flex flex-col items-center justify-center relative">
+            <InputWithIconAndText
+              icon={faLock} // Change the icon as needed
+              iconColor={"#f5191c"}
+              placeholder="Confirm Password"
+              type="password"
+              className="w-full h-8 text-lg  pl-10 border-2 bg-inherit rounded-full focus:border-emerald-300 ease-in duration-300"
+              // inputClassName="password-input"
+              onChange={handleInputChange}
+              name="confirmPassword"
+            />
+            {passwordError && (
+              <div className="error-message">Passwords do not match</div>
+            )}
+            </div>
+
+            <div className="w-full h-8  flex items-center justify-center">
+              <h2 className="font-semibold">Profile Picture </h2>
+              <InputWithIconAndText
+                type="file"
+                className="w-[250px] pt-2 pb-2 pl-1 border-double border-4  rounded-lg focus:border-emerald-300 ease-in duration-300"
+                onChange={handleFileChange}
+                placeholder="select a file"
+              />
+            </div>
+
+            <h2 className="text-xl font-bold mt-[-5px]">
+              Select Intrested Areas
+            </h2>
+            <div className="sm:w-full grid grid-cols-2  gap-2 pl-3 pr-3  ">
+              <InputWithIconAndText
+                type="checkbox"
+                text={"Planting Tree"}
+                className=" p-2 border-double border-4  rounded-lg focus:border-emerald-300  ease-in duration-300"
+                onClick={() => handleButtonClick(0, "Planting tree")}
+              />
+              <InputWithIconAndText
+                type="checkbox"
+                text={"Teaching Kids"}
+                className=" p-2 border-double border-4  rounded-lg focus:border-emerald-300 ease-in duration-300"
+                onClick={() => handleButtonClick(1, "Teaching Kids")}
+              />
+              <InputWithIconAndText
+                type="checkbox"
+                text={"Feeding the poor"}
+                className=" p-2 border-double border-4  rounded-lg focus:border-emerald-300 ease-in duration-300"
+                onClick={() => handleButtonClick(2, "Feeding the poor")}
+              />
+              <InputWithIconAndText
+                type="checkbox"
+                text={"Local Cleaning"}
+                className=" p-2 border-double border-4  rounded-lg focus:border-emerald-300 ease-in duration-300"
+                onClick={() => handleButtonClick(3, "Local Cleaning")}
+              />
+              <InputWithIconAndText
+                type="checkbox"
+                text={"Blood Donation"}
+                className=" p-2 border-double border-4  rounded-lg focus:border-emerald-300 ease-in duration-300"
+                onClick={() => handleButtonClick(4, "Blood Donation")}
+              />
+              <InputWithIconAndText
+                type="checkbox"
+                text={"Running a marathon"}
+                className=" p-2 border-double border-4  rounded-lg focus:border-emerald-300 ease-in duration-300"
+                onClick={() => handleButtonClick(5, "Running a marathon")}
+              />
+            </div>
+            <Button className="bg-sky-600 text-white-A700 text-lg w-full p-0 sm:w-5/6 rounded-full mt-[-5px]">
+              Create Account
+            </Button>
+            <h3 className="sm:-mt-2 mb-2">
+              Already have an account?{" "}
+              <span
+                className="text-indigo-700 font-bold underline cursor-pointer
+             "
+                onClick={direct}
+              >
+                Login Here
+              </span>
+            </h3>
+          </form>
+
+        </div>
       </div>
-    </div>
     </div>
 
   );

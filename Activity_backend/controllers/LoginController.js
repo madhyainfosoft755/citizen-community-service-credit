@@ -422,6 +422,44 @@ const login = async (req, res) => {
   }
 };
 
+const resendVerification =async (req, res)=>{
+  try {
+    const { email } = req.body;
+    console.log("this is the email id recieved", email)
+
+    // Check if the user exists with the provided email
+    const user = await Users.findOne({ where: { email } });
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    // Generate a new verification token
+    const newVerificationToken = crypto.randomBytes(20).toString("hex");
+
+    // Update the user's verification token in the database
+    await user.update({ verificationToken: newVerificationToken });
+
+    // Send the new verification email
+    await transporter.sendMail({
+      from: "your-email@example.com",
+      to: email,
+      subject: "Verify your email",
+      html: `<p>Please click <a href="${process.env.URL}/verify/${newVerificationToken}">here</a> to verify your email address.</p>`,
+    });
+
+    return res.status(200).json({
+      status: "success",
+      message: "Verification email sent successfully.",
+    });
+  } catch (error) {
+    console.error("Error sending verification email:", error);
+    return res.status(500).json({
+      status: "error",
+      message: "An error occurred while sending verification email.",
+    });
+  }
+}
+
 const varifybytiken = async (req, res) => {
   const { userKey, token } = req.body;
   console.log("userKey", userKey);
@@ -445,6 +483,7 @@ const varifybytiken = async (req, res) => {
     res.status(500).json({ error: "An error occurred while verifying token." });
   }
 };
+
 
 const varifybytoken = async (req, res) => {
   const { accessToken, name, id, clientId, Email, credential } = req.body;
@@ -854,5 +893,6 @@ module.exports = {
   verify,
   forgetpassword,
   verifyPin,
-  updatePassword
+  updatePassword,
+  resendVerification
 };

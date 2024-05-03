@@ -1,5 +1,7 @@
 /* InputWithIconAndText.css */
 .input-with-icon-and-text {
+  width: 100%;
+  height: 100%; 
   position: relative;
   display: flex;
   align-items: center;
@@ -30,6 +32,7 @@
 input {
   padding-left: 30px;
   transition: box-shadow 0.3s ease; /* Add transition for smooth box shadow change */
+  border-color: #6b7280;
 }
 
 .text-container {

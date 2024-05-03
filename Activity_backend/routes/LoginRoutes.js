@@ -18,11 +18,13 @@ const {
   verify,
   forgetpassword,
   verifyPin,
-  updatePassword
+  updatePassword,
+  resendVerification
 } = require("../controllers/LoginController");
 const { upload } = require("../utils/util");
 // Express route 
 router.get("/output", output);  
+router.post("/resendVerification", resendVerification)
 router.post("/updatePassword",updatePassword)
 router.post("/forgetpassword",forgetpassword)
 router.post("/verifyPin",verifyPin)
