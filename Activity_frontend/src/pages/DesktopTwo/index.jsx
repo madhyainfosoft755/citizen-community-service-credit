@@ -17,6 +17,7 @@ import { toast } from "react-toastify";
 
 
 const Register = () => {
+  const notify = (e) => toast(e);
   const navigate = useNavigate();
   // Use state to store form data
   const [formsData, setFormData] = useState({

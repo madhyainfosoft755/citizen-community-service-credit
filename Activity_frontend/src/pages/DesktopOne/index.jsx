@@ -10,7 +10,7 @@ import axios from "axios";
 import { useGoogleLogin } from "@react-oauth/google";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEnvelope, faLock } from "@fortawesome/free-solid-svg-icons";
-import {  toast } from "react-toastify";
+import { toast } from "react-toastify";
 // import 'react-toastify/dist/ReactToastify.css';
 
 
@@ -119,11 +119,17 @@ const DesktopOnePage = () => {
 
       if (!response.ok) {
         setLoginAttempted(true);
-        setError("Email not verified");
-        notify(error)
+        setError("Email Not Verified");
         console.log(error);
         setValidationErrors({ email: "Invalid credentials", password: "" });
-        notify(validationErrors)
+        // notify(validationErrors)
+        notify(error, () => {
+
+          if (error) {
+            toast(error )
+          }
+
+        })
         return;
       }
 
@@ -146,7 +152,7 @@ const DesktopOnePage = () => {
       } else {
         console.log("Response is missing");
         notify("response is missing")
-      } 
+      }
     } catch (error) {
       setError("An error occurred while logging in. Please try again.");
       console.error("Error:", error);
@@ -165,6 +171,7 @@ const DesktopOnePage = () => {
         setLocationData({ city, state });
       } else {
         console.error("Error fetching location data");
+        notify("Error fetching location data")
       }
     } catch (error) {
       console.error("Error fetching location data:", error);
@@ -225,8 +232,8 @@ const DesktopOnePage = () => {
       });
 
       if (!loginResponse.ok) {
-
         setError("Google login failed.");
+        notify("Google login failed.")
         return;
       }
 
@@ -238,6 +245,7 @@ const DesktopOnePage = () => {
         localStorage.setItem("token", token);
         localStorage.setItem("userKey", JSON.stringify(user));
         navigate("/create");
+        notify("Login Successful")
       } else {
         console.log("Response is missing");
       }
@@ -281,6 +289,7 @@ const DesktopOnePage = () => {
               name="email"
               placeholder="Email"
               className="outline-none border-0 ml-5 w-full "
+              required
             />
           </div>
           <div className="bg-white-A700 p-2 rounded-3xl w-3/4 mt-8 relative flex items-center">
@@ -292,6 +301,7 @@ const DesktopOnePage = () => {
               name="password"
               placeholder="Password"
               className="outline-none border-0 ml-5  w-full"
+              required
             />
           </div>
 
