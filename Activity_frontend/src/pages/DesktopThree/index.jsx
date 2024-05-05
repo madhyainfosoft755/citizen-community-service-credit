@@ -13,6 +13,9 @@ import { faLocationDot, faCalendarAlt } from "@fortawesome/free-solid-svg-icons"
 const Createpost = () => {
   const navigate = useNavigate();
   const [currentDate, setCurrentDate] = useState("");
+  const handleDateChange = (e) => {
+    setCurrentDate(e.target.value);
+  };
   const [selectedCategories, setSelectedCategories] = useState([]);
   const { authenticated, setAuthenticated } = useAuth();
   const [userData, setUserData] = useState();
@@ -419,8 +422,8 @@ const Createpost = () => {
                     type="date"
                     id="datepicker"
                     name="datepicker"
-                    // value={selectedDate}
-                    // onChange={handleDateChange}
+                    value={currentDate}
+                    onChange={handleDateChange}
                     className="w-1/2 h-full px-3 py-2 rounded-md border-[1px] border-gray-300 focus:outline-none focus:border-blue-500"
                   />
                 </div>
