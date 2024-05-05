@@ -7,6 +7,8 @@ import { useNavigate } from "react-router-dom";
 import Location from "pages/Location/Location";
 import { useAuth } from "components/AuthProvider/AuthProvider";
 import axios from "axios";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faLocationDot, faCalendarAlt } from "@fortawesome/free-solid-svg-icons";
 
 const Createpost = () => {
   const navigate = useNavigate();
@@ -17,6 +19,7 @@ const Createpost = () => {
   const [fromTime, setFromTime] = useState("");
   const [toTime, setToTime] = useState("");
   const [totalTime, setTotalTime] = useState(""); // Added state for total time
+  const [userName, setUserName] = useState(""); // Added state for user name
   // Use state to store form data
   const [formsData, setFormData] = useState({
     name: "",
@@ -106,8 +109,8 @@ const Createpost = () => {
     const token = localStorage.getItem("token");
     const userKey = localStorage.getItem("userKey");
 
-    console.log("token", token)
-    console.log("userkey", userKey)
+    // console.log("token", token)
+    // console.log("userkey", userKey)
     if (!token || !userKey) {
       // Redirect to the login page if either token or user key is missing
       navigate("/login");
@@ -131,12 +134,12 @@ const Createpost = () => {
         });
 
         if (response.ok) {
-          console.log("kya response aya", response)
+          // console.log("kya response aya", response)
           // Check content type before parsing as JSON
           const contentType = response.headers.get("content-type");
           if (contentType && contentType.includes("application/json")) {
             const userData = await response.json();
-
+            setUserName(userData.userData.name)
             setUserData(userData); // Update user data in the state
           } else {
             console.error("Error fetching user data: Response is not JSON");
@@ -162,7 +165,7 @@ const Createpost = () => {
     const fetchHistoricalData = async () => {
       try {
         const token = localStorage.getItem("token");
-        console.log("token is coming", token)
+        // console.log("token is coming", token)
         if (!token) {
           navigate("/login");
           return;
@@ -274,27 +277,36 @@ const Createpost = () => {
     }
   };
 
+
+  const Name = userName.split(" ")[0];
+
+
   const direct = () => {
     navigate("/activity");
+  };
+
+  const openTimePicker = (field) => {
+    const inputField = document.getElementById(field);
+    inputField.click(); // Programmatically click to open the time picker
   };
 
   return (
     <>
       {authenticated && (
-        <form className="w-screen h-screen  flex items-center justify-center pt-5 pb-5 sm:w-screen sm:h-screen md:pt-5 md:pb-5" onSubmit={handleSubmit} encType="multipart/form-data">
+        <form className="w-screen h-screen   md:w-screen md:h-screen  flex items-center justify-center pt-5 pb-5 sm:w-screen sm:h-screen md:pt-5 md:pb-5 sm:p-0 " onSubmit={handleSubmit} encType="multipart/form-data">
           <div className="hidden">
             <Location onLocationChange={handleLocationChange} />
           </div>
 
-          <div className="w-1/4 h-full sm:w-screen sm:h-screen md:w-2/4 md:h-screen  lg:w-3/4 lg:h-screen  flex flex-col items-center justify-center  shadow-bs2 shadow-black-900 sm:shadow-blue-300 md:pl-8 md:pr-8 md:pt-2 ">
-            <div className=" flex flex-col gap-2 items-center justify-start w-full h-full ">
-              <div className="bg-gray-50 flex flex-row items-center justify-between p-5  sm:px-5 w-full rounded-xl">
-                <div className="flex flex-row gap-4 items-center justify-center ml-[5px]">
+          <div className="w-1/4 h-full  sm:w-full sm:h-full md:w-3/4 md:h-full  lg:w-3/4 lg:h-full  flex flex-col items-center  justify-center  shadow-bs2 shadow-black-900 sm:shadow-none ">
+            <div className=" flex flex-col gap-4 items-center justify-start w-full h-full ">
+              <div className="bg-gray-50 flex flex-row items-center justify-between p-3 sm:p-5  sm:px-5 w-full ">
+                <div className="flex flex-row gap-4 items-center justify-center ml-[1px]">
                   {userData && (
                     <Img
-                      className=" sm:w-[68px] sm:h-[58px] md:w-[68px] md:h-[58px] lg:w-[68px] lg:h-[58px]  w-[68px] h-[68px] rounded-full object-cover object-top "
+                      className=" sm:w-[58px] sm:h-[52px] md:w-[58px] md:h-[52px] lg:w-[58px] lg:h-[58px]  w-[68px] h-[60px] rounded-full object-cover object-top  "
                       src={`${API_URL}/image/${userData.userData.photo}`}
-                      alt="userimage"
+                      alt="image"
                     />
                   )}
                   <div className="flex flex-col items-center justify-center w-3/5">
@@ -303,8 +315,10 @@ const Createpost = () => {
                         className="text-center text-gray-900 uppercase"
                         size="txtInterSemiBold16Gray900"
                       >
-                        {userData && userData.userData.name}
+                        {/* {userData && userData.userData.name} */}
+                        {Name}
                       </Text>
+
                       {/* <Text className="text-center  text-gray-900 uppercase text-sm">
                         ID: {userData && userData.userData.id}
                       </Text> */}
@@ -320,58 +334,67 @@ const Createpost = () => {
                   {`${totalTime || "0"} hours`}
                 </Button>
               </div>
-              <div className="glow-border bg-gray-50 w-full h-15 text-center border-2 border-dashed border-zinc-300 rounded-xl">
+              <div className="bg-gray-50 w-5/6  text-center border-2 border-solid border-zinc-300 rounded-md  ">
                 <h1 className="text-xl  font-semibold">Add New Activity</h1>
               </div>
 
-              <div className=" relative p-5 flex items-center justify-center gap-4 w-full ">
-                Time Spent:{" "}
-                <label
-                  htmlFor="fromTime"
-                  className="text-xs absolute top-0 left-13 ml-2 mt-1 text-gray-500"
+              <div className="  flex items-center justify-center gap-4 w-5/6">
+                Time Spent:
+
+                <div className="flex flex-col items-start justify-center">
+                  <label
+                    htmlFor="fromTime"
+                    className="text-xs  left-13 ml-2 mt-1 text-gray-500"
+                    onClick={() => openTimePicker("fromTime")}
+                  >
+                    From
+                  </label>
+                  <input
+                    type="time"
+                    name="fromTime"
+                    id="fromTime"
+                    value={fromTime}
+
+                    onChange={(e) => setFromTime(e.target.value)}
+                    className="rounded-lg border-2 border-dashed text-xs"
+                  />{" "}
+                </div>
+
+                <div className="flex flex-col items-start justify-center"
                 >
-                  From
-                </label>
-                <input
-                  type="time"
-                  name="fromTime"
-                  id="fromTime"
-                  value={fromTime}
-                  onChange={(e) => setFromTime(e.target.value)}
-                  className="rounded-lg border-2 border-dashed text-xs"
-                />{" "}
-                <label
-                  htmlFor="fromTime"
-                  className="text-xs absolute top-0 right-8 ml-2 mt-1 text-gray-500"
-                >
-                  To
-                </label>
-                <input
-                  type="time"
-                  name="toTime"
-                  id="toTime"
-                  value={toTime}
-                  placeholder="To time"
-                  onChange={(e) => setToTime(e.target.value)}
-                  className="rounded-lg border-2 border-dashed text-xs"
-                />
+                  <label
+                    htmlFor="toTime"
+                    className="text-xs  ml-2 mt-1 text-gray-500"
+                  >
+                    To
+                  </label>
+                  <input
+                    type="time"
+                    name="toTime"
+                    id="toTime"
+                    value={toTime}
+                    placeholder="To time"
+                    onClick={(e) => e.target.focus()} // Trigger focus when clicked
+                    onChange={(e) => setToTime(e.target.value)}
+                    className="rounded-lg border-2 border-dashed text-xs"
+                  />
+                </div>
               </div>
-              <div className="flex flex-col items-start justify-center w-[100%] sm:w-full">
+              <div className="flex flex-col items-start justify-center w-5/6 sm:w-11/12">
                 <Text
                   className="text-base text-gray-900"
                   size="txtInterSemiBold16Gray900"
                 >
                   Select Category
                 </Text>
-                <div className="flex flex-wrap  items-center justify-between mt-[18px] w-full">
+                <div className="flex flex-wrap  items-center justify-between  w-full ">
                   {buttons.map((button) => (
                     <label
                       key={button.id}
-                      className={`flex flex-wrap rounded-[20px] items-center justify-center border-2 overflow-hidden border-double border-white p-4 m-1 w-34 cursor-pointer ${
-                        selectedButton === button.label
+                      className={`flex flex-wrap rounded-[20px] items-center justify-center border-2 overflow-hidden border-double border-white p-3  m-1 w-36 cursor-pointer ${selectedButton === button.label
                           ? "border-orange-400"
                           : ""
-                      }`}
+                        }`}
                     >
                       <input
                         type="radio"
@@ -384,54 +407,34 @@ const Createpost = () => {
                   ))}
                 </div>
 
-                <div className="flex flex-row gap-2.5 items-center justify-between mt-[30px] w-full">
+                <div className="flex flex-row gap-2 items-center justify-between   w-full p-2 ">
                   <Button
-                    className="cursor-pointer flex items-center justify-center min-w-[145px]"
-                    leftIcon={
-                      <div className="mb-[3px] mr-[9px] h-4 w-4 ">
-                        <Img
-                          src="images/img_location.svg"
-                          alt="location icon"
-                        />
-                      </div>
-                    }
-                    shape="round"
-                    color="blue_50"
+                    className="flex items-center justify-center border-[1px] leading-[normal] text-[12px] font-semibold text-left w-1/2 h-full rounded-md"
+                  // onClick={handleLocationClick}
                   >
-                    <div className="font-medium leading-[normal] text-[15px] text-left ">
-                      {locationData.city}, {locationData.state}
-                    </div>
+                    <FontAwesomeIcon icon={faLocationDot} className="pr-3 text-blue-600" />
+                    {locationData.city}, {locationData.state}
                   </Button>
-                  <Button
-                    className="cursor-pointer flex items-center justify-center min-w-[150px]"
-                    type="none"
-                    leftIcon={
-                      <div className="h-4 mb-[3px] mr-2.5 w-4">
-                        <Img
-                          className="h-4"
-                          src="images/img_calendar.svg"
-                          alt="calendar"
-                        />
-                      </div>
-                    }
-                    shape="round"
-                    color="blue_50"
-                  >
-                    <div className="font-medium leading-[normal] text-[15px] text-left">
-                      {currentDate}
-                    </div>
-                  </Button>
+                  <input
+                    type="date"
+                    id="datepicker"
+                    name="datepicker"
+                    // value={selectedDate}
+                    // onChange={handleDateChange}
+                    className="w-1/2 h-full px-3 py-2 rounded-md border-[1px] border-gray-300 focus:outline-none focus:border-blue-500"
+                  />
                 </div>
-                <List className="flex-col  justify-center mt-2 w-full">
-                  <div className="flex flex-1 flex-col gap-[9px] mb-2 items-start justify-start w-full">
+
+                <List className="flex items-center justify-center w-full gap-3 ">
+                  <div className="flex flex-1 flex-col gap-1 mb-2 items-start justify-start w-full ">
                     <Text
                       className="text-base text-gray-900"
                       size="txtInterSemiBold16Gray900"
                     >
                       Photos
                     </Text>
-                    <div className="bg-gray-50_01 border border-dashed border-indigo-500 flex flex-col items-center justify-end p-2 rounded-[5px] shadow-bs1 w-full">
-                      <div className="flex flex-row gap-2.5 items-start justify-center mt-0.5 w-[44%] sm:w-full">
+                    <div className="bg-gray-50_01 border border-dashed border-indigo-500 flex flex-col  items-center justify-end p-2 rounded-[5px] shadow-bs1 w-full">
+                      <div className="flex flex-row gap-2.5 items-start justify-center mt-0.5 w-full sm:w-full">
                         <Text
                           className="text-[13px] text-indigo-A200"
                           size="txtInterMedium13"
@@ -451,7 +454,7 @@ const Createpost = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="flex flex-1 flex-col gap-2.5 items-start justify-start w-full">
+                  <div className="flex flex-1 flex-col gap-1 mb-2 items-start justify-start w-full">
                     <Text
                       className="text-base text-gray-900"
                       size="txtInterSemiBold16Gray900"
@@ -459,7 +462,7 @@ const Createpost = () => {
                       Videos
                     </Text>
                     <div className="bg-gray-50_01 border border-dashed border-indigo-500 flex flex-col items-center justify-end p-2 rounded-[5px] shadow-bs1 w-full">
-                      <div className="flex flex-row gap-2.5 items-start justify-center mt-0.5 w-[44%] sm:w-full">
+                      <div className="flex flex-row gap-2.5 items-start justify-center mt-0.5 w-full sm:w-full">
                         {/* <Img
                           className="h-3 w-3"
                           src="images/img_twitter.svg"
@@ -491,22 +494,21 @@ const Createpost = () => {
                     Add Hours Spent
                   </Text> */}
                 <Button
-                  className="cursor-pointer font-semibold w-full mt-5 mb-1 text-base text-center"
+                  className="cursor-pointer font-semibold w-full mt-3 mb-3 text-base text-center"
                   shape="round"
                   color="indigo_A200"
                 >
                   SUBMIT
                 </Button>
+              <Button
+                className="cursor-pointer font-semibold w-full  text-base text-center"
+                shape="round"
+                color="indigo_A200"
+                onClick={handleLogout} // Add logout functionality
+              >
+                LOGOUT
+              </Button>
               </div>
-            {/* </div> */}
-            <Button
-              className="cursor-pointer font-semibold w-full  text-base text-center"
-              shape="round"
-              color="indigo_A200"
-              onClick={handleLogout} // Add logout functionality
-            >
-              LOGOUT
-            </Button>
             </div>
           </div>
         </form>
