@@ -9,7 +9,7 @@ import axios from "axios";
 // import { GoogleLogin } from "react-google-login";
 import { useGoogleLogin } from "@react-oauth/google";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEnvelope, faLock } from "@fortawesome/free-solid-svg-icons";
+import { faEnvelope, faEye, faLock } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
 // import 'react-toastify/dist/ReactToastify.css';
 
@@ -41,6 +41,12 @@ const DesktopOnePage = () => {
   const notify = (e) => toast(e);
   const [isEmailVerified, setIsEmailVerified] = useState(true); // Initially assuming email is verified
   const [showResendButton, setShowResendButton] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+  };
+  
 
   useEffect(() => {
     // Function to get and format the current date
@@ -99,6 +105,7 @@ const DesktopOnePage = () => {
     // Check if email or password is empty
     if (!emailValue && !passwordValue) {
       setError("Please fill in both email and password fields.");
+      notify(error)
       return;
     }
 
@@ -337,6 +344,7 @@ const DesktopOnePage = () => {
               className="outline-none border-0 ml-3 w-full"
               required
             />
+            <FontAwesomeIcon icon={faEye}  />
           </div>
 
           {/* <Input

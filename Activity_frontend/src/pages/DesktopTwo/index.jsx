@@ -178,10 +178,10 @@ const Register = () => {
     <div className="w-screen h-screen sm:w-screen sm:h-screen md:w-screen md:h-screen flex items-center justify-center pt-5 pb-5 ">
 
       <div
-        className=" bg-cover bg-center w-1/4 h-full sm:w-full sm:h-full md:w-2/4 md:h-full  lg:w-3/4 lg:h-3/4 flex flex-col  items-center justify-center shadow-bs2 shadow-black-900 sm:shadow-none"
+        className=" bg-cover bg-center w-1/4 h-full sm:w-full sm:h-full md:w-2/4 md:h-full  lg:w-3/4 lg:h-full flex flex-col  items-center justify-center shadow-bs2 shadow-black-900 sm:shadow-none"
 
       >
-        <div className="w-full h-full sm:w-full sm:h-full md:w-full md:h-full flex flex-col items-center justify-center ">
+        <div className="w-full h-full sm:w-full sm:h-full md:w-full md:h-full flex flex-col items-center justify-start sm:-mt-6 ">
           <h3 className=" text-xl font-bold font-sans  sm:mt-4  text-black-900 ">
             Lets get started
           </h3>
@@ -192,7 +192,7 @@ const Register = () => {
           <form
             onSubmit={handleSubmit}
             action=""
-            className=" w-5/6 h-full flex flex-col items-center justify-start mt-2 sm:justify-start gap-y-4 sm:gap-y-4 sm:mt-2  "
+            className=" w-5/6 h-full flex flex-col items-center justify-start mt-0 sm:justify-start gap-y-3 sm:gap-y-4 sm:mt-2  "
           >
 
           <div className="w-full h-8 flex flex-col items-center justify-center relative">
@@ -298,7 +298,7 @@ const Register = () => {
             <h2 className="text-xl font-bold mt-[-5px]">
               Select Intrested Areas
             </h2>
-            <div className="sm:w-full grid grid-cols-2  gap-2 pl-3 pr-3  ">
+            <div className="sm:w-ful -mt-4 grid grid-cols-2  gap-2 pl-3 pr-3  ">
               <InputWithIconAndText
                 type="checkbox"
                 text={"Planting Tree"}

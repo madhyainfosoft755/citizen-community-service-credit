@@ -14,6 +14,7 @@ const DesktopFourPage = () => {
   const navigate = useNavigate();
   const [locationData, setLocationData] = useState(null);
   const [totalTime, setTotalTime] = useState(null); // Added state for total time
+  const [userName, setUserName] = useState("")  
 
   // console.log("userData", userData);
   useEffect(() => {
@@ -33,9 +34,9 @@ const DesktopFourPage = () => {
             },
           }
         );
-
+        
+        const userPostsData = await response.json();
         if (response.ok) {
-          const userPostsData = await response.json();
           setUserPosts(userPostsData);
         } else {
           console.error("Error fetching user posts:", response.status);
@@ -145,13 +146,12 @@ const DesktopFourPage = () => {
           Authorization: `Bearer ${token}`,
         },
       });
-
       if (response.ok) {
         // Check content type before parsing as JSON
         const contentType = response.headers.get("content-type");
         if (contentType && contentType.includes("application/json")) {
           const userData = await response.json();
-
+            setUserName(userData.userData.name)
           setUserData(userData); // Update user data in the state
         } else {
           console.error("Error fetching user data: Response is not JSON");
@@ -168,6 +168,9 @@ const DesktopFourPage = () => {
     }
   };
 
+  const name = userName.split(" ")[0];
+   
+
   // console.log("here is the data you are looking for", userData);
 
   const direct = () => {
@@ -180,14 +183,14 @@ const DesktopFourPage = () => {
   return (
     <>
       {authenticated && (
-        <div className="w-screen h-screen bg-white-A700 flex items-center justify-center sm:w-full sm:h-full md:w-screen md:h-screen">
-          <div className="bg-white-A700 flex items-center justify-center sm:px-5 rounded-[5px] shadow-bs2 lg:w-[33%] lg:h-full sm:w-full sm:h-full md:w-full md:h-full">
-            <div className="flex flex-col gap-3 items-center justify-center w-full">
-              <div className="bg-gray-50 flex flex-row items-center justify-between p-7 sm:px-5 w-full  rounded-xl">
-                <div className="flex flex-row gap-4 items-center justify-center ml-[5px]">
+        <div className="w-screen h-screen  bg-white-A700 flex items-start justify-center sm:w-full sm:h-full md:w-screen md:h-screen p-5 sm:p-0">
+          <div className="w-1/4 h-full  flex items-start justify-center  sm:shadow-none   shadow-bs2 shadow-black-900   lg:w-[33%] lg:h-full sm:w-full sm:h-full md:w-full md:h-full">
+            <div className="flex flex-col  items-center justify-center w-full">
+              <div className="bg-gray-50 flex flex-row items-center justify-between p-3 sm:px-5 w-full  ">
+                <div className="flex flex-row gap-2 items-center justify-center ml-[5px]">
                   {userData && (
                     <Img
-                      className=" h-[55px]  rounded-[50%] w-[71px] object-cover object-center "
+                      className=" w-14   h-14  rounded-[50%] object-cover object-center "
                       src={`${API_URL}/image/${userData.userData.photo}`}
                       alt="userimage"
                     />
@@ -198,7 +201,8 @@ const DesktopFourPage = () => {
                         className="text-center text-gray-900 uppercase"
                         size="txtInterSemiBold16Gray900"
                       >
-                        {userData && userData.userData.name}
+                        {/* {userData && userData.userData.name} */}
+                        {name}
                       </Text>
                       <Text className="text-center  text-gray-900 uppercase text-sm">
                         ID: {userData && userData.userData.id}
@@ -216,32 +220,32 @@ const DesktopFourPage = () => {
                 </Button>
               </div>
               <Text
-                className="mt-2 text-base text-gray-900"
+                className=" text-base text-gray-900"
                 size="txtInterSemiBold16Gray900"
               >
                 My Activities
               </Text>
-              <div className="flex sm:flex-col flex-col gap-[25px] items-center justify-between w-full h-full">
-                <div className=" w-full h-full sm:h-[60vh] rounded-xl relative  sm:w-full border-[1px] border-gray shadow-2xl  shadow-indigo-300 overflow-hidden">
+              {}
+              <div  className="flex mt-2 sm:flex-col flex-col gap-[25px] items-center justify-between w-full h-1/2  p-2 ">
+                <div className=" w-full h-full sm:w-full sm:h-[60vh] rounded-xl relative   border-[1px] border-gray overflow-hidden">
                   <Slider1 className="w-full h-full p-2" items={userPosts} />
                 </div>
 
-                <div className="flex flex-row gap-1 items-center justify-center sm:w-full">
+                <div className="flex flex-col -mt-3 gap-1 items-center justify-center sm:w-5/6">
                   <Text
-                    className="text-sm text-gray-900"
+                    className="text-lg sm:text-sm text-gray-900"
                     size="txtInterSemiBold16Gray900"
                   >
                     Activities Waiting for Endorsement
                   </Text>
-                </div>
 
-                <Button
-                  className="cursor-pointer font-semibold w-full  mb-2 text-base text-center"
+                  <Button
+                  className="cursor-pointer font-semibold w-full   text-base text-center"
                   shape="round"
                   color="indigo_A200"
                   onClick={direct1}
                 >
-                  Endorsment
+                  ENDORSEMENT
                 </Button>
 
                 <Button
@@ -252,6 +256,8 @@ const DesktopFourPage = () => {
                 >
                   LOGOUT
                 </Button>
+                </div>
+           
               </div>
             </div>
           </div>

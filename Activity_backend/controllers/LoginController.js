@@ -75,6 +75,7 @@ console.log('Generated Password:', generatedPassword);
 
 const GoogleLogin = async (req, res) => {
   const { token } = req.body;
+  console.log("*****token********", token)
 
   if (!token) {
     return res.status(400).json({ error: 'ID token is missing' });
@@ -93,7 +94,7 @@ const GoogleLogin = async (req, res) => {
       user = await Users.create({
         name: userProfile.name,
         email: userProfile.email,
-        // phone: '', // Add phone if needed
+        phone: '' || null, // Add phone if needed
         password: generatedPassword, // Add password if needed
         photo: userProfile.picture, // Assuming you store the profile picture
         category: '', // Add category if needed
@@ -153,7 +154,7 @@ const Register = async (req, res) => {
   try {
     
     const userData = req.body;
-    console.log("here is he data", userData);
+    console.log("here is he data", userData); 
 
      // Check if user with the same email already exists
      const existingUser = await Users.findOne({where:{ email: userData.email }});
@@ -374,7 +375,7 @@ const login = async (req, res) => {
 
      // Check if the password matches
      if (!user) {
-      return res.status(401).json({ error: "Invalid email or password." });
+      return res.status(401).json({ error: "Email not found." });
     }
 
     // Check if the password matches
@@ -665,14 +666,14 @@ const CreateActivity = async (req, res) => {
             // acc.push(file.filename);
             return acc + file.filename;
           }, [])
-        : [];
+        : "";
     const videos =
       req.files && req.files.video
         ? req.files.video.reduce((acc, file) => {
             // acc.push(file.filename);
             return acc + file.filename;
           }, [])
-        : [];
+        : "";
 
     const category = selectedCategories;
 

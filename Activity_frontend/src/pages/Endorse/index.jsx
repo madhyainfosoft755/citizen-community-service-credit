@@ -38,6 +38,8 @@ const Endorse = () => {
   const [cityNames, setCityNames] = useState({}); // Default value can be 'Unknown City'
   const [popupData, setPopupData] = useState(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
+  const [userName, setUserName] = useState("")
+
 
   // Function to open the popup with photos and videos
   const openPopup = (post) => {
@@ -88,9 +90,9 @@ const Endorse = () => {
         method: "POST",
         headers: { Authorization: `Bearer ${token}` },
       });
-
+      const userData = await response.json();
       if (response.ok) {
-        const userData = await response.json();
+        setUserName(userData.userData.name)
         setUserData(userData);
       } else {
         console.error("Error fetching user data:", response.status);
@@ -99,6 +101,9 @@ const Endorse = () => {
       console.error("Error fetching user data:", error);
     }
   };
+
+  const name = userName.split(" ")[0];
+
 
   //fetch userPosts
   const fetchUserPosts = async (userId) => {
@@ -371,13 +376,14 @@ const Endorse = () => {
   return (
     <>
       {authenticated && (
-        <div className="bg-white-A700 flex flex-col items-center justify-center sm:px-5 rounded-[5px] shadow-bs2 w-[33%] sm:w-full sm:h-full">
-          <div className="flex flex-col gap-3 items-center justify-center w-full">
-            <div className="bg-gray-50 flex flex-row items-center justify-between p-7 sm:px-5 w-full  rounded-xl">
+        <div className=" flex items-center justify-center w-screen h-screen sm:w-screen sm:h-screen md:w-screen md:h-screen p-4 sm:p-0 md:pt-20 md:pb-20">
+        <div className="bg-white-A700 flex flex-col items-start justify-center sm:px-5  shadow-bs2 shadow-neutral-900 w-1/4 h-full sm:w-full sm:h-full md:w-2/4 md:h-full">
+          <div className="flex flex-col gap-3 items-center justify-center w-full h-full p-3 sm:p-0 ">
+            <div className="bg-gray-50 flex flex-row items-center justify-between p-3 sm:px-5 w-full rounded-md ">
               <div className="flex flex-row gap-4 items-center justify-center ml-[5px]">
                 {userData && (
                   <Img
-                    className=" sm:w-16 sm:h-14   rounded-full object-cover object-top "
+                    className=" w-14 h-14 sm:w-14 sm:h-14   rounded-full object-cover object-top "
                     src={`${API_URL}/image/${userData.userData.photo}`}
                     alt="userimage"
                   />
@@ -388,7 +394,8 @@ const Endorse = () => {
                       className="text-center text-gray-900 uppercase"
                       size="txtInterSemiBold16Gray900"
                     >
-                      {userData && userData.userData.name}
+                      {/* {userData && userData.userData.name} */}
+                      {name}
                     </Text>
                     <Text className="text-center  text-gray-900 uppercase text-sm">
                       ID: {userData && userData.userData.id}
@@ -406,7 +413,7 @@ const Endorse = () => {
               </Button>
             </div>
 
-            <div className="w-full h-[75vh]  bg-[#f4f6ff] p-3 rounded-lg overflow-hidden flex flex-col items-center justify-top gap-5 ">
+            <div className="w-full h-[75vh]  bg-[#f4f6ff] p-3 rounded-md overflow-hidden flex flex-col items-center justify-top gap-5 ">
               <h1 className="text-right text-xs w-fit ml-auto hidden">
                 {" "}
                 <Location onLocationChange={handleLocationChange} />
@@ -552,7 +559,7 @@ const Endorse = () => {
             </div>
 
             <Button
-              className="cursor-pointer font-semibold w-full  mb-2 text-base text-center"
+              className="cursor-pointer font-semibold w-5/6  mb-2 text-base text-center"
               shape="round"
               color="indigo_A200"
               onClick={handleLogout}
@@ -561,6 +568,8 @@ const Endorse = () => {
             </Button>
           </div>
         </div>
+        </div>
+
       )}
     </>
   );

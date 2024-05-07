@@ -40,7 +40,6 @@ router.get("/AllDetails/:id", AllDetails);
 router.post("/AllDetails/:id", AllDetails);
 router.get("/postsdata/:id", postsdata);
 router.post("/postsdata/:id", postsdata);
-// router.post('/CreateActivity', upload, CreateActivity);
 router.get("/CreateActivity", upload, CreateActivity);
 router.post("/CreateActivity", upload, CreateActivity);
 router.post("/Register", upload, Register);

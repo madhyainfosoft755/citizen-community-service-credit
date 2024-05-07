@@ -54,7 +54,7 @@ const Slider1 = ({ items }) => {
         <Slider {...settings}>
           {locationData.map((item, index) => (
             <div key={item.id}>
-              <div className="h-60 overflow-hidden">
+              <div className="h-44 sm:h-50 overflow-hidden">
                 {item.photos && (
                   <img
                     className="w-full h-full object-cover object-top"

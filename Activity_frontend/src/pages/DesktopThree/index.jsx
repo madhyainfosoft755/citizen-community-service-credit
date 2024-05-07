@@ -46,7 +46,7 @@ const Createpost = () => {
     { id: 3, label: "Teaching Poor" },
     { id: 4, label: "Planting Tree" },
     { id: 5, label: "Marathon" },
-    { id: 6, label: "Social Activities" },
+    { id: 6, label: "SocialActivities" },
   ];
 
   // Function to get and format the current date
@@ -288,10 +288,7 @@ const Createpost = () => {
     navigate("/activity");
   };
 
-  const openTimePicker = (field) => {
-    const inputField = document.getElementById(field);
-    inputField.click(); // Programmatically click to open the time picker
-  };
+  // 
 
   return (
     <>
@@ -302,12 +299,12 @@ const Createpost = () => {
           </div>
 
           <div className="w-1/4 h-full  sm:w-full sm:h-full md:w-3/4 md:h-full  lg:w-3/4 lg:h-full  flex flex-col items-center  justify-center  shadow-bs2 shadow-black-900 sm:shadow-none ">
-            <div className=" flex flex-col gap-4 items-center justify-start w-full h-full ">
+            <div className=" flex flex-col gap-1 items-center justify-start w-full h-full ">
               <div className="bg-gray-50 flex flex-row items-center justify-between p-3 sm:p-5  sm:px-5 w-full ">
                 <div className="flex flex-row gap-4 items-center justify-center ml-[1px]">
                   {userData && (
                     <Img
-                      className=" sm:w-[58px] sm:h-[52px] md:w-[58px] md:h-[52px] lg:w-[58px] lg:h-[58px]  w-[68px] h-[60px] rounded-full object-cover object-top  "
+                      className=" sm:w-[58px] sm:h-[52px] md:w-[58px] md:h-[52px] lg:w-[58px] lg:h-[58px]  w-14 h-14 rounded-full object-cover object-top  "
                       src={`${API_URL}/image/${userData.userData.photo}`}
                       alt="image"
                     />
@@ -338,17 +335,18 @@ const Createpost = () => {
                 </Button>
               </div>
               <div className="bg-gray-50 w-5/6  text-center border-2 border-solid border-zinc-300 rounded-md  ">
-                <h1 className="text-xl  font-semibold">Add New Activity</h1>
+                <h1 className="text-md font-semibold">Add New Activity</h1>
               </div>
 
-              <div className="  flex items-center justify-center gap-4 w-5/6">
+              <div className="  flex items-center justify-center gap-2 w-5/6 ">
+                <h4 className="text-sm font-semibold">
                 Time Spent:
+                </h4>
 
-                <div className="flex flex-col items-start justify-center">
+                <div className="flex flex-1 flex-col items-start justify-center">
                   <label
                     htmlFor="fromTime"
                     className="text-xs  left-13 ml-2 mt-1 text-gray-500"
-                    onClick={() => openTimePicker("fromTime")}
                   >
                     From
                   </label>
@@ -359,7 +357,7 @@ const Createpost = () => {
                     value={fromTime}
 
                     onChange={(e) => setFromTime(e.target.value)}
-                    className="rounded-lg border-2 border-dashed text-xs"
+                    className="rounded-lg border-2 border-dashed text-xs h-6"
                   />{" "}
                 </div>
 
@@ -379,11 +377,11 @@ const Createpost = () => {
                     placeholder="To time"
                     onClick={(e) => e.target.focus()} // Trigger focus when clicked
                     onChange={(e) => setToTime(e.target.value)}
-                    className="rounded-lg border-2 border-dashed text-xs"
+                    className="rounded-lg border-2 border-dashed text-xs h-6"
                   />
                 </div>
               </div>
-              <div className="flex flex-col items-start justify-center w-5/6 sm:w-11/12">
+              <div className="flex flex-col items-start justify-center sm:gap-1 w-11/12 sm:w-11/12 ">
                 <Text
                   className="text-base text-gray-900"
                   size="txtInterSemiBold16Gray900"
@@ -394,7 +392,7 @@ const Createpost = () => {
                   {buttons.map((button) => (
                     <label
                       key={button.id}
-                      className={`flex flex-wrap rounded-[20px] items-center justify-center border-2 overflow-hidden border-double border-white p-3  m-1 w-36 cursor-pointer ${selectedButton === button.label
+                      className={`flex flex-wrap text-sm rounded-[20px] items-center justify-center border-2 overflow-hidden border-double border-white p-2 sm:p-3 m-1 w-36 cursor-pointer ${selectedButton === button.label
                           ? "border-orange-400"
                           : ""
                         }`}
