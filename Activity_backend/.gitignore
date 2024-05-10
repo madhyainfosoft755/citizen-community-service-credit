@@ -26,4 +26,6 @@ yarn-error.log*
 
 #videos
 *.mp4
-Activity_backend/uploads/videos
+# ./Activity_backend/uploads/photos.png
+/uploads/photos/
+# ./Activity_backend/uploads/videos

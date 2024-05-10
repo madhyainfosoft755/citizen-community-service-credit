@@ -19,7 +19,8 @@ const {
   forgetpassword,
   verifyPin,
   updatePassword,
-  resendVerification
+  resendVerification,
+  TotalTimeSpent
 } = require("../controllers/LoginController");
 const { upload } = require("../utils/util");
 // Express route 
@@ -45,5 +46,6 @@ router.post("/CreateActivity", upload, CreateActivity);
 router.post("/Register", upload, Register);
 router.post("/fetchPostsInArea", fetchPostsInArea);
 router.post("/endorsePost/:id", endorsePost);
+router.post("/TotalTimeSpent/:id", TotalTimeSpent);
 
 module.exports = router;

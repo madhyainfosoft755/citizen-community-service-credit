@@ -740,27 +740,85 @@ const AllDetails = async (req, res) => {
         "UserId",
         "Category",
         "totalTime",
-
-        // [sequelize.col("userTable.name"), "name",],
       ],
       where: { UserId: req.params.id },
-      // include: [
-      //   {
-      //     // model: db.users,
-      //     attributes: [],
-      //     as: 'userTable',
-      //   },
-      // ],
-      // order: [["InsertedAt", "DESC"]],
     });
 
-    res.status(200).json(all_posts);
+    // Calculate the sum of totalTime
+    let totalTimeSum = 0;
+    all_posts.forEach((post) => {
+      totalTimeSum += convertTimeToSeconds(post.totalTime);
+    });
+
+    // Convert the total time sum back to HH:mm:ss format
+    const formattedTotalTimeSum = convertSecondsToTime(totalTimeSum);
+
+    console.log("Total Time Sum:", formattedTotalTimeSum);
+
+    // Update totalTime in the users table
+    const user = await db.users.findByPk(req.params.id);
+    if (user) {
+      user.totalTime = formattedTotalTimeSum;
+      await user.save();
+    }
+
+    res.status(200).json({ all_posts, totalTimeSum: formattedTotalTimeSum });
   } catch (error) {
-    logger.error("here is the error", error);
-    console.error(error);
+    console.error("Here is the error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
 };
+const TotalTimeSpent = async(req,res)=>{
+
+  try {
+    const all_posts = await db.Posts.findAll({
+      attributes: [
+        "UserId",
+        "Category",
+        "totalTime",
+      ],
+      where: { UserId: req.params.id },
+    });
+
+    // Calculate the sum of totalTime
+    let totalTimeSum = 0;
+    all_posts.forEach((post) => {
+      totalTimeSum += convertTimeToSeconds(post.totalTime);
+    });
+
+    // Convert the total time sum back to HH:mm:ss format
+    const formattedTotalTimeSum = convertSecondsToTime(totalTimeSum);
+
+    console.log("Total Time Sum:", formattedTotalTimeSum);
+
+    // Update totalTime in the users table
+    const user = await db.users.findByPk(req.params.id);
+    if (user) {
+      user.totalTime = formattedTotalTimeSum;
+      await user.save();
+    }
+
+    res.status(200).json({  totalTimeSum: formattedTotalTimeSum });
+  } catch (error) {
+    console.error("Here is the error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
+
+// Helper function to convert HH:mm:ss time format to seconds
+const convertTimeToSeconds = (time) => {
+  const [hours, minutes, seconds] = time.split(":").map(Number);
+  return hours * 3600 + minutes * 60 + seconds;
+};
+
+// Helper function to convert seconds to HH:mm:ss time format
+const convertSecondsToTime = (seconds) => {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const remainingSeconds = seconds % 60;
+  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+};
+
 
 const postsdata = async (req, res) => {
   try {
@@ -774,6 +832,47 @@ const postsdata = async (req, res) => {
     logger.error("here is the error", error);
     console.error(error);
     res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+const endorsePost = async (req, res) => {
+  const postId = req.params.id;
+  const userId = req.body.userId;
+
+  try {
+    // Check if the user has already endorsed the post
+    const existingEndorsement = await Endorsement.findOne({
+      where: { userId, postId },
+    });
+
+    if (existingEndorsement) {
+      return res
+        .status(400)
+        .json({ error: "You have already endorsed this post." });
+    }
+
+    const post = await Posts.findByPk(postId);
+    if (!post) {
+      return res.status(404).json({ error: "Post not found" });
+    }
+
+    // Increment the endorsements count
+    post.endorsementCounter = post.endorsementCounter
+      ? post.endorsementCounter + 1
+      : 1; // Check if endorsements exist before incrementing
+    await post.save();
+
+    // Record the endorsement in the Endorsements table
+    await Endorsement.create({ userId, postId });
+
+    return res.status(200).json({
+      message: "Post endorsed successfully",
+      post: { id: post.id, endorsementCounter: post.endorsementCounter },
+    });
+  } catch (error) {
+    logger.error("Error endorsing post:", error);
+    console.error("Error endorsing post:", error);
+    return res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -830,6 +929,14 @@ const fetchPostsInArea = async (req, res) => {
       );
     }
 
+     // Exclude posts that have been endorsed by the current user
+     const endorsedPosts = await db.Endorsement.findAll({
+      where: { userId: userId },
+      attributes: ['postId'],
+    });
+    const endorsedPostIds = endorsedPosts.map((endorsement) => endorsement.postId);
+    postsInArea = postsInArea.filter((post) => !endorsedPostIds.includes(post.id));
+
     res.json(postsInArea);
   } catch (error) {
     logger.error("Error fetching posts in area:", error);
@@ -837,46 +944,6 @@ const fetchPostsInArea = async (req, res) => {
   }
 };
 
-const endorsePost = async (req, res) => {
-  const postId = req.params.id;
-  const userId = req.body.userId;
-
-  try {
-    // Check if the user has already endorsed the post
-    const existingEndorsement = await Endorsement.findOne({
-      where: { userId, postId },
-    });
-
-    if (existingEndorsement) {
-      return res
-        .status(400)
-        .json({ error: "You have already endorsed this post." });
-    }
-
-    const post = await Posts.findByPk(postId);
-    if (!post) {
-      return res.status(404).json({ error: "Post not found" });
-    }
-
-    // Increment the endorsements count
-    post.endorsementCounter = post.endorsementCounter
-      ? post.endorsementCounter + 1
-      : 1; // Check if endorsements exist before incrementing
-    await post.save();
-
-    // Record the endorsement in the Endorsements table
-    await Endorsement.create({ userId, postId });
-
-    return res.status(200).json({
-      message: "Post endorsed successfully",
-      post: { id: post.id, endorsementCounter: post.endorsementCounter },
-    });
-  } catch (error) {
-    logger.error("Error endorsing post:", error);
-    console.error("Error endorsing post:", error);
-    return res.status(500).json({ error: "Internal server error" });
-  }
-};
 module.exports = {
   output,
   varifybytoken,
@@ -895,5 +962,6 @@ module.exports = {
   forgetpassword,
   verifyPin,
   updatePassword,
-  resendVerification
+  resendVerification,
+  TotalTimeSpent
 };

@@ -39,6 +39,7 @@ const Endorse = () => {
   const [popupData, setPopupData] = useState(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [userName, setUserName] = useState("")
+  const [endorsedPosts, setEndorsedPosts] = useState([]); // State variable to track endorsed posts
 
 
   // Function to open the popup with photos and videos
@@ -66,11 +67,11 @@ const Endorse = () => {
   }, [navigate]);
 
   //if user data is avaliable then fetch posts
-  useEffect(() => {
-    if (userData?.userData?.id) {
-      fetchUserPosts(userData.userData.id);
-    }
-  }, [userData]);
+  // useEffect(() => {
+  //   if (userData?.userData?.id) {
+  //     fetchUserPosts(userData.userData.id);
+  //   }
+  // }, [userData]);
 
   const handleLocationChange = (latitude, longitude) => {
     setLocationData({ latitude, longitude });
@@ -94,6 +95,7 @@ const Endorse = () => {
       if (response.ok) {
         setUserName(userData.userData.name)
         setUserData(userData);
+        console.log("this is user data",userData)
       } else {
         console.error("Error fetching user data:", response.status);
       }
@@ -105,91 +107,122 @@ const Endorse = () => {
   const name = userName.split(" ")[0];
 
 
-  //fetch userPosts
-  const fetchUserPosts = async (userId) => {
-    try {
-      const token = localStorage.getItem("token");
-      const response = await fetch(`${API_URL}/activity/postsdata/${userId}`, {
-        method: "GET",
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (response.ok) {
-        const userPostsData = await response.json();
-        setUserPosts(userPostsData);
-        setFilteredPosts(userPostsData); // Initialize filtered posts with all user posts
-      } else {
-        console.error("Error fetching user posts:", response.status);
-        setError("An error occurred while fetching user posts.");
-      }
-    } catch (error) {
-      console.error("Error fetching user posts:", error);
-      setError("An error occurred while fetching user posts.");
-    }
-  };
-
-  // Fetch historical data and calculate total time
-  useEffect(() => {
-    const fetchHistoricalData = async () => {
+  useEffect(()=>{
+    const totalTimeSpent = async(userId)=>{
       try {
         const token = localStorage.getItem("token");
-        if (!token) {
-          navigate("/login");
-          return;
-        }
-
-        if (!userData || !userData.userData) {
-          // Handle case where userData is not yet loaded
-          return;
-        }
-
-        const response = await fetch(
-          `${API_URL}/activity/AllDetails/${userData.userData.id}`, // Replace with your actual API endpoint
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
+        const response = await fetch(`${API_URL}/activity/TotalTimeSpent/${userData.userData.id}`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+        });
+  
+          const data = await response.json();
         if (response.ok) {
-          const historicalData = await response.json();
-
-          if (Array.isArray(historicalData) && historicalData.length > 0) {
-            // Calculate total hours from all historical data
-            const totalHours = calculateTotalHours(historicalData);
-            setTotalTime(totalHours);
-          }
-        } else {
-          console.error("Error fetching historical data:", response.status);
-          // Handle error accordingly
+            setTotalTime(data.totalTimeSum)
         }
-      } catch (error) {
-        console.error("Error fetching historical data:", error);
       }
-    };
-
-    fetchHistoricalData();
-  }, [userData]);
-
-  // Utility function to calculate total hours from historical data
-  const calculateTotalHours = (historicalData) => {
-    let totalHours = 0;
-
-    historicalData.forEach((data) => {
-      if (data.totalTime) {
-        const [hours, minutes, seconds] = data.totalTime.split(":");
-        totalHours += parseInt(hours) + parseInt(minutes) / 60;
+      catch (error) {
+        console.error("Error fetching user total time", error);
+        setError("An error occurred while fetching users Time.");
       }
-    });
+    }
+    totalTimeSpent()
+  },[userData])
+ 
 
-    return totalHours.toFixed(2); // Limit to two decimal places
-  };
+
+  //fetch userPosts
+  // const fetchUserPosts = async (userId) => {
+  //   try {
+  //     const token = localStorage.getItem("token");
+  //     const response = await fetch(`${API_URL}/activity/postsdata/${userId}`, {
+  //       method: "GET",
+  //       headers: { Authorization: `Bearer ${token}` },
+  //     });
+
+  //     if (response.ok) {
+  //       const userPostsData = await response.json();
+  //       // setUserPosts(userPostsData);
+  //       setFilteredPosts(userPostsData); // Initialize filtered posts with all user posts
+  //     } else {
+  //       console.error("Error fetching user posts:", response.status);
+  //       setError("An error occurred while fetching user posts.");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching user posts:", error);
+  //     setError("An error occurred while fetching user posts.");
+  //   }
+  // };
+
+  // // Fetch historical data and calculate total time
+  // useEffect(() => {
+  //   const fetchHistoricalData = async () => {
+  //     try {
+  //       const token = localStorage.getItem("token");
+  //       if (!token) {
+  //         navigate("/login");
+  //         return;
+  //       }
+
+  //       if (!userData || !userData.userData) {
+  //         // Handle case where userData is not yet loaded
+  //         return;
+  //       }
+
+  //       const response = await fetch(
+  //         `${API_URL}/activity/AllDetails/${userData.userData.id}`, // Replace with your actual API endpoint
+  //         {
+  //           method: "POST",
+  //           headers: {
+  //             Authorization: `Bearer ${token}`,
+  //           },
+  //         }
+  //       );
+
+  //       if (response.ok) {
+  //         const historicalData = await response.json();
+
+  //         // if (Array.isArray(historicalData) && historicalData.length > 0) {
+  //         //   // Calculate total hours from all historical data
+  //         //   const totalHours = calculateTotalHours(historicalData);
+  //         //   setTotalTime(totalHours);
+  //         // }
+  //       } else {
+  //         console.error("Error fetching historical data:", response.status);
+  //         // Handle error accordingly
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching historical data:", error);
+  //     }
+  //   };
+
+  //   fetchHistoricalData();
+  // }, [userData]);
+
+  // // Utility function to calculate total hours from historical data
+  // const calculateTotalHours = (historicalData) => {
+  //   let totalHours = 0;
+
+  //   historicalData.forEach((data) => {
+  //     if (data.totalTime) {
+  //       const [hours, minutes, seconds] = data.totalTime.split(":");
+  //       totalHours += parseInt(hours) + parseInt(minutes) / 60;
+  //     }
+  //   });
+
+  //   return totalHours.toFixed(2); // Limit to two decimal places
+  // };
 
   //fetch posts avaliable in the latitude and longitude
   const fetchPostsInArea = async (latitude, longitude) => {
+
     try {
+      const newdata = { latitude,
+        longitude,
+        userId: userData?.userData?.id,
+        username: userData?.userData?.name
+        }
+        console.log("thi is the user id", newdata)
       const token = localStorage.getItem("token");
       const response = await fetch(`${API_URL}/activity/fetchPostsInArea`, {
         method: "POST",
@@ -197,11 +230,8 @@ const Endorse = () => {
           Authorization: `Bearer ${token}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          latitude,
-          longitude,
-          userId: userData?.userData?.id,
-        }),
+        body: JSON.stringify(newdata),
+        
       });
       console.log("kya response aa rha hai", latitude, longitude);
 
@@ -344,6 +374,15 @@ const Endorse = () => {
       }
       console.log("kya hai postId", postId, userId);
 
+
+      // Check if the post has already been endorsed by the user
+      const isEndorsed = userPosts.some(post => post.id === postId && post.endorsedByCurrentUser);
+      if (isEndorsed) {
+        console.error("You have already endorsed this post.");
+        // Handle case where the post is already endorsed
+        return;
+      }
+
       const response = await fetch(
         `${API_URL}/activity/endorsePost/${postId}`,
         {
@@ -362,7 +401,14 @@ const Endorse = () => {
         // For example, you could refetch the user's posts or update the specific post in the state
         // fetchUserPosts(userData.userData.id); // Example: Refetch user's posts
         console.log("Selected post is endorsed PostID:", postId);
-      } else {
+        // Update the state to mark the post as endorsed by the current user
+        setUserPosts((prevPosts) =>
+          prevPosts.map((post) =>
+            post.id === postId ? { ...post, endorsedByCurrentUser: true } : post
+          )
+        );
+      }
+      else {
         console.error("You have already endorsed this post:", response.status);
         // Handle error accordingly
       }
@@ -372,202 +418,209 @@ const Endorse = () => {
     }
   };
 
+  const [textIndex, setTextIndex] = useState(0);
+  const carouselTexts = [`${totalTime || 0} Hours`, 'Create Activity']; // Add your carousel text here
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTextIndex((prevIndex) => (prevIndex + 1) % carouselTexts.length);
+    }, 2000); // Change text every 2 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
   // console.log("all filtered post", filteredPosts);
   return (
     <>
       {authenticated && (
         <div className=" flex items-center justify-center w-screen h-screen sm:w-screen sm:h-screen md:w-screen md:h-screen p-4 sm:p-0 md:pt-20 md:pb-20">
-        <div className="bg-white-A700 flex flex-col items-start justify-center sm:px-5  shadow-bs2 shadow-neutral-900 w-1/4 h-full sm:w-full sm:h-full md:w-2/4 md:h-full">
-          <div className="flex flex-col gap-3 items-center justify-center w-full h-full p-3 sm:p-0 ">
-            <div className="bg-gray-50 flex flex-row items-center justify-between p-3 sm:px-5 w-full rounded-md ">
-              <div className="flex flex-row gap-4 items-center justify-center ml-[5px]">
-                {userData && (
-                  <Img
-                    className=" w-14 h-14 sm:w-14 sm:h-14   rounded-full object-cover object-top "
-                    src={`${API_URL}/image/${userData.userData.photo}`}
-                    alt="userimage"
-                  />
-                )}
-                <div className="flex flex-col items-center justify-center w-3/5">
-                  <div className="flex flex-col items-start justify-center w-full">
-                    <Text
-                      className="text-center text-gray-900 uppercase"
-                      size="txtInterSemiBold16Gray900"
-                    >
-                      {/* {userData && userData.userData.name} */}
-                      {name}
-                    </Text>
-                    <Text className="text-center  text-gray-900 uppercase text-sm">
-                      ID: {userData && userData.userData.id}
-                    </Text>
+          <div className="bg-white-A700 flex flex-col items-start justify-center sm:px-5  border-[1px] rounded-lg w-4/12 h-full sm:w-full sm:h-full md:w-2/4 md:h-full">
+            <div className="flex flex-col gap-3 items-center justify-center w-full h-full p-3 sm:p-0 ">
+              <div className="bg-gray-50 flex flex-row items-center justify-between p-3 sm:px-5 w-full rounded-md ">
+                <div className="flex flex-row gap-4 items-center justify-center ml-[5px]">
+                  {userData && (
+                    <Img
+                      className=" w-14 h-14 sm:w-14 sm:h-14   rounded-full object-cover object-top "
+                      src={`${API_URL}/image/${userData.userData.photo}`}
+                      alt="userimage"
+                    />
+                  )}
+                  <div className="flex flex-col items-center justify-center w-3/5">
+                    <div className="flex flex-col items-start justify-center w-full">
+                      <Text
+                        className="text-center text-gray-900 uppercase"
+                        size="txtInterSemiBold16Gray900"
+                      >
+                        {/* {userData && userData.userData.name} */}
+                        {name}
+                      </Text>
+                      <Text className="text-center  text-gray-900 uppercase text-sm">
+                        ID: {userData && userData.userData.id}
+                      </Text>
+                    </div>
                   </div>
                 </div>
+                <Button
+                  className="rounded-3xl cursor-pointer font-semibold w-4/12 "
+                  // shape="round"
+                  color="indigo_A200"
+                  onClick={direct}
+                >
+                  {carouselTexts[textIndex]}
+                </Button>
               </div>
+
+              <div className="w-full h-[75vh]  bg-[#f4f6ff]  rounded-md overflow-hidden flex flex-col items-center justify-top gap-5 ">
+                <h1 className="text-right text-xs w-fit ml-auto hidden">
+                  {" "}
+                  <Location onLocationChange={handleLocationChange} />
+                </h1>
+
+                <div className="mt-3 mb-5 relative w-5/6 md:w-64">
+                  <div className="relative">
+                    <button
+                      onClick={() => {
+                        setIsOpen(!isOpen);
+                      }}
+                      className="absolute z-20  right-2 top-1 flex items-center justify-center bg-blue-500 text-white rounded-full w-8 h-8 focus:outline-none"
+                    >
+                      <FontAwesomeIcon icon={faMagnifyingGlass} />
+                    </button>
+                    <Transition
+                      show={isOpen}
+                      enter="transition ease-out duration-200 transform"
+                      enterFrom="opacity-0 scale-95"
+                      enterTo="opacity-100 scale-100"
+                      leave="transition ease-in duration-150 transform"
+                      leaveFrom="opacity-100 scale-100"
+                      leaveTo="opacity-0 scale-95"
+                    >
+                      {(ref) => {
+                        transitionRef.current = ref;
+                        return (
+                          <div
+                            ref={searchBarRef}
+                            className="absolute -top-[10px] right-0 w-full sm:w-64 bg-white border border-gray-300 rounded-lg shadow-sm mt-2 z-10"
+                          >
+                            <select
+                              className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring focus:ring-blue-500"
+                              value={searchQuery.category}
+                              onChange={(e) =>
+                                setSearchQuery({
+                                  ...searchQuery,
+                                  category: e.target.value,
+                                })
+                              }
+                            >
+                              <option value="">All Categories</option>
+                              {/* Map over categories and render options */}
+                              {categories.map((category) => (
+                                <option key={category.id} value={category.label}>
+                                  {category.label}
+                                </option>
+                              ))}
+                            </select>
+                            <input
+                              type="text"
+                              placeholder="Search by username..."
+                              className="w-full px-4 py-2 mt-2 rounded-lg border border-gray-300 focus:outline-none focus:ring focus:ring-blue-500"
+                              value={searchQuery.userName}
+                              onChange={(e) =>
+                                setSearchQuery({
+                                  ...searchQuery,
+                                  userName: e.target.value,
+                                })
+                              }
+                            />
+                          </div>
+                        );
+                      }}
+                    </Transition>
+                  </div>
+                </div>
+
+                <div className={`relative mt-5 w-full h-full  post-container ${filteredPosts.length === 0 ? "overflow-hidden" : "overflow-scroll"}`}>
+                  {filteredPosts.length === 0 ? (
+                    <h2 className="absolute top-40 sm:top-52 text-center marquee text-4xl whitespace-nowrap font-semibold">
+                      No posts available for endorsement.
+                    </h2>
+                  ) : (
+                    <table className="w-52 overflow-scroll">
+                      <thead>
+                        <tr className=" w-full">
+                          <th className="w-4/12">Category</th>
+                          <th className="">Name</th>
+                          <th className="">Time</th>
+                          <th className="">Location</th>
+                          <th className="">Image</th>
+                          <th className="">Endorsement</th>
+                        </tr>
+                      </thead>
+                      <tbody className=" ">
+                        {filteredPosts.map((post) => (
+                          <tr key={post.id} className=" border-b-2">
+                            <td className="py-3 px-8" >{post.category}</td>
+                            <td className="py-3 px-10">{post.user ? post.user.name : 'Unknown'}</td>
+                            <td className="p-3">{post.totalTime}</td>
+                            <td className="py-3 px-10">
+                              {post.latitude && post.longitude ? (
+                                <span>{renderCityName(post.id)}</span>
+                              ) : (
+                                'Unknown City'
+                              )}
+                            </td>
+                            <td className="px-5">
+                              <a
+                                href="#"
+                                onClick={() => openPopup(post)}
+                                className="text-yellow-300 underline"
+                              >
+                                View
+                              </a>
+                            </td>
+                            <td className="p-3 flex items-center justify-center">
+                              <input
+                                type="checkbox"
+                                id={`endorsement_${post.id}`}
+                                checked={post.endorsedByCurrentUser}
+                                disabled={endorsedPosts.includes(post.id)} // Disable the checkbox if post is already endorsed
+                                className="border-2 border-yellow-200 p-2 rounded-lg"
+                                onChange={() =>
+                                  handleEndorsement(post.id, userData.userData.id)
+                                }
+                              />
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  )}
+                </div>
+
+                {/* Popup/Modal */}
+                {isPopupOpen && (
+                  <div className="popup-overlay">
+                    <div className="popup-content ">
+                      <PopupComponent
+                        className="w-screen h-screen overflow-scroll flex flex-col items-center justify-center gap-5"
+                        post={popupData}
+                        onClose={closePopup}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
               <Button
-                className="cursor-pointer font-semibold "
+                className="cursor-pointer font-semibold w-5/6  mb-2 text-base text-center"
                 shape="round"
                 color="indigo_A200"
-                onClick={direct}
+                onClick={handleLogout}
               >
-                {`${totalTime || "0"} Hours`}
+                LOGOUT
               </Button>
             </div>
-
-            <div className="w-full h-[75vh]  bg-[#f4f6ff] p-3 rounded-md overflow-hidden flex flex-col items-center justify-top gap-5 ">
-              <h1 className="text-right text-xs w-fit ml-auto hidden">
-                {" "}
-                <Location onLocationChange={handleLocationChange} />
-              </h1>
-
-              <div className="mb-5 relative w-full md:w-64">
-                <div className="relative">
-                  <button
-                    onClick={() => {
-                      setIsOpen(!isOpen);
-                    }}
-                    className="absolute z-20  right-2 top-1 flex items-center justify-center bg-blue-500 text-white rounded-full w-8 h-8 focus:outline-none"
-                  >
-                    <FontAwesomeIcon icon={faMagnifyingGlass} />
-                  </button>
-                  <Transition
-                    show={isOpen}
-                    enter="transition ease-out duration-200 transform"
-                    enterFrom="opacity-0 scale-95"
-                    enterTo="opacity-100 scale-100"
-                    leave="transition ease-in duration-150 transform"
-                    leaveFrom="opacity-100 scale-100"
-                    leaveTo="opacity-0 scale-95"
-                  >
-                    {(ref) => {
-                      transitionRef.current = ref;
-                      return (
-                        <div
-                          ref={searchBarRef}
-                          className="absolute -top-[10px] right-0 w-full sm:w-64 bg-white border border-gray-300 rounded-lg shadow-sm mt-2 z-10"
-                        >
-                          <select
-                            className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring focus:ring-blue-500"
-                            value={searchQuery.category}
-                            onChange={(e) =>
-                              setSearchQuery({
-                                ...searchQuery,
-                                category: e.target.value,
-                              })
-                            }
-                          >
-                            <option value="">All Categories</option>
-                            {/* Map over categories and render options */}
-                            {categories.map((category) => (
-                              <option key={category.id} value={category.label}>
-                                {category.label}
-                              </option>
-                            ))}
-                          </select>
-                          <input
-                            type="text"
-                            placeholder="Search by username..."
-                            className="w-full px-4 py-2 mt-2 rounded-lg border border-gray-300 focus:outline-none focus:ring focus:ring-blue-500"
-                            value={searchQuery.userName}
-                            onChange={(e) =>
-                              setSearchQuery({
-                                ...searchQuery,
-                                userName: e.target.value,
-                              })
-                            }
-                          />
-                        </div>
-                      );
-                    }}
-                  </Transition>
-                </div>
-              </div>
-
-              <div className="relative mt-5 w-full h-full overflow-x-hidden overflow-y-scroll">
-                {filteredPosts.length === 0 ? (
-                  <h2 className=" absolute top-52 text-center marquee text-4xl whitespace-nowrap font-semibold ">
-                    No posts available for endorsement.
-                  </h2>
-                ) : (
-                  filteredPosts.map((post) => (
-                    <div
-                      className="bg-gradient-to-r from-cyan-300 to-blue-600 mb-3 rounded-xl overflow-hidden flex place-items-start justify-evenly gap-2 flex-wrap p-2"
-                      key={post.id}
-                    >
-                      <div className="flex flex-col items-start justify-center">
-                        <p className="inline text-white-A700">Category</p>
-                        <p className="text-white-A700">{post.category}</p>
-                      </div>
-
-                      <div>
-                        <p>Name</p>
-                        <p>{post.user ? post.user.name : "Unknown"}</p>
-                      </div>
-
-                      <div>
-                        <p className="text-white-A700">Time </p>
-                        <p className="text-white-A700">{post.totalTime}</p>
-                      </div>
-
-                      <div>
-                        <p className="text-white-A700">Location </p>
-                        <p className="text-white-A700">
-                          {post.latitude && post.longitude ? (
-                            <span>{renderCityName(post.id)}</span>
-                          ) : (
-                            "Unknown City"
-                          )}
-                        </p>
-                      </div>
-
-                      <div>
-                        <p>Image</p>
-                        <a
-                          href="#"
-                          onClick={() => openPopup(post)}
-                          className="text-yellow-300 underline"
-                        >
-                          View
-                        </a>
-                      </div>
-                      <div>
-                        <button
-                          className="border-2 border-yellow-200 p-2 rounded-lg"
-                          onClick={() =>
-                            handleEndorsement(post.id, userData.userData.id)
-                          }
-                        >
-                          Endorsement
-                        </button>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
-
-              {/* Popup/Modal */}
-              {isPopupOpen && (
-                <div className="popup-overlay">
-                  <div className="popup-content ">
-                    <PopupComponent
-                      className="w-screen h-screen overflow-scroll flex flex-col items-center justify-center gap-5"
-                      post={popupData}
-                      onClose={closePopup}
-                    />
-                  </div>
-                </div>
-              )}
-            </div>
-
-            <Button
-              className="cursor-pointer font-semibold w-5/6  mb-2 text-base text-center"
-              shape="round"
-              color="indigo_A200"
-              onClick={handleLogout}
-            >
-              LOGOUT
-            </Button>
           </div>
-        </div>
         </div>
 
       )}

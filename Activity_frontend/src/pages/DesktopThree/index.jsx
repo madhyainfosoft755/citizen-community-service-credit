@@ -46,7 +46,7 @@ const Createpost = () => {
     { id: 3, label: "Teaching Poor" },
     { id: 4, label: "Planting Tree" },
     { id: 5, label: "Marathon" },
-    { id: 6, label: "SocialActivities" },
+    { id: 6, label: "Social Activities" },
   ];
 
   // Function to get and format the current date
@@ -287,18 +287,32 @@ const Createpost = () => {
   const direct = () => {
     navigate("/activity");
   };
+  
+  const Endorse = ()=>{
+    navigate("/endorse")
+  }
 
+  const [textIndex, setTextIndex] = useState(0);
+  const carouselTexts = [`${totalTime || 0} Hours`, 'My Activity']; // Add your carousel text here
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTextIndex((prevIndex) => (prevIndex + 1) % carouselTexts.length);
+    }, 2000); // Change text every 2 seconds
+
+    return () => clearInterval(interval);
+  }, []);
   // 
 
   return (
     <>
       {authenticated && (
-        <form className="w-screen h-screen   md:w-screen md:h-screen  flex items-center justify-center pt-5 pb-5 sm:w-screen sm:h-screen md:pt-5 md:pb-5 sm:p-0 " onSubmit={handleSubmit} encType="multipart/form-data">
+        <form className="w-screen h-screen   md:w-screen md:h-screen flex items-center justify-center pt-5 pb-5 sm:w-screen sm:h-screen md:pt-5 md:pb-5 sm:p-0 " onSubmit={handleSubmit} encType="multipart/form-data">
           <div className="hidden">
             <Location onLocationChange={handleLocationChange} />
           </div>
 
-          <div className="w-1/4 h-full  sm:w-full sm:h-full md:w-3/4 md:h-full  lg:w-3/4 lg:h-full  flex flex-col items-center  justify-center  shadow-bs2 shadow-black-900 sm:shadow-none ">
+          <div className="w-4/12 h-full sm:w-full sm:h-full md:w-3/4 md:h-full  lg:w-3/4 lg:h-full  flex flex-col items-center  justify-center border-[1px]  rounded-lg sm:rounded-none overflow-hidden">
             <div className=" flex flex-col gap-1 items-center justify-start w-full h-full ">
               <div className="bg-gray-50 flex flex-row items-center justify-between p-3 sm:p-5  sm:px-5 w-full ">
                 <div className="flex flex-row gap-4 items-center justify-center ml-[1px]">
@@ -326,76 +340,32 @@ const Createpost = () => {
                   </div>
                 </div>
                 <Button
-                  className="font-semibold btn-11"
-                  shape="round"
+                  className="cursor-pointer font-semibold rounded-3xl w-4/12"
+                  // shape="round"
                   color="indigo_A200"
                   onClick={direct}
                 >
-                  {`${totalTime || "0"} hours`}
+                  {carouselTexts[textIndex]}
                 </Button>
               </div>
-              <div className="bg-gray-50 w-5/6  text-center border-2 border-solid border-zinc-300 rounded-md  ">
-                <h1 className="text-md font-semibold">Add New Activity</h1>
+              
+              <div className="flex flex-col items-start justify-center gap-1 sm:gap-1 w-11/12  sm:w-11/12 mt-1  ">
+              <div className="bg-white-A700 w-full  text-center flex items-start justify-between gap-5">
+                <h1 className="text-md font-semibold shadow-bs3 shadow-gray-300 py-1  w-1/2 h-full flex items-center justify-center rounded-md mb-2">+ Add New Activity</h1>
+                <button onClick={Endorse} className="bg-[#546ef6] w-1/2 h-full font-semibold rounded-3xl text-white-A700">Endorse Activities</button>
               </div>
-
-              <div className="  flex items-center justify-center gap-2 w-5/6 ">
-                <h4 className="text-sm font-semibold">
-                Time Spent:
-                </h4>
-
-                <div className="flex flex-1 flex-col items-start justify-center">
-                  <label
-                    htmlFor="fromTime"
-                    className="text-xs  left-13 ml-2 mt-1 text-gray-500"
-                  >
-                    From
-                  </label>
-                  <input
-                    type="time"
-                    name="fromTime"
-                    id="fromTime"
-                    value={fromTime}
-
-                    onChange={(e) => setFromTime(e.target.value)}
-                    className="rounded-lg border-2 border-dashed text-xs h-6"
-                  />{" "}
-                </div>
-
-                <div className="flex flex-col items-start justify-center"
-                >
-                  <label
-                    htmlFor="toTime"
-                    className="text-xs  ml-2 mt-1 text-gray-500"
-                  >
-                    To
-                  </label>
-                  <input
-                    type="time"
-                    name="toTime"
-                    id="toTime"
-                    value={toTime}
-                    placeholder="To time"
-                    onClick={(e) => e.target.focus()} // Trigger focus when clicked
-                    onChange={(e) => setToTime(e.target.value)}
-                    className="rounded-lg border-2 border-dashed text-xs h-6"
-                  />
-                </div>
-              </div>
-              <div className="flex flex-col items-start justify-center sm:gap-1 w-11/12 sm:w-11/12 ">
                 <Text
                   className="text-base text-gray-900"
                   size="txtInterSemiBold16Gray900"
                 >
                   Select Category
                 </Text>
-                <div className="flex flex-wrap  items-center justify-between  w-full ">
+                <div className="flex flex-wrap  items-center justify-between  w-full">
                   {buttons.map((button) => (
                     <label
                       key={button.id}
-                      className={`flex flex-wrap text-sm rounded-[20px] items-center justify-center border-2 overflow-hidden border-double border-white p-2 sm:p-3 m-1 w-36 cursor-pointer ${selectedButton === button.label
-                          ? "border-orange-400"
-                          : ""
-                        }`}
+                      className={`flex flex-wrap text-sm rounded-lg items-center justify-center border-2 overflow-hidden border-double border-white m-1 w-5/12 px-5 py-2  sm:px-5 sm:py-3  cursor-pointer ${selectedButton === button.label
+                        ? "border-[1px] border-[#546ef6] text-[#546ef6] bg-sky-50/40": "" } `}
                     >
                       <input
                         type="radio"
@@ -403,29 +373,80 @@ const Createpost = () => {
                         className="hidden"
                         onClick={() => handleButtonClick(button.label)}
                       />
-                      <span className="font-semibold">{button.label}</span>
+                      <span className="font-medium">{button.label}</span>
                     </label>
                   ))}
                 </div>
 
-                <div className="flex flex-row gap-2 items-center justify-between   w-full p-2 ">
+                <div className="flex flex-row gap-2 items-center justify-between   w-full p-2 mt-1 mb-2">
                   <Button
-                    className="flex items-center justify-center border-[1px] leading-[normal] text-[12px] font-semibold text-left w-1/2 h-full rounded-md"
+                  type="button"
+                    className="flex items-center justify-center bg-[#eff2ff] border-[1px] leading-[normal] text-[12px] font-semibold text-left w-1/2 h-full rounded-md"
                   // onClick={handleLocationClick}
                   >
                     <FontAwesomeIcon icon={faLocationDot} className="pr-3 text-blue-600" />
                     {locationData.city}, {locationData.state}
                   </Button>
-                  <input
-                    type="date"
-                    id="datepicker"
-                    name="datepicker"
-                    value={currentDate}
-                    onChange={handleDateChange}
-                    className="w-1/2 h-full px-3 py-2 rounded-md border-[1px] border-gray-300 focus:outline-none focus:border-blue-500"
-                  />
-                </div>
 
+                  <div className="relative w-1/2 h-full">
+                    <input
+                      type="date"
+                      id="datepicker"
+                      name="datepicker"
+                      value={currentDate}
+                      onChange={handleDateChange}
+                      className="w-full h-full px-3 py-2 bg-[#eff2ff] text-sm shadow-sm shadow-black-900/10 rounded-md border-[1px] border-gray-300 focus:outline-none focus:border-blue-500 appearance-none"
+                    />
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                      <span className={`absolute -top-5 left-1 text-sm ${currentDate ? 'text-gray-700' : 'text-gray-500'}`}>
+                        Select Date
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div className="  flex items-center justify-evenly gap-2 w-full ">
+                  <h4 className="text-sm font-semibold">
+                    Add Time:
+                  </h4>
+
+                  <div className="relative flex flex-col items-start justify-center ">
+                    <label
+                      htmlFor="fromTime"
+                      className="absolute -top-5 -left-1 text-xs  left-13 ml-2 mt-1 text-gray-500"
+                    >
+                      From
+                    </label>
+                    <input
+                      type="time"
+                      name="fromTime"
+                      id="fromTime"
+                      value={fromTime}
+
+                      onChange={(e) => setFromTime(e.target.value)}
+                      className="rounded-lg border-2 border-dashed text-xs h-6"
+                    />{" "}
+                  </div>
+
+                  <div className="relative flex flex-col items-start justify-center "
+                  >
+                    <label
+                      htmlFor="toTime"
+                      className="absolute -top-5 -left-1 text-xs  ml-2 mt-1 text-gray-500"
+                    >
+                      To
+                    </label>
+                    <input
+                      type="time"
+                      name="toTime"
+                      id="toTime"
+                      value={toTime}
+                      placeholder="To time"
+                      onClick={(e) => e.target.focus()} // Trigger focus when clicked
+                      onChange={(e) => setToTime(e.target.value)}
+                      className="rounded-lg border-2 border-dashed text-xs h-6"
+                    />
+                  </div>
+                </div>
                 <List className="flex items-center justify-center w-full gap-3 ">
                   <div className="flex flex-1 flex-col gap-1 mb-2 items-start justify-start w-full ">
                     <Text
@@ -495,20 +516,20 @@ const Createpost = () => {
                     Add Hours Spent
                   </Text> */}
                 <Button
-                  className="cursor-pointer font-semibold w-full mt-3 mb-3 text-base text-center"
-                  shape="round"
+                  className="cursor-pointer font-semibold w-full mt-3 mb-1 text-base text-center rounded-3xl"
+                  // shape="round"
                   color="indigo_A200"
                 >
                   SUBMIT
                 </Button>
-              <Button
-                className="cursor-pointer font-semibold w-full  text-base text-center"
-                shape="round"
-                color="indigo_A200"
-                onClick={handleLogout} // Add logout functionality
-              >
-                LOGOUT
-              </Button>
+                <Button
+                  className="cursor-pointer font-semibold w-full  text-base text-center rounded-3xl"
+                  // shape="round"
+                  color="indigo_A200"
+                  onClick={handleLogout} // Add logout functionality
+                >
+                  LOGOUT
+                </Button>
               </div>
             </div>
           </div>

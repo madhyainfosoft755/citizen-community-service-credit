@@ -180,12 +180,23 @@ const DesktopFourPage = () => {
     navigate("/endorse");
   };
 
+  const [textIndex, setTextIndex] = useState(0);
+  const carouselTexts = [`${totalTime || 0} Hours`, 'Create Activity']; // Add your carousel text here
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTextIndex((prevIndex) => (prevIndex + 1) % carouselTexts.length);
+    }, 2000); // Change text every 2 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <>
       {authenticated && (
         <div className="w-screen h-screen  bg-white-A700 flex items-start justify-center sm:w-full sm:h-full md:w-screen md:h-screen p-5 sm:p-0">
-          <div className="w-1/4 h-full  flex items-start justify-center  sm:shadow-none   shadow-bs2 shadow-black-900   lg:w-[33%] lg:h-full sm:w-full sm:h-full md:w-full md:h-full">
-            <div className="flex flex-col  items-center justify-center w-full">
+          <div className="w-4/12 h-full  flex items-start justify-center  sm:shadow-none   border-[1px]  rounded-lg lg:w-[33%] lg:h-full sm:w-full sm:h-full md:w-full md:h-full">
+            <div className="flex flex-col  items-center justify-start w-full h-full">
               <div className="bg-gray-50 flex flex-row items-center justify-between p-3 sm:px-5 w-full  ">
                 <div className="flex flex-row gap-2 items-center justify-center ml-[5px]">
                   {userData && (
@@ -195,8 +206,8 @@ const DesktopFourPage = () => {
                       alt="userimage"
                     />
                   )}
-                  <div className="flex flex-col items-center justify-center w-3/5">
-                    <div className="flex flex-col items-start justify-center w-full">
+                  <div className="flex flex-col items-center justify-center w-3/5 ">
+                    <div className="flex flex-col items-start justify-center w-full ">
                       <Text
                         className="text-center text-gray-900 uppercase"
                         size="txtInterSemiBold16Gray900"
@@ -211,12 +222,12 @@ const DesktopFourPage = () => {
                   </div>
                 </div>
                 <Button
-                  className="cursor-pointer font-semibold "
-                  shape="round"
+                  className="rounded-3xl w-4/12 cursor-pointer font-semibold "
+                  // shape="round"
                   color="indigo_A200"
                   onClick={direct}
                 >
-                  {`${totalTime || "0"} Hours`}
+                   {carouselTexts[textIndex]}
                 </Button>
               </div>
               <Text
@@ -226,21 +237,21 @@ const DesktopFourPage = () => {
                 My Activities
               </Text>
               {}
-              <div  className="flex mt-2 sm:flex-col flex-col gap-[25px] items-center justify-between w-full h-1/2  p-2 ">
+              <div  className="flex sm:flex-col flex-col gap-[25px] items-center justify-between w-5/6 sm:w-5/6 h-5/6 sm:h-1/2  p-2 ">
                 <div className=" w-full h-full sm:w-full sm:h-[60vh] rounded-xl relative   border-[1px] border-gray overflow-hidden">
                   <Slider1 className="w-full h-full p-2" items={userPosts} />
                 </div>
 
-                <div className="flex flex-col -mt-3 gap-1 items-center justify-center sm:w-5/6">
+                <div className="flex flex-col -mt-3 gap-1 items-center justify-center w-5/6 sm:w-full">
                   <Text
-                    className="text-lg sm:text-sm text-gray-900"
+                    className="text-sm sm:text-sm text-gray-900"
                     size="txtInterSemiBold16Gray900"
                   >
                     Activities Waiting for Endorsement
                   </Text>
 
                   <Button
-                  className="cursor-pointer font-semibold w-full   text-base text-center"
+                  className="cursor-pointer font-semibold w-full   text-sm text-center"
                   shape="round"
                   color="indigo_A200"
                   onClick={direct1}
@@ -249,7 +260,7 @@ const DesktopFourPage = () => {
                 </Button>
 
                 <Button
-                  className="cursor-pointer font-semibold w-full  mb-2 text-base text-center"
+                  className="cursor-pointer font-semibold w-full  mb-2 text-sm text-center"
                   shape="round"
                   color="indigo_A200"
                   onClick={handleLogout} // Add logout functionality

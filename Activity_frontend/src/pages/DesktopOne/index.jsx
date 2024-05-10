@@ -9,7 +9,9 @@ import axios from "axios";
 // import { GoogleLogin } from "react-google-login";
 import { useGoogleLogin } from "@react-oauth/google";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEnvelope, faEye, faLock } from "@fortawesome/free-solid-svg-icons";
+import { faEnvelope, faEye, faLock, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+
+
 import { toast } from "react-toastify";
 // import 'react-toastify/dist/ReactToastify.css';
 
@@ -42,11 +44,12 @@ const DesktopOnePage = () => {
   const [isEmailVerified, setIsEmailVerified] = useState(true); // Initially assuming email is verified
   const [showResendButton, setShowResendButton] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-
+  const [eyeIcon, setEyeIcon] = useState(faEye);
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
+    setEyeIcon(showPassword ? faEye : faEyeSlash);
   };
-  
+
 
   useEffect(() => {
     // Function to get and format the current date
@@ -134,7 +137,7 @@ const DesktopOnePage = () => {
         if (data.error === 'Email is not verified. Please verify your email.') {
           setIsEmailVerified(false);
           setShowResendButton(true)
-      }
+        }
         setError("Email Not Verified");
         console.log(error);
         setValidationErrors({ email: "Invalid credentials", password: "" });
@@ -271,142 +274,100 @@ const DesktopOnePage = () => {
 
   const handleResendVerification = async () => {
     try {
-        // Send a request to your backend to resend verification email
-        const response = await fetch(`${API_URL}/activity/resendVerification`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ email: emailvalue }),
-          });
-          const data = await response.json();
-          notify(data.message); // Show a notification based on the response
+      // Send a request to your backend to resend verification email
+      const response = await fetch(`${API_URL}/activity/resendVerification`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email: emailvalue }),
+      });
+      const data = await response.json();
+      notify(data.message); // Show a notification based on the response
     } catch (error) {
-        console.error("Error resending verification:", error);
-        notify("An error occurred while resending verification.");
+      console.error("Error resending verification:", error);
+      notify("An error occurred while resending verification.");
     }
-    finally{
+    finally {
       setShowResendButton(false)
     }
-};
+  };
 
   return (
-    <div className="w-screen h-screen flex items-center justify-center pt-5 pb-5 ">
+    <div className="w-screen h-screen sm:w-screen sm:h-screen flex items-center justify-center pt-5 pb-5 sm:p-0 ">
       {/* <ToastContainer /> */}
       <form
         onSubmit={handleSubmit}
-        className="w-1/4 h-full sm:w-screen sm:h-screen md:w-2/4 md:h-screen  lg:w-3/4 lg:h-3/4 flex flex-col items-center justify-center  shadow-bs2 shadow-black-900"
+        className="relative overflow-hidden w-4/12 h-full sm:w-full sm:h-full md:w-2/4 md:h-full  lg:w-3/4 lg:h-3/4 flex flex-col items-center justify-center sm:border-none border-[1px] rounded-lg p-2"
       >
+      <div className="w-64 h-64 bg-[#f5f6fe] absolute -top-10 -right-20 z-0 rounded-full "></div>
         <div className="hidden">
           <Location onLocationChange={handleLocationChange} />
         </div>
         <div
-          className="w-full h-full flex flex-col justify-center items-center pt-2 sm:pt-10 sm:w-screen sm:h-screen overflow-hidden  bg-cover bg-center "
-          style={{ backgroundImage: 'url("./images/img_helping.jpg")' }}
+          className="relative w-full h-full flex flex-col justify-center items-center pt-2 sm:pt-10 sm:w-screen sm:h-screen overflow-hidden  bg-cover bg-center "
+        // style={{ backgroundImage: 'url("./images/img_helping.jpg")' }}
         >
-          <Text className="text-2xl text-white-A700 font-extrabold">
+          <Text className="text-2xl text-black-900 -mt-3 font-extrabold">
             Welcome
           </Text>
-          <Text className="mt-5 mb-5 font-semibold text-white-A700 ">
+          <Text className="mt-1 mb-3 font-semibold text-black-900  ">
             Login to your account
           </Text>
 
-          <div className="bg-white-A700 p-2 rounded-3xl w-3/4 relative flex items-center">
+          <div className="bg-white-A700 px-2 border-[1px] rounded-3xl w-3/4 relative flex items-center">
             <div className="absolute left-2">
-              <FontAwesomeIcon icon={faEnvelope} />
+              <FontAwesomeIcon icon={faEnvelope} className="text-gray-500" />
             </div>
             <input
               type="email"
               name="email"
               placeholder="Email"
-              className="outline-none border-0 ml-2 w-full "
+              className="outline-none text-sm border-0 ml-3 w-11/12 "
               required
             />
-            
+
           </div>
-          {showResendButton && (  
-        <button
-            type="button"
-            className="bg-blue-500 text-white px-3 py-1 rounded-md mt-2 ml-2"
-            onClick={handleResendVerification}
-        >
-            Send Verification Mail Again
-        </button>
-    )}
-          <div className="bg-white-A700 p-2 rounded-3xl w-3/4 mt-8 relative flex items-center">
+          {showResendButton && (
+            <button
+              type="button"
+              className="bg-blue-500 text-white px-3 py-1 rounded-md mt-2 ml-2"
+              onClick={handleResendVerification}
+            >
+              Send Verification Mail Again
+            </button>
+          )}
+          <div className="bg-white-A700  px-2 border-[1px] rounded-3xl w-3/4 mt-2 relative flex items-center">
             <div className="absolute left-2">
-              <FontAwesomeIcon icon={faLock} />
+              <FontAwesomeIcon icon={faLock}  className="text-gray-500"/>
             </div>
             <input
-              type="password"
+              type={showPassword ? "text" : "password"}
               name="password"
               placeholder="Password"
-              className="outline-none border-0 ml-3 w-full"
+              className="outline-none text-sm border-0 ml-3 w-11/12 "
               required
             />
-            <FontAwesomeIcon icon={faEye}  />
+            <FontAwesomeIcon icon={eyeIcon} onClick={togglePasswordVisibility}  className="text-gray-700"/>
           </div>
-
-          {/* <Input
-            name="email"
-            placeholder="Email"
-            className="p-0 placeholder:text-gray-600 ml-2 w-full "
-            wrapClassName="border border-indigo-500_19 border-solid bottom-[0] flex left-[0] rounded-[25px] w-[80%]"
-            type="email"
-            prefix={
-              <div className="sm:w-5 sm:h-5 sm:mx-0 sm:mt-2   ">
-                <Img
-                  className="absolute my-auto"
-                  src="images/img_vector_gray_600.svg"
-                  alt="Vector"
-                />
-              </div>
-            }
-            color="white_A700"
-          /> */}
-          {/* 
-          <Input
-            name="password"
-            placeholder="Password"
-            type="password"
-            className="p-0 placeholder:text-gray-600 ml-2 w-full "
-            wrapClassName="border border-indigo-500_19 border-solid flex mt-5 rounded-[25px] w-[80%]"
-            prefix={
-              <div className="sm:w-5 sm:h-5 sm:mx-0 sm:mt-2   ">
-                <svg
-                  xmlns="https://www.w3.org/2000/svg"
-                  width="16"
-                  height="16"
-                  fill="currentColor"
-                  class="bi bi-key"
-                  viewBox="0 0 16 16"
-                >
-                  <path d="M0 8a4 4 0 0 1 7.465-2H14a.5.5 0 0 1 .354.146l1.5 1.5a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0L13 9.207l-.646.647a.5.5 0 0 1-.708 0L11 9.207l-.646.647a.5.5 0 0 1-.708 0L9 9.207l-.646.647A.5.5 0 0 1 8 10h-.535A4 4 0 0 1 0 8m4-3a3 3 0 1 0 2.712 4.285A.5.5 0 0 1 7.163 9h.63l.853-.854a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .708 0l.646.647.793-.793-1-1h-6.63a.5.5 0 0 1-.451-.285A3 3 0 0 0 4 5" />
-                  <path d="M4 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0" />
-                </svg>
-              </div>
-            }
-            color="white_A700"
-          ></Input> */}
 
           <Button
             type="submit"
-            className="cursor-pointer font-semibold w-[200px] mt-[30px] text-base text-center rounded-[22px] "
+            className="cursor-pointer font-semibold w-1/2 mt-4 text-sm text-center rounded-[22px] bg-[#546ef6] text-white-A700 "
             shape="round"
-            color="indigo_A200"
+            // color="indigo_A200"
           >
             Login
           </Button>
           {/* {error && <Text className="text-red-600 mt-2">{error}</Text>} */}
 
-          <h2 className="mt-5 underline text-white-A700" onClick={Forget}>
+          <h2 className="mt-2 underline text-black-900 text-sm cursor-pointer" onClick={Forget}>
             Forgot Password
           </h2>
 
-          <div className="flex  items-center justify-center mt-5 gap-2">
-            <div className="flex  items-center justify-between ">
-              <div className="bg-blue-A400 text-center flex flex-row gap-11 items-center justify-start p-[5px] rounded-[22px] w-full">
-                <div className="bg-white-A700 flex flex-col h-[35px] items-center justify-end p-[7px] rounded-[17px] w-[35px]">
+          <div className="flex  items-center justify-center mt-5 gap-2 ">
+              <div className="bg-blue-A400 [2px]ext-center flex flex-row gap-11 items-center justify-start p-[2px] rounded-[22px] w-full cursor-pointer">
+                <div className="bg-white-A700 flex flex-col h-6 items-center justify-center p-2 rounded-[17px] w-6 ">
                   <Img
                     className="h-[19px]"
                     src="images/img_facebook.svg"
@@ -414,35 +375,30 @@ const DesktopOnePage = () => {
                   />
                 </div>
               </div>
-            </div>
-            <div className="flex flex-col items-center justify-start   cursor-pointer  ">
               <div
                 onClick={login}
-                className="bg-red-500 flex items-center  justify-start p-[5px] rounded-[22px] w-full cursor-pointer "
+                className="bg-red-500 flex items-center  justify-center p-[2px] rounded-full w-full cursor-pointer "
               >
-                <div className="bg-white-A700 flex flex-col h-[35px] items-center justify-start p-[9px] rounded-[17px] w-[35px] cursor-pointer ">
+                <div className="bg-white-A700 flex flex-col h-6 w-6 items-center justify-center p-1 rounded-[16px]  cursor-pointer ">
                   <Img
-                    className="h-4 w-4 cursor-pointer "
+                    className="h-full w-full cursor-pointer "
                     src="images/img_vector.svg"
                     alt="vector"
                   />
                 </div>
               </div>
-            </div>
-            <div className="flex  items-center justify-between ">
-              <div className="bg-[#1da1f2] text-center flex flex-row gap-11 items-center justify-start p-[5px] rounded-[22px] w-full">
-                <div className="bg-white-A700 flex flex-col h-[35px] items-center justify-end p-[7px] rounded-[17px] w-[35px]">
+              <div className="bg-[#1da1f2] text-center flex items-center justify-center p-[2px] rounded-full w-full cursor-pointer">
+                <div className="bg-white-A700 flex flex-col h-6 w-6 items-center justify-center p-[2px] rounded-full ">
                   <Img
-                    className="h-[40px]"
+                    className="h-full w-full"
                     src="images/img_twitter.svg"
                     alt="twitter"
                   />
                 </div>
               </div>
-            </div>
-            <div className="flex  items-center justify-between ">
-              <div className="bg-[#cd3e78] text-center flex flex-row gap-11 items-center justify-start p-[5px] rounded-[22px] w-full">
-                <div className="bg-white-A700 flex flex-col h-[35px] items-center justify-end p-[7px] rounded-[17px] w-[35px]">
+            <div className="flex  items-center justify-between cursor-pointer">
+              <div className="bg-[#cd3e78] text-center flex flex-row gap-11 items-center justify-start p-[2px] rounded-[22px] w-full">
+                <div className="bg-white-A700 flex flex-col h-6 items-center justify-end p-[1px] rounded-[17px] w-6">
                   <Img
                     className="h-[40px]"
                     src="images/img_instagram.svg"
@@ -452,20 +408,20 @@ const DesktopOnePage = () => {
               </div>
             </div>
           </div>
-          <div className="flex flex-row gap-3.5 items-start justify-between mt-5 sm:mt-[25px] w-full">
-            <Line className="bg-white-A700 h-px my-2 w-2/5" />
+          <div className="flex flex-row gap-3.5 items-start justify-between mt-1 sm:mt-[25px] w-full">
+            <Line className="bg-black-900 h-px my-2 w-2/5" />
             <Text
-              className="text-[15px] text-white-A700"
+              className="text-[15px] text-black-900"
               size="txtInterRegular15Black90087"
             >
               Or
             </Text>
-            <Line className="bg-white-A700 h-px  my-2 w-2/5" />
+            <Line className="bg-black-900 h-px   my-2 w-2/5" />
           </div>
-          <div className="flex flex-col items-center justify-center mt-4 sm:mt-[25px]  w-full">
+          <div className="flex flex-col items-center justify-center mt-2 sm:mt-[25px]  w-full">
             <button
               name="registermessage"
-              className="font-semibold leading-[normal] bg-white-A700/40 text-white-A700 w-5/6 h-10 rounded-lg  text-center border-[1px] border-black-900_99 "
+              className="font-semibold leading-[normal] bg-[#546ef6] text-white-A700 w-1/2 h-10 rounded-3xl text-center text-sm "
               onClick={handlebuttonclick}
             >
               Register As New User
@@ -481,8 +437,9 @@ const DesktopOnePage = () => {
               }
               shape="round"
               color="blue_50"
+              type="button"
             >
-              <div className="font-medium leading-[normal] text-[15px] text-left ">
+              <div className="font-medium leading-[normal] text-sm text-left ">
                 {locationData.city}, {locationData.state}
               </div>
             </Button>
@@ -502,7 +459,7 @@ const DesktopOnePage = () => {
               shape="round"
               color="blue_50"
             >
-              <div className="font-medium leading-[normal] text-[15px] text-left">
+              <div className="font-medium leading-[normal] text-sm text-left">
                 {currentDate}
               </div>
             </Button>

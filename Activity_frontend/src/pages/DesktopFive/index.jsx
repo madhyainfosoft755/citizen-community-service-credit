@@ -169,29 +169,31 @@ const DesktopFivePage = () => {
 
   return (
     <>
-      {/* <div className="bg-white-A700 flex font-light items-center justify-center sm:w-screen sm:h-screen md:w-screen md:h-screen overflow-x-hidden overflow-y-auto">
-        <div className="bg-white-A700 flex  items-center justify-center   rounded-[5px] shadow-bs2  md:w-full md:h-full sm:h-full sm:w-full">
+      <div className="bg-white-A700 flex font-light items-center justify-center w-screen h-screen sm:w-screen sm:h-screen md:w-screen md:h-screen ">
+        <div className="bg-white-A700 flex  items-center justify-center   rounded-[5px] shadow-bs2 w-2/7 h-full md:w-full md:h-full sm:h-full sm:w-full">
           <div className="flex flex-col items-end justify-start w-full">
             <div className="bg-gray-50 flex flex-row items-center justify-between  sm:px-5 w-full">
               <div className="flex flex-row gap-4 items-center justify-center ml-[5px]">
+              {userData && (
                 <Img
-                  className="h-[58px] md:h-auto rounded-[50%] w-[58px]"
-                  src="images/img_ellipse3.png"
-                  alt="ellipseThree"
+                  className=" h-[55px]  rounded-[50%] w-[71px] object-cover object-center  "
+                  src={`${API_URL}/image/${userData.userData.photo}`}
+                  alt="userimage"
                 />
+              )}
                 <div className="flex flex-col items-center justify-start w-3/5">
                   <div className="flex flex-col items-start justify-start w-full">
                     <Text
                       className="text-base text-gray-900"
                       size="txtInterSemiBold16Gray900"
                     >
-                      Emma Janson
+                     {userData.userData.name}
                     </Text>
                     <Text
                       className="mt-1 text-gray-900_b2 text-xs"
                       size="txtInterMedium12"
                     >
-                      ID : 123456
+                      {userData.userData.id}
                     </Text>
                   </div>
                 </div>
@@ -201,7 +203,7 @@ const DesktopFivePage = () => {
                 shape="round"
                 color="indigo_A200"
               >
-                12.5 Hours
+                {`${totalTime || "0"} Hours`}
               </Button>
             </div>
             <div className="flex flex-col items-start justify-start w-[93%] md:w-full">
@@ -355,9 +357,9 @@ const DesktopFivePage = () => {
             </div>
           </div>
         </div>
-      </div> */}
+      </div>
 
-      <div className="w-screen h-screen bg-cyan-200">
+      {/* <div className="w-screen h-screen bg-cyan-200">
         <div className="w-full h-full sm:w-full sm:h-full md:w-full md:h-full ">
           <div className="bg-gray-50 flex flex-row items-center justify-between p-7 sm:px-5 w-full  rounded-xl">
             <div className="flex flex-row gap-4 items-center justify-center ml-[5px]">
@@ -392,7 +394,7 @@ const DesktopFivePage = () => {
             </Button>
           </div>
         </div>
-      </div>
+      </div> */}
     </>
   );
 };
