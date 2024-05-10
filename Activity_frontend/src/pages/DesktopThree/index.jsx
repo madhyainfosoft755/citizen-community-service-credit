@@ -9,8 +9,10 @@ import { useAuth } from "components/AuthProvider/AuthProvider";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLocationDot, faCalendarAlt } from "@fortawesome/free-solid-svg-icons";
+import { toast } from "react-toastify";
 
 const Createpost = () => {
+  const notify = (e) => toast(e);
   const navigate = useNavigate();
   const [currentDate, setCurrentDate] = useState("");
   const handleDateChange = (e) => {
@@ -267,13 +269,14 @@ const Createpost = () => {
         body: formsDATA,
         // body:formsDATA.stringify()
       });
-
+      
+      const data = await response.json();
       if (response.ok) {
-        const data = await response.json();
         console.log("Success:", data);
         navigate("/activity");
       } else {
-        console.error("Error:", response.status);
+        console.error("Error:",data.error);
+        notify(`${data.error}`)
       }
     } catch (error) {
       console.error("Error:", error);

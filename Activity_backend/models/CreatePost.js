@@ -6,12 +6,12 @@ module.exports = (sequelize, DataTypes) => {
        
         Date: {
           type: DataTypes.STRING,
-          allowNull: true,
+          allowNull: false,
         },
        
         photos:{
           type:DataTypes.STRING,
-          allowNull:true
+          allowNull:false
         },
         videos:{
           type:DataTypes.STRING,
@@ -19,24 +19,24 @@ module.exports = (sequelize, DataTypes) => {
         },
         category:{
           type:DataTypes.STRING,
-          allowNull:true
+          allowNull:false
         },
         totalTime:{
           type:DataTypes.TIME,
-          allowNull:true
+          allowNull:false
         },
         
         UserId:{
           type:DataTypes.INTEGER,
-          allowNull:true
+          allowNull:false
         },
         latitude:{
           type:DataTypes.FLOAT,
-          allowNull:true
+          allowNull:false
         },
         longitude:{
           type:DataTypes.FLOAT,
-          allowNull:true
+          allowNull:false
         },
         endorsementCounter: { // New field for endorsement counter
           type: DataTypes.INTEGER,

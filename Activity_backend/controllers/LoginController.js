@@ -20,6 +20,7 @@ const randomstring = require('randomstring');
 const crypto = require('crypto'); // For generating a random token
 const dotenv = require("dotenv");
 dotenv.config();
+const { validationResult } = require('express-validator');
 
 
 
@@ -644,9 +645,17 @@ const updateUserData = async (req, res) => {
 
 const CreateActivity = async (req, res) => {
   try {
+
+    // Check for validation errors from express-validator
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+
     const {
       selectedCategories,
-      Date,
+      date,
       fromTime,
       toTime,
       userId,
@@ -654,7 +663,15 @@ const CreateActivity = async (req, res) => {
       longitude,
     } = req.body;
 
-    console.log("categories", selectedCategories);
+
+    console.log("req data", req.body);
+
+
+     // Check for missing fields
+     if (!selectedCategories || !date || !fromTime || !toTime || !userId || !latitude || !longitude) {
+      console.log("hello")
+      return res.status(400).json({ error: "Missing required fields" });
+    }
 
     // Extract latitude and longitude from location object
     //  const { latitude, longitude } = location;
@@ -667,6 +684,8 @@ const CreateActivity = async (req, res) => {
             return acc + file.filename;
           }, [])
         : "";
+
+        console.log("ye hain photos", photos)
     const videos =
       req.files && req.files.video
         ? req.files.video.reduce((acc, file) => {
@@ -674,6 +693,8 @@ const CreateActivity = async (req, res) => {
             return acc + file.filename;
           }, [])
         : "";
+        console.log("ye hain videos", videos)
+
 
     const category = selectedCategories;
 
@@ -717,7 +738,7 @@ const CreateActivity = async (req, res) => {
       category,
       photos,
       videos,
-      Date,
+      Date:date,
       totalTime,
       latitude,
       longitude,
