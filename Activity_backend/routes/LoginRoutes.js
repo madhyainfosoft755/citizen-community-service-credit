@@ -20,7 +20,8 @@ const {
   verifyPin,
   updatePassword,
   resendVerification,
-  TotalTimeSpent
+  TotalTimeSpent,
+  verifyToken
 } = require("../controllers/LoginController");
 const { upload } = require("../utils/util");
 // Express route 
@@ -34,7 +35,7 @@ router.post('/GoogleLogin', GoogleLogin);
 router.get("/varifybytoken", varifybytoken);
 router.post("/login", login);
 router.post("/varifybytiken", varifybytiken);
-router.get("/profile", profile);
+router.get("/profile",verifyToken, profile);
 router.post("/profile", profile);
 router.post("/updateUserData", updateUserData);
 router.get("/AllDetails/:id", AllDetails);

@@ -2,7 +2,7 @@
 const host = window.location.hostname;
 let API_URL;
 if(host == 'localhost'){
-     API_URL = "http://192.168.166.74:4116/api";
+     API_URL = "http://192.168.166.107:4116/api";
 
 }
 else{

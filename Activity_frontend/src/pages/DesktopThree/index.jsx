@@ -51,6 +51,9 @@ const Createpost = () => {
     { id: 6, label: "Social Activities" },
   ];
 
+  const [error, setError] = useState(null);
+
+
   // Function to get and format the current date
   useEffect(() => {
     const getCurrentDate = () => {
@@ -109,6 +112,26 @@ const Createpost = () => {
     setSelectedCategories(label);
   };
 
+  const checkTokenExpiry = async (token) => {
+    try {
+      const response = await fetch(`${API_URL}/activity/profile`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      if (!response.ok) {
+        // Token might be expired or invalid, so log the user out
+        // handleLogout();
+        navigate("/login")
+      }
+    } catch (error) {
+      console.error("Error checking token expiry:", error);
+    }
+  };
+
   useEffect(() => {
     // Check if both token and user key are present in local storage
     const token = localStorage.getItem("token");
@@ -123,8 +146,9 @@ const Createpost = () => {
       // Fetch user data when component mounts
       // fetchUserData(token);
       setAuthenticated(true);
+      checkTokenExpiry(token);
     }
-  }, []); // Empty dependency array ensures that this effect runs only once on mount
+  }, [userData]); // Empty dependency array ensures that this effect runs only once on mount
 
   useEffect(() => {
     const fetchUserData = async (token) => {
@@ -165,65 +189,87 @@ const Createpost = () => {
     }
   }, [authenticated]);
 
-  // Fetch historical data and calculate total time
-  useEffect(() => {
-    const fetchHistoricalData = async () => {
+  useEffect(()=>{
+    const totalTimeSpent = async(userId)=>{
       try {
         const token = localStorage.getItem("token");
-        // console.log("token is coming", token)
-        if (!token) {
-          navigate("/login");
-          return;
-        }
-
-        if (!userData || !userData.userData) {
-          // Handle case where userData is not yet loaded
-          return;
-        }
-
-        const response = await fetch(
-          `${API_URL}/activity/AllDetails/${userData.userData.id}`, // Replace with your actual API endpoint
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
+        const response = await fetch(`${API_URL}/activity/TotalTimeSpent/${userData.userData.id}`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+        });
+  
+          const data = await response.json();
         if (response.ok) {
-          const historicalData = await response.json();
-
-          if (Array.isArray(historicalData) && historicalData.length > 0) {
-            // Calculate total hours from all historical data
-            const totalHours = calculateTotalHours(historicalData);
-            setTotalTime(totalHours);
-          }
-        } else {
-          console.error("Error fetching historical data:", response.status);
-          // Handle error accordingly
+            setTotalTime(data.totalTimeSum)
         }
-      } catch (error) {
-        console.error("Error fetching historical data:", error);
       }
-    };
-
-    fetchHistoricalData();
-  }, [userData]);
-
-  // Utility function to calculate total hours from historical data
-  const calculateTotalHours = (historicalData) => {
-    let totalHours = 0;
-
-    historicalData.forEach((data) => {
-      if (data.totalTime) {
-        const [hours, minutes, seconds] = data.totalTime.split(":");
-        totalHours += parseInt(hours) + parseInt(minutes) / 60;
+      catch (error) {
+        console.error("Error fetching user total time", error);
+        setError("An error occurred while fetching users Time.");
       }
-    });
+    }
+    totalTimeSpent()
+  },[userData])
 
-    return totalHours.toFixed(2); // Limit to two decimal places
-  };
+  // // Fetch historical data and calculate total time
+  // useEffect(() => {
+  //   const fetchHistoricalData = async () => {
+  //     try {
+  //       const token = localStorage.getItem("token");
+  //       // console.log("token is coming", token)
+  //       if (!token) {
+  //         navigate("/login");
+  //         return;
+  //       }
+
+  //       if (!userData || !userData.userData) {
+  //         // Handle case where userData is not yet loaded
+  //         return;
+  //       }
+
+  //       const response = await fetch(
+  //         `${API_URL}/activity/AllDetails/${userData.userData.id}`, // Replace with your actual API endpoint
+  //         {
+  //           method: "POST",
+  //           headers: {
+  //             Authorization: `Bearer ${token}`,
+  //           },
+  //         }
+  //       );
+
+  //       if (response.ok) {
+  //         const historicalData = await response.json();
+
+  //         if (Array.isArray(historicalData) && historicalData.length > 0) {
+  //           // Calculate total hours from all historical data
+  //           const totalHours = calculateTotalHours(historicalData);
+  //           setTotalTime(totalHours);
+  //         }
+  //       } else {
+  //         console.error("Error fetching historical data:", response.status);
+  //         // Handle error accordingly
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching historical data:", error);
+  //     }
+  //   };
+
+  //   fetchHistoricalData();
+  // }, [userData]);
+
+  // // Utility function to calculate total hours from historical data
+  // const calculateTotalHours = (historicalData) => {
+  //   let totalHours = 0;
+
+  //   historicalData.forEach((data) => {
+  //     if (data.totalTime) {
+  //       const [hours, minutes, seconds] = data.totalTime.split(":");
+  //       totalHours += parseInt(hours) + parseInt(minutes) / 60;
+  //     }
+  //   });
+
+  //   return totalHours.toFixed(2); // Limit to two decimal places
+  // };
 
   const handleLogout = () => {
     // Clear authentication status, remove token and user key, and redirect to the login page
@@ -282,8 +328,8 @@ const Createpost = () => {
       console.error("Error:", error);
     }
   };
-
-
+  //CREATE A CODE THAT CHECKS IF THE USERS TOKEN HAS EXPIRED AND IF IT IS EXPIRED THEN THE USER SHOULD BE LOGGED OUT AND REDIRECTED TO THE LOGIN PAGE?
+  
   const Name = userName.split(" ")[0];
 
 
@@ -354,7 +400,7 @@ const Createpost = () => {
               
               <div className="flex flex-col items-start justify-center gap-1 sm:gap-1 w-11/12  sm:w-11/12 mt-1  ">
               <div className="bg-white-A700 w-full  text-center flex items-start justify-between gap-5">
-                <h1 className="text-md font-semibold shadow-bs3 shadow-gray-300 py-1  w-1/2 h-full flex items-center justify-center rounded-md mb-2">+ Add New Activity</h1>
+                <h1 className="text-md font-semibold shadow-bs3 shadow-gray-300 py-1  w-1/2 h-full flex items-center justify-center rounded-3xl mb-2">+ Add New Activity</h1>
                 <button onClick={Endorse} className="bg-[#546ef6] w-1/2 h-full font-semibold rounded-3xl text-white-A700">Endorse Activities</button>
               </div>
                 <Text
@@ -382,14 +428,17 @@ const Createpost = () => {
                 </div>
 
                 <div className="flex flex-row gap-2 items-center justify-between   w-full p-2 mt-1 mb-2">
+                <div className="relative w-1/2 h-full  bg-cyan-50">
+               <h1 className="absolute  -top-5 left-1  text-sm">Location</h1>
                   <Button
                   type="button"
-                    className="flex items-center justify-center bg-[#eff2ff] border-[1px] leading-[normal] text-[12px] font-semibold text-left w-1/2 h-full rounded-md"
+                    className="flex items-center justify-center bg-[#eff2ff] border-[1px] leading-[normal] text-[12px] font-semibold text-left w-full h-full rounded-md"
                   // onClick={handleLocationClick}
                   >
                     <FontAwesomeIcon icon={faLocationDot} className="pr-3 text-blue-600" />
                     {locationData.city}, {locationData.state}
                   </Button>
+                </div>
 
                   <div className="relative w-1/2 h-full">
                     <input
@@ -407,12 +456,12 @@ const Createpost = () => {
                     </div>
                   </div>
                 </div>
-                <div className="  flex items-center justify-evenly gap-2 w-full ">
-                  <h4 className="text-sm font-semibold">
+                <div className="  flex items-center justify-start gap-2 w-full ">
+                  <h4 className="text-base font-semibold w-1/5 h-full flex items-center justify-center">
                     Add Time:
                   </h4>
 
-                  <div className="relative flex flex-col items-start justify-center ">
+                  <div className="relative flex flex-col items-start justify-center w-1/3 h-full">
                     <label
                       htmlFor="fromTime"
                       className="absolute -top-5 -left-1 text-xs  left-13 ml-2 mt-1 text-gray-500"
@@ -426,11 +475,11 @@ const Createpost = () => {
                       value={fromTime}
 
                       onChange={(e) => setFromTime(e.target.value)}
-                      className="rounded-lg border-2 border-dashed text-xs h-6"
+                      className="rounded-lg border-[1px] border-dashed border-[#546ef6] text-xs h-8 w-full "
                     />{" "}
                   </div>
 
-                  <div className="relative flex flex-col items-start justify-center "
+                  <div className="relative flex flex-col items-start justify-center w-1/3"
                   >
                     <label
                       htmlFor="toTime"
@@ -446,7 +495,7 @@ const Createpost = () => {
                       placeholder="To time"
                       onClick={(e) => e.target.focus()} // Trigger focus when clicked
                       onChange={(e) => setToTime(e.target.value)}
-                      className="rounded-lg border-2 border-dashed text-xs h-6"
+                      className="rounded-lg border-[1px] border-dashed border-[#546ef6] text-xs h-8 w-full"
                     />
                   </div>
                 </div>
@@ -519,20 +568,13 @@ const Createpost = () => {
                     Add Hours Spent
                   </Text> */}
                 <Button
-                  className="cursor-pointer font-semibold w-full mt-3 mb-1 text-base text-center rounded-3xl"
+                  className="cursor-pointer font-semibold w-full mt-3 mb-1 text-sm text-center rounded-3xl"
                   // shape="round"
                   color="indigo_A200"
                 >
                   SUBMIT
                 </Button>
-                <Button
-                  className="cursor-pointer font-semibold w-full  text-base text-center rounded-3xl"
-                  // shape="round"
-                  color="indigo_A200"
-                  onClick={handleLogout} // Add logout functionality
-                >
-                  LOGOUT
-                </Button>
+                
               </div>
             </div>
           </div>

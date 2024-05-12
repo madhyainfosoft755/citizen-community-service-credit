@@ -53,64 +53,86 @@ const DesktopFourPage = () => {
     }
   }, [userData, navigate]);
 
-  // Fetch historical data and calculate total time
-  useEffect(() => {
-    const fetchHistoricalData = async () => {
+  useEffect(()=>{
+    const totalTimeSpent = async(userId)=>{
       try {
         const token = localStorage.getItem("token");
-        if (!token) {
-          navigate("/login");
-          return;
-        }
-
-        if (!userData || !userData.userData) {
-          // Handle case where userData is not yet loaded
-          return;
-        }
-
-        const response = await fetch(
-          `${API_URL}/activity/AllDetails/${userData.userData.id}`, // Replace with your actual API endpoint
-          {
-            method: "POST",
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
+        const response = await fetch(`${API_URL}/activity/TotalTimeSpent/${userData.userData.id}`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+        });
+  
+          const data = await response.json();
         if (response.ok) {
-          const historicalData = await response.json();
-
-          if (Array.isArray(historicalData) && historicalData.length > 0) {
-            // Calculate total hours from all historical data
-            const totalHours = calculateTotalHours(historicalData);
-            setTotalTime(totalHours);
-          }
-        } else {
-          console.error("Error fetching historical data:", response.status);
-          // Handle error accordingly
+            setTotalTime(data.totalTimeSum)
         }
-      } catch (error) {
-        console.error("Error fetching historical data:", error);
       }
-    };
-
-    fetchHistoricalData();
-  }, [userData]);
-
-  // Utility function to calculate total hours from historical data
-  const calculateTotalHours = (historicalData) => {
-    let totalHours = 0;
-
-    historicalData.forEach((data) => {
-      if (data.totalTime) {
-        const [hours, minutes, seconds] = data.totalTime.split(":");
-        totalHours += parseInt(hours) + parseInt(minutes) / 60;
+      catch (error) {
+        console.error("Error fetching user total time", error);
+        setError("An error occurred while fetching users Time.");
       }
-    });
+    }
+    totalTimeSpent()
+  },[userData])
 
-    return totalHours.toFixed(2); // Limit to two decimal places
-  };
+  // Fetch historical data and calculate total time
+  // useEffect(() => {
+  //   const fetchHistoricalData = async () => {
+  //     try {
+  //       const token = localStorage.getItem("token");
+  //       if (!token) {
+  //         navigate("/login");
+  //         return;
+  //       }
+
+  //       if (!userData || !userData.userData) {
+  //         // Handle case where userData is not yet loaded
+  //         return;
+  //       }
+
+  //       const response = await fetch(
+  //         `${API_URL}/activity/AllDetails/${userData.userData.id}`, // Replace with your actual API endpoint
+  //         {
+  //           method: "POST",
+  //           headers: {
+  //             Authorization: `Bearer ${token}`,
+  //           },
+  //         }
+  //       );
+
+  //       if (response.ok) {
+  //         const historicalData = await response.json();
+
+  //         if (Array.isArray(historicalData) && historicalData.length > 0) {
+  //           // Calculate total hours from all historical data
+  //           const totalHours = calculateTotalHours(historicalData);
+  //           setTotalTime(totalHours);
+  //         }
+  //       } else {
+  //         console.error("Error fetching historical data:", response.status);
+  //         // Handle error accordingly
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching historical data:", error);
+  //     }
+  //   };
+
+  //   fetchHistoricalData();
+  // }, [userData]);
+
+  // // Utility function to calculate total hours from historical data
+  // const calculateTotalHours = (historicalData) => {
+  //   let totalHours = 0;
+
+  //   historicalData.forEach((data) => {
+  //     if (data.totalTime) {
+  //       const [hours, minutes, seconds] = data.totalTime.split(":");
+  //       totalHours += parseInt(hours) + parseInt(minutes) / 60;
+  //     }
+  //   });
+
+  //   return totalHours.toFixed(2); // Limit to two decimal places
+  // };
 
   useEffect(() => {
     // Check if both token and user key are present in local storage
@@ -251,17 +273,17 @@ const DesktopFourPage = () => {
                   </Text>
 
                   <Button
-                  className="cursor-pointer font-semibold w-full   text-sm text-center"
-                  shape="round"
+                  className="rounded-full cursor-pointer font-semibold w-full   text-sm text-center"
+                  // shape="round"
                   color="indigo_A200"
                   onClick={direct1}
                 >
-                  ENDORSEMENT
+                  ENDORSE ACTIVITY
                 </Button>
 
                 <Button
-                  className="cursor-pointer font-semibold w-full  mb-2 text-sm text-center"
-                  shape="round"
+                  className="cursor-pointer rounded-full font-semibold w-full  mb-2 text-sm text-center"
+                  // shape="round"
                   color="indigo_A200"
                   onClick={handleLogout} // Add logout functionality
                 >

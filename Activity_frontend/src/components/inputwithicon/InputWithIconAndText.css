@@ -34,7 +34,7 @@ input {
   padding-left: 30px;
   transition: box-shadow 0.3s ease; /* Add transition for smooth box shadow change */
   /* border-color: #6b7280; */
-  border: 1px solid grey;
+  border: 1px solid rgb(216, 216, 216);
   /* font-size: 1px; */
 }
 

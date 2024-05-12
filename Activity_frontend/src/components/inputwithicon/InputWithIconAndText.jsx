@@ -19,7 +19,7 @@ const InputWithIconAndText = ({ icon, iconColor, type, inputClassName, text, ...
     setShowPassword((prev) => !prev);
   };
 
-  const isRequired = type === "email" || type === "password" || type === "number"|| type === "name"; // Add more types if needed
+  // const isRequired = type === "email" || type === "password" || type === "number"|| type === "name"; // Add more types if needed
   return (
     <div className={`input-with-icon-and-text ${isFocused ? "focused" : ""}`}>
       <div className="icon-container">
@@ -34,7 +34,7 @@ const InputWithIconAndText = ({ icon, iconColor, type, inputClassName, text, ...
         onFocus={handleFocus}
         onBlur={handleBlur}
         className={`${inputClassName} ${showPassword ? 'show-password' : ''}`}
-        required={isRequired}
+        // required={isRequired}
         {...rest}
       />
 

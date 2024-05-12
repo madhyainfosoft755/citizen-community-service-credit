@@ -256,7 +256,7 @@ const Register = () => {
                 icon={faUser} // Change the icon as needed
                 iconColor={"#578be5"}
                 placeholder="Name"
-                className="text-sm w-full h-7 pl-10  bg-inherit rounded-full focus:border-emerald-300 ease-in duration-300"
+                className="text-sm w-full h-7 pl-10 border-solid border-[1px]  border-gray-300 bg-inherit rounded-md focus:border-emerald-300 ease-in duration-300"
                 onChange={handleInputChange}
                 name="name"
                 required
@@ -267,7 +267,7 @@ const Register = () => {
                 icon={faEnvelope} // Change the icon as needed
                 iconColor={"#645a9f"}
                 placeholder="Email"
-                className="text-sm w-full h-7 pl-10  bg-inherit rounded-full focus:border-emerald-300 ease-in duration-300"
+                className="text-sm w-full h-7 pl-10 border-solid border-[1px]  border-gray-300 bg-inherit rounded-md focus:border-emerald-300 ease-in duration-300"
                 onChange={handleInputChange}
                 name="email"
                 type="email"
@@ -279,7 +279,7 @@ const Register = () => {
                 icon={faPhone} // Change the icon as needed
                 iconColor={"#419f44"}
                 placeholder="Phone"
-                className="text-sm w-full h-7 pl-10  bg-inherit rounded-full focus:border-emerald-300 ease-in duration-300"
+                className="text-sm w-full h-7 pl-10 border-solid border-[1px]  border-gray-300 bg-inherit rounded-md focus:border-emerald-300 ease-in duration-300"
                 onChange={handleInputChange}
                 name="phone"
                 value={formsData.phone}
@@ -297,7 +297,7 @@ const Register = () => {
                 icon={faLocationCrosshairs} // Change the icon as needed
                 iconColor={"#d67500"}
                 placeholder="Address"
-                className="text-sm w-full h-7 pl-10  bg-inherit rounded-full focus:border-emerald-300 ease-in duration-300"
+                className="text-sm w-full h-7 pl-10 border-solid border-[1px]  border-gray-300 bg-inherit rounded-md focus:border-emerald-300 ease-in duration-300"
                 onChange={handleInputChange}
                 name="address"
               />
@@ -307,7 +307,7 @@ const Register = () => {
                 icon={faIdCard} // Change the icon as needed
                 iconColor={"#ffe93f"}
                 placeholder="Aadhar Number"
-                className="text-sm w-full h-7 pl-10  bg-inherit rounded-full focus:border-emerald-300 ease-in duration-300"
+                className="text-sm w-full h-7 pl-10 border-solid border-[1px]  border-gray-300 bg-inherit rounded-md focus:border-emerald-300 ease-in duration-300"
                 onChange={handleInputChange}
                 name="aadhar"
                 type="number"
@@ -321,7 +321,7 @@ const Register = () => {
                 iconColor={"#f4b8c0"}
                 placeholder="Password"
                 type="password"
-                className="w-full h-7 text-sm  pl-10  bg-inherit rounded-full focus:border-emerald-300 ease-in duration-300"
+                className="w-full h-7 text-sm  pl-10 border-solid border-[1px]  border-gray-300 bg-inherit rounded-md focus:border-emerald-300 ease-in duration-300"
                 // inputClassName="password-input"
                 onChange={handleInputChange}
                 name="password"
@@ -333,7 +333,7 @@ const Register = () => {
                 iconColor={"#f5191c"}
                 placeholder="Confirm Password"
                 type="password"
-                className="w-full h-7 text-sm  pl-10  bg-inherit rounded-full focus:border-emerald-300 ease-in duration-300"
+                className="w-full h-7 text-sm  pl-10 border-solid border-[1px]  border-gray-300 bg-inherit rounded-md focus:border-emerald-300 ease-in duration-300"
                 // inputClassName="password-input"
                 onChange={handleInputChange}
                 name="confirmPassword"
@@ -354,7 +354,7 @@ const Register = () => {
             </div>
 
             <h2 className="text-xl font-bold ">
-              Select Intrested Areas
+              Select Interested Areas
             </h2>
             <div className="sm:w-full grid grid-cols-2  gap-2 pl-3 pr-3  ">
               <InputWithIconAndText
@@ -394,7 +394,7 @@ const Register = () => {
                 onClick={() => handleButtonClick(5, "Running a marathon")}
               />
             </div>
-            <Button className="bg-[#546ef6] text-white-A700 text-lg w-full p-0 sm:w-5/6 rounded-full mt-[-5px]">
+            <Button className="bg-[#546ef6] text-white-A700 text-lg w-full p-0 sm:w-5/6 rounded-md mt-[-5px]">
               Create Account
             </Button>
             <h3 className="sm:-mt-2 mb-2">

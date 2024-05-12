@@ -390,7 +390,7 @@ const login = async (req, res) => {
     } 
 
     const token = Jwt.sign({ userId: user.id }, jwtKey, {
-      expiresIn: "1h",
+      expiresIn: "10s",
     });
     console.log(token, "token");
 
@@ -506,6 +506,29 @@ const varifybytoken = async (req, res) => {
   } catch (error) {
     logger.error("here is the error", error);
     res.status(500).json({ error: error });
+  }
+};
+
+const verifyToken = (req, res, next) => {
+  const authorizationHeader = req.headers["authorization"];
+
+  if (authorizationHeader) {
+    const token = authorizationHeader.split(" ")[1];
+
+    try {
+      const decodedToken = Jwt.verify(token, jwtKey);
+
+      // Attach the decoded token to the request object for further use
+      req.decodedToken = decodedToken;
+      
+      // Move to the next middleware or controller function
+      next();
+    } catch (error) {
+      console.error("Error verifying token:", error);
+      return res.status(401).json({ error: "Invalid token" });
+    }
+  } else {
+    return res.status(401).json({ error: "Authorization header missing" });
   }
 };
 
@@ -837,7 +860,7 @@ const convertSecondsToTime = (seconds) => {
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
   const remainingSeconds = seconds % 60;
-  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${remainingSeconds.toString().padStart(2, '0')}`;
+  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
 };
 
 
@@ -984,5 +1007,6 @@ module.exports = {
   verifyPin,
   updatePassword,
   resendVerification,
-  TotalTimeSpent
+  TotalTimeSpent,
+  verifyToken
 };

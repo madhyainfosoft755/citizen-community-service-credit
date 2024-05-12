@@ -573,7 +573,7 @@ const Endorse = () => {
                               <a
                                 href="#"
                                 onClick={() => openPopup(post)}
-                                className="text-yellow-300 underline"
+                                className="text-[#546ef6] underline"
                               >
                                 View
                               </a>
@@ -584,7 +584,7 @@ const Endorse = () => {
                                 id={`endorsement_${post.id}`}
                                 checked={post.endorsedByCurrentUser}
                                 disabled={endorsedPosts.includes(post.id)} // Disable the checkbox if post is already endorsed
-                                className="border-2 border-yellow-200 p-2 rounded-lg"
+                                className="border-2 border-[#546ef6] p-2 rounded-lg"
                                 onChange={() =>
                                   handleEndorsement(post.id, userData.userData.id)
                                 }
