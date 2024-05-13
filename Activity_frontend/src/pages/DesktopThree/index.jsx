@@ -121,13 +121,16 @@ const Createpost = () => {
           'Content-Type': 'application/json',
         },
       });
-  
+      console.log("ye rha response", response)
+
       if (!response.ok) {
         // Token might be expired or invalid, so log the user out
         // handleLogout();
         navigate("/login")
+        notify("Session time Out")
       }
     } catch (error) {
+      notify(error)
       console.error("Error checking token expiry:", error);
     }
   };
@@ -189,18 +192,18 @@ const Createpost = () => {
     }
   }, [authenticated]);
 
-  useEffect(()=>{
-    const totalTimeSpent = async(userId)=>{
+  useEffect(() => {
+    const totalTimeSpent = async (userId) => {
       try {
         const token = localStorage.getItem("token");
         const response = await fetch(`${API_URL}/activity/TotalTimeSpent/${userData.userData.id}`, {
           method: "POST",
           headers: { Authorization: `Bearer ${token}` },
         });
-  
-          const data = await response.json();
+
+        const data = await response.json();
         if (response.ok) {
-            setTotalTime(data.totalTimeSum)
+          setTotalTime(data.totalTimeSum)
         }
       }
       catch (error) {
@@ -209,67 +212,7 @@ const Createpost = () => {
       }
     }
     totalTimeSpent()
-  },[userData])
-
-  // // Fetch historical data and calculate total time
-  // useEffect(() => {
-  //   const fetchHistoricalData = async () => {
-  //     try {
-  //       const token = localStorage.getItem("token");
-  //       // console.log("token is coming", token)
-  //       if (!token) {
-  //         navigate("/login");
-  //         return;
-  //       }
-
-  //       if (!userData || !userData.userData) {
-  //         // Handle case where userData is not yet loaded
-  //         return;
-  //       }
-
-  //       const response = await fetch(
-  //         `${API_URL}/activity/AllDetails/${userData.userData.id}`, // Replace with your actual API endpoint
-  //         {
-  //           method: "POST",
-  //           headers: {
-  //             Authorization: `Bearer ${token}`,
-  //           },
-  //         }
-  //       );
-
-  //       if (response.ok) {
-  //         const historicalData = await response.json();
-
-  //         if (Array.isArray(historicalData) && historicalData.length > 0) {
-  //           // Calculate total hours from all historical data
-  //           const totalHours = calculateTotalHours(historicalData);
-  //           setTotalTime(totalHours);
-  //         }
-  //       } else {
-  //         console.error("Error fetching historical data:", response.status);
-  //         // Handle error accordingly
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching historical data:", error);
-  //     }
-  //   };
-
-  //   fetchHistoricalData();
-  // }, [userData]);
-
-  // // Utility function to calculate total hours from historical data
-  // const calculateTotalHours = (historicalData) => {
-  //   let totalHours = 0;
-
-  //   historicalData.forEach((data) => {
-  //     if (data.totalTime) {
-  //       const [hours, minutes, seconds] = data.totalTime.split(":");
-  //       totalHours += parseInt(hours) + parseInt(minutes) / 60;
-  //     }
-  //   });
-
-  //   return totalHours.toFixed(2); // Limit to two decimal places
-  // };
+  }, [userData])
 
   const handleLogout = () => {
     // Clear authentication status, remove token and user key, and redirect to the login page
@@ -291,7 +234,7 @@ const Createpost = () => {
     formsDATA.append("video", selectedVideo);
     formsDATA.append("fromTime", fromTime); // Add fromTime
     formsDATA.append("toTime", toTime); // Add toTime
-    formsDATA.append("userId", userData && userData.userData.id);
+    // formsDATA.append("userId", userData && userData.userData.id);
     // Append latitude and longitude to formData
     formsDATA.append("latitude", formsData.latitude);
     formsDATA.append("longitude", formsData.longitude);
@@ -305,23 +248,24 @@ const Createpost = () => {
     }
 
     console.log("form data", formDataJson);
-
+    const token = localStorage.getItem("token");
     try {
       const response = await fetch(`${API_URL}/activity/CreateActivity`, {
         method: "POST",
-        // headers: {
-        //   'Content-Type': 'application/json',
-        // },
+        headers: {
+          Authorization: `Bearer ${token}`,
+         
+        },
         body: formsDATA,
         // body:formsDATA.stringify()
       });
-      
+
       const data = await response.json();
       if (response.ok) {
         console.log("Success:", data);
         navigate("/activity");
       } else {
-        console.error("Error:",data.error);
+        console.error("Error:", data.error);
         notify(`${data.error}`)
       }
     } catch (error) {
@@ -329,15 +273,15 @@ const Createpost = () => {
     }
   };
   //CREATE A CODE THAT CHECKS IF THE USERS TOKEN HAS EXPIRED AND IF IT IS EXPIRED THEN THE USER SHOULD BE LOGGED OUT AND REDIRECTED TO THE LOGIN PAGE?
-  
+
   const Name = userName.split(" ")[0];
 
 
   const direct = () => {
     navigate("/activity");
   };
-  
-  const Endorse = ()=>{
+
+  const Endorse = () => {
     navigate("/endorse")
   }
 
@@ -397,12 +341,12 @@ const Createpost = () => {
                   {carouselTexts[textIndex]}
                 </Button>
               </div>
-              
+
               <div className="flex flex-col items-start justify-center gap-1 sm:gap-1 w-11/12  sm:w-11/12 mt-1  ">
-              <div className="bg-white-A700 w-full  text-center flex items-start justify-between gap-5">
-                <h1 className="text-md font-semibold shadow-bs3 shadow-gray-300 py-1  w-1/2 h-full flex items-center justify-center rounded-3xl mb-2">+ Add New Activity</h1>
-                <button onClick={Endorse} className="bg-[#546ef6] w-1/2 h-full font-semibold rounded-3xl text-white-A700">Endorse Activities</button>
-              </div>
+                <div className="bg-white-A700 w-full  text-center flex items-start justify-between gap-5">
+                  <h1 className="text-md font-semibold shadow-bs3 shadow-gray-300 py-1  w-1/2 h-full flex items-center justify-center rounded-3xl mb-2">+ Add New Activity</h1>
+                  <button onClick={Endorse} className="bg-[#546ef6] w-1/2 h-full font-semibold rounded-3xl text-white-A700">Endorse Activities</button>
+                </div>
                 <Text
                   className="text-base text-gray-900"
                   size="txtInterSemiBold16Gray900"
@@ -414,7 +358,7 @@ const Createpost = () => {
                     <label
                       key={button.id}
                       className={`flex flex-wrap text-sm rounded-lg items-center justify-center border-2 overflow-hidden border-double border-white m-1 w-5/12 px-5 py-2  sm:px-5 sm:py-3  cursor-pointer ${selectedButton === button.label
-                        ? "border-[1px] border-[#546ef6] text-[#546ef6] bg-sky-50/40": "" } `}
+                        ? "border-[1px] border-[#546ef6] text-[#546ef6] bg-sky-50/40" : ""} `}
                     >
                       <input
                         type="radio"
@@ -428,17 +372,17 @@ const Createpost = () => {
                 </div>
 
                 <div className="flex flex-row gap-2 items-center justify-between   w-full p-2 mt-1 mb-2">
-                <div className="relative w-1/2 h-full  bg-cyan-50">
-               <h1 className="absolute  -top-5 left-1  text-sm">Location</h1>
-                  <Button
-                  type="button"
-                    className="flex items-center justify-center bg-[#eff2ff] border-[1px] leading-[normal] text-[12px] font-semibold text-left w-full h-full rounded-md"
-                  // onClick={handleLocationClick}
-                  >
-                    <FontAwesomeIcon icon={faLocationDot} className="pr-3 text-blue-600" />
-                    {locationData.city}, {locationData.state}
-                  </Button>
-                </div>
+                  <div className="relative w-1/2 h-full  bg-cyan-50">
+                    <h1 className="absolute  -top-5 left-1  text-sm">Location</h1>
+                    <Button
+                      type="button"
+                      className="flex items-center justify-center bg-[#eff2ff] border-[1px] leading-[normal] text-[12px] font-semibold text-left w-full h-full rounded-md"
+                    // onClick={handleLocationClick}
+                    >
+                      <FontAwesomeIcon icon={faLocationDot} className="pr-3 text-blue-600" />
+                      {locationData.city}, {locationData.state}
+                    </Button>
+                  </div>
 
                   <div className="relative w-1/2 h-full">
                     <input
@@ -574,7 +518,7 @@ const Createpost = () => {
                 >
                   SUBMIT
                 </Button>
-                
+
               </div>
             </div>
           </div>

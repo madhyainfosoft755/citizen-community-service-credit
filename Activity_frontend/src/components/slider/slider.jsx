@@ -16,20 +16,16 @@ const Slider1 = ({ items }) => {
         items.map(async (item) => {
           try {
             const response = await axios.get(
-              `https://api.opencagedata.com/geocode/v1/json?q=${item.latitude}+${item.longitude}&key=${process.env.REACT_APP_OpenCagePass}`
+              `https://nominatim.openstreetmap.org/reverse?lat=${item.latitude}&lon=${item.longitude}&format=json`
             );
 
-            const { results } = response.data;
-            console.log("ye aa rha hai location", results)
-            if (results && results.length > 0) {
-              const { city, state } = results[0].components;
-              console.log("ye hai city aur state",city,state  )
+            if (response.data && response.data.address) {
+              const { city, state } = response.data.address;
               return { ...item, city, state };
             }
           } catch (error) {
             console.error("Error fetching location data:", error);
           }
-          return item;
         })
       );
       setLocationData(updatedItems);

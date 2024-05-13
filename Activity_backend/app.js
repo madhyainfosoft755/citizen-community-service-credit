@@ -84,13 +84,14 @@ app.get('/api/video/:video', (req, res) => {
 
   });
 
-
+// app.use("/api", verifyToken)
 
 app.use("/api/activity",require('./routes/LoginRoutes'));
 // app.use("/activity",require('./routes/LoginRoutes'));
 
 
 const constant = require("./config/constant");
+const { verifyToken } = require("./controllers/LoginController");
 const port = process.env.PORT || constant.PORT;
 app.listen(port, console.log("app is running " + constant.PORT));
 

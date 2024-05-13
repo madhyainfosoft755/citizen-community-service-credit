@@ -13,10 +13,10 @@ const Endorsement = db.Endorsement;
 const Jwt = require("jsonwebtoken");
 const { logger } = require("../utils/util");
 const { CLIENT_ID, CLIENT_SECRET, CALLBACK_URL } = require('../config/constant');
-const {OAuth2Client} = require('google-auth-library');
+const { OAuth2Client } = require('google-auth-library');
 const client = new OAuth2Client(CLIENT_ID);
 const nodemailer = require("nodemailer");
-const randomstring = require('randomstring'); 
+const randomstring = require('randomstring');
 const crypto = require('crypto'); // For generating a random token
 const dotenv = require("dotenv");
 dotenv.config();
@@ -24,20 +24,36 @@ const { validationResult } = require('express-validator');
 
 
 
+// Helper function to extract user ID from JWT token
+const getUserIdFromToken = (req) => {
+  const authorizationHeader = req.headers["authorization"];
+  if (authorizationHeader) {
+    const token = authorizationHeader.split(" ")[1];
+    try {
+      const decodedToken = Jwt.verify(token, jwtKey);
+      console.log("ye hai user ki id", decodedToken.userId)
+      return decodedToken.userId;
+    } catch (error) {
+      console.error("Error decoding token:", error);
+    }
+  }
+  return null; // Return null if token extraction fails
+};
+
 
 // function to check the server is running or not by making a request to this api
-const output =async (req, res)=> {
+const output = async (req, res) => {
   try {
     return res.json("abcd");
   } catch (error) {
     logger.error("here is the error from output", error);
-    console.error('Failed to fetch user profile:',error);
+    console.error('Failed to fetch user profile:', error);
     throw error;
   }
 }
 
 // function to get the google user details
-const  getUserProfile = async (accessToken)=> {
+const getUserProfile = async (accessToken) => {
   try {
     const response = await axios.get('https://www.googleapis.com/userinfo/v2/me', {
       headers: {
@@ -105,11 +121,11 @@ const GoogleLogin = async (req, res) => {
 
     // Generate JWT token for the user
     // const jwtToken = Jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-    const jwtToken = Jwt.sign({ userId: user.id }, jwtKey, { expiresIn: "1h"});
+    const jwtToken = Jwt.sign({ userId: user.id }, jwtKey, { expiresIn: "1h" });
 
-    console.log("lo data le lo",user)
+    console.log("lo data le lo", user)
 
-    res.status(200).set('Authorization', `Bearer ${jwtToken}`).json({ token: jwtToken,  user: userProfile, redirectTo: '/create' });
+    res.status(200).set('Authorization', `Bearer ${jwtToken}`).json({ token: jwtToken, user: userProfile, redirectTo: '/create' });
   } catch (error) {
     console.error('Google login error:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -128,8 +144,8 @@ const transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
   port: 465,
   auth: {
-      user: "vaibhavkurmi786@gmail.com",
-      pass: "kakparbgukhobhwb",
+    user: "vaibhavkurmi786@gmail.com",
+    pass: "kakparbgukhobhwb",
   },
 });
 
@@ -153,21 +169,21 @@ const sendLoginConfirmationEmail = async (email, token) => {
 // this is Register Api
 const Register = async (req, res) => {
   try {
-    
+
     const userData = req.body;
-    console.log("here is he data", userData); 
+    console.log("here is he data", userData);
 
-     // Check if user with the same email already exists
-     const existingUser = await Users.findOne({where:{ email: userData.email }});
-     console.log("this is the existing user",existingUser)
-     if (existingUser) {
+    // Check if user with the same email already exists
+    const existingUser = await Users.findOne({ where: { email: userData.email } });
+    console.log("this is the existing user", existingUser)
+    if (existingUser) {
 
-       return res.status(400).json({ message: "Email already exists" });
-     }
-     
- 
+      return res.status(400).json({ message: "Email already exists" });
+    }
+
+
     // Check if user with the same mobile number already exists
-    const existingMobileUser = await Users.findOne({where:{ phone: userData.phone }});
+    const existingMobileUser = await Users.findOne({ where: { phone: userData.phone } });
     if (existingMobileUser) {
       return res
         .status(400)
@@ -184,7 +200,7 @@ const Register = async (req, res) => {
       subject: 'Verify your email',
       html: `<p>Please click <a href="http://localhost:3000/verify/${verificationToken}">here</a> to verify your email address.</p>`,
     });
-   
+
     const { selectedCategories } = req.body;
     console.log("category Register", selectedCategories);
 
@@ -206,7 +222,7 @@ const Register = async (req, res) => {
       name: req.body.name,
       email: userData.email,
       password: userData.password,
-      phone:userData.phone,
+      phone: userData.phone,
       photo: photos_,
       category: Category,
       verificationToken: verificationToken, // Store verification token in the database
@@ -232,19 +248,19 @@ const Register = async (req, res) => {
 const verify = async (req, res) => {
   try {
     const { token } = req.params;
-    console.log("this is token",token)
-    
+    console.log("this is token", token)
+
     const user = await Users.findOne({ where: { verificationToken: token } });
-     // Check if user is already verified
-     if (user.verified) {
+    // Check if user is already verified
+    if (user.verified) {
       return res.status(400).json({ message: "Email already verified" });
-    } 
+    }
 
     // Find user by verification token
     if (!user) {
       return res.status(404).json({ message: "Invalid verification token" });
     }
-    
+
     // Update user's verified status
     await user.update({ verified: true, verificationToken: null });
 
@@ -257,16 +273,16 @@ const verify = async (req, res) => {
 };
 
 
-const forgetpassword = async(req,res)=>{
+const forgetpassword = async (req, res) => {
   const { email } = req.body;
   // console.log("this is the email",email)
-  
+
   // Check if email exists in the database
-  const user = await Users.findOne({where:{ email }});
+  const user = await Users.findOne({ where: { email } });
   if (!user) {
     return res.status(404).json({ message: 'Email not found' });
   }
-  
+
   // Generate 6-digit PIN
   const pin = randomstring.generate({ length: 6, charset: 'numeric' });
   console.log("*-*-this is the generated pin*-*-", pin)
@@ -308,10 +324,10 @@ const verifyPin = async (req, res) => {
   try {
     const { email, pin } = req.body;
 
-    console.log("ye hian email aur pin", email , pin)
+    console.log("ye hian email aur pin", email, pin)
 
     // Find user by email
-    const user = await Users.findOne({where:{ email }});
+    const user = await Users.findOne({ where: { email } });
     console.log("***ye hai user ka data***", user)
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
@@ -338,7 +354,7 @@ const updatePassword = async (req, res) => {
 
   try {
     // Find user by email
-    const user = await Users.findOne({where:{ email }});
+    const user = await Users.findOne({ where: { email } });
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -374,8 +390,8 @@ const login = async (req, res) => {
     console.log(user);
 
 
-     // Check if the password matches
-     if (!user) {
+    // Check if the password matches
+    if (!user) {
       return res.status(401).json({ error: "Email not found." });
     }
 
@@ -383,14 +399,14 @@ const login = async (req, res) => {
     if (user.password !== password) {
       return res.status(401).json({ error: "Invalid  password." });
     }
-    
-     // Check if the user is verified
-     if (!user.verified) {
+
+    // Check if the user is verified
+    if (!user.verified) {
       return res.status(401).json({ error: "Email is not verified. Please verify your email." });
-    } 
+    }
 
     const token = Jwt.sign({ userId: user.id }, jwtKey, {
-      expiresIn: "10s",
+      expiresIn: "5min",
     });
     console.log(token, "token");
 
@@ -403,17 +419,17 @@ const login = async (req, res) => {
 
     if (user.email === 'info@mistpl.com') { // Check if the user is an admin
       res.json({
-          status: "success",
-          userKey: userKey,
-          token: token,
-          redirectTo: "/admin", // Redirect admin to "/admin" route
+        status: "success",
+        userKey: userKey,
+        token: token,
+        redirectTo: "/admin", // Redirect admin to "/admin" route
       });
-  } else {
+    } else {
       res.json({
-          status: "success",
-          userKey: userKey,
-          token: token,
-          redirectTo: "/create", // Redirect normal users to "/create" route
+        status: "success",
+        userKey: userKey,
+        token: token,
+        redirectTo: "/create", // Redirect normal users to "/create" route
       });
     }
     // Successful login
@@ -424,7 +440,7 @@ const login = async (req, res) => {
   }
 };
 
-const resendVerification =async (req, res)=>{
+const resendVerification = async (req, res) => {
   try {
     const { email } = req.body;
     console.log("this is the email id recieved", email)
@@ -520,7 +536,7 @@ const verifyToken = (req, res, next) => {
 
       // Attach the decoded token to the request object for further use
       req.decodedToken = decodedToken;
-      
+
       // Move to the next middleware or controller function
       next();
     } catch (error) {
@@ -533,6 +549,13 @@ const verifyToken = (req, res, next) => {
 };
 
 const profile = async (req, res) => {
+
+  // Extract user ID from JWT token
+  const userId = getUserIdFromToken(req);
+  console.log("ye profile se aa rhi hai userID", userId)
+  if (!userId) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
   try {
     const authorizationHeader = req.headers["authorization"];
 
@@ -579,12 +602,13 @@ const profile = async (req, res) => {
         }
       } catch (error) {
         logger.error("here is the error", error);
-        if (error.name === "TokenExpiredError") {
+        if (error.name == "TokenExpiredError") {
           res.json({
             status: "error",
             message: "Token has expired",
           });
         } else {
+          logger.error("this is the error from token", error)
           console.error("Error decoding token:", error);
           res.status(401).send("Invalid token");
         }
@@ -667,31 +691,38 @@ const updateUserData = async (req, res) => {
 };
 
 const CreateActivity = async (req, res) => {
-  try {
-
+    try {
+      console.log("****************1")
     // Check for validation errors from express-validator
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
+    console.log("****************2")
 
+
+    // Extract userId from the token
+    const userId = getUserIdFromToken(req);
+    // console.log("YE HAI USER KI ID", userId)
+    console.log("****************3")
 
     const {
       selectedCategories,
       date,
       fromTime,
       toTime,
-      userId,
       latitude,
       longitude,
     } = req.body;
 
 
+
     console.log("req data", req.body);
 
 
-     // Check for missing fields
-     if (!selectedCategories || !date || !fromTime || !toTime || !userId || !latitude || !longitude) {
+    // Check for missing fields
+    if (!selectedCategories || !date || !fromTime || !toTime || !userId || !latitude || !longitude) {
+      console.log("kya yha userid nhi aai", userId)
       console.log("hello")
       return res.status(400).json({ error: "Missing required fields" });
     }
@@ -703,20 +734,20 @@ const CreateActivity = async (req, res) => {
     const photos =
       req.files && req.files.photo
         ? req.files.photo.reduce((acc, file) => {
-            // acc.push(file.filename);
-            return acc + file.filename;
-          }, [])
+          // acc.push(file.filename);
+          return acc + file.filename;
+        }, [])
         : "";
 
-        console.log("ye hain photos", photos)
+    console.log("ye hain photos", photos)
     const videos =
       req.files && req.files.video
         ? req.files.video.reduce((acc, file) => {
-            // acc.push(file.filename);
-            return acc + file.filename;
-          }, [])
+          // acc.push(file.filename);
+          return acc + file.filename;
+        }, [])
         : "";
-        console.log("ye hain videos", videos)
+    console.log("ye hain videos", videos)
 
 
     const category = selectedCategories;
@@ -761,7 +792,7 @@ const CreateActivity = async (req, res) => {
       category,
       photos,
       videos,
-      Date:date,
+      Date: date,
       totalTime,
       latitude,
       longitude,
@@ -771,6 +802,8 @@ const CreateActivity = async (req, res) => {
 
     res.status(201).json({ message: "Activity created successfully" });
   } catch (error) {
+    console.log("****************4")
+
     logger.error("here is the error", error);
     console.error("Error creating activity:", error);
     res.status(500).json({ error: "Internal Server Error" });
@@ -779,13 +812,16 @@ const CreateActivity = async (req, res) => {
 
 const AllDetails = async (req, res) => {
   try {
+    // Extract userId from the token
+    const userId = req.user.id;
+
     const all_posts = await db.Posts.findAll({
       attributes: [
         "UserId",
         "Category",
         "totalTime",
       ],
-      where: { UserId: req.params.id },
+      where: { UserId: userId },
     });
 
     // Calculate the sum of totalTime
@@ -800,7 +836,7 @@ const AllDetails = async (req, res) => {
     console.log("Total Time Sum:", formattedTotalTimeSum);
 
     // Update totalTime in the users table
-    const user = await db.users.findByPk(req.params.id);
+    const user = await db.users.findByPk(userId);
     if (user) {
       user.totalTime = formattedTotalTimeSum;
       await user.save();
@@ -812,7 +848,7 @@ const AllDetails = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
-const TotalTimeSpent = async(req,res)=>{
+const TotalTimeSpent = async (req, res) => {
 
   try {
     const all_posts = await db.Posts.findAll({
@@ -842,7 +878,7 @@ const TotalTimeSpent = async(req,res)=>{
       await user.save();
     }
 
-    res.status(200).json({  totalTimeSum: formattedTotalTimeSum });
+    res.status(200).json({ totalTimeSum: formattedTotalTimeSum });
   } catch (error) {
     console.error("Here is the error:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -866,7 +902,7 @@ const convertSecondsToTime = (seconds) => {
 
 const postsdata = async (req, res) => {
   try {
-    const userId = req.params.id;
+    const userId = getUserIdFromToken(req);
     const posts = await db.Posts.findAll({
       where: { UserId: userId },
     });
@@ -973,8 +1009,8 @@ const fetchPostsInArea = async (req, res) => {
       );
     }
 
-     // Exclude posts that have been endorsed by the current user
-     const endorsedPosts = await db.Endorsement.findAll({
+    // Exclude posts that have been endorsed by the current user
+    const endorsedPosts = await db.Endorsement.findAll({
       where: { userId: userId },
       attributes: ['postId'],
     });

@@ -10,8 +10,10 @@ import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import PopupComponent from "components/popup";
 import "./style.css";
+import { toast } from "react-toastify";
 
 const Endorse = () => {
+  const notify = (e) => toast(e);
   const [userPosts, setUserPosts] = useState([]);
   const [filteredPosts, setFilteredPosts] = useState([]);
   const [error, setError] = useState(null);
@@ -54,6 +56,29 @@ const Endorse = () => {
     setIsPopupOpen(false);
   };
 
+  const checkTokenExpiry = async (token) => {
+    try {
+      const response = await fetch(`${API_URL}/activity/profile`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      console.log("ye rha response", response)
+      
+      if (!response.ok) {
+        // Token might be expired or invalid, so log the user out
+        // handleLogout();
+        navigate("/login")
+        notify("Session time Out")
+      }
+    } catch (error) {
+      notify(error)
+      console.error("Error checking token expiry:", error);
+    }
+  };
+
   //sends token and userkey to local storage
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -63,6 +88,7 @@ const Endorse = () => {
       navigate("/login");
     } else {
       fetchUserData(token);
+      checkTokenExpiry(token);
     }
   }, [navigate]);
 
@@ -95,7 +121,7 @@ const Endorse = () => {
       if (response.ok) {
         setUserName(userData.userData.name)
         setUserData(userData);
-        console.log("this is user data",userData)
+        console.log("this is user data", userData)
       } else {
         console.error("Error fetching user data:", response.status);
       }
@@ -107,18 +133,18 @@ const Endorse = () => {
   const name = userName.split(" ")[0];
 
 
-  useEffect(()=>{
-    const totalTimeSpent = async(userId)=>{
+  useEffect(() => {
+    const totalTimeSpent = async (userId) => {
       try {
         const token = localStorage.getItem("token");
         const response = await fetch(`${API_URL}/activity/TotalTimeSpent/${userData.userData.id}`, {
           method: "POST",
           headers: { Authorization: `Bearer ${token}` },
         });
-  
-          const data = await response.json();
+
+        const data = await response.json();
         if (response.ok) {
-            setTotalTime(data.totalTimeSum)
+          setTotalTime(data.totalTimeSum)
         }
       }
       catch (error) {
@@ -127,102 +153,19 @@ const Endorse = () => {
       }
     }
     totalTimeSpent()
-  },[userData])
- 
-
-
-  //fetch userPosts
-  // const fetchUserPosts = async (userId) => {
-  //   try {
-  //     const token = localStorage.getItem("token");
-  //     const response = await fetch(`${API_URL}/activity/postsdata/${userId}`, {
-  //       method: "GET",
-  //       headers: { Authorization: `Bearer ${token}` },
-  //     });
-
-  //     if (response.ok) {
-  //       const userPostsData = await response.json();
-  //       // setUserPosts(userPostsData);
-  //       setFilteredPosts(userPostsData); // Initialize filtered posts with all user posts
-  //     } else {
-  //       console.error("Error fetching user posts:", response.status);
-  //       setError("An error occurred while fetching user posts.");
-  //     }
-  //   } catch (error) {
-  //     console.error("Error fetching user posts:", error);
-  //     setError("An error occurred while fetching user posts.");
-  //   }
-  // };
-
-  // // Fetch historical data and calculate total time
-  // useEffect(() => {
-  //   const fetchHistoricalData = async () => {
-  //     try {
-  //       const token = localStorage.getItem("token");
-  //       if (!token) {
-  //         navigate("/login");
-  //         return;
-  //       }
-
-  //       if (!userData || !userData.userData) {
-  //         // Handle case where userData is not yet loaded
-  //         return;
-  //       }
-
-  //       const response = await fetch(
-  //         `${API_URL}/activity/AllDetails/${userData.userData.id}`, // Replace with your actual API endpoint
-  //         {
-  //           method: "POST",
-  //           headers: {
-  //             Authorization: `Bearer ${token}`,
-  //           },
-  //         }
-  //       );
-
-  //       if (response.ok) {
-  //         const historicalData = await response.json();
-
-  //         // if (Array.isArray(historicalData) && historicalData.length > 0) {
-  //         //   // Calculate total hours from all historical data
-  //         //   const totalHours = calculateTotalHours(historicalData);
-  //         //   setTotalTime(totalHours);
-  //         // }
-  //       } else {
-  //         console.error("Error fetching historical data:", response.status);
-  //         // Handle error accordingly
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching historical data:", error);
-  //     }
-  //   };
-
-  //   fetchHistoricalData();
-  // }, [userData]);
-
-  // // Utility function to calculate total hours from historical data
-  // const calculateTotalHours = (historicalData) => {
-  //   let totalHours = 0;
-
-  //   historicalData.forEach((data) => {
-  //     if (data.totalTime) {
-  //       const [hours, minutes, seconds] = data.totalTime.split(":");
-  //       totalHours += parseInt(hours) + parseInt(minutes) / 60;
-  //     }
-  //   });
-
-  //   return totalHours.toFixed(2); // Limit to two decimal places
-  // };
+  }, [userData])
 
   //fetch posts avaliable in the latitude and longitude
   const fetchPostsInArea = async (latitude, longitude) => {
 
     try {
-      const newdata = { latitude,
+      const newdata = {
+        latitude,
         longitude,
         userId: userData?.userData?.id,
         username: userData?.userData?.name
-        }
-        console.log("thi is the user id", newdata)
+      }
+      // console.log("this is the user id", newdata)
       const token = localStorage.getItem("token");
       const response = await fetch(`${API_URL}/activity/fetchPostsInArea`, {
         method: "POST",
@@ -231,7 +174,7 @@ const Endorse = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(newdata),
-        
+
       });
       console.log("kya response aa rha hai", latitude, longitude);
 
@@ -344,13 +287,11 @@ const Endorse = () => {
   const fetchCityName = async (latitude, longitude) => {
     try {
       const response = await axios.get(
-        `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=290bf9b7dacb47c9b10bec4ceb53173e`
+        `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
       );
 
-      const { results } = response.data;
-      console.log("this is the citydata", results);
-      if (results && results.length) {
-        const { city } = results[0].components;
+      if (response.data && response.data.address) {
+        const { city } = response.data.address;
         return city;
       }
       return "Unknown City";
@@ -611,14 +552,14 @@ const Endorse = () => {
                 )}
               </div>
 
-              <Button
+              {/* <Button
                 className="cursor-pointer font-semibold w-5/6  mb-2 text-base text-center"
                 shape="round"
                 color="indigo_A200"
                 onClick={handleLogout}
               >
                 LOGOUT
-              </Button>
+              </Button> */}
             </div>
           </div>
         </div>

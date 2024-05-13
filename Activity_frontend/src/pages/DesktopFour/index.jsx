@@ -5,8 +5,10 @@ import { API_URL } from "Constant";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "components/AuthProvider/AuthProvider";
 import Slider1 from "components/slider/slider";
+import { toast } from "react-toastify";
 
 const DesktopFourPage = () => {
+  const notify = (e) => toast(e);
   const [userPosts, setUserPosts] = useState([]);
   const [error, setError] = useState(null);
   const { authenticated, setAuthenticated } = useAuth();
@@ -75,64 +77,29 @@ const DesktopFourPage = () => {
     totalTimeSpent()
   },[userData])
 
-  // Fetch historical data and calculate total time
-  // useEffect(() => {
-  //   const fetchHistoricalData = async () => {
-  //     try {
-  //       const token = localStorage.getItem("token");
-  //       if (!token) {
-  //         navigate("/login");
-  //         return;
-  //       }
 
-  //       if (!userData || !userData.userData) {
-  //         // Handle case where userData is not yet loaded
-  //         return;
-  //       }
-
-  //       const response = await fetch(
-  //         `${API_URL}/activity/AllDetails/${userData.userData.id}`, // Replace with your actual API endpoint
-  //         {
-  //           method: "POST",
-  //           headers: {
-  //             Authorization: `Bearer ${token}`,
-  //           },
-  //         }
-  //       );
-
-  //       if (response.ok) {
-  //         const historicalData = await response.json();
-
-  //         if (Array.isArray(historicalData) && historicalData.length > 0) {
-  //           // Calculate total hours from all historical data
-  //           const totalHours = calculateTotalHours(historicalData);
-  //           setTotalTime(totalHours);
-  //         }
-  //       } else {
-  //         console.error("Error fetching historical data:", response.status);
-  //         // Handle error accordingly
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching historical data:", error);
-  //     }
-  //   };
-
-  //   fetchHistoricalData();
-  // }, [userData]);
-
-  // // Utility function to calculate total hours from historical data
-  // const calculateTotalHours = (historicalData) => {
-  //   let totalHours = 0;
-
-  //   historicalData.forEach((data) => {
-  //     if (data.totalTime) {
-  //       const [hours, minutes, seconds] = data.totalTime.split(":");
-  //       totalHours += parseInt(hours) + parseInt(minutes) / 60;
-  //     }
-  //   });
-
-  //   return totalHours.toFixed(2); // Limit to two decimal places
-  // };
+  const checkTokenExpiry = async (token) => {
+    try {
+      const response = await fetch(`${API_URL}/activity/profile`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      console.log("ye rha response", response)
+      
+      if (!response.ok) {
+        // Token might be expired or invalid, so log the user out
+        // handleLogout();
+        navigate("/login")
+        notify("Session time Out")
+      }
+    } catch (error) {
+      notify(error)
+      console.error("Error checking token expiry:", error);
+    }
+  };
 
   useEffect(() => {
     // Check if both token and user key are present in local storage
@@ -145,6 +112,8 @@ const DesktopFourPage = () => {
     } else {
       // Fetch user data when component mounts
       fetchUserData(token);
+      checkTokenExpiry(token);
+
     }
 
     // You may also want to check the validity of the token here if needed
