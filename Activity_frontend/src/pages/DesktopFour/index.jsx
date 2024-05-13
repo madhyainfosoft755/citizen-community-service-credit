@@ -185,10 +185,10 @@ const DesktopFourPage = () => {
   return (
     <>
       {authenticated && (
-        <div className="w-screen h-screen  bg-white-A700 flex items-start justify-center sm:w-full sm:h-full md:w-screen md:h-screen p-5 sm:p-0">
-          <div className="w-4/12 h-full  flex items-start justify-center  sm:shadow-none   border-[1px]  rounded-lg lg:w-[33%] lg:h-full sm:w-full sm:h-full md:w-full md:h-full">
+        <div className="w-screen h-screen  bg-white-A700 flex items-start justify-center sm:w-screen sm:h-screen md:w-screen md:h-screen p-5 sm:p-0">
+          <div className="w-4/12 h-full  flex items-start justify-center  sm:shadow-none  border-[1px]  rounded-lg sm:rounded-none lg:w-[33%] lg:h-full sm:w-full sm:h-full md:w-full md:h-full">
             <div className="flex flex-col  items-center justify-start w-full h-full">
-              <div className="bg-gray-50 flex flex-row items-center justify-between p-3 sm:px-5 w-full  ">
+              <div className="bg-gray-50 flex flex-row items-center justify-between p-3 sm:px-5 w-full ">
                 <div className="flex flex-row gap-2 items-center justify-center ml-[5px]">
                   {userData && (
                     <Img
@@ -227,8 +227,8 @@ const DesktopFourPage = () => {
               >
                 My Activities
               </Text>
-              {}
-              <div  className="flex sm:flex-col flex-col gap-[25px] items-center justify-between w-5/6 sm:w-5/6 h-5/6 sm:h-1/2  p-2 ">
+              
+              <div  className="flex sm:flex-col flex-col gap-[25px] items-center justify-between w-5/6 sm:w-11/12 h-full sm:h-full  p-2 ">
                 <div className=" w-full h-full sm:w-full sm:h-[60vh] rounded-xl relative   border-[1px] border-gray overflow-hidden">
                   <Slider1 className="w-full h-full p-2" items={userPosts} />
                 </div>

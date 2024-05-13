@@ -375,9 +375,9 @@ const Endorse = () => {
     <>
       {authenticated && (
         <div className=" flex items-center justify-center w-screen h-screen sm:w-screen sm:h-screen md:w-screen md:h-screen p-4 sm:p-0 md:pt-20 md:pb-20">
-          <div className="bg-white-A700 flex flex-col items-start justify-center sm:px-5  border-[1px] rounded-lg w-4/12 h-full sm:w-full sm:h-full md:w-2/4 md:h-full">
-            <div className="flex flex-col gap-3 items-center justify-center w-full h-full p-3 sm:p-0 ">
-              <div className="bg-gray-50 flex flex-row items-center justify-between p-3 sm:px-5 w-full rounded-md ">
+          <div className="bg-white-A700 flex flex-col items-start justify-start sm:px-0  border-[1px] rounded-lg sm:rounded-none w-4/12 h-full sm:w-full sm:h-full md:w-2/4 md:h-full">
+            <div className="flex flex-col gap-3 items-center justify-start w-full h-full bg-pink-200 p-3 sm:p-0 ">
+              <div className="bg-gray-50 flex flex-row items-center justify-between p-3 sm:px-5 w-full rounded-md sm:rounded-none ">
                 <div className="flex flex-row gap-4 items-center justify-center ml-[5px]">
                   {userData && (
                     <Img
@@ -486,15 +486,16 @@ const Endorse = () => {
                       No posts available for endorsement.
                     </h2>
                   ) : (
-                    <table className="w-52 overflow-scroll">
-                      <thead>
-                        <tr className=" w-full">
-                          <th className="w-4/12">Category</th>
-                          <th className="">Name</th>
-                          <th className="">Time</th>
-                          <th className="">Location</th>
-                          <th className="">Image</th>
-                          <th className="">Endorsement</th>
+                    <div className=" w-full overflow-x-auto">
+                    <table className="w-52 overflow-scroll table-fixed">
+                      <thead className="bg-white sticky top-0 z-10">
+                        <tr >
+                          <th className="w-full bg-red-300">Category</th>
+                          <th className="w-4/12">Name</th>
+                          <th className="w-4/12">Time</th>
+                          <th className="w-4/12">Location</th>
+                          <th className="w-4/12">Image</th>
+                          <th className="w-4/12">Endorse</th>
                         </tr>
                       </thead>
                       <tbody className=" ">
@@ -535,6 +536,7 @@ const Endorse = () => {
                         ))}
                       </tbody>
                     </table>
+                    </div>
                   )}
                 </div>
 

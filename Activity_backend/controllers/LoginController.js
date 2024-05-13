@@ -272,8 +272,8 @@ const verify = async (req, res) => {
   }
 };
 
-
 const forgetpassword = async (req, res) => {
+
   const { email } = req.body;
   // console.log("this is the email",email)
 
