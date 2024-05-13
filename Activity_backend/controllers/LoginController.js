@@ -406,7 +406,7 @@ const login = async (req, res) => {
     }
 
     const token = Jwt.sign({ userId: user.id }, jwtKey, {
-      expiresIn: "5min",
+      expiresIn: "1d",
     });
     console.log(token, "token");
 
