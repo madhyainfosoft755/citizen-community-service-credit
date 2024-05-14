@@ -175,12 +175,23 @@ const DesktopOnePage = () => {
   const handleLocationChange = async (latitude, longitude) => {
     try {
       const response = await axios.get(
-        `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${process.env.REACT_APP_GoogleGeocode}`
       );
 
-      if (response.data && response.data.address) {
-        const { city, state } = response.data.address;
-        setLocationData({ city, state });
+      
+      if (response.data && response.data.results) {
+        const addressComponents = response.data.results[0].address_components;
+        const cityObj = addressComponents.find(component =>
+          component.types.includes('locality')
+        );
+        const stateObj = addressComponents.find(component =>
+          component.types.includes('administrative_area_level_1')
+        );
+  
+        const city = cityObj ? cityObj.long_name : 'Unknown City';
+        const state = stateObj ? stateObj.long_name : 'Unknown State';
+  
+        setLocationData({ city, state }); 
       } else {
         console.error("Error fetching location data");
         notify("Error fetching location data")

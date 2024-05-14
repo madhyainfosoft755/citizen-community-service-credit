@@ -5,10 +5,12 @@ import { API_URL } from "Constant";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "./slider.css";
+import PopupComponent from "components/popup";
 
-const Slider1 = ({ items }) => {
+
+const Slider1 = ({ items , isPopUpVisible, setIsPopUpVisible, setSelectedPost, selectedPost }) => {
   const [locationData, setLocationData] = useState([]);
-  console.log("kya endrose aa rha hai", items)
+    // console.log("kya endrose aa rha hai", items)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -16,11 +18,22 @@ const Slider1 = ({ items }) => {
         items.map(async (item) => {
           try {
             const response = await axios.get(
-              `https://nominatim.openstreetmap.org/reverse?lat=${item.latitude}&lon=${item.longitude}&format=json`
+              `https://maps.googleapis.com/maps/api/geocode/json?latlng=${item.latitude},${item.longitude}&key=${process.env.REACT_APP_GoogleGeocode}`
             );
+            // console.log("ye hai location ka data",response)
 
-            if (response.data && response.data.address) {
-              const { city, state } = response.data.address;
+            if (response.data && response.data.results.length > 0) {
+              const { address_components } = response.data.results[0];
+              const cityData = address_components.find(component =>
+                component.types.includes("administrative_area_level_3")
+              );
+              const politicalData = address_components.find(component =>
+                component.types.includes("administrative_area_level_1")
+              );
+
+              const city = cityData ? cityData.long_name : "Unknown City";
+              const state = politicalData ? politicalData.long_name : "Unknown State";
+
               return { ...item, city, state };
             }
           } catch (error) {
@@ -34,6 +47,12 @@ const Slider1 = ({ items }) => {
     fetchData();
   }, [items]);
 
+  const handleViewPost = (post) => {
+    setSelectedPost(post);
+    setIsPopUpVisible(true);
+  };
+
+  // console.log("location data", locationData)
   const settings = {
     infinite: items.length > 1,
     speed: 500,
@@ -46,16 +65,17 @@ const Slider1 = ({ items }) => {
 
   return (
     <div className="w-full h-full   border-none outline-none">
-      {locationData && locationData.length > 0 ? (
+
+      {locationData && locationData.length > 0 && items ? (
         <Slider {...settings}>
           {locationData.map((item, index) => (
             <div key={item.id}>
               <div className="h-44 sm:h-52 sm:h-50">
-                {item.photos && (
+                {item && item.photos && (
                   <img
                     className="w-full h-full object-cover object-top"
                     src={`${API_URL}/image/${item.photos}`}
-                    alt={`Photo${item.id}`}
+                    alt={`Photo ${item.id}`}
                   />
                 )}
               </div>
@@ -69,7 +89,7 @@ const Slider1 = ({ items }) => {
                   <div className=" flex flex-col items-end mr-4 justify-center">
                     <h3 className="text-gray-500 font-semibold  mb-1">Location</h3>
                     <h3 className="flex flex-wrap ">
-                      {item.city}, {item.state}
+                      {item.city},{item.state}
                     </h3>
                   </div>
                 </div>
@@ -94,7 +114,7 @@ const Slider1 = ({ items }) => {
 
                   <div className="w-24 flex flex-col items-center justify-center">
                     <h3 className="text-gray-500 mb-1 font-semibold">Images</h3>
-                    <button className="text-blue-600 underline">View</button>
+                    <button onClick={() => handleViewPost(item)} className="text-blue-600 underline">View</button>
                   </div>
                 </div>
               </div>
@@ -102,8 +122,15 @@ const Slider1 = ({ items }) => {
           ))}
         </Slider>
       ) : (
-        <h3 className="absolute inset-0 marquee flex items-center justify-center w-full h-full text-4xl font-semibold">No posts added</h3>
+        <div className="w-full h-full flex items-center justify-center">
+          <img
+            className="w-1/2 h-auto object-cover object-center"
+            src="images/nopost.svg"
+            alt="No posts available for endorsement"
+          />
+        </div>
       )}
+     
     </div>
   );
 };

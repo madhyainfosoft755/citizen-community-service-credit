@@ -86,11 +86,21 @@ const Createpost = () => {
   const handleLocationChange = async (latitude, longitude) => {
     try {
       const response = await axios.get(
-        `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${process.env.REACT_APP_GoogleGeocode}`
       );
 
-      if (response.data && response.data.address) {
-        const { city, state } = response.data.address;
+      if (response.data && response.data.results) {
+        const addressComponents = response.data.results[0].address_components;
+        const cityObj = addressComponents.find(component =>
+          component.types.includes('locality')
+        );
+        const stateObj = addressComponents.find(component =>
+          component.types.includes('administrative_area_level_1')
+        );
+  
+        const city = cityObj ? cityObj.long_name : 'Unknown City';
+        const state = stateObj ? stateObj.long_name : 'Unknown State';
+  
         setLocationData({ city, state });
 
         // Update formData with latitude, longitude, city, and state
@@ -263,6 +273,7 @@ const Createpost = () => {
       const data = await response.json();
       if (response.ok) {
         console.log("Success:", data);
+        notify(data.message)
         navigate("/activity");
       } else {
         console.error("Error:", data.error);
@@ -353,11 +364,11 @@ const Createpost = () => {
                 >
                   Select Category
                 </Text>
-                <div className="flex flex-wrap  items-center justify-between  w-full">
+                <div className="flex flex-wrap items-center justify-between  w-full">
                   {buttons.map((button) => (
                     <label
                       key={button.id}
-                      className={`flex flex-wrap text-sm rounded-lg items-center justify-center border-2 overflow-hidden border-double border-white m-1 w-5/12 px-5 py-2  sm:px-5 sm:py-3  cursor-pointer ${selectedButton === button.label
+                      className={`flex flex-wrap text-sm rounded-lg items-center justify-center border-2 overflow-hidden border-double border-white mt-1 w-5/12 px-5 py-2  sm:px-5 sm:py-3  cursor-pointer ${selectedButton === button.label
                         ? "border-[1px] border-[#546ef6] text-[#546ef6] bg-sky-50/40" : ""} `}
                     >
                       <input
@@ -371,9 +382,9 @@ const Createpost = () => {
                   ))}
                 </div>
 
-                <div className="flex flex-row gap-2 items-center justify-between   w-full p-2 mt-1 mb-2">
+                <div className="flex flex-row gap-2 items-center justify-between   w-full  mt-4 mb-4">
                   <div className="relative w-1/2 h-full  bg-cyan-50">
-                    <h1 className="absolute  -top-5 left-1  text-sm">Location</h1>
+                    <h1 className="absolute  -top-5 left-0  text-sm">Location</h1>
                     <Button
                       type="button"
                       className="flex items-center justify-center bg-[#eff2ff] border-[1px] leading-[normal] text-[12px] font-semibold text-left w-full h-full rounded-md"
@@ -394,14 +405,14 @@ const Createpost = () => {
                       className="w-full h-full px-3 py-2 bg-[#eff2ff] text-sm shadow-sm shadow-black-900/10 rounded-md border-[1px] border-gray-300 focus:outline-none focus:border-blue-500 appearance-none"
                     />
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                      <span className={`absolute -top-5 left-1 text-sm ${currentDate ? 'text-gray-700' : 'text-gray-500'}`}>
+                      <span className={`absolute -top-5 left-0 text-sm ${currentDate ? 'text-gray-700' : 'text-gray-500'}`}>
                         Select Date
                       </span>
                     </div>
                   </div>
                 </div>
-                <div className="  flex items-center justify-start gap-2 w-full ">
-                  <h4 className="text-base font-semibold w-1/5 h-full flex items-center justify-center">
+                <div className="  flex items-center justify-between  gap-2 w-full ">
+                  <h4 className="text-base font-semibold w-1/5 h-full flex items-center justify-start">
                     Add Time:
                   </h4>
 

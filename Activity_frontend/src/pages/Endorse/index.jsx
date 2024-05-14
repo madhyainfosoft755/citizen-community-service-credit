@@ -14,6 +14,7 @@ import { toast } from "react-toastify";
 
 const Endorse = () => {
   const notify = (e) => toast(e);
+  const [checkedPosts, setCheckedPosts] = useState([]);
   const [userPosts, setUserPosts] = useState([]);
   const [filteredPosts, setFilteredPosts] = useState([]);
   const [error, setError] = useState(null);
@@ -42,7 +43,7 @@ const Endorse = () => {
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [userName, setUserName] = useState("")
   const [endorsedPosts, setEndorsedPosts] = useState([]); // State variable to track endorsed posts
-
+  const [refresh, setRefresh] = useState(false)
 
   // Function to open the popup with photos and videos
   const openPopup = (post) => {
@@ -66,7 +67,7 @@ const Endorse = () => {
         },
       });
       console.log("ye rha response", response)
-      
+
       if (!response.ok) {
         // Token might be expired or invalid, so log the user out
         // handleLogout();
@@ -108,7 +109,7 @@ const Endorse = () => {
     if (locationData) {
       fetchPostsInArea(locationData.latitude, locationData.longitude);
     }
-  }, [locationData, userData]);
+  }, [locationData, userData, refresh]);
 
   //fetch userdata
   const fetchUserData = async (token) => {
@@ -287,14 +288,19 @@ const Endorse = () => {
   const fetchCityName = async (latitude, longitude) => {
     try {
       const response = await axios.get(
-        `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${process.env.REACT_APP_GoogleGeocode}`
       );
 
-      if (response.data && response.data.address) {
-        const { city } = response.data.address;
+      if (response.data && response.data.results) {
+        const addressComponents = response.data.results[0].address_components;
+        const cityObj = addressComponents.find(component =>
+          component.types.includes('locality')
+        );
+
+        const city = cityObj ? cityObj.long_name : 'Unknown City';
         return city;
       }
-      return "Unknown City";
+      return 'Unknown City';
     } catch (error) {
       console.error("Error fetching location data:", error);
       return "Unknown City";
@@ -351,10 +357,12 @@ const Endorse = () => {
       }
       else {
         console.error("You have already endorsed this post:", response.status);
+        notify(response.status)
         // Handle error accordingly
       }
     } catch (error) {
       console.error("Error endorsing post:", error);
+      notify(error)
       // Handle error accordingly
     }
   };
@@ -370,14 +378,58 @@ const Endorse = () => {
     return () => clearInterval(interval);
   }, []);
 
+
+  const handleCheckboxChange = (postId, isChecked) => {
+    if (isChecked) {
+      setCheckedPosts((prevChecked) => [...prevChecked, postId]);
+    } else {
+      setCheckedPosts((prevChecked) => prevChecked.filter((id) => id !== postId));
+    }
+  };
+
+  const handleEndorseAll = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        navigate("/login");
+        return;
+      }
+
+      // Loop through all checked posts and endorse them
+      for (const postId of checkedPosts) {
+        const response = await fetch(`${API_URL}/activity/endorsePost/${postId}`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ userId: userData.userData.id }),
+        });
+        console.log(response)
+      }
+      setRefresh(!refresh)
+
+      // After endorsing all posts, update the UI or perform any necessary actions
+      console.log("Selected posts are endorsed:", checkedPosts);
+      notify("Selected posts are endorsed")
+      // Clear the checked posts after endorsing
+      setCheckedPosts([]);
+    } catch (error) {
+      console.error("Error endorsing posts:", error);
+      notify(error)
+      // Handle error accordingly
+    }
+  };
+
+
   // console.log("all filtered post", filteredPosts);
   return (
     <>
       {authenticated && (
         <div className=" flex items-center justify-center w-screen h-screen sm:w-screen sm:h-screen md:w-screen md:h-screen p-4 sm:p-0 md:pt-20 md:pb-20">
           <div className="bg-white-A700 flex flex-col items-start justify-start sm:px-0  border-[1px] rounded-lg sm:rounded-none w-4/12 h-full sm:w-full sm:h-full md:w-2/4 md:h-full">
-            <div className="flex flex-col gap-3 items-center justify-start w-full h-full bg-pink-200 p-3 sm:p-0 ">
-              <div className="bg-gray-50 flex flex-row items-center justify-between p-3 sm:px-5 w-full rounded-md sm:rounded-none ">
+            <div className="flex flex-col gap-3 items-center justify-start w-full h-full  p-3 sm:p-0 ">
+              <div className="bg-gray-50 flex flex-row items-center justify-between p-3  sm:px-5 w-full rounded-md sm:rounded-none ">
                 <div className="flex flex-row gap-4 items-center justify-center ml-[5px]">
                   {userData && (
                     <Img
@@ -480,22 +532,25 @@ const Endorse = () => {
                   </div>
                 </div>
 
-                <div className={`relative mt-5 w-full h-full  post-container ${filteredPosts.length === 0 ? "overflow-hidden" : "overflow-scroll"}`}>
+                <div className={`scroller relative mt-5 w-full h-full  post-container ${filteredPosts.length === 0 ? "overflow-hidden" : "overflow-auto"}`}>
                   {filteredPosts.length === 0 ? (
-                    <h2 className="absolute top-40 sm:top-52 text-center marquee text-4xl whitespace-nowrap font-semibold">
-                      No posts available for endorsement.
-                    </h2>
+                    <div className="w-full h-full flex items-center justify-center">
+                      <Img
+                        className="w-1/2 h-auto object-cover object-center"
+                        src="images/nopost.svg"
+                        alt="No posts available for endorsement"
+                      />
+                    </div>
                   ) : (
-                    <div className=" w-full overflow-x-auto">
-                    <table className="w-52 overflow-scroll table-fixed">
-                      <thead className="bg-white sticky top-0 z-10">
+                    <table className="w-52 overflow-hidden ">
+                      <thead className="">
                         <tr >
-                          <th className="w-full bg-red-300">Category</th>
-                          <th className="w-4/12">Name</th>
-                          <th className="w-4/12">Time</th>
-                          <th className="w-4/12">Location</th>
-                          <th className="w-4/12">Image</th>
-                          <th className="w-4/12">Endorse</th>
+                          <th>Category</th>
+                          <th>Name</th>
+                          <th>Time</th>
+                          <th>Location</th>
+                          <th>Image</th>
+                          <th>Endorse</th>
                         </tr>
                       </thead>
                       <tbody className=" ">
@@ -524,21 +579,20 @@ const Endorse = () => {
                               <input
                                 type="checkbox"
                                 id={`endorsement_${post.id}`}
-                                checked={post.endorsedByCurrentUser}
-                                disabled={endorsedPosts.includes(post.id)} // Disable the checkbox if post is already endorsed
+                                checked={checkedPosts.includes(post.id)}
+                                // disabled={endorsedPosts.includes(post.id)} // Disable the checkbox if post is already endorsed
                                 className="border-2 border-[#546ef6] p-2 rounded-lg"
-                                onChange={() =>
-                                  handleEndorsement(post.id, userData.userData.id)
-                                }
+                                onChange={(e) => handleCheckboxChange(post.id, e.target.checked)}
                               />
                             </td>
                           </tr>
                         ))}
                       </tbody>
                     </table>
-                    </div>
+
                   )}
                 </div>
+
 
                 {/* Popup/Modal */}
                 {isPopupOpen && (
@@ -553,7 +607,11 @@ const Endorse = () => {
                   </div>
                 )}
               </div>
-
+              {checkedPosts.length > 0 && (
+                <button className="mt-3 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded" onClick={handleEndorseAll}>
+                  Endorse Selected Posts
+                </button>
+              )}
               {/* <Button
                 className="cursor-pointer font-semibold w-5/6  mb-2 text-base text-center"
                 shape="round"

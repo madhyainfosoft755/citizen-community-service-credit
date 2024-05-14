@@ -5,10 +5,13 @@ import { API_URL } from "Constant";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "components/AuthProvider/AuthProvider";
 import Slider1 from "components/slider/slider";
+import PopupComponent from "components/popup";
 import { toast } from "react-toastify";
 
 const DesktopFourPage = () => {
   const notify = (e) => toast(e);
+  const [isPopUpVisible, setIsPopUpVisible] = useState(false); // State for pop-up visibility
+  const [selectedPost, setSelectedPost] = useState(null); // State for selected post
   const [userPosts, setUserPosts] = useState([]);
   const [error, setError] = useState(null);
   const { authenticated, setAuthenticated } = useAuth();
@@ -16,7 +19,7 @@ const DesktopFourPage = () => {
   const navigate = useNavigate();
   const [locationData, setLocationData] = useState(null);
   const [totalTime, setTotalTime] = useState(null); // Added state for total time
-  const [userName, setUserName] = useState("")  
+  const [userName, setUserName] = useState("")
 
   // console.log("userData", userData);
   useEffect(() => {
@@ -36,7 +39,7 @@ const DesktopFourPage = () => {
             },
           }
         );
-        
+
         const userPostsData = await response.json();
         if (response.ok) {
           setUserPosts(userPostsData);
@@ -55,18 +58,18 @@ const DesktopFourPage = () => {
     }
   }, [userData, navigate]);
 
-  useEffect(()=>{
-    const totalTimeSpent = async(userId)=>{
+  useEffect(() => {
+    const totalTimeSpent = async (userId) => {
       try {
         const token = localStorage.getItem("token");
         const response = await fetch(`${API_URL}/activity/TotalTimeSpent/${userData.userData.id}`, {
           method: "POST",
           headers: { Authorization: `Bearer ${token}` },
         });
-  
-          const data = await response.json();
+
+        const data = await response.json();
         if (response.ok) {
-            setTotalTime(data.totalTimeSum)
+          setTotalTime(data.totalTimeSum)
         }
       }
       catch (error) {
@@ -75,7 +78,7 @@ const DesktopFourPage = () => {
       }
     }
     totalTimeSpent()
-  },[userData])
+  }, [userData])
 
 
   const checkTokenExpiry = async (token) => {
@@ -87,8 +90,8 @@ const DesktopFourPage = () => {
           'Content-Type': 'application/json',
         },
       });
-      console.log("ye rha response", response)
-      
+      // console.log("ye rha response", response)
+
       if (!response.ok) {
         // Token might be expired or invalid, so log the user out
         // handleLogout();
@@ -142,7 +145,7 @@ const DesktopFourPage = () => {
         const contentType = response.headers.get("content-type");
         if (contentType && contentType.includes("application/json")) {
           const userData = await response.json();
-            setUserName(userData.userData.name)
+          setUserName(userData.userData.name)
           setUserData(userData); // Update user data in the state
         } else {
           console.error("Error fetching user data: Response is not JSON");
@@ -160,7 +163,7 @@ const DesktopFourPage = () => {
   };
 
   const name = userName.split(" ")[0];
-   
+
 
   // console.log("here is the data you are looking for", userData);
 
@@ -186,6 +189,9 @@ const DesktopFourPage = () => {
     <>
       {authenticated && (
         <div className="w-screen h-screen  bg-white-A700 flex items-start justify-center sm:w-screen sm:h-screen md:w-screen md:h-screen p-5 sm:p-0">
+          {isPopUpVisible && (
+            <PopupComponent post={selectedPost} onClose={() => setIsPopUpVisible(false)} />
+          )}
           <div className="w-4/12 h-full  flex items-start justify-center  sm:shadow-none  border-[1px]  rounded-lg sm:rounded-none lg:w-[33%] lg:h-full sm:w-full sm:h-full md:w-full md:h-full">
             <div className="flex flex-col  items-center justify-start w-full h-full">
               <div className="bg-gray-50 flex flex-row items-center justify-between p-3 sm:px-5 w-full ">
@@ -218,7 +224,7 @@ const DesktopFourPage = () => {
                   color="indigo_A200"
                   onClick={direct}
                 >
-                   {carouselTexts[textIndex]}
+                  {carouselTexts[textIndex]}
                 </Button>
               </div>
               <Text
@@ -227,10 +233,14 @@ const DesktopFourPage = () => {
               >
                 My Activities
               </Text>
-              
-              <div  className="flex sm:flex-col flex-col gap-[25px] items-center justify-between w-5/6 sm:w-11/12 h-full sm:h-full  p-2 ">
+
+              <div className="flex sm:flex-col flex-col gap-[25px] items-center justify-between w-5/6 sm:w-11/12 h-full sm:h-full  p-2 ">
                 <div className=" w-full h-full sm:w-full sm:h-[60vh] rounded-xl relative   border-[1px] border-gray overflow-hidden">
-                  <Slider1 className="w-full h-full p-2" items={userPosts} />
+                  <Slider1 className="w-full h-full p-2" items={userPosts} isPopUpVisible={isPopUpVisible}
+                    setIsPopUpVisible={setIsPopUpVisible}
+                    setSelectedPost={setSelectedPost} 
+                    selectedPost={selectedPost}
+                    />
                 </div>
 
                 <div className="flex flex-col -mt-3 gap-1 items-center justify-center w-5/6 sm:w-full">
@@ -242,24 +252,24 @@ const DesktopFourPage = () => {
                   </Text>
 
                   <Button
-                  className="rounded-full cursor-pointer font-semibold w-full   text-sm text-center"
-                  // shape="round"
-                  color="indigo_A200"
-                  onClick={direct1}
-                >
-                  ENDORSE ACTIVITY
-                </Button>
+                    className="rounded-full cursor-pointer font-semibold w-full   text-sm text-center"
+                    // shape="round"
+                    color="indigo_A200"
+                    onClick={direct1}
+                  >
+                    ENDORSE ACTIVITY
+                  </Button>
 
-                <Button
-                  className="cursor-pointer rounded-full font-semibold w-full  mb-2 text-sm text-center"
-                  // shape="round"
-                  color="indigo_A200"
-                  onClick={handleLogout} // Add logout functionality
-                >
-                  LOGOUT
-                </Button>
+                  <Button
+                    className="cursor-pointer rounded-full font-semibold w-full  mb-2 text-sm text-center"
+                    // shape="round"
+                    color="indigo_A200"
+                    onClick={handleLogout} // Add logout functionality
+                  >
+                    LOGOUT
+                  </Button>
                 </div>
-           
+
               </div>
             </div>
           </div>

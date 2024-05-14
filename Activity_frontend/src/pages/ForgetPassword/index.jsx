@@ -16,6 +16,10 @@ const Forget = () => {
   const navigate = useNavigate();
 
   const handleForgotPassword = async () => {
+    if (!email) {
+      notify("Please enter your email")
+      return;
+    }
     try {
       const response = await axios.post(`${API_URL}/activity/forgetpassword`, {
         email,
@@ -37,6 +41,11 @@ const Forget = () => {
   };
 
   const handleVerifyPin = async () => {
+    if (!pin) {
+      notify("Please enter the PIN")
+      return;
+    }
+
     try {
       const response = await axios.post(`${API_URL}/activity/verifyPin`, {
         email,
@@ -58,7 +67,23 @@ const Forget = () => {
 
   const handleUpdatePassword = async () => {
     if (newPassword !== confirmNewPassword) {
-      setMessage("Passwords do not match");
+      notify("Passwords do not match")
+      return;
+    }
+    if (!newPassword.trim()) {
+      notify("New password cannot be empty");
+      return;
+    }
+    if (newPassword.length < 8) {
+      notify("Password should be at least 8 characters long");
+      return;
+    }
+    if (!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(newPassword)) {
+      setMessage("Password should be alphanumeric");
+      return;
+    }
+    if (newPassword !== confirmNewPassword) {
+      notify("Passwords do not match");
       return;
     }
 

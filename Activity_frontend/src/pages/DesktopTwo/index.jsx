@@ -14,11 +14,14 @@ import { useNavigate } from "react-router-dom";
 import "./style.css";
 import { API_URL } from "Constant";
 import { toast } from "react-toastify";
+import { CirclesWithBar } from 'react-loader-spinner';
 
 
 const Register = () => {
   const notify = (e) => toast(e);
   const navigate = useNavigate();
+  const [isloading, setIsloading] = useState(false)
+
   // Use state to store form data
   const [formsData, setFormData] = useState({
     name: "",
@@ -85,7 +88,7 @@ const Register = () => {
         setAadharError(value.length > 0 ? "" : "Aadhar number is required");
       }
 
-     
+
 
       // Email validation
       if (name === "email") {
@@ -98,42 +101,42 @@ const Register = () => {
       }
 
 
-       // Clear error for other input fields when they become empty
-    if (value.length === 0) {
-      switch (name) {
-        case "name":
-          setError("");
-          break;
-        case "email":
-          setError("");
-          break;
-        case "phone":
-          setMobileError("");
-          break;
-        case "address":
-          // No error state for address field, add code here if needed
-          break;
-        case "aadhar":
-          setAadharError("");
-          break;
-        case "password":
-          setPasswordError(false);
-          break;
-        case "confirmPassword":
-          setPasswordError(false);
-          break;
-        default:
-          break;
+      // Clear error for other input fields when they become empty
+      if (value.length === 0) {
+        switch (name) {
+          case "name":
+            setError("");
+            break;
+          case "email":
+            setError("");
+            break;
+          case "phone":
+            setMobileError("");
+            break;
+          case "address":
+            // No error state for address field, add code here if needed
+            break;
+          case "aadhar":
+            setAadharError("");
+            break;
+          case "password":
+            setPasswordError(false);
+            break;
+          case "confirmPassword":
+            setPasswordError(false);
+            break;
+          default:
+            break;
+        }
       }
-    }
 
-     // Check if name is defined before updating state
-     if (name !== undefined) {
-      setFormData((prevData) => ({
-        ...prevData,
-        [name]: value,
-      }));
-    }
+      // Check if name is defined before updating state
+      if (name !== undefined) {
+        setFormData((prevData) => ({
+          ...prevData,
+          [name]: value,
+        }));
+      }
     }
   };
 
@@ -150,9 +153,12 @@ const Register = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    setIsloading(true)
+
     // Check if passwords match
     if (formsData.password !== formsData.confirmPassword) {
       setPasswordError(true);
+      notify("pasword do not match")
       return; // Exit function if passwords don't match
     }
     // Reset password error state if passwords match
@@ -161,6 +167,7 @@ const Register = () => {
     // Validate mobile number format
     if (!validateMobileNumber(formsData.phone)) {
       setMobileError("Invalid mobile number format");
+      notify(mobileError)
       return;
     }
     // Reset mobile number error state if valid
@@ -206,11 +213,11 @@ const Register = () => {
           confirmPassword: "",
         });
         notify("Registration Successful")
-
+        setIsloading(false)
       } else {
         setError(data.message); // Update error message state
         console.error("Error aa gai re baba:", data.error); // Display error message to the user
-        notify("Registraiton Failed")
+        notify(data.message)
       }
     } catch (error) {
       console.error("Error aa gai re baba:", error);
@@ -226,9 +233,22 @@ const Register = () => {
   const direct = () => {
     navigate("/login");
   };
-
   return (
-    <div className="w-screen h-screen sm:w-screen sm:h-screen md:w-screen md:h-screen flex items-center justify-center pt-5 pb-5 sm:p-0">
+    <div className="relative w-screen h-screen sm:w-screen sm:h-screen md:w-screen md:h-screen flex items-center justify-center pt-5 pb-5 sm:p-0">
+      {isloading && (
+        <CirclesWithBar className="absolute top-[50%] left-[50%]"
+          height="100"
+          width="100"
+          color="#546ef6"
+          outerCircleColor="#4fa94d"
+          innerCircleColor="#4fa94d"
+          barColor="#4fa94d"
+          ariaLabel="circles-with-bar-loading"
+          wrapperStyle={{}}
+          wrapperClass=""
+          visible={true}
+        />
+      )}
 
       <div
         className="relative overflow-hidden bg-cover bg-center w-4/12 h-full sm:w-full sm:h-full md:w-2/4 md:h-full lg:w-3/4 lg:h-full flex flex-col items-center justify-center border-[1px] rounded-lg py-0 sm:border-none"
@@ -286,9 +306,9 @@ const Register = () => {
                 type="number"
               />
 
-              {isMobileVerified && (
+              {/* {isMobileVerified && (
                 <Button type="button" className="bg-blue-400 text-white-A700 rounded-2xl absolute right-0" onClick={handleVerifyMobile}>Verify</Button>
-              )}
+              )} */}
             </div>
             {fieldBeingEdited === "phone" && mobileError && <div className="error-message ">{mobileError}</div>}
 

@@ -173,6 +173,37 @@ const Register = async (req, res) => {
     const userData = req.body;
     console.log("here is he data", userData);
 
+    // Check if any required field is empty
+    if (!userData.name) {
+      return res.status(400).json({ message: "Name is required" });
+    }
+
+    if (!userData.email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    if (!userData.password) {
+      return res.status(400).json({ message: "Password is required" });
+    }
+
+    if (!userData.phone) {
+      return res.status(400).json({ message: "Phone number is required" });
+    }
+     // Check if files were uploaded
+     if (!req.files || !req.files.photo) {
+      return res.status(400).json({ message: "Photo is required" });
+    }
+
+     // Check if the uploaded file is an image
+     const photoFile = req.files.photo;
+    console.log("ye hai photo file", photoFile)
+     // Check if the file has an allowed image extension
+    const allowedExtensions = ["jpg", "jpeg", "png", "gif"];
+    const fileExtension = photoFile[0].filename?photoFile[0].filename.split("."): "";
+    if (!allowedExtensions.includes(fileExtension[1])) {
+      return res.status(400).json({ message: "Allowed image formats are JPG, JPEG, PNG, GIF" });
+    }
+
     // Check if user with the same email already exists
     const existingUser = await Users.findOne({ where: { email: userData.email } });
     console.log("this is the existing user", existingUser)
@@ -204,26 +235,29 @@ const Register = async (req, res) => {
     const { selectedCategories } = req.body;
     console.log("category Register", selectedCategories);
 
-    // Check if files were uploaded
-    const photos =
-      req.files && req.files.photo
-        ? req.files.photo.map((file) => file.filename)
-        : [];
-    console.log("this is the requested data", req.files);
+    // // Check if files were uploaded
+    // const photos =
+    //   req.files && req.files.photo
+    //     ? req.files.photo.map((file) => file.filename)
+    //     : [];
+    // console.log("this is the requested data", req.files);
 
     const Category = selectedCategories;
 
-    const photos_ = photos.reduce(
-      (accumulator, currentValue) => accumulator + "," + currentValue
-    );
-    console.log("phots", photos_);
+    // const photos_ = photos.reduce(
+    //   (accumulator, currentValue) => accumulator + "," + currentValue
+    // );
+    // console.log("phots", photos_);
+
+
+    // const photoFileName = photoFile.filename; // Use photo file name
     // Create a new user instance and save it to the database
     const newUser = await Users.create({
       name: req.body.name,
       email: userData.email,
       password: userData.password,
       phone: userData.phone,
-      photo: photos_,
+      photo: photoFile[0].filename,
       category: Category,
       verificationToken: verificationToken, // Store verification token in the database
       // Add other fields as needed
@@ -718,36 +752,44 @@ const CreateActivity = async (req, res) => {
 
 
     console.log("req data", req.body);
+// Check if files were uploaded
+const photos =
+req.files && req.files.photo
+  ? req.files.photo.reduce((acc, file) => {
+    // acc.push(file.filename);
+    return acc + file.filename;
+  }, [])
+  : "";
 
+// console.log("ye hain photos", photos)
+const videos =
+req.files && req.files.video
+  ? req.files.video.reduce((acc, file) => {
+    // acc.push(file.filename);
+    return acc + file.filename;
+  }, [])
+  : "";
+// console.log("ye hain videos", videos)
 
-    // Check for missing fields
-    if (!selectedCategories || !date || !fromTime || !toTime || !userId || !latitude || !longitude) {
-      console.log("kya yha userid nhi aai", userId)
-      console.log("hello")
-      return res.status(400).json({ error: "Missing required fields" });
-    }
+   // Check for missing fields and create an array to store missing fields
+   const missingFields = [];
+   if (!selectedCategories) missingFields.push("selectedCategories");
+   if (!date) missingFields.push("date");
+   if (!fromTime) missingFields.push("fromTime");
+   if (!toTime) missingFields.push("toTime");
+   if (!latitude) missingFields.push("latitude");
+   if (!longitude) missingFields.push("longitude");
+   if (!photos) missingFields.push("photos");
+
+   // If there are missing fields, return an error with the list of missing fields
+   if (missingFields.length > 0) {
+     return res.status(400).json({ error: `Missing required fields: ${missingFields.join(", ")}` });
+   }
 
     // Extract latitude and longitude from location object
     //  const { latitude, longitude } = location;
 
-    // Check if files were uploaded
-    const photos =
-      req.files && req.files.photo
-        ? req.files.photo.reduce((acc, file) => {
-          // acc.push(file.filename);
-          return acc + file.filename;
-        }, [])
-        : "";
-
-    console.log("ye hain photos", photos)
-    const videos =
-      req.files && req.files.video
-        ? req.files.video.reduce((acc, file) => {
-          // acc.push(file.filename);
-          return acc + file.filename;
-        }, [])
-        : "";
-    console.log("ye hain videos", videos)
+    
 
 
     const category = selectedCategories;
