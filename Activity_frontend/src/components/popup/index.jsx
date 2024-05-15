@@ -4,7 +4,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faClose } from "@fortawesome/free-solid-svg-icons";
 
 const PopupComponent = ({ post, onClose }) => {
-  console.log("kya post aa rhe hain", post);
+  // console.log("kya post aa rhe hain", post);
   // Check if the post object and photos property are valid before rendering
   // if (!post || !post.photos || !Array.isArray(post.photos)) {
   //     return <div>Error: Invalid post data</div>;

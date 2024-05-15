@@ -10,8 +10,11 @@ import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLocationDot, faCalendarAlt } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
+import { CirclesWithBar } from 'react-loader-spinner'
+
 
 const Createpost = () => {
+  const [isLoading, setIsLoading] = useState(false); // State for loader
   const notify = (e) => toast(e);
   const navigate = useNavigate();
   const [currentDate, setCurrentDate] = useState("");
@@ -54,33 +57,33 @@ const Createpost = () => {
   const [error, setError] = useState(null);
 
 
-  // Function to get and format the current date
-  useEffect(() => {
-    const getCurrentDate = () => {
-      const dateObj = new Date();
-      const formattedDate = `${dateObj.getDate()} ${dateObj.toLocaleString(
-        "default",
-        {
-          month: "short",
-        }
-      )} ${dateObj.getFullYear()}`;
-      setCurrentDate(formattedDate);
-    };
+  // // Function to get and format the current date
+  // useEffect(() => {
+  //   const getCurrentDate = () => {
+  //     const dateObj = new Date();
+  //     const formattedDate = `${dateObj.getDate()} ${dateObj.toLocaleString(
+  //       "default",
+  //       {
+  //         month: "short",
+  //       }
+  //     )} ${dateObj.getFullYear()}`;
+  //     setCurrentDate(formattedDate);
+  //   };
 
-    // Call the function when the component mounts
-    getCurrentDate();
-  }, []);
+  //   // Call the function when the component mounts
+  //   getCurrentDate();
+  // }, []);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     setSelectedFile(file);
-    console.log("Photo file", file.name);
+    // console.log("Photo file", file.name);
   };
 
   const handleVideoChange = (e) => {
     const videoFile = e.target.files[0];
     setSelectedVideo(videoFile);
-    console.log("Video file", videoFile.name);
+    // console.log("Video file", videoFile.name);
   };
 
   const handleLocationChange = async (latitude, longitude) => {
@@ -131,7 +134,7 @@ const Createpost = () => {
           'Content-Type': 'application/json',
         },
       });
-      console.log("ye rha response", response)
+      // console.log("ye rha response", response)
 
       if (!response.ok) {
         // Token might be expired or invalid, so log the user out
@@ -205,16 +208,18 @@ const Createpost = () => {
   useEffect(() => {
     const totalTimeSpent = async (userId) => {
       try {
-        const token = localStorage.getItem("token");
-        const response = await fetch(`${API_URL}/activity/TotalTimeSpent/${userData.userData.id}`, {
-          method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        const data = await response.json();
-        if (response.ok) {
-          setTotalTime(data.totalTimeSum)
-        }
+        if (userData && userData.userData) {
+          const token = localStorage.getItem("token");
+          const response = await fetch(`${API_URL}/activity/TotalTimeSpent/${userData.userData.id}`, {
+            method: "POST",
+            headers: { Authorization: `Bearer ${token}` },
+          });
+        
+          const data = await response.json();
+          if (response.ok) {
+            setTotalTime(data.totalTimeSum)
+          }
+        } 
       }
       catch (error) {
         console.error("Error fetching user total time", error);
@@ -237,7 +242,7 @@ const Createpost = () => {
 
     // Create FormData object
     const formsDATA = new FormData();
-    console.log(formsDATA);
+    // console.log(formsDATA);
     formsDATA.append("selectedCategories", selectedCategories);
     formsDATA.append("date", currentDate);
     formsDATA.append("photo", selectedFile);
@@ -249,17 +254,18 @@ const Createpost = () => {
     formsDATA.append("latitude", formsData.latitude);
     formsDATA.append("longitude", formsData.longitude);
 
-    console.log(formsDATA.get("name"));
-    console.log("formData", formsDATA);
+    // console.log(formsDATA.get("name"));
+    // console.log("formData", formsDATA);
 
     const formDataJson = {};
     for (const [key, value] of formsDATA.entries()) {
       formDataJson[key] = value;
     }
 
-    console.log("form data", formDataJson);
+    // console.log("form data", formDataJson);
     const token = localStorage.getItem("token");
     try {
+      setIsLoading(true)
       const response = await fetch(`${API_URL}/activity/CreateActivity`, {
         method: "POST",
         headers: {
@@ -272,7 +278,7 @@ const Createpost = () => {
 
       const data = await response.json();
       if (response.ok) {
-        console.log("Success:", data);
+        // console.log("Success:", data);
         notify(data.message)
         navigate("/activity");
       } else {
@@ -281,6 +287,9 @@ const Createpost = () => {
       }
     } catch (error) {
       console.error("Error:", error);
+    }
+    finally{
+      setIsLoading(false)
     }
   };
   //CREATE A CODE THAT CHECKS IF THE USERS TOKEN HAS EXPIRED AND IF IT IS EXPIRED THEN THE USER SHOULD BE LOGGED OUT AND REDIRECTED TO THE LOGIN PAGE?
@@ -315,10 +324,30 @@ const Createpost = () => {
           <div className="hidden">
             <Location onLocationChange={handleLocationChange} />
           </div>
+          
 
-          <div className="w-4/12 h-full sm:w-full sm:h-full md:w-3/4 md:h-full  lg:w-3/4 lg:h-full  flex flex-col items-center  justify-center border-[1px]  rounded-lg sm:rounded-none overflow-hidden">
+          <div className="relative w-4/12 h-full sm:w-full sm:h-full md:w-3/4 md:h-full  lg:w-3/4 lg:h-full  flex flex-col items-center  justify-center border-[1px]  rounded-lg sm:rounded-none overflow-hidden">
+          {isLoading &&(
+          <div className="w-full h-full bg-black-900/30 absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-50">
+            <CirclesWithBar
+              height="100"
+              width="100"
+              color="#4fa94d"
+              outerCircleColor="#546ef6"
+              innerCircleColor="#ffffff"
+              barColor="#ffffff"
+              ariaLabel="circles-with-bar-loading"
+              wrapperStyle={{}}
+              wrapperClass=""
+              visible={true}
+            />
+          </div>
+        )}
+          
             <div className=" flex flex-col gap-1 items-center justify-start w-full h-full ">
+            
               <div className="bg-gray-50 flex flex-row items-center justify-between p-3 sm:p-5  sm:px-5 w-full ">
+              
                 <div className="flex flex-row gap-4 items-center justify-center ml-[1px]">
                   {userData && (
                     <Img

@@ -45,7 +45,7 @@ const Register = () => {
   const handleFileChange = (e) => {
     const file = e.target.files[0];
     setSelectedFile(file);
-    console.log("file", file.name);
+    // console.log("file", file.name);
   };
 
   const handleButtonClick = (index, value) => {
@@ -68,7 +68,7 @@ const Register = () => {
 
   const handleInputChange = (e) => {
     // Check if e and e.target are defined
-    console.log("handle input change", e);
+    // console.log("handle input change", e);
     if (e && e.target) {
       const { name, value } = e.target;
       setFieldBeingEdited(name);
@@ -140,20 +140,19 @@ const Register = () => {
     }
   };
 
-  const handleVerifyMobile = () => {
-    // Your logic to verify mobile number can go here
-    toast.success("Mobile number verified", {
-      position: toast.POSITION.TOP_RIGHT,
-      autoClose: 3000,
-    })
-    console.log("Mobile number verified");
-    // You can set state or perform any action after mobile number verification
-  };
+  // const handleVerifyMobile = () => {
+  //   // Your logic to verify mobile number can go here
+  //   toast.success("Mobile number verified", {
+  //     position: toast.POSITION.TOP_RIGHT,
+  //     autoClose: 3000,
+  //   })
+  //   console.log("Mobile number verified");
+  //   // You can set state or perform any action after mobile number verification
+  // };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    setIsloading(true)
 
     // Check if passwords match
     if (formsData.password !== formsData.confirmPassword) {
@@ -190,16 +189,18 @@ const Register = () => {
     }
 
     try {
+    setIsloading(true)
+
       const response = await fetch(`${API_URL}/activity/Register`, {
         method: "POST",
         body: formsDATA,
       });
-      console.log("kya response aa rha hai", response);
+      // console.log("kya response aa rha hai", response);
 
       const data = await response.json();
-      console.log("kya data aa rha hai", data);
+      // console.log("kya data aa rha hai", data);
       if (response.ok) {
-        console.log("Success:", data);
+        // console.log("Success:", data);
         navigate("/login" || "/createpost, { state: { user: formsData } }");
 
         // Reset form data after successful registration
@@ -213,14 +214,17 @@ const Register = () => {
           confirmPassword: "",
         });
         notify("Registration Successful")
-        setIsloading(false)
+        // setIsloading(false)
       } else {
         setError(data.message); // Update error message state
-        console.error("Error aa gai re baba:", data.error); // Display error message to the user
+        console.error("Error:", data.error); // Display error message to the user
         notify(data.message)
       }
     } catch (error) {
-      console.error("Error aa gai re baba:", error);
+      console.error("Error:", error);
+    }
+    finally{
+      setIsloading(false)
     }
   };
 
@@ -234,26 +238,31 @@ const Register = () => {
     navigate("/login");
   };
   return (
-    <div className="relative w-screen h-screen sm:w-screen sm:h-screen md:w-screen md:h-screen flex items-center justify-center pt-5 pb-5 sm:p-0">
-      {isloading && (
-        <CirclesWithBar className="absolute top-[50%] left-[50%]"
-          height="100"
-          width="100"
-          color="#546ef6"
-          outerCircleColor="#4fa94d"
-          innerCircleColor="#4fa94d"
-          barColor="#4fa94d"
-          ariaLabel="circles-with-bar-loading"
-          wrapperStyle={{}}
-          wrapperClass=""
-          visible={true}
-        />
-      )}
+    <div className=" w-screen h-screen sm:w-screen sm:h-screen md:w-screen md:h-screen flex items-center justify-center pt-5 pb-5 sm:p-0">
+      
 
       <div
         className="relative overflow-hidden bg-cover bg-center w-4/12 h-full sm:w-full sm:h-full md:w-2/4 md:h-full lg:w-3/4 lg:h-full flex flex-col items-center justify-center border-[1px] rounded-lg py-0 sm:border-none"
 
       >
+      {isloading && (
+        <div className="w-full h-full bg-black-900/30 absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-50">
+
+        <CirclesWithBar 
+          height="100"
+          width="100"
+          color="#546ef6"
+          outerCircleColor="#546ef6"
+          innerCircleColor="#ffffff"
+          barColor="#ffffff"
+          ariaLabel="circles-with-bar-loading"
+          wrapperStyle={{}}
+          wrapperClass=""
+          visible={true}
+        />
+        </div>
+
+      )}
 
         <div className="absolute -top-10 -right-20 w-64 h-64 bg-[#f5f6fe] rounded-full"></div>
         <div className="absolute -bottom-10 -left-20 w-64 h-64 bg-[#f5f6fe] rounded-full"></div>

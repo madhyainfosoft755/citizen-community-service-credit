@@ -24,6 +24,7 @@ const { validationResult } = require('express-validator');
 
 
 
+
 // Helper function to extract user ID from JWT token
 const getUserIdFromToken = (req) => {
   const authorizationHeader = req.headers["authorization"];
@@ -140,30 +141,15 @@ const sequelize = new Sequelize(config.DB, config.USER_DB, config.PASSWORD_DB, {
 
 
 const transporter = nodemailer.createTransport({
-  service: "gmail",
-  host: "smtp.gmail.com",
+  service: process.env.service,
+  host:process.env.SmtpHost,
   port: 465,
   auth: {
-    user: "vaibhavkurmi786@gmail.com",
-    pass: "kakparbgukhobhwb",
+    user: process.env.userMail,
+    pass:process.env.password,
   },
 });
 
-// Function to send login confirmation email
-const sendLoginConfirmationEmail = async (email, token) => {
-  try {
-    // Send email using nodemailer transporter
-    await transporter.sendMail({
-      from: 'vaibhavkurmi786@gmail.com',
-      to: email,
-      subject: 'Confirm Login',
-      html: `<p>Please click <a href="http://ccsc.helpersin.com/login/${token}">here</a> to confirm your login.</p>`,
-    });
-  } catch (error) {
-    console.error("Error sending login confirmation email:", error);
-    throw new Error("Failed to send login confirmation email.");
-  }
-};
 
 
 // this is Register Api
@@ -189,17 +175,17 @@ const Register = async (req, res) => {
     if (!userData.phone) {
       return res.status(400).json({ message: "Phone number is required" });
     }
-     // Check if files were uploaded
-     if (!req.files || !req.files.photo) {
+    // Check if files were uploaded
+    if (!req.files || !req.files.photo) {
       return res.status(400).json({ message: "Photo is required" });
     }
 
-     // Check if the uploaded file is an image
-     const photoFile = req.files.photo;
+    // Check if the uploaded file is an image
+    const photoFile = req.files.photo;
     console.log("ye hai photo file", photoFile)
-     // Check if the file has an allowed image extension
+    // Check if the file has an allowed image extension
     const allowedExtensions = ["jpg", "jpeg", "png", "gif"];
-    const fileExtension = photoFile[0].filename?photoFile[0].filename.split("."): "";
+    const fileExtension = photoFile[0].filename ? photoFile[0].filename.split(".") : "";
     if (!allowedExtensions.includes(fileExtension[1])) {
       return res.status(400).json({ message: "Allowed image formats are JPG, JPEG, PNG, GIF" });
     }
@@ -221,15 +207,23 @@ const Register = async (req, res) => {
         .json({ message: "Mobile number already registered" });
     }
 
+    // Validate password strength
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
+    if (!passwordRegex.test(userData.password)) {
+      return res.status(400).json({
+        message: "Password must be at least 8 characters long and include at least one letter, one number, and one special character."
+      });
+    }
+
     // Generate a unique verification token
     const verificationToken = crypto.randomBytes(20).toString('hex');
 
     // Send verification email
     await transporter.sendMail({
-      from: 'your-email@example.com',
+      from: process.env.userMail,
       to: userData.email,
       subject: 'Verify your email',
-      html: `<p>Please click <a href="http://localhost:3000/verify/${verificationToken}">here</a> to verify your email address.</p>`,
+      html: `<p>Please click <a href="${process.env.URL}verify/${verificationToken}">here</a> to verify your email address.</p>`,
     });
 
     const { selectedCategories } = req.body;
@@ -270,7 +264,7 @@ const Register = async (req, res) => {
       message: "Registration successful. Please check your email for verification.",
     });
   } catch (error) {
-    logger.error("here is the error", error);
+    logger.error("Registration failed:", error);
     console.error("Registration failed:", error);
     return res.status(500).json({
       status: "error",
@@ -300,7 +294,7 @@ const verify = async (req, res) => {
 
     return res.status(200).json({ message: "Email verification successful" });
   } catch (error) {
-    logger.error("here is the error", error);
+    logger.error("Email verification failed:", error);
     console.error("Email verification failed:", error);
     return res.status(500).json({ message: "Email verification failed" });
   }
@@ -326,17 +320,17 @@ const forgetpassword = async (req, res) => {
   await user.save();
 
 
-  // Send PIN to the user's email
-  const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-      user: 'vaibhavkurmi786@gmail.com',
-      pass: 'kakparbgukhobhwb'
-    }
-  });
+  // // Send PIN to the user's email
+  // const transporter = nodemailer.createTransport({
+  //   service: 'gmail',
+  //   auth: {
+  //     user: 'vaibhavkurmi786@gmail.com',
+  //     pass: 'kakparbgukhobhwb'
+  //   }
+  // });
 
   const mailOptions = {
-    from: 'vaibhavkurmi786@gmail.com',
+    from: process.env.userMail,
     to: email,
     subject: 'Reset Password PIN',
     text: `Your PIN for resetting the password is: ${pin}`
@@ -344,6 +338,7 @@ const forgetpassword = async (req, res) => {
 
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
+      logger.error("error sending mail", error)
       console.error('Error sending email:', error);
       return res.status(500).json({ message: 'Error sending PIN email' });
     } else {
@@ -392,6 +387,14 @@ const updatePassword = async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
+
+     // Validate password strength
+     const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
+     if (!passwordRegex.test(newPassword)) {
+       return res.status(400).json({
+         message: "Password must be at least 8 characters long and include at least one letter, one number, and one special character."
+       });
+     }
 
     // Check if the entered PIN matches the stored PIN
     // if (pin !== user.resetPin) {
@@ -493,7 +496,7 @@ const resendVerification = async (req, res) => {
 
     // Send the new verification email
     await transporter.sendMail({
-      from: "your-email@example.com",
+      from: process.env.userMail,
       to: email,
       subject: "Verify your email",
       html: `<p>Please click <a href="${process.env.URL}/verify/${newVerificationToken}">here</a> to verify your email address.</p>`,
@@ -725,8 +728,8 @@ const updateUserData = async (req, res) => {
 };
 
 const CreateActivity = async (req, res) => {
-    try {
-      console.log("****************1")
+  try {
+    console.log("****************1")
     // Check for validation errors from express-validator
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -752,44 +755,44 @@ const CreateActivity = async (req, res) => {
 
 
     console.log("req data", req.body);
-// Check if files were uploaded
-const photos =
-req.files && req.files.photo
-  ? req.files.photo.reduce((acc, file) => {
-    // acc.push(file.filename);
-    return acc + file.filename;
-  }, [])
-  : "";
+    // Check if files were uploaded
+    const photos =
+      req.files && req.files.photo
+        ? req.files.photo.reduce((acc, file) => {
+          // acc.push(file.filename);
+          return acc + file.filename;
+        }, [])
+        : "";
 
-// console.log("ye hain photos", photos)
-const videos =
-req.files && req.files.video
-  ? req.files.video.reduce((acc, file) => {
-    // acc.push(file.filename);
-    return acc + file.filename;
-  }, [])
-  : "";
-// console.log("ye hain videos", videos)
+    // console.log("ye hain photos", photos)
+    const videos =
+      req.files && req.files.video
+        ? req.files.video.reduce((acc, file) => {
+          // acc.push(file.filename);
+          return acc + file.filename;
+        }, [])
+        : "";
+    // console.log("ye hain videos", videos)
 
-   // Check for missing fields and create an array to store missing fields
-   const missingFields = [];
-   if (!selectedCategories) missingFields.push("selectedCategories");
-   if (!date) missingFields.push("date");
-   if (!fromTime) missingFields.push("fromTime");
-   if (!toTime) missingFields.push("toTime");
-   if (!latitude) missingFields.push("latitude");
-   if (!longitude) missingFields.push("longitude");
-   if (!photos) missingFields.push("photos");
+    // Check for missing fields and create an array to store missing fields
+    const missingFields = [];
+    if (!selectedCategories) missingFields.push("selectedCategories");
+    if (!date) missingFields.push("date");
+    if (!fromTime) missingFields.push("fromTime");
+    if (!toTime) missingFields.push("toTime");
+    if (!latitude) missingFields.push("latitude");
+    if (!longitude) missingFields.push("longitude");
+    if (!photos) missingFields.push("photos");
 
-   // If there are missing fields, return an error with the list of missing fields
-   if (missingFields.length > 0) {
-     return res.status(400).json({ error: `Missing required fields: ${missingFields.join(", ")}` });
-   }
+    // If there are missing fields, return an error with the list of missing fields
+    if (missingFields.length > 0) {
+      return res.status(400).json({ error: `Missing required fields: ${missingFields.join(", ")}` });
+    }
 
     // Extract latitude and longitude from location object
     //  const { latitude, longitude } = location;
 
-    
+
 
 
     const category = selectedCategories;

@@ -61,16 +61,18 @@ const DesktopFourPage = () => {
   useEffect(() => {
     const totalTimeSpent = async (userId) => {
       try {
-        const token = localStorage.getItem("token");
-        const response = await fetch(`${API_URL}/activity/TotalTimeSpent/${userData.userData.id}`, {
-          method: "POST",
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        const data = await response.json();
-        if (response.ok) {
-          setTotalTime(data.totalTimeSum)
-        }
+        if (userData && userData.userData) {
+          const token = localStorage.getItem("token");
+          const response = await fetch(`${API_URL}/activity/TotalTimeSpent/${userData.userData.id}`, {
+            method: "POST",
+            headers: { Authorization: `Bearer ${token}` },
+          });
+        
+          const data = await response.json();
+          if (response.ok) {
+            setTotalTime(data.totalTimeSum)
+          }
+        } 
       }
       catch (error) {
         console.error("Error fetching user total time", error);

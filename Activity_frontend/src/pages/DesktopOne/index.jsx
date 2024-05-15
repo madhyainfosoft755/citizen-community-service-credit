@@ -10,14 +10,13 @@ import axios from "axios";
 import { useGoogleLogin } from "@react-oauth/google";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEnvelope, faEye, faLock, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
-
-
 import { toast } from "react-toastify";
-// import 'react-toastify/dist/ReactToastify.css';
+import { CirclesWithBar } from 'react-loader-spinner'
 
 
 
 const DesktopOnePage = () => {
+  const [isLoading, setIsLoading] = useState(false); // State for loader
   const [locationData, setLocationData] = useState({
     city: "",
     state: "",
@@ -120,6 +119,7 @@ const DesktopOnePage = () => {
     // }
 
     try {
+      setIsLoading(true)
       const response = await fetch(`${API_URL}/activity/login`, {
         method: "POST",
         headers: {
@@ -130,7 +130,7 @@ const DesktopOnePage = () => {
 
       const data = await response.json();
 
-      console.log("kya response aa rha hai", data);
+      // console.log("kya response aa rha hai", data);
 
       if (!response.ok) {
         setLoginAttempted(true);
@@ -170,6 +170,9 @@ const DesktopOnePage = () => {
       console.error("Error:", error);
       notify(error)
     }
+    finally {
+      setIsLoading(false); // Stop loader
+    }
   };
 
   const handleLocationChange = async (latitude, longitude) => {
@@ -178,7 +181,7 @@ const DesktopOnePage = () => {
         `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${process.env.REACT_APP_GoogleGeocode}`
       );
 
-      
+
       if (response.data && response.data.results) {
         const addressComponents = response.data.results[0].address_components;
         const cityObj = addressComponents.find(component =>
@@ -187,11 +190,11 @@ const DesktopOnePage = () => {
         const stateObj = addressComponents.find(component =>
           component.types.includes('administrative_area_level_1')
         );
-  
+
         const city = cityObj ? cityObj.long_name : 'Unknown City';
         const state = stateObj ? stateObj.long_name : 'Unknown State';
-  
-        setLocationData({ city, state }); 
+
+        setLocationData({ city, state });
       } else {
         console.error("Error fetching location data");
         notify("Error fetching location data")
@@ -233,14 +236,14 @@ const DesktopOnePage = () => {
   // }
 
   const responseGoogle = async (response) => {
-    console.log("ye rha google ka response", response);
+    // console.log("ye rha google ka response", response);
     try {
       const { access_token } = response;
       // console.log("kya humko token mila", access_token)
       // await getUserProfile(access_token)
 
       if (!access_token) {
-        console.log("bhaiya token nhi mil rha hai ");
+        // console.log("bhaiya token nhi mil rha hai ");
       }
       const formData = new FormData();
       // console.log("aur ye hai formdata", formData)
@@ -261,7 +264,7 @@ const DesktopOnePage = () => {
       }
 
       const data = await loginResponse.json();
-      console.log("google data response", data);
+      // console.log("google data response", data);
       const { token, user } = data;
 
       if (token && user) {
@@ -311,7 +314,23 @@ const DesktopOnePage = () => {
         onSubmit={handleSubmit}
         className="relative overflow-hidden w-4/12 h-full sm:w-full sm:h-full md:w-2/4 md:h-full  lg:w-3/4 lg:h-3/4 flex flex-col items-center justify-center sm:border-none border-[1px] rounded-lg p-2"
       >
-      <div className="w-64 h-64 bg-[#f5f6fe] absolute -top-10 -right-20 z-0 rounded-full "></div>
+        {isLoading&& (
+          <div className="w-full h-full bg-black-900/30 absolute  inset-0 flex items-center justify-center bg-white bg-opacity-75 z-50">
+            <CirclesWithBar 
+              height="100"
+              width="100"
+              color="#4fa94d"
+              outerCircleColor="#546ef6"
+              innerCircleColor="#ffffff"
+              barColor="#ffffff"
+              ariaLabel="circles-with-bar-loading"
+              wrapperStyle={{}}
+              wrapperClass=""
+              visible={true}
+            />
+          </div>
+        )}
+        <div className="w-64 h-64 bg-[#f5f6fe] absolute -top-10 -right-20 z-0 rounded-full "></div>
         <div className="hidden">
           <Location onLocationChange={handleLocationChange} />
         </div>
@@ -350,7 +369,7 @@ const DesktopOnePage = () => {
           )}
           <div className="bg-white-A700  px-2 border-[1px] rounded-3xl w-3/4 mt-2 relative flex items-center">
             <div className="absolute left-2">
-              <FontAwesomeIcon icon={faLock}  className="text-gray-500"/>
+              <FontAwesomeIcon icon={faLock} className="text-gray-500" />
             </div>
             <input
               type={showPassword ? "text" : "password"}
@@ -359,14 +378,14 @@ const DesktopOnePage = () => {
               className="outline-none text-sm border-0 ml-3 w-11/12 "
               required
             />
-            <FontAwesomeIcon icon={eyeIcon} onClick={togglePasswordVisibility}  className="text-gray-700"/>
+            <FontAwesomeIcon icon={eyeIcon} onClick={togglePasswordVisibility} className="text-gray-700" />
           </div>
 
           <Button
             type="submit"
             className="cursor-pointer font-semibold w-1/2 mt-4 text-sm text-center rounded-[22px] bg-[#546ef6] text-white-A700 "
             shape="round"
-            // color="indigo_A200"
+          // color="indigo_A200"
           >
             Login
           </Button>
@@ -377,36 +396,36 @@ const DesktopOnePage = () => {
           </h2>
 
           <div className="flex  items-center justify-center mt-5 gap-2 ">
-              <div className="bg-blue-A400 [2px]ext-center flex flex-row gap-11 items-center justify-start p-[2px] rounded-[22px] w-full cursor-pointer">
-                <div className="bg-white-A700 flex flex-col h-6 items-center justify-center p-2 rounded-[17px] w-6 ">
-                  <Img
-                    className="h-[19px]"
-                    src="images/img_facebook.svg"
-                    alt="facebook"
-                  />
-                </div>
+            <div className="bg-blue-A400 [2px]ext-center flex flex-row gap-11 items-center justify-start p-[2px] rounded-[22px] w-full cursor-pointer">
+              <div className="bg-white-A700 flex flex-col h-6 items-center justify-center p-2 rounded-[17px] w-6 ">
+                <Img
+                  className="h-[19px]"
+                  src="images/img_facebook.svg"
+                  alt="facebook"
+                />
               </div>
-              <div
-                onClick={login}
-                className="bg-red-500 flex items-center  justify-center p-[2px] rounded-full w-full cursor-pointer "
-              >
-                <div className="bg-white-A700 flex flex-col h-6 w-6 items-center justify-center p-1 rounded-[16px]  cursor-pointer ">
-                  <Img
-                    className="h-full w-full cursor-pointer "
-                    src="images/img_vector.svg"
-                    alt="vector"
-                  />
-                </div>
+            </div>
+            <div
+              onClick={login}
+              className="bg-red-500 flex items-center  justify-center p-[2px] rounded-full w-full cursor-pointer "
+            >
+              <div className="bg-white-A700 flex flex-col h-6 w-6 items-center justify-center p-1 rounded-[16px]  cursor-pointer ">
+                <Img
+                  className="h-full w-full cursor-pointer "
+                  src="images/img_vector.svg"
+                  alt="vector"
+                />
               </div>
-              <div className="bg-[#1da1f2] text-center flex items-center justify-center p-[2px] rounded-full w-full cursor-pointer">
-                <div className="bg-white-A700 flex flex-col h-6 w-6 items-center justify-center p-[2px] rounded-full ">
-                  <Img
-                    className="h-full w-full"
-                    src="images/img_twitter.svg"
-                    alt="twitter"
-                  />
-                </div>
+            </div>
+            <div className="bg-[#1da1f2] text-center flex items-center justify-center p-[2px] rounded-full w-full cursor-pointer">
+              <div className="bg-white-A700 flex flex-col h-6 w-6 items-center justify-center p-[2px] rounded-full ">
+                <Img
+                  className="h-full w-full"
+                  src="images/img_twitter.svg"
+                  alt="twitter"
+                />
               </div>
+            </div>
             <div className="flex  items-center justify-between cursor-pointer">
               <div className="bg-[#cd3e78] text-center flex flex-row gap-11 items-center justify-start p-[2px] rounded-[22px] w-full">
                 <div className="bg-white-A700 flex flex-col h-6 items-center justify-end p-[1px] rounded-[17px] w-6">

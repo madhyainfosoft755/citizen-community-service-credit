@@ -3,6 +3,8 @@ import axios from "axios";
 import { API_URL } from "Constant";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEnvelope, faEye, faLock, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 const Forget = () => {
   const notify = (e) => toast(e);
@@ -12,6 +14,18 @@ const Forget = () => {
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const [message, setMessage] = useState("");
   const [step, setStep] = useState(1);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showPasswordC, setShowPasswordC] = useState(false);
+  const [eyeIcon, setEyeIcon] = useState(faEye);
+  const [eyeIconC, setEyeIconC] = useState(faEye);
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
+    setEyeIcon(showPassword ? faEye : faEyeSlash);
+  };
+  const togglePasswordVisibility1 = () => {
+    setShowPasswordC(!showPasswordC);
+    setEyeIconC(showPasswordC ? faEye : faEyeSlash);
+  };
 
   const navigate = useNavigate();
 
@@ -24,13 +38,13 @@ const Forget = () => {
       const response = await axios.post(`${API_URL}/activity/forgetpassword`, {
         email,
       });
-      console.log("ye rha response", response);
+      // console.log("ye rha response", response);
       if (response && response.data && response.data.message) {
         setMessage(response.data.message);
         notify(response.data.message);
         setStep(2);
       } else {
-        console.error("Invalid response structure:", response);
+        console.error("Invalid response structure:", response.error);
         notify("line 2", response.error);
         setMessage("An error occurred");
       }
@@ -51,9 +65,9 @@ const Forget = () => {
         email,
         pin,
       });
-      console.log("horray")
+      // console.log("horray")
       setMessage("");
-      console.log("haiyaaa")
+      // console.log("haiyaaa")
       notify(response.data.message)
       setStep(3);
       // Show password update form
@@ -76,10 +90,6 @@ const Forget = () => {
     }
     if (newPassword.length < 8) {
       notify("Password should be at least 8 characters long");
-      return;
-    }
-    if (!/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/.test(newPassword)) {
-      setMessage("Password should be alphanumeric");
       return;
     }
     if (newPassword !== confirmNewPassword) {
@@ -161,26 +171,28 @@ const Forget = () => {
             </>
           )}
 
-          {pin && !message && (
+          {step === 3 && (
             <div className="flex flex-col items-center justify-center mt-5">
               <div className="flex items-center justify-center border-[1px] border-gray-400 p-1 rounded-xl">
                 <input
                   className=" border-none bg-inherit text-sm"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
                   placeholder="Enter new password"
                 />
+                <FontAwesomeIcon icon={eyeIcon} onClick={togglePasswordVisibility} className="text-gray-700" />
               </div>
 
               <div className="mt-2 flex items-center justify-center border-[1px] border-gray-400 p-1 rounded-xl">
                 <input
                   className=" border-none bg-inherit text-sm"
-                  type="password"
+                  type={showPasswordC ? "text" : "password"}
                   value={confirmNewPassword}
                   onChange={(e) => setConfirmNewPassword(e.target.value)}
                   placeholder="Confirm new password"
                 />
+                <FontAwesomeIcon icon={eyeIconC} onClick={togglePasswordVisibility1} className="text-gray-700" />
               </div>
 
               <button

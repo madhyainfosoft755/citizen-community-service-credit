@@ -10,7 +10,7 @@ const Verify = () => {
   const [error, setError] = useState(null);
   const notify = (e) => toast(e);
 
-  console.log("is page pr aa gye ho aap");
+  // console.log("is page pr aa gye ho aap");
   useEffect(() => {
     const verifyEmail = async () => {
       try {
@@ -39,9 +39,9 @@ const Verify = () => {
   }, [token, navigate]);
 
   if (useEffect == true) {
-    console.log("chal gya use effect");
+    // console.log("chal gya use effect");
   } else {
-    console.log("nhi chala use effect");
+    // console.log("nhi chala use effect");
   }
   return (
     <div>
