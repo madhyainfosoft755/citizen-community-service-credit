@@ -21,11 +21,13 @@ const {
   updatePassword,
   resendVerification,
   TotalTimeSpent,
-  verifyToken
+  verifyToken,
+  getUsersWithMostPostsInYear
 } = require("../controllers/LoginController");
 const { upload } = require("../utils/util");
 // Express route 
 router.get("/output", output);  
+router.get("/getUsersWithMostPostsInYear", getUsersWithMostPostsInYear)
 router.post("/resendVerification", resendVerification)
 router.post("/updatePassword",updatePassword)
 router.post("/forgetpassword",forgetpassword)

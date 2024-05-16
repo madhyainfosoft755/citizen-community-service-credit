@@ -4,7 +4,6 @@ import { Img, List, Text } from "components";
 
 const DesktopEightPage = () => {
   return (
-    <>
       <div className="bg-white-A700 flex flex-col font-inter items-center justify-start mx-auto p-3 md:px-10 sm:px-5 w-full h-screen">
         <div className="bg-white-A700 flex flex-col gap-[27px] items-center justify-start  pb-96  md:px-5 rounded-[50px] shadow-bs2 w-[33%] md:w-full">
           <div className="bg-white-A700 flex flex-row gap-[104px] items-start justify-start p-[13px] rounded-tl-[5px] rounded-tr-[5px] shadow-bs3 w-full">
@@ -71,7 +70,6 @@ const DesktopEightPage = () => {
           </List>
         </div>
       </div>
-    </>
   );
 };
 

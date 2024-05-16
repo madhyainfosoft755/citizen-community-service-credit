@@ -1069,6 +1069,85 @@ const fetchPostsInArea = async (req, res) => {
   }
 };
 
+
+
+
+
+
+//ADMINISTRATOR CONTROLLERS
+
+
+
+
+
+
+
+// Helper function to get the current year
+const getCurrentYear = () => {
+  const currentDate = new Date();
+  return currentDate.getFullYear();
+};
+
+// Controller to fetch users with the most posts in the current year
+const getUsersWithMostPostsInYear = async (req, res) => {
+  try {
+    const currentYear = getCurrentYear();
+
+    // Fetch all users
+    const allUsers = await db.users.findAll();
+
+    console.log("ye rhe users *************/*/*/*/*/*/*/*" , allUsers )
+
+    // Initialize an object to store user IDs and their post counts for the current year
+    const userPostCounts = {};
+
+    // Iterate through all users to count their posts in the current year
+    for (const user of allUsers) {
+      const userPosts = await db.Posts.findAll({
+        where: {
+          UserId: user.id,
+          Date: {
+            [Op.between]: [`${currentYear}-01-01`, `${currentYear}-12-31`],
+          },
+        },
+      });
+      console.log("user ki id mili kya", user.id)
+
+      userPostCounts[user.id] = userPosts.length;
+    }
+
+    // Sort the userPostCounts object by post count in descending order
+    const sortedUserPostCounts = Object.entries(userPostCounts).sort(
+      (a, b) => b[1] - a[1]
+    );
+
+    console.log("ye hain sorted posts", sortedUserPostCounts)
+    // Extract the top 5 users with the most posts in the current year
+    const topUsers = sortedUserPostCounts.slice(0, 5).map(([userId, postCount]) => ({
+      userId,
+      postCount,
+    }));
+
+     // Fetch user names based on the top user IDs
+     const topUserNames = await Promise.all(
+      topUsers.map(async (user) => {
+        const userData = await db.users.findByPk(user.userId);
+        return userData.name;
+      })
+    );
+
+    console.log("ye hain top users", topUserNames)
+
+
+    res.status(200).json({  topUserNames });
+  } catch (error) {
+    console.error("Error fetching users with most posts in the year:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+
+
 module.exports = {
   output,
   varifybytoken,
@@ -1089,5 +1168,6 @@ module.exports = {
   updatePassword,
   resendVerification,
   TotalTimeSpent,
-  verifyToken
+  verifyToken,
+  getUsersWithMostPostsInYear
 };

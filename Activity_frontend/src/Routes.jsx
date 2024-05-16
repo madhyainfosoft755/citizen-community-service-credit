@@ -91,10 +91,10 @@ const ProjectRoutes = () => {
           <Route path="/forget" element={<Forget />} />
           <Route path="/endorse" element={<Endorse />} />
           <Route path="/admin" element={<DesktopFive />} />
-          <Route path="/managecategoris" element={<DesktopSix />} />
-          <Route path="/aproovehours" element={<DesktopSeven />} />
-          <Route path="/aproovers" element={<DesktopEight />} />
-          <Route path="/desktopnine" element={<DesktopNine />} />
+          <Route path="/managecategories" element={<DesktopSix />} />
+          <Route path="/approvehours" element={<DesktopSeven />} />
+          <Route path="/approvers" element={<DesktopEight />} />
+          <Route path="/generatereport" element={<DesktopNine />} />
 
         </Routes>
       </Router>
