@@ -5,10 +5,7 @@ import NotFound from "pages/NotFound";
 import PageNavigation from "pages/PageNavigation/PageNavigate";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "components/AuthProvider/AuthProvider";
-import { API_URL } from "Constant";
-import Layout from "layout/layout";
-// import { ToastContainer } from "react-toastify";
-// import "react-toastify/dist/ReactToastify.css";
+import ProtectedRoute from "components/ProtectedComponent/ProtectedRoute";
 
 const DesktopTwo = React.lazy(() => import("pages/DesktopTwo"));
 const DesktopSeven = React.lazy(() => import("pages/DesktopSeven"));
@@ -22,12 +19,12 @@ const DesktopEight = React.lazy(() => import("pages/DesktopEight"));
 const Endorse = React.lazy(()=>import("pages/Endorse"))
 const Verify = React.lazy(()=>import("pages/VerifyPage"))
 const Forget = React.lazy(()=>import("pages/ForgetPassword"))
+const DesktopTen = React.lazy(()=>import("pages/DekstopTen"))
 
 const ProjectRoutes = () => { 
-  // const navigate = useNavigate();
-  const { authenticated, setAuthenticated } = useAuth();
+  // const { authenticated, setAuthenticated } = useAuth();
   // const [userData, setUserData] = useState(null);
-  const [click, setClick] = useState(false);
+  // const [click, setClick] = useState(false);
 
   // const navigate = useNavigate();
 
@@ -69,20 +66,17 @@ const ProjectRoutes = () => {
   //   verifyToken();
   // }, []);
 
-  const handleClick = () => {
-    setClick(!click);
-  };
+  // const handleClick = () => {
+  //   setClick(!click);
+  // };
 
   
 
   return (
     <React.Suspense fallback={<h1 className="w-screen h-screen flex items-center justify-center">Loading...</h1>}>
       <Router>
-        {/* <PageNavigation/>  */}
         <Routes>
-          {/* <ToastContainer/> */}
           <Route path="/" element={<DesktopOne />} />
-          {/* <Route path="*" element={<NotFound />} /> */}
           <Route path="/login" element={<DesktopOne />} />
           <Route path="/register" element={<DesktopTwo />} />
           <Route path="/create" element={<DesktopThree />} />
@@ -90,12 +84,15 @@ const ProjectRoutes = () => {
           <Route path="/verify/:token" element={<Verify />} />
           <Route path="/forget" element={<Forget />} />
           <Route path="/endorse" element={<Endorse />} />
-          <Route path="/admin" element={<DesktopFive />} />
-          <Route path="/managecategories" element={<DesktopSix />} />
-          <Route path="/approvehours" element={<DesktopSeven />} />
-          <Route path="/approvers" element={<DesktopEight />} />
-          <Route path="/generatereport" element={<DesktopNine />} />
+          <Route path="/admin" element={<ProtectedRoute element={DesktopFive} adminOnly />}  />
+          <Route path="/managecategories" element={<ProtectedRoute element={DesktopSix} adminOnly />}  />
+          <Route path="/approvehours" element={<ProtectedRoute element={DesktopSeven} adminOnly />}  />
+          <Route path="/approvers" element={<ProtectedRoute element={DesktopEight} adminOnly />}  />
+          <Route path="/generatereport" element={<ProtectedRoute element={DesktopNine} adminOnly />}  />
+          <Route path="/manageusers" element={<ProtectedRoute element={DesktopTen} adminOnly />}  />
 
+
+           <Route path="*" element={<NotFound />} />
         </Routes>
       </Router>
     </React.Suspense>

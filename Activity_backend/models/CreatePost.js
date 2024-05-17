@@ -43,6 +43,11 @@ module.exports = (sequelize, DataTypes) => {
           allowNull: false,
           defaultValue: 0, // Default value is 0
         },
+        approved:{
+          type: DataTypes.BOOLEAN,
+          allowNull:false,
+          defaultValue:false,
+        }
 
       
         

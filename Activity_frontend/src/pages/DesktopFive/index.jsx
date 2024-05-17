@@ -161,11 +161,13 @@ const DesktopFivePage = () => {
     navigate("/approvers")
   }
   const mnguser = ()=>{
-    navigate("/approvehours")
+    navigate("/manageusers")
   }
   const generatereport = ()=>{
     navigate("/generatereport")
   }
+
+  
 
 
   return (
@@ -201,9 +203,10 @@ const DesktopFivePage = () => {
               className="cursor-pointer font-semibold rounded-3xl w-4/12"
               // shape="round"
               color="indigo_A200"
-              onClick={direct}
+              onClick={handleLogout}
             >
-              {carouselTexts[textIndex]}
+            LOGOUT
+              {/* {carouselTexts[textIndex]} */}
             </Button>
           </div>
 

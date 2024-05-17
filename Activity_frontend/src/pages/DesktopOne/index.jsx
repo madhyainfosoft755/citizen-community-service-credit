@@ -12,6 +12,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEnvelope, faEye, faLock, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
 import { CirclesWithBar } from 'react-loader-spinner'
+import { useAuth } from "components/AuthProvider/AuthProvider";
 
 
 
@@ -25,6 +26,8 @@ const DesktopOnePage = () => {
     navigate("/register");
   };
 
+  const {setAuthenticated, setIsAdmin} = useAuth();
+  
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -130,7 +133,7 @@ const DesktopOnePage = () => {
 
       const data = await response.json();
 
-      // console.log("kya response aa rha hai", data);
+      console.log("kya response aa rha hai", data);
 
       if (!response.ok) {
         setLoginAttempted(true);
@@ -147,15 +150,18 @@ const DesktopOnePage = () => {
       }
 
       // console.log("first page se ye data aa rha hai", data);
-      const { token, userKey } = data;
+      const { token, userKey ,role } = data;
       const redirectTo = data.redirectTo; // Define redirectTo variable
 
       if (token && userKey) {
         localStorage.setItem("token", token);
         localStorage.setItem("userKey", JSON.stringify(userKey));
+        localStorage.setItem("role",role)
         // setLoginSuccess(true);
-        // setAuthenticated(true);
-        if (redirectTo === "/admin") {
+        setAuthenticated(true);
+        if (role === "admin") {
+          setIsAdmin(true);
+          
           navigate(redirectTo);
         } else {
           navigate("/create");

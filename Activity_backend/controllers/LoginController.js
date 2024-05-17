@@ -424,7 +424,7 @@ const login = async (req, res) => {
   try {
     // Find the user based on the provided email
     const user = await Users.findOne({ where: { email } });
-    console.log(user);
+    console.log("**/*/*/* THIS IS USER /*/*/*/*/", user);
 
 
     // Check if the password matches
@@ -445,7 +445,8 @@ const login = async (req, res) => {
     const token = Jwt.sign({ userId: user.id }, jwtKey, {
       expiresIn: "1d",
     });
-    console.log(token, "token");
+    console.log("token",token );
+    console.log("*** role of the user ***", user.role);
 
     const userKey = {
       id: user.id,
@@ -454,22 +455,13 @@ const login = async (req, res) => {
       // token:user.token
     };
 
-    if (user.email === 'info@mistpl.com') { // Check if the user is an admin
-      res.json({
-        status: "success",
-        userKey: userKey,
-        token: token,
-        redirectTo: "/admin", // Redirect admin to "/admin" route
-      });
-    } else {
-      res.json({
-        status: "success",
-        userKey: userKey,
-        token: token,
-        redirectTo: "/create", // Redirect normal users to "/create" route
-      });
-    }
-    // Successful login
+    res.status(200).json({
+      token,
+      userKey: userKey, // Assuming userKey is the user's ID
+      role: user.role, // Assuming user's role is stored in the 'role' field of the User model
+      redirectTo: user.role === 'admin' ? '/admin' : '/create', // Define redirection URL based on role
+    });
+       // Successful login
   } catch (error) {
     logger.error("here is the error", error);
     console.log("error or exception", error);
@@ -729,19 +721,16 @@ const updateUserData = async (req, res) => {
 
 const CreateActivity = async (req, res) => {
   try {
-    console.log("****************1")
     // Check for validation errors from express-validator
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({ errors: errors.array() });
     }
-    console.log("****************2")
 
 
     // Extract userId from the token
     const userId = getUserIdFromToken(req);
     // console.log("YE HAI USER KI ID", userId)
-    console.log("****************3")
 
     const {
       selectedCategories,
@@ -1078,9 +1067,47 @@ const fetchPostsInArea = async (req, res) => {
 
 
 
+// adminAuthMiddleware.js
+const adminAuthMiddleware = (req, res, next) => {
+  // Assuming you have the user's role stored in req.user.role after authentication
+  if (req.user && req.user.role === 'admin') {
+    next(); // User is admin, continue to the next middleware or route handler
+  } else {
+    return res.status(403).json({ error: 'Unauthorized access' });
+  }
+};
 
 
 
+const isAdmin = (req, res, next) => {
+  // Check if the user is authenticated and has the admin role
+  const authorizationHeader = req.headers["authorization"];
+  if (authorizationHeader) {
+    const token = authorizationHeader.split(" ")[1];
+    try {
+      const decodedToken = Jwt.verify(token, jwtKey);
+      const userId = decodedToken.userId;
+
+      // Assuming you have a User model with a 'role' field
+      Users.findByPk(userId).then((user) => {
+        if (user && user.role === 'admin') {
+          // User is an admin, allow access
+          next();
+        } else {
+          res.status(403).json({ error: "Unauthorized. Only admin users can access this resource." });
+        }
+      }).catch((err) => {
+        console.error("Error checking user role:", err);
+        res.status(500).json({ error: "Internal Server Error" });
+      });
+    } catch (error) {
+      console.error("Error decoding token:", error);
+      res.status(401).json({ error: "Invalid token" });
+    }
+  } else {
+    res.status(401).json({ error: "Authorization header missing" });
+  }
+};
 
 // Helper function to get the current year
 const getCurrentYear = () => {
@@ -1146,6 +1173,26 @@ const getUsersWithMostPostsInYear = async (req, res) => {
   }
 };
 
+const approveHours = async (req, res) => {
+  const { postId } = req.params;
+
+  try {
+    const post = await Posts.findByPk(postId);
+
+    if (!post) {
+      return res.status(404).json({ error: "Post not found." });
+    }
+
+    post.approved = true;
+    await post.save();
+
+    res.status(200).json({ message: "Post approved successfully." });
+  } catch (error) {
+    logger.error("Error approving post:", error);
+    res.status(500).json({ error: "Internal server error." });
+  }
+};
+
 
 
 module.exports = {
@@ -1169,5 +1216,7 @@ module.exports = {
   resendVerification,
   TotalTimeSpent,
   verifyToken,
-  getUsersWithMostPostsInYear
+  getUsersWithMostPostsInYear,
+  approveHours,
+  adminAuthMiddleware
 };

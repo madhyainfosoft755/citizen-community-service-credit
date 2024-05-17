@@ -3,15 +3,14 @@ import React from "react";
 import { Button, Img, Input, Text } from "components";
 import { useNavigate } from "react-router-dom";
 
-const DesktopSixPage = () => {
+const DesktopSevenPage = () => {
   const navigate  = useNavigate();
-
   const goback = ()=>{
     navigate("/admin")
   }
   return (
       <div className="w-screen h-screen  bg-white-A700 flex items-start justify-center sm:w-screen sm:h-screen md:w-screen md:h-screen p-5 sm:p-0">
-        <div className=" relative w-4/12 h-full sm:w-full sm:h-full md:w-3/4 md:h-full  lg:w-3/4 lg:h-full  flex flex-col items-center  justify-start gap-5 border-[1px] rounded-lg sm:rounded-none overflow-hidden">
+        <div className="relative w-4/12 h-full sm:w-full sm:h-full md:w-3/4 md:h-full  lg:w-3/4 lg:h-full  flex flex-col items-center  justify-start gap-4 border-[1px]  rounded-lg sm:rounded-none overflow-hidden">
           <div className="bg-white-A700 flex flex-row items-center justify-between p-5  shadow-bs3 w-full">
           <div onClick={goback}>
             <Img
@@ -21,10 +20,10 @@ const DesktopSixPage = () => {
             />
           </div>
             <Text
-              className="text-gray-900"
+              className=" text-gray-900"
               size="txtInterSemiBold17"
             >
-              Manage Categories
+              Manage Users
             </Text>
             <Button
               className="flex w-7 h-7 items-center justify-center  rounded-1 "
@@ -38,11 +37,11 @@ const DesktopSixPage = () => {
           <div className="flex flex-col gap-2.5 items-center justify-start w-[85%] md:w-full">
             <Input
               name="groupSeventySix"
-              placeholder="Gardening"
+              placeholder="Emma Jackson"
               className="font-medium p-0 placeholder:text-black-900 text-[15px] text-left w-full"
               wrapClassName="flex w-full"
               suffix={
-                <div className="mt-px mb-[3px] ml-[35px] sm:w-full sm:mx-0 w-[4%] ">
+                <div className="ml-[35px] sm:w-full sm:mx-0 w-[4%]  my-px">
                   <Img
                     className="my-auto"
                     src="images/img_thumbsup.svg"
@@ -54,43 +53,11 @@ const DesktopSixPage = () => {
             ></Input>
             <Input
               name="groupSeventySeven"
-              placeholder="Teaching Poor"
+              placeholder="Joan Wicks"
               className="font-medium p-0 placeholder:text-black-900 text-left text-sm w-full"
               wrapClassName="flex w-full"
               suffix={
-                <div className="mb-0.5 ml-[35px] sm:w-full sm:mx-0 w-[4%]">
-                  <Img
-                    className="my-auto"
-                    src="images/img_thumbsup.svg"
-                    alt="thumbs_up"
-                  />
-                </div>
-              }
-              shape="round"
-            ></Input>
-            <Input
-              name="groupSeventyEight"
-              placeholder="Cleaning"
-              className="font-medium p-0 placeholder:text-black-900 text-left text-sm w-full"
-              wrapClassName="flex w-full"
-              suffix={
-                <div className="mb-0.5 ml-[35px] sm:w-full sm:mx-0 w-[4%] ">
-                  <Img
-                    className="my-auto"
-                    src="images/img_thumbsup.svg"
-                    alt="thumbs_up"
-                  />
-                </div>
-              }
-              shape="round"
-            ></Input>
-            <Input
-              name="groupSeventyNine"
-              placeholder="Planting a tree"
-              className="font-medium p-0 placeholder:text-black-900 text-left text-sm w-full"
-              wrapClassName="flex w-full"
-              suffix={
-                <div className="mb-0.5 ml-[35px] sm:w-full sm:mx-0 w-[4%] ">
+                <div className="ml-[35px] sm:w-full sm:mx-0 w-[4%]  my-px">
                   <Img
                     className="my-auto"
                     src="images/img_thumbsup.svg"
@@ -106,4 +73,4 @@ const DesktopSixPage = () => {
   );
 };
 
-export default DesktopSixPage;
+export default DesktopSevenPage;

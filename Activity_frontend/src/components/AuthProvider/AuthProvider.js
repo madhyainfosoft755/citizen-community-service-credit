@@ -7,25 +7,46 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [authenticated, setAuthenticated] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false); // New state for admin status
+  const [isloading, setIsloading] = useState(true);
 
+
+
+  console.log("ye hai loading statuus", isloading)
   useEffect(() => {
+    // setIsloading(true)
 
     const token = localStorage.getItem('token');
     const userKey = localStorage.getItem("userKey");
-    // const userkey = JSON.parse(localStorage.getItem("userkey"));
-    // console.log(userKey,"autho context provider")
-    // console.log(token,"autho context provider")
-    if (userKey)
+    console.log("token", token)
+    console.log("userKey", userKey)
+
+    if (userKey && token) {
+
+      console.log("token", token)
+      console.log("userKey", userKey)
+
       setAuthenticated(true);
-    if (token)
-      setAuthenticated(true); 
+
+
+      const userRole = localStorage.getItem("role");
+      console.log(userRole)
+
+      if (userRole === "admin") {
+        setIsAdmin(true);
+      }
+
+    }
+    setIsloading(false)
 
   }, []);
 
+  console.log("authenticated ", authenticated)
+  console.log("isAdmin", isAdmin)
 
 
   return (
-    <AuthContext.Provider value={{ authenticated, setAuthenticated }}>
+    <AuthContext.Provider value={{ authenticated, setAuthenticated, isAdmin, isloading, setIsAdmin }}>
       {children}
     </AuthContext.Provider>
   );

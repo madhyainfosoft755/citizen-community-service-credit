@@ -22,12 +22,15 @@ const {
   resendVerification,
   TotalTimeSpent,
   verifyToken,
-  getUsersWithMostPostsInYear
+  getUsersWithMostPostsInYear,
+  approveHours,
+  adminAuthMiddleware
 } = require("../controllers/LoginController");
 const { upload } = require("../utils/util");
 // Express route 
 router.get("/output", output);  
 router.get("/getUsersWithMostPostsInYear", getUsersWithMostPostsInYear)
+router.get("/approveHours", approveHours)
 router.post("/resendVerification", resendVerification)
 router.post("/updatePassword",updatePassword)
 router.post("/forgetpassword",forgetpassword)

@@ -373,6 +373,7 @@ const Createpost = () => {
                   </div>
                 </div>
                 <Button
+                type = "button"
                   className="cursor-pointer font-semibold rounded-3xl w-4/12"
                   // shape="round"
                   color="indigo_A200"
@@ -385,7 +386,7 @@ const Createpost = () => {
               <div className="flex flex-col items-start justify-center gap-1 sm:gap-1 w-11/12  sm:w-11/12 mt-1  ">
                 <div className="bg-white-A700 w-full  text-center flex items-start justify-between gap-5">
                   <h1 className="text-md font-semibold shadow-bs3 shadow-gray-300 py-1  w-1/2 h-full flex items-center justify-center rounded-3xl mb-2">+ Add New Activity</h1>
-                  <button onClick={Endorse} className="bg-[#546ef6] w-1/2 h-full font-semibold rounded-3xl text-white-A700">Endorse Activities</button>
+                  <button type="button" onClick={Endorse} className="bg-[#546ef6] w-1/2 h-full font-semibold rounded-3xl text-white-A700">Endorse Activities</button>
                 </div>
                 <Text
                   className="text-base text-gray-900"
