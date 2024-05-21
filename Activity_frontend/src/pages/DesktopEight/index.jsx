@@ -3,7 +3,7 @@ import React from "react";
 import { Button, Img, Input, Text } from "components";
 import { useNavigate } from "react-router-dom";
 
-const DesktopSevenPage = () => {
+const DesktopEightPage = () => {
   const navigate  = useNavigate();
   const goback = ()=>{
     navigate("/admin")
@@ -73,4 +73,4 @@ const DesktopSevenPage = () => {
   );
 };
 
-export default DesktopSevenPage;
+export default DesktopEightPage;

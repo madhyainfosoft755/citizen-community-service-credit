@@ -245,11 +245,11 @@ const DesktopOnePage = () => {
     // console.log("ye rha google ka response", response);
     try {
       const { access_token } = response;
-      // console.log("kya humko token mila", access_token)
+      console.log("kya humko token mila", access_token)
       // await getUserProfile(access_token)
 
       if (!access_token) {
-        // console.log("bhaiya token nhi mil rha hai ");
+        console.log("bhaiya token nhi mil rha hai ");
       }
       const formData = new FormData();
       // console.log("aur ye hai formdata", formData)
@@ -262,15 +262,16 @@ const DesktopOnePage = () => {
         },
         body: new URLSearchParams(formData).toString(),
       });
+      
+      const data = await loginResponse.json();
+      console.log("google data response", data);
 
-      if (!loginResponse.ok) {
+      if (!loginResponse) {
         setError("Google login failed.");
         notify("Google login failed.")
         return;
       }
 
-      const data = await loginResponse.json();
-      // console.log("google data response", data);
       const { token, user } = data;
 
       if (token && user) {

@@ -18,20 +18,25 @@ const {
   verify,
   forgetpassword,
   verifyPin,
+  UpdatePhoneNumber,
   updatePassword,
   resendVerification,
   TotalTimeSpent,
   verifyToken,
   getUsersWithMostPostsInYear,
   approveHours,
-  adminAuthMiddleware
+  adminAuthMiddleware,
+  pendingApproval
+
 } = require("../controllers/LoginController");
 const { upload } = require("../utils/util");
 // Express route 
 router.get("/output", output);  
+router.get("/pendingApproval", pendingApproval);  
 router.get("/getUsersWithMostPostsInYear", getUsersWithMostPostsInYear)
-router.get("/approveHours", approveHours)
+router.put("/approveHours/:postId", approveHours)
 router.post("/resendVerification", resendVerification)
+router.post("/UpdatePhoneNumber",UpdatePhoneNumber)
 router.post("/updatePassword",updatePassword)
 router.post("/forgetpassword",forgetpassword)
 router.post("/verifyPin",verifyPin)

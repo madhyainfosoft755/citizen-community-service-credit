@@ -11,10 +11,15 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLocationDot, faCalendarAlt } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
 import { CirclesWithBar } from 'react-loader-spinner'
-
+import Modal from 'react-modal';
 
 const Createpost = () => {
   const [isLoading, setIsLoading] = useState(false); // State for loader
+  const [isPhoneNumberModalOpen, setIsPhoneNumberModalOpen] = useState(false);
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [password, setPassword] = useState("");
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [userConfirmed, setUserConfirmed] = useState(false);
   const notify = (e) => toast(e);
   const navigate = useNavigate();
   const [currentDate, setCurrentDate] = useState("");
@@ -100,10 +105,10 @@ const Createpost = () => {
         const stateObj = addressComponents.find(component =>
           component.types.includes('administrative_area_level_1')
         );
-  
+
         const city = cityObj ? cityObj.long_name : 'Unknown City';
         const state = stateObj ? stateObj.long_name : 'Unknown State';
-  
+
         setLocationData({ city, state });
 
         // Update formData with latitude, longitude, city, and state
@@ -186,10 +191,16 @@ const Createpost = () => {
             const userData = await response.json();
             setUserName(userData.userData.name)
             setUserData(userData); // Update user data in the state
+
+            if (userData.userData.googleId) {
+              console.log("ye hai user ki detailed google id", userData.userData.googleId)
+              setIsPhoneNumberModalOpen(true);
+              setPassword(userData.userData.password);
+            }
           } else {
             console.error("Error fetching user data: Response is not JSON");
-            // Handle non-JSON response accordingly
           }
+
         } else {
           console.error("Error fetching user data:", response.status);
           const errorData = await response.text(); // Get the entire response as text
@@ -214,12 +225,12 @@ const Createpost = () => {
             method: "POST",
             headers: { Authorization: `Bearer ${token}` },
           });
-        
+
           const data = await response.json();
           if (response.ok) {
             setTotalTime(data.totalTimeSum)
           }
-        } 
+        }
       }
       catch (error) {
         console.error("Error fetching user total time", error);
@@ -236,6 +247,117 @@ const Createpost = () => {
     localStorage.removeItem("userKey");
     navigate("/login");
   };
+
+
+  // Function to fetch user data and check if confirm is true
+  const checkUserConfirmation = async () => {
+    console.log("checking")
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${API_URL}/activity/profile`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const userData = await response.json();
+      console.log("kya hia ", userData)
+      if (response.ok) {
+        setUserConfirmed(userData.userData.confirm);
+      } else {
+        console.error("Error fetching user data");
+      }
+    } catch (error) {
+      console.error("Error:", error);
+    }
+  };
+
+  useEffect(() => {
+    checkUserConfirmation();
+  }, []);
+
+  const handleSubmitButtonClick = (e) => {
+    if (e) {
+      e.preventDefault(); // Prevent default button behavior
+    }
+    // Call handlePhoneNumberSubmit only when the submit button in this form is clicked
+    handlePhoneNumberSubmit(e);
+  };
+  const handelPasswordSubmit = (e) => {
+    if (e) {
+      e.preventDefault(); // Prevent default button behavior
+    }
+    // Call handlePhoneNumberSubmit only when the submit button in this form is clicked
+    handlePasswordChangeSubmit(e);
+  };
+
+
+  const handlePhoneNumberSubmit = async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem("token");
+    const userId = userData.userData.id;
+    console.log("ye hai user ID", userId)
+    // Check if phoneNumber is exactly 10 digits
+    if (phoneNumber.length !== 10 || isNaN(phoneNumber)) {
+      notify("Phone number must be a 10-digit number");
+      return; // Stop further execution
+    }
+    try {
+      const response = await fetch(`${API_URL}/activity/UpdatePhoneNumber`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ userId, phone: phoneNumber }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        notify("Phone number registered successfully");
+        setIsPhoneNumberModalOpen(false);
+      } else {
+        console.error("Error:", data.error);
+        notify(`${data.error}`);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      notify("Failed to register Number");
+    }
+  };
+
+
+
+  const handlePasswordChangeSubmit = async (e) => {
+    e.preventDefault();
+    const token = localStorage.getItem("token");
+    try {
+      const response = await fetch(`${API_URL}/activity/changePassword`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ password }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        notify("Password changed successfully");
+        setIsChangingPassword(true);
+      } else {
+        console.error("Error:", data.error);
+        notify(`${data.error}`);
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      notify("Password has not changed")
+    }
+  };
+
+
+
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -270,7 +392,7 @@ const Createpost = () => {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
-         
+
         },
         body: formsDATA,
         // body:formsDATA.stringify()
@@ -288,7 +410,7 @@ const Createpost = () => {
     } catch (error) {
       console.error("Error:", error);
     }
-    finally{
+    finally {
       setIsLoading(false)
     }
   };
@@ -324,30 +446,30 @@ const Createpost = () => {
           <div className="hidden">
             <Location onLocationChange={handleLocationChange} />
           </div>
-          
+
 
           <div className="relative w-4/12 h-full sm:w-full sm:h-full md:w-3/4 md:h-full  lg:w-3/4 lg:h-full  flex flex-col items-center  justify-center border-[1px]  rounded-lg sm:rounded-none overflow-hidden">
-          {isLoading &&(
-          <div className="w-full h-full bg-black-900/30 absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-50">
-            <CirclesWithBar
-              height="100"
-              width="100"
-              color="#4fa94d"
-              outerCircleColor="#546ef6"
-              innerCircleColor="#ffffff"
-              barColor="#ffffff"
-              ariaLabel="circles-with-bar-loading"
-              wrapperStyle={{}}
-              wrapperClass=""
-              visible={true}
-            />
-          </div>
-        )}
-          
+            {isLoading && (
+              <div className="w-full h-full bg-black-900/30 absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-50">
+                <CirclesWithBar
+                  height="100"
+                  width="100"
+                  color="#4fa94d"
+                  outerCircleColor="#546ef6"
+                  innerCircleColor="#ffffff"
+                  barColor="#ffffff"
+                  ariaLabel="circles-with-bar-loading"
+                  wrapperStyle={{}}
+                  wrapperClass=""
+                  visible={true}
+                />
+              </div>
+            )}
+
             <div className=" flex flex-col gap-1 items-center justify-start w-full h-full ">
-            
+
               <div className="bg-gray-50 flex flex-row items-center justify-between p-3 sm:p-5  sm:px-5 w-full ">
-              
+
                 <div className="flex flex-row gap-4 items-center justify-center ml-[1px]">
                   {userData && (
                     <Img
@@ -373,7 +495,7 @@ const Createpost = () => {
                   </div>
                 </div>
                 <Button
-                type = "button"
+                  type="button"
                   className="cursor-pointer font-semibold rounded-3xl w-4/12"
                   // shape="round"
                   color="indigo_A200"
@@ -562,6 +684,57 @@ const Createpost = () => {
 
               </div>
             </div>
+
+            {!userConfirmed && (
+              <>
+
+
+                {/* Modal for Phone Number Registration */}
+                <Modal isOpen={isPhoneNumberModalOpen} onRequestClose={() => setIsPhoneNumberModalOpen(false)}
+                  className="w-full h-full bg-white-A700/50 flex flex-col gap-2 items-center justify-center" >
+
+                  <h2>Register Phone Number</h2>
+
+                  <form onSubmit={handlePhoneNumberSubmit}>
+                    <input
+                      type="text"
+                      placeholder="Enter Phone Number"
+                      value={phoneNumber}
+                      onChange={(e) => setPhoneNumber(e.target.value)}
+                      className="w-full border border-gray-300 rounded-lg px-4 py-2 mb-4"
+                    />
+                    <button type="button" onClick={handleSubmitButtonClick} className="bg-blue-500 text-white py-2 px-4 rounded">
+                      Submit
+                    </button>
+                  </form>
+
+                </Modal>
+              </>
+            )}
+
+
+            {/* Modal for Changing Password */}
+            {isChangingPassword && (
+              <Modal isOpen={isChangingPassword} onRequestClose={() => setIsChangingPassword(false)}
+                className="w-full h-full bg-white-A700/50 flex flex-col gap-2 items-center justify-center" >
+                <h2>Change Password</h2>
+                <form onSubmit={handlePasswordChangeSubmit}>
+                  <input
+                    type="password"
+                    placeholder="New Password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="w-full border border-gray-300 rounded-lg px-4 py-2 mb-4"
+                  />
+                  <button type="button" onClick={handelPasswordSubmit} className="bg-blue-500 text-white py-2 px-4 rounded">
+                    Change Password
+                  </button>
+                </form>
+              </Modal>
+            )}
+
+
+
           </div>
         </form>
       )}

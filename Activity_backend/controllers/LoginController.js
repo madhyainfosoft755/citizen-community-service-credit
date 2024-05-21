@@ -64,7 +64,7 @@ const getUserProfile = async (accessToken) => {
 
     // Extract user profile from response data
     const userProfile = response.data;
-    // console.log("this is users profile data", userProfile)
+    console.log("this is users profile data", userProfile)
     return userProfile;
   } catch (error) {
     console.error('Failed to fetch user profile:', error.response ? error.response.data : error.message);
@@ -85,8 +85,19 @@ const generateRandomPassword = (length) => {
   return password;
 };
 
+const PhoneNumberGenerator = (length)=>{
+  let PhoneNumber = "";
+  for(let i = 0; i<length; i++){
+    const randomDigit = Math.floor(Math.random()*10);
+    PhoneNumber += randomDigit.toString();
+  }
+  return PhoneNumber;
+}
+ 
 // Example usage:
 const passwordLength = 10;
+const generatePhoneNumber = PhoneNumberGenerator(10);
+console.log('Generated number:', generatePhoneNumber); 
 const generatedPassword = generateRandomPassword(passwordLength);
 console.log('Generated Password:', generatedPassword);
 
@@ -112,11 +123,12 @@ const GoogleLogin = async (req, res) => {
       user = await Users.create({
         name: userProfile.name,
         email: userProfile.email,
-        phone: '' || null, // Add phone if needed
+        phone:  userProfile.phone || generatePhoneNumber, // Add phone if needed
         password: generatedPassword, // Add password if needed
         photo: userProfile.picture, // Assuming you store the profile picture
         category: '', // Add category if needed
-        googleId: userProfile.id
+        googleId: userProfile.id,
+        role:"user"
       });
     }
 
@@ -149,8 +161,6 @@ const transporter = nodemailer.createTransport({
     pass:process.env.password,
   },
 });
-
-
 
 // this is Register Api
 const Register = async (req, res) => {
@@ -223,7 +233,7 @@ const Register = async (req, res) => {
       from: process.env.userMail,
       to: userData.email,
       subject: 'Verify your email',
-      html: `<p>Please click <a href="${process.env.URL}verify/${verificationToken}">here</a> to verify your email address.</p>`,
+      html: `<p>Please click <a href="${process.env.URL}/verify/${verificationToken}">here</a> to verify your email address.</p>`,
     });
 
     const { selectedCategories } = req.body;
@@ -254,6 +264,8 @@ const Register = async (req, res) => {
       photo: photoFile[0].filename,
       category: Category,
       verificationToken: verificationToken, // Store verification token in the database
+      role:"user"
+
       // Add other fields as needed
     });
 
@@ -273,6 +285,7 @@ const Register = async (req, res) => {
   }
 };
 
+//Email verification API
 const verify = async (req, res) => {
   try {
     const { token } = req.params;
@@ -300,6 +313,7 @@ const verify = async (req, res) => {
   }
 };
 
+//Forget Password API
 const forgetpassword = async (req, res) => {
 
   const { email } = req.body;
@@ -348,7 +362,7 @@ const forgetpassword = async (req, res) => {
   });
 }
 
-
+//Verify Pin API
 const verifyPin = async (req, res) => {
   try {
     const { email, pin } = req.body;
@@ -378,6 +392,37 @@ const verifyPin = async (req, res) => {
   }
 };
 
+//Update Mobile Number API
+const UpdatePhoneNumber = async (req, res) => {
+  try {
+    const { userId, phone } = req.body;
+
+    // Check if userId and newPhoneNumber are provided
+    if (!userId || !phone) {
+      return res.status(400).json({ message: 'User ID and new phone number are required' });
+    }
+
+    // Find the user by userId
+    const user = await Users.findOne({ where: { id: userId } });
+
+    // Check if user exists
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Update the phone number for the user
+    user.phone = phone;
+    user.confirm = true;
+    await user.save();
+
+    return res.status(200).json({ message: 'Phone number updated successfully', user });
+  } catch (error) {
+    console.error('Error updating phone number:', error);
+    return res.status(500).json({ message: 'Error updating phone number' });
+  }
+};
+
+//Update Password API
 const updatePassword = async (req, res) => {
   const { email, newPassword } = req.body;
 
@@ -404,8 +449,8 @@ const updatePassword = async (req, res) => {
     // Update user's password and clear resetPin
     user.password = newPassword;
     // user.resetPin = null; // Clear the resetPin after successful password reset
-
     await user.save();
+
 
     return res.status(200).json({ message: 'Password updated successfully' });
   } catch (error) {
@@ -604,7 +649,7 @@ const profile = async (req, res) => {
         });
 
         const [rows] = await connection.execute(
-          "SELECT `id`, `name`,`photo`, `email` FROM `users` WHERE id = ?",
+          "SELECT `id`, `name`,`photo`, `email`, `googleId` FROM `users` WHERE id = ?",
           [userId]
         );
 
@@ -617,6 +662,7 @@ const profile = async (req, res) => {
             email: rows[0].email,
             photo: rows[0].photo,
             totalTime: rows[0].totalTime, // Include totalTime from the database
+            googleId: rows[0].googleId, // Include googleId from the database
           };
 
           res.json({
@@ -891,7 +937,7 @@ const TotalTimeSpent = async (req, res) => {
         "Category",
         "totalTime",
       ],
-      where: { UserId: req.params.id },
+      where: { UserId: req.params.id, approved:true },
     });
 
     // Calculate the sum of totalTime
@@ -1193,6 +1239,29 @@ const approveHours = async (req, res) => {
   }
 };
 
+const pendingApproval = async(req,res)=>{
+  try {
+    const posts = await Posts.findAll({
+      where: {
+        endorsementCounter: 3,
+        approved: false,
+      },
+      include: [
+        {
+          model: Users,
+          attributes: ['name'], // Include only the name attribute from the Users table
+        },
+      ],
+    });
+    if (posts.length === 0) {
+      return res.status(404).json({ message: 'No posts pending for approval.' });
+    }
+    res.json(posts);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
+}
+
 
 
 module.exports = {
@@ -1212,11 +1281,13 @@ module.exports = {
   verify,
   forgetpassword,
   verifyPin,
+  UpdatePhoneNumber,
   updatePassword,
   resendVerification,
   TotalTimeSpent,
   verifyToken,
   getUsersWithMostPostsInYear,
   approveHours,
-  adminAuthMiddleware
+  adminAuthMiddleware,
+  pendingApproval
 };

@@ -109,7 +109,7 @@ const Slider1 = ({ items , isPopUpVisible, setIsPopUpVisible, setSelectedPost, s
                 <div className="flex items-center justify-between gap-2">
                   <div className="w-24 flex flex-col items-center justify-center">
                     <h3 className="text-gray-500 mb-1 font-semibold ">Approved</h3>
-                    <h3 className="">NO</h3>
+                    <h3 className="">{item.approved == true ? "YES" : "NO"}</h3>
                   </div>
 
                   <div className="w-24 flex flex-col items-center justify-center">

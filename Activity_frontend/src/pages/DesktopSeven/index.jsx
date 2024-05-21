@@ -1,14 +1,130 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { Img, List, Text } from "components";
 import { useNavigate } from "react-router-dom";
+import { API_URL } from "Constant";
+import "./style.css";
+import { toast } from "react-toastify";
 
-const DesktopEightPage = () => {
+const DesktopSevenPage = () => {
   const navigate = useNavigate();
+  const notify = (e) => toast(e);
+  const [posts, setPosts] = useState([]);
+
+
+  const checkTokenExpiry = async (token) => {
+    try {
+      const response = await fetch(`${API_URL}/activity/profile`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      // console.log("ye rha response", response)
+
+      if (!response.ok) {
+        // Token might be expired or invalid, so log the user out
+        // handleLogout();
+        navigate("/login")
+        notify("Session time Out")
+      }
+    } catch (error) {
+      notify(error)
+      console.error("Error checking token expiry:", error);
+    }
+  };
+
+  const postForApproval = async()=>{
+    try {
+        const token = localStorage.getItem("token");
+        const response = await fetch(`${API_URL}/activity/pendingApproval`, {
+          method: "GET",
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      
+        const data = await response.json();
+        console.log("ye hai response",data)
+        if (response.ok) {
+          setPosts(data)
+        }
+        else{
+          console.log("hello")
+          setPosts([])
+          notify(data.message)
+        }
+       
+    }
+    catch (error) {
+      console.error("Error fetching requests for approval", error);
+      // setError("An error occurred while fetching users Time.");
+    }
+  }
+
+
+  const approveHoursRequest = async (postId) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${API_URL}/activity/approveHours/${postId}`, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+
+      if (response.ok) {
+        // Refresh the posts after approval
+        postForApproval();
+        notify("Hours request approved successfully");
+      } else {
+        notify("Failed to approve hours request");
+      }
+    } catch (error) {
+      notify("Error approving hours request");
+      console.error("Error approving hours request:", error);
+    }
+  };
+
+
+  useEffect(() => {
+    // Check if both token and user key are present in local storage
+    const token = localStorage.getItem("token");
+    const userKey = localStorage.getItem("userKey");
+
+    console.log("ye hai token ",token)
+
+    if (!token || !userKey) {
+      // Redirect to the login page if either token or user key is missing
+      navigate("/login");
+    } else {
+      // Fetch user data when component mounts
+      postForApproval(token)
+      checkTokenExpiry(token);
+
+    }
+
+    // You may also want to check the validity of the token here if needed
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Empty dependency array ensures that this effect runs only once on mount
+
+
+  
 
   const goback = () => {
     navigate("/admin");
   };
+
+  console.log("ye rhe posts", posts)
+
+  const formatTime = (time) => {
+    const [hours, minutes] = time.split(":");
+    const formattedHours = parseInt(hours, 10) < 10 ? hours.replace(/^0+/, '') : hours;
+    const formattedMinutes = parseInt(minutes, 10) !== 0 ? `:${minutes}` : '';
+  return `${formattedHours}${formattedMinutes}`;
+  };
+
 
   return (
     <div className=" flex items-center justify-center p-4 sm:p-0  w-screen h-screen sm:w-screen sm:h-screen">
@@ -29,58 +145,30 @@ const DesktopEightPage = () => {
           </Text>
 
         </div>
-        <List
-          className="flex flex-col gap-2.5 items-center w-[85%]"
-          orientation="vertical"
-        >
-          <div className="bg-gray-100 flex flex-row items-center justify-between p-4 rounded-[5px] w-full">
-            <div className="flex flex-col gap-1.5 items-start justify-start ml-0.5">
-              <Text
-                className="text-[15px] text-black-900"
-                size="txtInterMedium15"
-              >
-                Emma Jackson
-              </Text>
-              <Text
-                className="text-black-900_99 text-xs"
-                size="txtInterRegular12"
-              >
-                Requested for 3 Hours approval
-              </Text>
-            </div>
-            <Text
-              className="text-[13px] text-indigo-A200"
-              size="txtInterSemiBold13"
-            >
-              Approve
-            </Text>
-          </div>
-          <div className="bg-gray-100 flex flex-row items-center justify-between p-4 rounded-[5px] w-full">
-            <div className="flex flex-col gap-1.5 items-start justify-start ml-0.5">
-              <Text
-                className="text-[15px] text-black-900"
-                size="txtInterMedium15"
-              >
-                Emma Jackson
-              </Text>
-              <Text
-                className="text-black-900_99 text-xs"
-                size="txtInterRegular12"
-              >
-                Requested for 3 Hours approval
-              </Text>
-            </div>
-            <Text
-              className="text-[13px] text-indigo-A200"
-              size="txtInterSemiBold13"
-            >
-              Approve
-            </Text>
-          </div>
-        </List>
+        <div className="post-shower w-full p-4">
+          {posts.length > 0 ? (
+            posts.map((post) => (
+              <div key={post.id} className="post-item p-4 mb-4 bg-white rounded shadow flex items-center justify-between bg-[#f1f3ff]">
+                <div>
+                <Text size="txtInterSemiBold17">{post.user.name}</Text>
+                <Text className="text-xs mt-1">Requested for {formatTime(post.totalTime)} Hours approval </Text>
+                </div>
+                <button className="text-[#546ef6] font-semibold" onClick={() => approveHoursRequest(post.id)}>Approve</button>                
+              </div>
+            ))
+          ) : (
+            <div className="w-full h-full flex items-center justify-center">
+                      <Img
+                        className="w-[80%] h-auto object-cover object-center"
+                        src="images/nopost.svg"
+                        alt="No posts available for endorsement"
+                      />
+                    </div>
+          )}
+        </div>
       </div>
     </div>
   );
 };
 
-export default DesktopEightPage;
+export default DesktopSevenPage;

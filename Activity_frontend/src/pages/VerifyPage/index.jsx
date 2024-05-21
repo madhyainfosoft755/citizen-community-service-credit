@@ -38,7 +38,7 @@ const Verify = () => {
     verifyEmail();
   }, [token, navigate]);
 
-  if (useEffect == true) {
+  if (useEffect === true) {
     // console.log("chal gya use effect");
   } else {
     // console.log("nhi chala use effect");
