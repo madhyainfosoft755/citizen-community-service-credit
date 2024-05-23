@@ -20,6 +20,7 @@ const Endorse = React.lazy(()=>import("pages/Endorse"))
 const Verify = React.lazy(()=>import("pages/VerifyPage"))
 const Forget = React.lazy(()=>import("pages/ForgetPassword"))
 const DesktopTen = React.lazy(()=>import("pages/DekstopTen"))
+const ManageOrganization= React.lazy(()=>import("pages/ManageOrganization"))
 
 const ProjectRoutes = () => { 
   // const { authenticated, setAuthenticated } = useAuth();
@@ -90,6 +91,7 @@ const ProjectRoutes = () => {
           <Route path="/approvers" element={<ProtectedRoute element={DesktopEight} adminOnly />}  />
           <Route path="/generatereport" element={<ProtectedRoute element={DesktopNine} adminOnly />}  />
           <Route path="/manageusers" element={<ProtectedRoute element={DesktopTen} adminOnly />}  />
+          <Route path="/manageorganization" element={<ProtectedRoute element={ManageOrganization} adminOnly />}  />
 
 
            <Route path="*" element={<NotFound />} />

@@ -25,8 +25,15 @@ const {
   verifyToken,
   getUsersWithMostPostsInYear,
   approveHours,
-  adminAuthMiddleware,
-  pendingApproval
+  pendingApproval,
+  createCategory,
+  getCategories,
+  getCategoriesAdmin,
+  toggleCategory,
+  createOrganization,
+  getOrganizations,
+  toggleOrganization,
+  getOrganizationsAdmin
 
 } = require("../controllers/LoginController");
 const { upload } = require("../utils/util");
@@ -35,6 +42,14 @@ router.get("/output", output);
 router.get("/pendingApproval", pendingApproval);  
 router.get("/getUsersWithMostPostsInYear", getUsersWithMostPostsInYear)
 router.put("/approveHours/:postId", approveHours)
+router.post("/createCategory", createCategory)
+router.get("/getCategories", getCategories)
+router.get("/getCategoriesAdmin", getCategoriesAdmin)
+router.put("/toggleCategory/:id", toggleCategory)
+router.post("/createOrganization", createOrganization)
+router.get("/getOrganizations", getOrganizations)
+router.get("/getOrganizationsAdmin", getOrganizationsAdmin)
+router.put("/toggleOrganization/:id", toggleOrganization)
 router.post("/resendVerification", resendVerification)
 router.post("/UpdatePhoneNumber",UpdatePhoneNumber)
 router.post("/updatePassword",updatePassword)

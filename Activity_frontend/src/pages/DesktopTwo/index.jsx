@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   faUser,
   faEnvelope,
@@ -36,11 +36,64 @@ const Register = () => {
   const [passwordError, setPasswordError] = useState(false);
   const [mobileError, setMobileError] = useState(""); // State for mobile number error
   const [aadharError, setAadharError] = useState(""); // State for Aadhar number error
+  const [categories, setCategories] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]); // this function for get selected are
+  const [organizations, setOrganizations] = useState([]); // State for organizations
+  const [selectedOrganization, setSelectedOrganization] = useState(""); // State for selected organization
   const [buttonStates, setButtonStates] = useState(Array(3).fill(false)); // Assuming 3 buttons, adjust the size as needed
   const [selectedFile, setSelectedFile] = useState(null);
   const [isMobileVerified, setIsMobileVerified] = useState(false);
   const [fieldBeingEdited, setFieldBeingEdited] = useState("");
+
+
+
+  useEffect(() => {
+    // Fetch categories from the database
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch(`${API_URL}/activity/getCategories`);
+        const data = await response.json();
+        if (response.ok) {
+          if (data.length > 0) {
+
+            const sortedCategories = data.sort((a, b) => a.name.localeCompare(b.name));
+            const limitedCategories = sortedCategories.slice(0, 6);
+            setCategories(limitedCategories);
+            setButtonStates(Array(limitedCategories.length).fill(false)); // Adjust button states based on categories length
+          }
+          else {
+            notify(data.message)
+          }
+        } else {
+          console.error("Error fetching categories:", data.message);
+        }
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+
+    // Fetch organizations from the database
+    const fetchOrganizations = async () => {
+      try {
+        const response = await fetch(`${API_URL}/activity/getOrganizations`);
+        const data = await response.json();
+        if (response.ok) {
+          setOrganizations(data);
+        } else {
+          console.error("Error fetching organizations:", data.message);
+        }
+      } catch (error) {
+        console.error("Error fetching organizations:", error);
+      }
+    };
+
+    fetchCategories();
+    fetchOrganizations();
+  }, []);
+
+
+
+
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -182,6 +235,7 @@ const Register = () => {
     formsDATA.append("cpassword", e.target[6].value);
     formsDATA.append("selectedCategories", JSON.stringify(selectedCategories));
     formsDATA.append("photo", selectedFile);
+    formsDATA.append("organization", selectedOrganization);
 
     const formDataJson = {};
     for (const [key, value] of formsDATA.entries()) {
@@ -189,7 +243,7 @@ const Register = () => {
     }
 
     try {
-    setIsloading(true)
+      setIsloading(true)
 
       const response = await fetch(`${API_URL}/activity/Register`, {
         method: "POST",
@@ -213,17 +267,29 @@ const Register = () => {
           password: "",
           confirmPassword: "",
         });
+        // Reset category button states
+        setButtonStates(Array(categories.length).fill(false));
+        // Clear selected categories
+        setSelectedCategories([]);
+        // Clear file input
+        setSelectedFile(null);
+        // Reset error states
+        setPasswordError(false);
+        setMobileError("");
+        setAadharError("");
+        setError("");
+
         notify("Registration Successful")
         // setIsloading(false)
       } else {
-        setError(data.message); // Update error message state
+        // setError(data.message); // Update error message state
         console.error("Error:", data.error); // Display error message to the user
         notify(data.message)
       }
     } catch (error) {
       console.error("Error:", error);
     }
-    finally{
+    finally {
       setIsloading(false)
     }
   };
@@ -239,30 +305,30 @@ const Register = () => {
   };
   return (
     <div className=" w-screen h-screen sm:w-screen sm:h-screen md:w-screen md:h-screen flex items-center justify-center pt-5 pb-5 sm:p-0">
-      
+
 
       <div
         className="relative overflow-hidden bg-cover bg-center w-4/12 h-full sm:w-full sm:h-full md:w-2/4 md:h-full lg:w-3/4 lg:h-full flex flex-col items-center justify-center border-[1px] rounded-lg py-0 sm:border-none"
 
       >
-      {isloading && (
-        <div className="w-full h-full bg-black-900/30 absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-50">
+        {isloading && (
+          <div className="w-full h-full bg-black-900/30 absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-50">
 
-        <CirclesWithBar 
-          height="100"
-          width="100"
-          color="#546ef6"
-          outerCircleColor="#546ef6"
-          innerCircleColor="#ffffff"
-          barColor="#ffffff"
-          ariaLabel="circles-with-bar-loading"
-          wrapperStyle={{}}
-          wrapperClass=""
-          visible={true}
-        />
-        </div>
+            <CirclesWithBar
+              height="100"
+              width="100"
+              color="#546ef6"
+              outerCircleColor="#546ef6"
+              innerCircleColor="#ffffff"
+              barColor="#ffffff"
+              ariaLabel="circles-with-bar-loading"
+              wrapperStyle={{}}
+              wrapperClass=""
+              visible={true}
+            />
+          </div>
 
-      )}
+        )}
 
         <div className="absolute -top-10 -right-20 w-64 h-64 bg-[#f5f6fe] rounded-full"></div>
         <div className="absolute -bottom-10 -left-20 w-64 h-64 bg-[#f5f6fe] rounded-full"></div>
@@ -277,7 +343,7 @@ const Register = () => {
 
           <form
             onSubmit={handleSubmit}
-            className=" w-5/6 h-full sm:w-full sm:h-full md:w-full md:h-full flex flex-col items-center justify-start sm:justify-start gap-y-3 sm:gap-y-4 sm:mt-2 px-6  "
+            className=" w-5/6 h-full sm:w-full sm:h-full md:w-full md:h-full flex flex-col items-center justify-start sm:justify-start gap-y-2.5 sm:gap-y-3 sm:mt-2 px-6  "
           >
 
             <div className="w-full h-7 flex flex-col items-center justify-center relative">
@@ -371,6 +437,24 @@ const Register = () => {
                 <div className="error-message">Passwords do not match</div>
               )}
             </div>
+            <div className="form-group w-full h-auto">
+              {/* <label htmlFor="organization">Select Organization</label> */}
+              <select
+                className="w-full  text-sm  pl-10 border-solid border-[1px]  border-gray-300 bg-inherit rounded-md focus:border-emerald-300 ease-in duration-300"
+                id="organization"
+                value={selectedOrganization}
+                onChange={(e) => setSelectedOrganization(e.target.value)}
+
+              >
+                <option className="w-full" value="" disabled>Select Organization</option>
+                {organizations.map((organization) => (
+                  <option className="w-full" key={organization._id} value={organization._id}>
+                    {organization.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
 
             <div className="w-full h-7 mt-1 flex items-center justify-center">
               <h2 className="font-semibold">Profile Picture </h2>
@@ -382,47 +466,26 @@ const Register = () => {
               />
             </div>
 
-            <h2 className="text-xl font-bold ">
-              Select Interested Areas
-            </h2>
-            <div className="sm:w-full grid grid-cols-2  gap-2 pl-3 pr-3  ">
-              <InputWithIconAndText
-                type="checkbox"
-                text={"Planting Tree"}
-                className=" p-2 border-double border-4  rounded-lg focus:border-emerald-300  ease-in duration-300"
-                onClick={() => handleButtonClick(0, "Planting tree")}
-              />
-              <InputWithIconAndText
-                type="checkbox"
-                text={"Teaching Kids"}
-                className=" p-2 border-double border-4  rounded-lg focus:border-emerald-300 ease-in duration-300"
-                onClick={() => handleButtonClick(1, "Teaching Kids")}
-              />
-              <InputWithIconAndText
-                type="checkbox"
-                text={"Feeding the poor"}
-                className=" p-2 border-double border-4  rounded-lg focus:border-emerald-300 ease-in duration-300"
-                onClick={() => handleButtonClick(2, "Feeding the poor")}
-              />
-              <InputWithIconAndText
-                type="checkbox"
-                text={"Local Cleaning"}
-                className=" p-2 border-double border-4  rounded-lg focus:border-emerald-300 ease-in duration-300"
-                onClick={() => handleButtonClick(3, "Local Cleaning")}
-              />
-              <InputWithIconAndText
-                type="checkbox"
-                text={"Blood Donation"}
-                className=" p-2 border-double border-4  rounded-lg focus:border-emerald-300 ease-in duration-300"
-                onClick={() => handleButtonClick(4, "Blood Donation")}
-              />
-              <InputWithIconAndText
-                type="checkbox"
-                text={"Running a marathon"}
-                className=" p-2 border-double border-4  rounded-lg focus:border-emerald-300 ease-in duration-300"
-                onClick={() => handleButtonClick(5, "Running a marathon")}
-              />
+
+            <div className="w-full h-auto flex flex-col items-center justify-center  relative">
+              <label className="block font-bold mb-2">Select Categories:</label>
+              <div className="grid grid-cols-3 gap-2">
+                {categories.map((category, index) => (
+                  <button
+                    key={index}
+                    type="button"
+                    className={`py-3 px-6 rounded ${buttonStates[index] ? "bg-[#546ef6] text-white" : "bg-gray-200 text-black"
+                      }`}
+                    onClick={() => handleButtonClick(index, category.name)}
+                  >
+                    {category.name}
+                  </button>
+                ))}
+              </div>
             </div>
+
+
+
             <Button className="bg-[#546ef6] text-white-A700 text-lg w-full p-0 sm:w-5/6 rounded-md mt-[-5px]">
               Create Account
             </Button>

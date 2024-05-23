@@ -133,7 +133,7 @@ const DesktopOnePage = () => {
 
       const data = await response.json();
 
-      console.log("kya response aa rha hai", data);
+      // console.log("kya response aa rha hai", data);
 
       if (!response.ok) {
         setLoginAttempted(true);
@@ -245,11 +245,11 @@ const DesktopOnePage = () => {
     // console.log("ye rha google ka response", response);
     try {
       const { access_token } = response;
-      console.log("kya humko token mila", access_token)
+      // console.log("kya humko token mila", access_token)
       // await getUserProfile(access_token)
 
       if (!access_token) {
-        console.log("bhaiya token nhi mil rha hai ");
+        // console.log("bhaiya token nhi mil rha hai ");
       }
       const formData = new FormData();
       // console.log("aur ye hai formdata", formData)

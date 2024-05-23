@@ -12,25 +12,25 @@ export const AuthProvider = ({ children }) => {
 
 
 
-  console.log("ye hai loading statuus", isloading)
+  // console.log("ye hai loading statuus", isloading)
   useEffect(() => {
     // setIsloading(true)
 
     const token = localStorage.getItem('token');
     const userKey = localStorage.getItem("userKey");
-    console.log("token", token)
-    console.log("userKey", userKey)
+    // console.log("token", token)
+    // console.log("userKey", userKey)
 
     if (userKey && token) {
 
-      console.log("token", token)
-      console.log("userKey", userKey)
+      // console.log("token", token)
+      // console.log("userKey", userKey)
 
       setAuthenticated(true);
 
 
       const userRole = localStorage.getItem("role");
-      console.log(userRole)
+      // console.log(userRole)
 
       if (userRole === "admin") {
         setIsAdmin(true);
@@ -41,8 +41,8 @@ export const AuthProvider = ({ children }) => {
 
   }, []);
 
-  console.log("authenticated ", authenticated)
-  console.log("isAdmin", isAdmin)
+  // console.log("authenticated ", authenticated)
+  // console.log("isAdmin", isAdmin)
 
 
   return (

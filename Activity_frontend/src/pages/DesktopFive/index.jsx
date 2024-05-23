@@ -5,18 +5,43 @@ import { API_URL } from "Constant";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "components/AuthProvider/AuthProvider";
 import "./style.css"
+import { toast } from "react-toastify";
+
 
 const DesktopFivePage = () => {
-  const [userPosts, setUserPosts] = useState([]);
+  const notify = (e) => toast(e);
   const [error, setError] = useState(null);
   const { authenticated, setAuthenticated } = useAuth();
   const [userData, setUserData] = useState(null);
   const navigate = useNavigate();
-  const [locationData, setLocationData] = useState(null);
   const [totalTime, setTotalTime] = useState(null); // Added state for total time
   const [userName, setUserName] = useState(""); // Added state for user name
   const [usersWithMostPostsInYear, setUsersWithMostPostsInYear] = useState([]);
 
+
+
+  const checkTokenExpiry = async (token) => {
+    try {
+      const response = await fetch(`${API_URL}/activity/profile`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      // console.log("ye rha response", response)
+
+      if (!response.ok) {
+        // Token might be expired or invalid, so log the user out
+        // handleLogout();
+        navigate("/login")
+        notify("Session time Out")
+      }
+    } catch (error) {
+      notify(error)
+      console.error("Error checking token expiry:", error);
+    }
+  };
 
   // Check if both token and user key are present in local storage
   useEffect(() => {
@@ -29,7 +54,8 @@ const DesktopFivePage = () => {
     } else {
       // Fetch user data when component mounts
       fetchUserData(token);
-      MostPostsInYear()
+      MostPostsInYear(token)
+      checkTokenExpiry(token);
     }
 
     // You may also want to check the validity of the token here if needed
@@ -163,6 +189,9 @@ const DesktopFivePage = () => {
   const mnguser = ()=>{
     navigate("/manageusers")
   }
+  const mngorg = ()=>{
+    navigate("/manageorganization")
+  }
   const generatereport = ()=>{
     navigate("/generatereport")
   }
@@ -210,14 +239,14 @@ const DesktopFivePage = () => {
             </Button>
           </div>
 
-          <div className="w-full h-full  p-4">
+          <div className="w-full h-full  p-1">
 
             <h1 className="text-xl font-semibold w-full pl-3">Top Five Stars</h1>
-            <div className=" h-full scroller overflow-x-auto p-3">
-              <div className="flex h-full space-x-4">
+            <div className=" h-[90%] scroller overflow-x-auto p-3 ">
+              <div className="flex h-full space-x-3 ">
 
-                <div className="rounded-lg shadow-bs  shadow-black-900 w-52 h-full border-[1px] flex-shrink-0 flex flex-col items-center justify-center pt-4 text-xl font-medium">
-                  <h1 className="text-[#546ef6]">Month</h1>
+                <div className="rounded-lg shadow-bs  shadow-black-900 w-48 h-full border-[1px] flex-shrink-0 flex flex-col items-center justify-center pt-4 text-xl font-medium">
+                  <h1 className="text-[#546ef6] font-bold">Month</h1>
                   <div className="w-full h-full flex flex-col gap-3 pt-2">
 
                     {usersWithMostPostsInYear.map((user, index) => (
@@ -227,8 +256,8 @@ const DesktopFivePage = () => {
                     ))}
                   </div>
                 </div>
-                <div className="rounded-lg shadow-bs shadow-black-900 w-52 h-full border-[1px] flex-shrink-0 flex flex-col items-center justify-center pt-4 text-xl font-medium">
-                  <h1 className="text-[#546ef6]">Six Month</h1>
+                <div className="rounded-lg shadow-bs shadow-black-900 w-48 h-full border-[1px] flex-shrink-0 flex flex-col items-center justify-center pt-4 text-xl font-medium">
+                  <h1 className="text-[#546ef6] font-bold">Six Month</h1>
                   <div className="w-full h-full flex flex-col gap-3 pt-2">
 
                     {usersWithMostPostsInYear.map((user, index) => (
@@ -238,8 +267,8 @@ const DesktopFivePage = () => {
                     ))}
                   </div>
                 </div>
-                <div className="rounded-lg shadow-bs shadow-black-900 w-52 h-full border-[1px] flex-shrink-0 flex flex-col items-center justify-center pt-4 text-xl font-medium">
-                  <h1 className="text-[#546ef6]">Year</h1>
+                <div className="rounded-lg shadow-bs shadow-black-900 w-48 h-full border-[1px] flex-shrink-0 flex flex-col items-center justify-center pt-4 text-xl font-medium">
+                  <h1 className="text-[#546ef6] font-bold">Year</h1>
                   <div className="w-full h-full flex flex-col gap-3 pt-2">
 
                     {usersWithMostPostsInYear.map((user, index) => (
@@ -254,17 +283,19 @@ const DesktopFivePage = () => {
             </div>
           </div>
 
-          <div className=" w-full h-full">
-            <div className=" w-full h-1/2 flex flex-wrap  items-center justify-between pl-4 pr-4 pt-1 pb-1">
-              <div className="w-[48%] rounded-lg bg-[#e9ecfe] border-[1px] border-[#546ef6] text-[#546ef6] h-1/3 flex flex-shrink-2 items-center justify-center font-semibold cursor-pointer" onClick={apphour}><h1>Approve Hours</h1></div>
-              <div className="w-[48%] rounded-lg bg-[#e9ecfe] border-[1px] border-[#546ef6] text-[#546ef6] h-1/3 flex flex-shrink-2 items-center justify-center font-semibold cursor-pointer" onClick={magcate}><h1>Manage Category</h1></div>
-              <div className="w-[48%] rounded-lg bg-[#e9ecfe] border-[1px] border-[#546ef6] text-[#546ef6] h-1/3 flex flex-shrink-2 items-center justify-center font-semibold cursor-pointer" onClick={mngapp}><h1>Manage Approvers</h1></div>
-              <div className="w-[48%] rounded-lg bg-[#e9ecfe] border-[1px] border-[#546ef6] text-[#546ef6] h-1/3 flex flex-shrink-2 items-center justify-center font-semibold cursor-pointer" onClick={mnguser}><h1>Manage Users</h1></div>
+          <div className=" w-full h-full pt-3 ">
+            <div className=" w-full h-3/5 flex flex-wrap items-center justify-between pl-4 pr-4 pt-1 pb-1">
+              <div className="w-[48%] rounded-lg bg-[#e9ecfe] border-[1px] border-[#546ef6] text-[#546ef6] h-1/4 flex  items-center justify-center font-semibold cursor-pointer" onClick={apphour}><h1>Approve Hours</h1></div>
+              <div className="w-[48%] rounded-lg bg-[#e9ecfe] border-[1px] border-[#546ef6] text-[#546ef6] h-1/4 flex flex-shrink-2 items-center justify-center font-semibold cursor-pointer" onClick={magcate}><h1>Manage Category</h1></div>
+              <div className="w-[48%] rounded-lg bg-[#e9ecfe] border-[1px] border-[#546ef6] text-[#546ef6] h-1/4 flex flex-shrink-2 items-center justify-center font-semibold cursor-pointer" onClick={mngapp}><h1>Manage Approvers</h1></div>
+              <div className="w-[48%] rounded-lg bg-[#e9ecfe] border-[1px] border-[#546ef6] text-[#546ef6] h-1/4 flex flex-shrink-2 items-center justify-center font-semibold cursor-pointer" onClick={mnguser}><h1>Manage Users</h1></div>
+              <div className="w-full rounded-lg bg-[#e9ecfe] border-[1px] border-[#546ef6] text-[#546ef6] h-1/4 flex flex-shrink-2 items-center justify-center font-semibold cursor-pointer" onClick={mngorg}><h1>Manage Organisation</h1></div>
+
             </div>
 
-            <div className="flex flex-col items-center justify-end w-full h-1/2 " >
-                  <button onClick={generatereport} className="w-4/5 p-3 rounded-full bg-[#546ef6] text-white-A700 text-base font-semibold">Generate Report</button>
-                  <button className="w-4/5 p-3 mt-2 mb-2 rounded-full bg-[#546ef6] text-white-A700 text-base font-semibold">Submit</button>
+            <div className="flex flex-col items-center justify-center gap-1  w-full h-2/5  " >
+                  <button onClick={generatereport} className="w-4/5 p-2 rounded-full bg-[#546ef6] text-white-A700 text-base font-semibold">Generate Report</button>
+                  <button className="w-4/5 p-2  rounded-full bg-[#546ef6] text-white-A700 text-base font-semibold">Submit</button>
             </div>
           </div>
         </div>

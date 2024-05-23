@@ -25,13 +25,25 @@ db.sequelize = sequelize;
 
 
 db.users = require("./LoginRouter")(sequelize, DataTypes);
-// db.Posts = require('./CreatePost')(sequelize,DataTypes);
 db.Posts = require('./CreatePost')(sequelize, DataTypes);
 db.Endorsement = require('./endorse')(sequelize, DataTypes);
+db.Categories  = require('./Category')(sequelize, DataTypes);
+db.Organisations = require('./organization')(sequelize, DataTypes);
 
 // Define the relationship between User and Post
 db.users.hasMany(db.Posts, { foreignKey: 'UserId' }); // Assuming 'UserId' is the foreign key in the Post model
 db.Posts.belongsTo(db.users, { foreignKey: 'UserId' }); // Assuming 'UserId' is the foreign key in the Post model
+
+// Define the relationship between User and Organization
+db.users.hasMany(db.Organisations, { foreignKey: 'id' });
+db.Organisations.belongsTo(db.users,{ foreignKey: 'id' })
+
+
+// // Define the relationship between Category and Post
+// db.Categories.hasMany(db.Posts, { foreignKey: "CategoryId" });
+// db.Posts.belongsTo(db.Categories, { foreignKey: "CategoryId" });
+
+
 
 db.sequelize.sync().then(() => {
 	console.log("yes sync");

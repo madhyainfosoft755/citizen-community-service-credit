@@ -11,21 +11,17 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLocationDot, faCalendarAlt } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
 import { CirclesWithBar } from 'react-loader-spinner'
-import Modal from 'react-modal';
 
 const Createpost = () => {
   const [isLoading, setIsLoading] = useState(false); // State for loader
-  const [isPhoneNumberModalOpen, setIsPhoneNumberModalOpen] = useState(false);
-  const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
-  const [isChangingPassword, setIsChangingPassword] = useState(false);
-  const [userConfirmed, setUserConfirmed] = useState(false);
   const notify = (e) => toast(e);
   const navigate = useNavigate();
   const [currentDate, setCurrentDate] = useState("");
   const handleDateChange = (e) => {
     setCurrentDate(e.target.value);
   };
+  const [categories, setCategories] = useState([]);
   const [selectedCategories, setSelectedCategories] = useState([]);
   const { authenticated, setAuthenticated } = useAuth();
   const [userData, setUserData] = useState();
@@ -50,34 +46,47 @@ const Createpost = () => {
     city: "",
     state: "",
   });
-  const buttons = [
-    { id: 1, label: "Gardening" },
-    { id: 2, label: "Cleaning" },
-    { id: 3, label: "Teaching Poor" },
-    { id: 4, label: "Planting Tree" },
-    { id: 5, label: "Marathon" },
-    { id: 6, label: "Social Activities" },
-  ];
+  // const buttons = [
+  //   { id: 1, label: "Gardening" },
+  //   { id: 2, label: "Cleaning" },
+  //   { id: 3, label: "Teaching Poor" },
+  //   { id: 4, label: "Planting Tree" },
+  //   { id: 5, label: "Marathon" },
+  //   { id: 6, label: "Social Activities" },
+  // ];
 
   const [error, setError] = useState(null);
 
+  useEffect(() => {
+    // Fetch categories from the database
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch(`${API_URL}/activity/getCategories`);
+        const data = await response.json();
+        // console.log("data", data)
+        if (response.ok) {
+          if (data.length > 0) {
 
-  // // Function to get and format the current date
-  // useEffect(() => {
-  //   const getCurrentDate = () => {
-  //     const dateObj = new Date();
-  //     const formattedDate = `${dateObj.getDate()} ${dateObj.toLocaleString(
-  //       "default",
-  //       {
-  //         month: "short",
-  //       }
-  //     )} ${dateObj.getFullYear()}`;
-  //     setCurrentDate(formattedDate);
-  //   };
+            const sortedCategories = data.sort((a, b) => a.name.localeCompare(b.name));
+            const limitedCategories = sortedCategories.slice(0, 6);
+            setCategories(limitedCategories);
+          }
+          else {
+            // notify(data.message)
+            console.log(data.message)
 
-  //   // Call the function when the component mounts
-  //   getCurrentDate();
-  // }, []);
+          }
+
+        } else {
+          console.error("Error fetching categories:", data.message);
+        }
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -125,9 +134,9 @@ const Createpost = () => {
     }
   };
 
-  const handleButtonClick = (label) => {
-    setSelectedButton(label);
-    setSelectedCategories(label);
+  const handleButtonClick = (name) => {
+    setSelectedButton(name);
+    setSelectedCategories(name);
   };
 
   const checkTokenExpiry = async (token) => {
@@ -192,11 +201,7 @@ const Createpost = () => {
             setUserName(userData.userData.name)
             setUserData(userData); // Update user data in the state
 
-            if (userData.userData.googleId) {
-              console.log("ye hai user ki detailed google id", userData.userData.googleId)
-              setIsPhoneNumberModalOpen(true);
-              setPassword(userData.userData.password);
-            }
+            
           } else {
             console.error("Error fetching user data: Response is not JSON");
           }
@@ -240,18 +245,12 @@ const Createpost = () => {
     totalTimeSpent()
   }, [userData])
 
-  const handleLogout = () => {
-    // Clear authentication status, remove token and user key, and redirect to the login page
-    setAuthenticated(false);
-    localStorage.removeItem("token");
-    localStorage.removeItem("userKey");
-    navigate("/login");
-  };
+
 
 
   // Function to fetch user data and check if confirm is true
   const checkUserConfirmation = async () => {
-    console.log("checking")
+    // console.log("checking")
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(`${API_URL}/activity/profile`, {
@@ -261,9 +260,8 @@ const Createpost = () => {
         },
       });
       const userData = await response.json();
-      console.log("kya hia ", userData)
+      // console.log("kya hia ", userData)
       if (response.ok) {
-        setUserConfirmed(userData.userData.confirm);
       } else {
         console.error("Error fetching user data");
       }
@@ -275,85 +273,6 @@ const Createpost = () => {
   useEffect(() => {
     checkUserConfirmation();
   }, []);
-
-  const handleSubmitButtonClick = (e) => {
-    if (e) {
-      e.preventDefault(); // Prevent default button behavior
-    }
-    // Call handlePhoneNumberSubmit only when the submit button in this form is clicked
-    handlePhoneNumberSubmit(e);
-  };
-  const handelPasswordSubmit = (e) => {
-    if (e) {
-      e.preventDefault(); // Prevent default button behavior
-    }
-    // Call handlePhoneNumberSubmit only when the submit button in this form is clicked
-    handlePasswordChangeSubmit(e);
-  };
-
-
-  const handlePhoneNumberSubmit = async (e) => {
-    e.preventDefault();
-    const token = localStorage.getItem("token");
-    const userId = userData.userData.id;
-    console.log("ye hai user ID", userId)
-    // Check if phoneNumber is exactly 10 digits
-    if (phoneNumber.length !== 10 || isNaN(phoneNumber)) {
-      notify("Phone number must be a 10-digit number");
-      return; // Stop further execution
-    }
-    try {
-      const response = await fetch(`${API_URL}/activity/UpdatePhoneNumber`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ userId, phone: phoneNumber }),
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-        notify("Phone number registered successfully");
-        setIsPhoneNumberModalOpen(false);
-      } else {
-        console.error("Error:", data.error);
-        notify(`${data.error}`);
-      }
-    } catch (error) {
-      console.error("Error:", error);
-      notify("Failed to register Number");
-    }
-  };
-
-
-
-  const handlePasswordChangeSubmit = async (e) => {
-    e.preventDefault();
-    const token = localStorage.getItem("token");
-    try {
-      const response = await fetch(`${API_URL}/activity/changePassword`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ password }),
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-        notify("Password changed successfully");
-        setIsChangingPassword(true);
-      } else {
-        console.error("Error:", data.error);
-        notify(`${data.error}`);
-      }
-    } catch (error) {
-      console.error("Error:", error);
-      notify("Password has not changed")
-    }
-  };
 
 
 
@@ -439,6 +358,7 @@ const Createpost = () => {
   }, []);
   // 
 
+  console.log("ye hai user data", userData)
   return (
     <>
       {authenticated && (
@@ -510,14 +430,34 @@ const Createpost = () => {
                   <h1 className="text-md font-semibold shadow-bs3 shadow-gray-300 py-1  w-1/2 h-full flex items-center justify-center rounded-3xl mb-2">+ Add New Activity</h1>
                   <button type="button" onClick={Endorse} className="bg-[#546ef6] w-1/2 h-full font-semibold rounded-3xl text-white-A700">Endorse Activities</button>
                 </div>
+
+                <div className="w-full flex items-center justify-between">
                 <Text
                   className="text-base text-gray-900"
                   size="txtInterSemiBold16Gray900"
                 >
                   Select Category
                 </Text>
+                  {userData && (
+                <small>Organization: <span>{userData.userData.organization ? userData.userData.organization: 'NA'}</span></small>
+                  )}
+                </div>
                 <div className="flex flex-wrap items-center justify-between  w-full">
-                  {buttons.map((button) => (
+                  {categories.map((category) => (
+                    <label
+                      key={category.id}
+                      className={`flex flex-wrap text-sm rounded-lg items-center justify-center border-2 overflow-hidden border-double border-white mt-1 w-5/12 px-5 py-2 sm:px-5 sm:py-3 cursor-pointer ${selectedCategories === category.name ? "border-[1px] border-[#546ef6] text-[#546ef6] bg-sky-50/40" : ""} `}
+                    >
+                      <input
+                        type="radio"
+                        name="radioButtons"
+                        className="hidden"
+                        onClick={() => handleButtonClick(category.name)}
+                      />
+                      <span className="font-medium">{category.name}</span>
+                    </label>
+                  ))}
+                  {/* {buttons.map((button) => (
                     <label
                       key={button.id}
                       className={`flex flex-wrap text-sm rounded-lg items-center justify-center border-2 overflow-hidden border-double border-white mt-1 w-5/12 px-5 py-2  sm:px-5 sm:py-3  cursor-pointer ${selectedButton === button.label
@@ -531,7 +471,7 @@ const Createpost = () => {
                       />
                       <span className="font-medium">{button.label}</span>
                     </label>
-                  ))}
+                  ))} */}
                 </div>
 
                 <div className="flex flex-row gap-2 items-center justify-between   w-full  mt-4 mb-4">
@@ -684,57 +624,6 @@ const Createpost = () => {
 
               </div>
             </div>
-
-            {!userConfirmed && (
-              <>
-
-
-                {/* Modal for Phone Number Registration */}
-                <Modal isOpen={isPhoneNumberModalOpen} onRequestClose={() => setIsPhoneNumberModalOpen(false)}
-                  className="w-full h-full bg-white-A700/50 flex flex-col gap-2 items-center justify-center" >
-
-                  <h2>Register Phone Number</h2>
-
-                  <form onSubmit={handlePhoneNumberSubmit}>
-                    <input
-                      type="text"
-                      placeholder="Enter Phone Number"
-                      value={phoneNumber}
-                      onChange={(e) => setPhoneNumber(e.target.value)}
-                      className="w-full border border-gray-300 rounded-lg px-4 py-2 mb-4"
-                    />
-                    <button type="button" onClick={handleSubmitButtonClick} className="bg-blue-500 text-white py-2 px-4 rounded">
-                      Submit
-                    </button>
-                  </form>
-
-                </Modal>
-              </>
-            )}
-
-
-            {/* Modal for Changing Password */}
-            {isChangingPassword && (
-              <Modal isOpen={isChangingPassword} onRequestClose={() => setIsChangingPassword(false)}
-                className="w-full h-full bg-white-A700/50 flex flex-col gap-2 items-center justify-center" >
-                <h2>Change Password</h2>
-                <form onSubmit={handlePasswordChangeSubmit}>
-                  <input
-                    type="password"
-                    placeholder="New Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full border border-gray-300 rounded-lg px-4 py-2 mb-4"
-                  />
-                  <button type="button" onClick={handelPasswordSubmit} className="bg-blue-500 text-white py-2 px-4 rounded">
-                    Change Password
-                  </button>
-                </form>
-              </Modal>
-            )}
-
-
-
           </div>
         </form>
       )}

@@ -44,12 +44,12 @@ const DesktopSevenPage = () => {
         });
       
         const data = await response.json();
-        console.log("ye hai response",data)
+        // console.log("ye hai response",data)
         if (response.ok) {
           setPosts(data)
         }
         else{
-          console.log("hello")
+          // console.log("hello")
           setPosts([])
           notify(data.message)
         }
@@ -92,7 +92,7 @@ const DesktopSevenPage = () => {
     const token = localStorage.getItem("token");
     const userKey = localStorage.getItem("userKey");
 
-    console.log("ye hai token ",token)
+    // console.log("ye hai token ",token)
 
     if (!token || !userKey) {
       // Redirect to the login page if either token or user key is missing
@@ -116,7 +116,7 @@ const DesktopSevenPage = () => {
     navigate("/admin");
   };
 
-  console.log("ye rhe posts", posts)
+  // console.log("ye rhe posts", posts)
 
   const formatTime = (time) => {
     const [hours, minutes] = time.split(":");

@@ -10,6 +10,8 @@ const Users = db.users;
 const axios = require('axios')
 const Posts = db.Posts;
 const Endorsement = db.Endorsement;
+const Categories = db.Categories;
+const Organizations = db.Organisations
 const Jwt = require("jsonwebtoken");
 const { logger } = require("../utils/util");
 const { CLIENT_ID, CLIENT_SECRET, CALLBACK_URL } = require('../config/constant');
@@ -239,13 +241,6 @@ const Register = async (req, res) => {
     const { selectedCategories } = req.body;
     console.log("category Register", selectedCategories);
 
-    // // Check if files were uploaded
-    // const photos =
-    //   req.files && req.files.photo
-    //     ? req.files.photo.map((file) => file.filename)
-    //     : [];
-    // console.log("this is the requested data", req.files);
-
     const Category = selectedCategories;
 
     // const photos_ = photos.reduce(
@@ -264,7 +259,8 @@ const Register = async (req, res) => {
       photo: photoFile[0].filename,
       category: Category,
       verificationToken: verificationToken, // Store verification token in the database
-      role:"user"
+      role:"user",
+      organization: userData.organization // Add the organization field
 
       // Add other fields as needed
     });
@@ -649,7 +645,7 @@ const profile = async (req, res) => {
         });
 
         const [rows] = await connection.execute(
-          "SELECT `id`, `name`,`photo`, `email`, `googleId` FROM `users` WHERE id = ?",
+          "SELECT `id`, `name`,`photo`, `email`, `googleId`, `organization` FROM `users` WHERE id = ?",
           [userId]
         );
 
@@ -663,6 +659,7 @@ const profile = async (req, res) => {
             photo: rows[0].photo,
             totalTime: rows[0].totalTime, // Include totalTime from the database
             googleId: rows[0].googleId, // Include googleId from the database
+            organization: rows[0].organization, // Include googleId from the database
           };
 
           res.json({
@@ -1104,6 +1101,19 @@ const fetchPostsInArea = async (req, res) => {
   }
 };
 
+const getCategories = async (req, res) => {
+  try {
+    const categories = await Categories.findAll({ where: { isEnabled: true } });
+
+    if (categories.length === 0) {
+      return res.status(200).json({ message: "No categories found" });
+    }
+
+    res.status(200).json(categories);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch categories", error });
+  }
+};
 
 
 
@@ -1262,6 +1272,138 @@ const pendingApproval = async(req,res)=>{
   }
 }
 
+const createCategory = async (req, res) => {
+  try {
+    const { name,isEnabled  } = req.body;
+    if (!name) {
+      return res.status(400).json({ message: "Category name is required" });
+    }
+     // Check if the category already exists
+     const existingCategory = await Categories.findOne({ where: { name } });
+     if (existingCategory) {
+       return res.status(400).json({ message: "Category already exists" });
+     }
+    const category = await Categories.create({ name,isEnabled  });
+    res.status(201).json({ message: "Category created successfully", category });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to create category", error});
+  }
+};
+
+const getCategoriesAdmin = async (req, res) => {
+  try {
+    const { isEnabled } = req.query;
+    const whereCondition = {};
+    if (isEnabled !== undefined) {
+      whereCondition.isEnabled = isEnabled === "true"; // Convert string to boolean
+    }
+
+    const categories = await Categories.findAll({ where: whereCondition });
+    console.log("ye rhi categorires", categories)
+    if (categories.length === 0) {
+      return res.status(200).json({ message: "No categories found" });
+    }
+    res.status(200).json(categories);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+};
+
+const  toggleCategory = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { isEnabled } = req.body;
+
+    // Find the category by ID
+    const category = await Categories.findByPk(id);
+
+    if (!category) {
+      return res.status(404).json({ message: "Category not found" });
+    }
+
+    // Update the category's isEnabled status
+    category.isEnabled = isEnabled;
+    await category.save();
+
+    res.status(200).json({ message: "Category status updated successfully", category });
+  } catch (error) {
+    console.error("Error toggling category:", error);
+    res.status(500).json({ message: "Failed to toggle category", error });
+  }
+};
+
+const createOrganization = async (req, res) => {
+  try {
+    const { name } = req.body;
+    if (!name) {
+      return res.status(400).json({ message: "Organization name is required" });
+    }
+
+    // Check if the organization already exists
+    const existingOrganization = await Organizations.findOne({ where: { name } });
+    if (existingOrganization) {
+      return res.status(400).json({ message: "Organization already exists" });
+    }
+
+    const organization = await Organizations.create({ name });
+    res.status(201).json({ message: "Organization created successfully", organization });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to create organization", error });
+  }
+};
+
+const getOrganizationsAdmin = async (req, res) => {
+  try {
+    const { isEnabled } = req.query;
+    const whereCondition = {};
+    if (isEnabled !== undefined) {
+      whereCondition.isEnabled = isEnabled === "true"; // Convert string to boolean
+    }
+
+    const organizations = await Organizations.findAll({ where: whereCondition });
+    console.log("ye rhi categorires", organizations)
+    if (organizations.length === 0) {
+      return res.status(200).json({ message: "No categories found" });
+    }
+    res.status(200).json(organizations);
+  } catch (error) {
+    res.status(500).json(error);
+  }
+};
+
+const getOrganizations = async (req, res) => {
+  try {
+    const organizations = await Organizations.findAll({ where: { isEnabled: true } });
+
+    if (organizations.length === 0) {
+      return res.status(200).json({ message: "No organizations found" });
+    }
+
+    res.status(200).json(organizations);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch organizations", error });
+  }
+};
+
+const toggleOrganization = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const organization = await Organizations.findByPk(id);
+
+    if (!organization) {
+      return res.status(404).json({ message: "Organization not found" });
+    }
+
+    organization.isEnabled = !organization.isEnabled;
+    await organization.save();
+
+    res.status(200).json({ message: "Organization toggled successfully", organization });
+  } catch (error) {
+    res.status(500).json({ message: "Failed to toggle organization", error });
+  }
+};
+
+
 
 
 module.exports = {
@@ -1289,5 +1431,13 @@ module.exports = {
   getUsersWithMostPostsInYear,
   approveHours,
   adminAuthMiddleware,
-  pendingApproval
+  pendingApproval,
+  createCategory,
+  getCategories,
+  getCategoriesAdmin,
+  toggleCategory,
+  createOrganization,
+  getOrganizations,
+  toggleOrganization,
+  getOrganizationsAdmin
 };
