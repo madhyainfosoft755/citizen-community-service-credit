@@ -82,12 +82,12 @@ const Slider1 = ({ items , isPopUpVisible, setIsPopUpVisible, setSelectedPost, s
               <div className="h-full py-4 mt-2 grid grid-rows-3 gap-4">
                 <div className="flex items-center justify-between gap-2">
                   <div className="w-34 ml-3 flex flex-col items-center justify-center">
-                    <h3 className="text-gray-500 mb-1 font-semibold">Activity</h3>
+                    <h3 className="text-gray-500 mb-1 font-semibold underline">Activity</h3>
                     <h3 className="text-center ">{item.category}</h3>
                   </div>
 
                   <div className=" flex flex-col items-end mr-4 justify-center">
-                    <h3 className="text-gray-500 font-semibold  mb-1">Location</h3>
+                    <h3 className="text-gray-500 font-semibold  mb-1 underline">Location</h3>
                     <h3 className="flex flex-wrap ">
                       {item.city},{item.state}
                     </h3>
@@ -96,24 +96,24 @@ const Slider1 = ({ items , isPopUpVisible, setIsPopUpVisible, setSelectedPost, s
 
                 <div className="flex items-center justify-between gap-2">
                   <div className="w-24 flex flex-col items-center justify-center">
-                    <h3 className="text-gray-500 mb-1 font-semibold">Total Time</h3>
+                    <h3 className="text-gray-500 mb-1 font-semibold underline">Total Time</h3>
                     <h3 className=" ">{item.totalTime}</h3>
                   </div>
 
                   <div className="w-24 flex flex-col items-center justify-center">
-                    <h3 className="text-gray-500 mb-1 font-semibold ">Endorsed</h3>
+                    <h3 className="text-gray-500 mb-1 font-semibold underline">Endorsed</h3>
                     <h3 className="">{item.endorsementCounter >= 3 ? "YES" : "NO"}</h3>
                   </div>
                 </div>
 
                 <div className="flex items-center justify-between gap-2">
                   <div className="w-24 flex flex-col items-center justify-center">
-                    <h3 className="text-gray-500 mb-1 font-semibold ">Approved</h3>
+                    <h3 className="text-gray-500 mb-1 font-semibold underline">Approved</h3>
                     <h3 className="">{item.approved == true ? "YES" : "NO"}</h3>
                   </div>
 
                   <div className="w-24 flex flex-col items-center justify-center">
-                    <h3 className="text-gray-500 mb-1 font-semibold">Images</h3>
+                    <h3 className="text-gray-500 mb-1 font-semibold underline">Images</h3>
                     <button onClick={() => handleViewPost(item)} className="text-blue-600 underline">View</button>
                   </div>
                 </div>
