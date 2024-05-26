@@ -29,6 +29,8 @@ db.Posts = require('./CreatePost')(sequelize, DataTypes);
 db.Endorsement = require('./endorse')(sequelize, DataTypes);
 db.Categories  = require('./Category')(sequelize, DataTypes);
 db.Organisations = require('./organization')(sequelize, DataTypes);
+db.Approvers = require('./Approver')(sequelize, DataTypes); // Add Approver model
+
 
 // Define the relationship between User and Post
 db.users.hasMany(db.Posts, { foreignKey: 'UserId' }); // Assuming 'UserId' is the foreign key in the Post model

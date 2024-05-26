@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Button, Img, Text } from "components";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCirclePlus, faCircleXmark, faSquareCheck, faUser, faEnvelope, faPhone, faLocationCrosshairs, faIdCard, faKey, faLock } from "@fortawesome/free-solid-svg-icons";
+import { faCirclePlus, faCircleXmark, faSquareCheck, faUser, faEnvelope, faPhone, faLocationCrosshairs, faIdCard, faKey, faLock, faDeleteLeft, faDumpster, faTrash, faEdit } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
 import { API_URL } from "Constant";
 import "./style.css"
@@ -14,6 +14,7 @@ const DesktopEightPage = () => {
   const navigate = useNavigate();
   const [showinput, setShowInput] = useState(false)
   const [error, setError] = useState("")
+  const [approvers, setApprovers] = useState([]);
 
   const goback = () => {
     navigate("/admin")
@@ -79,8 +80,9 @@ const DesktopEightPage = () => {
       aadhar: formData.get("aadhar"),
     };
 
+    console.log("ye hai data ", data)
     try {
-      const response = await fetch(`${API_URL}/approvers`, {
+      const response = await fetch(`${API_URL}/activity/addApprover`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -91,6 +93,7 @@ const DesktopEightPage = () => {
       if (response.ok) {
         notify("Approver added successfully");
         setShowInput(false);
+        fetchApprovers();
       } else {
         const errorData = await response.json();
         setError(errorData.message || "Error adding approver");
@@ -101,6 +104,65 @@ const DesktopEightPage = () => {
       notify(error.message);
     }
   };
+
+  const fetchApprovers = async () => {
+    try {
+      const response = await fetch(`${API_URL}/activity/fetchApprovers`, {
+        method: "GET",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        setApprovers(data);
+        notify(data.message)
+      } else {
+        notify(data.message);
+      }
+    } catch (error) {
+      notify(error);
+      console.error("Error fetching approvers:", error);
+    }
+  };
+
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    const userKey = localStorage.getItem("userKey");
+
+    if (!token || !userKey) {
+      navigate("/login");
+    } else {
+      checkTokenExpiry(token);
+      fetchApprovers();
+    }
+  }, []);
+
+  const handleUpdateApprover = (approverId) => {
+    // Implement update logic here
+    console.log("Update approver with ID:", approverId);
+  };
+
+  const handleDeleteApprover = async (approverId) => {
+    try {
+      const response = await fetch(`${API_URL}/activity/deleteApprover/${approverId}`, {
+        method: "DELETE",
+      });
+      if (response.ok) {
+        notify("Approver deleted successfully");
+        fetchApprovers(); // Refetch approvers after delete
+        
+      } else {
+        fetchApprovers(); // Refetch approvers after delete
+        console.error("Failed to delete approver");
+      }
+    } catch (error) {
+      console.error("Error deleting approver:", error);
+    }
+  };
+
+
   return (
     <div className="w-screen h-screen  bg-white-A700 flex items-start justify-center sm:w-screen sm:h-screen md:w-screen md:h-screen p-5 sm:p-0">
       <div className=" relative w-4/12 h-full sm:w-full sm:h-full md:w-3/4 md:h-full  lg:w-3/4 lg:h-full  flex flex-col items-center  justify-start gap-5 border-[1px] rounded-lg sm:rounded-none overflow-hidden">
@@ -127,7 +189,7 @@ const DesktopEightPage = () => {
 
           {showinput && (
             <div className="w-11/12 flex flex-col items-center justify-center absolute top-20 rounded-xl overflow-hidden shadow shadow-black-900">
-              <form  onSubmit={handleSubmit} className="w-full h-full flex flex-col items-center justify-center gap-2 bg-white-A700/50 border-2  rounded-xl overflow-hidden p-2">
+              <form onSubmit={handleSubmit} className="w-full h-full flex flex-col items-center justify-center gap-2 bg-white-A700/50 border-2  rounded-xl overflow-hidden p-2">
 
                 <div className="w-full flex items-center justify-center bg-white-A700 rounded-md border-[1px] border-gray-300 overflow-hidden">
                   <FontAwesomeIcon icon={faUser} className="text-[#546ef6] ml-2" />
@@ -139,7 +201,7 @@ const DesktopEightPage = () => {
                 </div>
                 <div className="w-full flex items-center justify-center bg-white-A700 rounded-md border-[1px] border-gray-300 overflow-hidden">
                   <FontAwesomeIcon icon={faPhone} className="text-[#546ef6] ml-2" />
-                  <input type="number" className="w-full h-7 border-none" placeholder="Phone Number" name="phone" />
+                  <input type="number" className="w-full h-7 border-none" placeholder="Phone Number" name="phone" required />
                 </div>
                 <div className="w-full flex items-center justify-center bg-white-A700 rounded-md border-[1px] border-gray-300 overflow-hidden">
                   <FontAwesomeIcon icon={faLocationCrosshairs} className="text-[#546ef6] ml-2" />
@@ -155,12 +217,34 @@ const DesktopEightPage = () => {
           )}
         </div>
 
-        <div className="flex flex-col gap-2.5 items-center justify-start w-11/12 scroller overflow-scroll ">
-
-
-          <div className="w-full h-auto flex items-center justify-center p-2">
-            <Img className="w-[80%] h-auto object-cover object-center" src="images/nopost.svg" alt="No posts available for endorsement" />
-          </div>
+        <div className="flex flex-col gap-2.5 items-center justify-start w-11/12 scroller overflow-scroll">
+          {approvers.length > 0 ? (
+            approvers.map((approver, index) => (
+              <div key={index} className="w-full border p-2 rounded-md flex items-center justify-between bg-[#e9ecfe]">
+              <div>
+                <Text className="font-semibold text-xl ml-3">{approver.name}</Text>
+              </div>
+              <div className=" flex gap-3 " >
+              <Button className="rounded-md" onClick={() => handleUpdateApprover(approver.id)}>
+                <FontAwesomeIcon icon={faEdit} className="text-[#546ef6] text-xl" />
+              </Button>
+              <Button className="rounded-md" onClick={() => handleDeleteApprover(approver.id)}>
+                <FontAwesomeIcon icon={faTrash} className="text-[#546ef6] text-xl" />
+              </Button>
+              </div>
+                {/* <Text>Email: {approver.email}</Text> */}
+                {/* Add other approver details here */}
+              </div>
+            ))
+          ) : (
+            <div className="w-full h-auto flex items-center justify-center p-2">
+              <Img
+                className="w-[80%] h-auto object-cover object-center"
+                src="images/nopost.svg"
+                alt="No approvers available"
+              />
+            </div>
+          )}
         </div>
       </div>
     </div>

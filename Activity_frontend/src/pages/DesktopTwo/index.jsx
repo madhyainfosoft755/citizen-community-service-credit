@@ -62,7 +62,7 @@ const Register = () => {
             setButtonStates(Array(limitedCategories.length).fill(false)); // Adjust button states based on categories length
           }
           else {
-            notify(data.message)
+            // notify(data.message)
           }
         } else {
           console.error("Error fetching categories:", data.message);
@@ -78,7 +78,7 @@ const Register = () => {
         const response = await fetch(`${API_URL}/activity/getOrganizations`);
         const data = await response.json();
         if (response.ok) {
-          setOrganizations(data);
+          setOrganizations(Array.isArray(data) ? data : []); // Ensure data is an array
         } else {
           console.error("Error fetching organizations:", data.message);
         }

@@ -11,7 +11,8 @@ const axios = require('axios')
 const Posts = db.Posts;
 const Endorsement = db.Endorsement;
 const Categories = db.Categories;
-const Organizations = db.Organisations
+const Organizations = db.Organisations;
+const Approver = db.Approvers;
 const Jwt = require("jsonwebtoken");
 const { logger } = require("../utils/util");
 const { CLIENT_ID, CLIENT_SECRET, CALLBACK_URL } = require('../config/constant');
@@ -925,6 +926,7 @@ const AllDetails = async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 };
+
 const TotalTimeSpent = async (req, res) => {
 
   try {
@@ -1132,8 +1134,6 @@ const adminAuthMiddleware = (req, res, next) => {
     return res.status(403).json({ error: 'Unauthorized access' });
   }
 };
-
-
 
 const isAdmin = (req, res, next) => {
   // Check if the user is authenticated and has the admin role
@@ -1403,6 +1403,103 @@ const toggleOrganization = async (req, res) => {
   }
 };
 
+const addApprover = async (req, res) => {
+  try {
+    const approverData = req.body;
+    console.log("Received approver data:", approverData);
+
+    // Validation
+    if (!approverData.name) {
+      return res.status(400).json({ message: "Name is required" });
+    }
+    if (!approverData.email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+    if (!approverData.address) {
+      return res.status(400).json({ message: "Address is required" });
+    }
+
+    // Check if approver with the same email already exists
+    const existingApprover = await Approver.findOne({ where: { email: approverData.email } });
+    if (existingApprover) {
+      return res.status(400).json({ message: "Email already exists in approvers" });
+    }
+
+    // Check if the email exists in the users table
+    const existingUser = await Users.findOne({ where: { email: approverData.email } });
+    if (existingUser) {
+      return res.status(400).json({ message: "Email already exists in users. Cannot make this user an approver." });
+    }
+
+    // Create a new approver instance and save it to the database
+    const newApprover = await Approver.create({
+      name: approverData.name,
+      email: approverData.email,
+      phone: approverData.phone,
+      address: approverData.address,
+      aadhar: approverData.aadhar,
+    });
+
+    return res.status(201).json({
+      status: "success",
+      message: "Approver added successfully",
+      data: newApprover,
+    });
+  } catch (error) {
+    console.error("Adding approver failed:", error);
+    return res.status(500).json({
+      status: "error",
+      message: "Adding approver failed",
+    });
+  }
+};
+
+const fetchApprovers = async (req, res) => {
+  try {
+    const approvers = await Approver.findAll();
+    if (approvers.length === 0) {
+      return res.status(404).json({
+        status: "error",
+        message: "No approvers found",
+      });
+    }
+    return res.status(200).json(approvers);
+  } catch (error) {
+    console.error("Fetching approvers failed:", error);
+    return res.status(500).json({
+      status: "error",
+      message: "Fetching approvers failed",
+    });
+  }
+};
+
+// Update an approver
+
+const updateApprover = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const updatedApprover = await Approver.update(req.body, {
+      where: { id },
+    });
+    res.json(updatedApprover);
+  } catch (error) {
+    console.error("Error updating approver:", error);
+    res.status(500).json({ message: "Error updating approver" });
+  }
+};
+
+// Delete an approver
+
+const deleteApprover = async (req, res) => {
+  const { id } = req.params;
+  try {
+    await Approver.destroy({ where: { id } });
+    res.json({ message: "Approver deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting approver:", error);
+    res.status(500).json({ message: "Error deleting approver" });
+  }
+};
 
 
 
@@ -1439,5 +1536,9 @@ module.exports = {
   createOrganization,
   getOrganizations,
   toggleOrganization,
-  getOrganizationsAdmin
+  getOrganizationsAdmin,
+  addApprover,
+  fetchApprovers,
+  updateApprover,
+  deleteApprover
 };

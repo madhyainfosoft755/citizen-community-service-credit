@@ -358,7 +358,7 @@ const Createpost = () => {
   }, []);
   // 
 
-  console.log("ye hai user data", userData)
+  // console.log("ye hai user data", userData)
   return (
     <>
       {authenticated && (

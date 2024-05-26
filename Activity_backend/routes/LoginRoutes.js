@@ -33,12 +33,20 @@ const {
   createOrganization,
   getOrganizations,
   toggleOrganization,
-  getOrganizationsAdmin
+  getOrganizationsAdmin,
+  addApprover,
+  fetchApprovers,
+  updateApprover,
+  deleteApprover
 
 } = require("../controllers/LoginController");
 const { upload } = require("../utils/util");
 // Express route 
 router.get("/output", output);  
+router.put("/updateApprover/:id",updateApprover )
+router.delete("/deleteApprover/:id",deleteApprover )
+router.get("/fetchApprovers", fetchApprovers)
+router.post("/addApprover",addApprover)
 router.get("/pendingApproval", pendingApproval);  
 router.get("/getUsersWithMostPostsInYear", getUsersWithMostPostsInYear)
 router.put("/approveHours/:postId", approveHours)
