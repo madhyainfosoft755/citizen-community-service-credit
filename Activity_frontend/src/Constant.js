@@ -2,11 +2,11 @@
 const host = window.location.hostname;
 let API_URL;
 if(host == 'localhost'){
-     API_URL = "http://192.168.153.92:4116/api";
+     API_URL = "http://192.168.169.213:4116/api";
 
 }
 else{
-    API_URL = "https://cch247.helpersin.com/api";
+    API_URL = "https://ccsc.helpersin.com/api";
 }
 
 export {API_URL};

@@ -72,7 +72,10 @@ const storage = multer.diskStorage({
     } else if (isVideo) {
       cb(null, videoDestination);
     } else {
-      cb(new Error("Invalid file type"));
+		const error = new Error("Invalid file type");
+		error.statusCode = 400;
+		logger.error("File upload error:", error);
+		cb(error);
     }
   },
   filename: function (req, file, cb) {

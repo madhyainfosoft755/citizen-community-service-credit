@@ -474,7 +474,7 @@ const Register = () => {
                   <button
                     key={index}
                     type="button"
-                    className={`py-3 px-6 rounded ${buttonStates[index] ? "bg-[#546ef6] text-white" : "bg-gray-200 text-black"
+                    className={`p-2 text-center rounded ${buttonStates[index] ? "bg-[#546ef6] text-white" : "bg-gray-200 text-black"
                       }`}
                     onClick={() => handleButtonClick(index, category.name)}
                   >
