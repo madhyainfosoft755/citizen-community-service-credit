@@ -22,11 +22,13 @@ const Createpost = () => {
     setCurrentDate(e.target.value);
   };
   const [categories, setCategories] = useState([]);
+  // console.log("these are user categories" , categories)
   const [selectedCategories, setSelectedCategories] = useState([]);
   const { authenticated, setAuthenticated } = useAuth();
   const [userData, setUserData] = useState();
   const [fromTime, setFromTime] = useState("");
   const [toTime, setToTime] = useState("");
+  const [maxToTime, setMaxToTime] = useState(""); // Added state for max to time
   const [totalTime, setTotalTime] = useState(""); // Added state for total time
   const [userName, setUserName] = useState(""); // Added state for user name
   // Use state to store form data
@@ -57,8 +59,10 @@ const Createpost = () => {
 
   const [error, setError] = useState(null);
 
+  // console.log("user categoriees", userData.userData.category)
+
+  // Fetch categories from the database
   useEffect(() => {
-    // Fetch categories from the database
     const fetchCategories = async () => {
       try {
         const response = await fetch(`${API_URL}/activity/getCategories`);
@@ -67,7 +71,10 @@ const Createpost = () => {
         if (response.ok) {
           if (data.length > 0) {
 
-            const sortedCategories = data.sort((a, b) => a.name.localeCompare(b.name));
+            const usercategories = userData && userData.userData.category
+            // console.log("this is ", usercategories)
+            const filterCategories = data.filter(cat => usercategories.includes(cat.name))
+            const sortedCategories = filterCategories.sort((a, b) => a.name.localeCompare(b.name));
             const limitedCategories = sortedCategories.slice(0, 6);
             setCategories(limitedCategories);
           }
@@ -85,8 +92,10 @@ const Createpost = () => {
       }
     };
 
-    fetchCategories();
-  }, []);
+    if (userData) {
+      fetchCategories();
+    }
+  }, [userData]);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -201,7 +210,7 @@ const Createpost = () => {
             setUserName(userData.userData.name)
             setUserData(userData); // Update user data in the state
 
-            
+
           } else {
             console.error("Error fetching user data: Response is not JSON");
           }
@@ -274,9 +283,61 @@ const Createpost = () => {
     checkUserConfirmation();
   }, []);
 
+  const convertTo24HourFormat = (time) => {
+    const [timePart, modifier] = time.split(' ');
+    let [hours, minutes] = timePart.split(':');
+    if (hours === '12') {
+      hours = '00';
+    }
+    if (modifier === 'PM') {
+      hours = parseInt(hours, 10) + 12;
+    }
+    return `${hours}:${minutes}`;
+  };
 
+  const handleFromTimeChange = (e) => {
+    const fromTime = e.target.value;
+    setFromTime(fromTime);
 
+    const fromTime24 = convertTo24HourFormat(fromTime);
+    const [hours, minutes] = fromTime24.split(":");
+    const fromTimeDate = new Date();
+    fromTimeDate.setHours(parseInt(hours));
+    fromTimeDate.setMinutes(parseInt(minutes));
+    fromTimeDate.setSeconds(0);
 
+    const maxToTimeDate = new Date(fromTimeDate.getTime() + 8 * 60 * 60 * 1000);
+    const maxHours = String(maxToTimeDate.getHours()).padStart(2, "0");
+    const maxMinutes = String(maxToTimeDate.getMinutes()).padStart(2, "0");
+    const maxToTime = `${maxHours}:${maxMinutes}`;
+
+    setMaxToTime(maxToTime);
+  };
+
+  const handleToTimeChange = (e) => {
+    const toTime = e.target.value;
+    const toTime24 = convertTo24HourFormat(toTime);
+
+    const [fromHours, fromMinutes] = convertTo24HourFormat(fromTime).split(":");
+    const fromTimeDate = new Date();
+    fromTimeDate.setHours(parseInt(fromHours));
+    fromTimeDate.setMinutes(parseInt(fromMinutes));
+    fromTimeDate.setSeconds(0);
+
+    const [toHours, toMinutes] = toTime24.split(":");
+    const toTimeDate = new Date();
+    toTimeDate.setHours(parseInt(toHours));
+    toTimeDate.setMinutes(parseInt(toMinutes));
+    toTimeDate.setSeconds(0);
+
+    const timeDifference = toTimeDate - fromTimeDate;
+
+    if (timeDifference <= 8 * 60 * 60 * 1000 && timeDifference > 0) {
+      setToTime(toTime);
+    } else {
+      toast.error("To time must be within 8 hours of the from time");
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -298,10 +359,14 @@ const Createpost = () => {
     // console.log(formsDATA.get("name"));
     // console.log("formData", formsDATA);
 
-    const formDataJson = {};
-    for (const [key, value] of formsDATA.entries()) {
-      formDataJson[key] = value;
-    }
+    // const formDataJson = {};
+    // for (const [key, value] of formsDATA.entries()) {
+    //   formDataJson[key] = value;
+    // }
+
+
+
+
 
     // console.log("form data", formDataJson);
     const token = localStorage.getItem("token");
@@ -333,7 +398,18 @@ const Createpost = () => {
       setIsLoading(false)
     }
   };
-  //CREATE A CODE THAT CHECKS IF THE USERS TOKEN HAS EXPIRED AND IF IT IS EXPIRED THEN THE USER SHOULD BE LOGGED OUT AND REDIRECTED TO THE LOGIN PAGE?
+
+
+
+  const timeOptions = [];
+  for (let i = 0; i < 24; i++) {
+    for (let j = 0; j < 60; j += 30) {
+      const hour = String(i).padStart(2, "0");
+      const minute = String(j).padStart(2, "0");
+      const timeOption = `${hour}:${minute}`;
+      timeOptions.push(timeOption);
+    }
+  }
 
   const Name = userName.split(" ")[0];
 
@@ -416,7 +492,7 @@ const Createpost = () => {
                 </div>
                 <Button
                   type="button"
-                  className="cursor-pointer font-semibold rounded-3xl w-4/12"
+                  className="cursor-pointer font-semibold rounded-3xl w-5/12"
                   // shape="round"
                   color="indigo_A200"
                   onClick={direct}
@@ -432,47 +508,39 @@ const Createpost = () => {
                 </div>
 
                 <div className="w-full flex items-center justify-between">
-                <Text
-                  className="text-base text-gray-900"
-                  size="txtInterSemiBold16Gray900"
-                >
-                  Select Category
-                </Text>
+                  <Text
+                    className="text-base text-gray-900"
+                    size="txtInterSemiBold16Gray900"
+                  >
+                    Select Category
+                  </Text>
                   {userData && (
-                <small>Organization: <span>{userData.userData.organization ? userData.userData.organization: 'NA'}</span></small>
+                    <small>Organization: <span>{userData.userData.organization ? userData.userData.organization : 'NA'}</span></small>
                   )}
                 </div>
-                <div className="flex flex-wrap items-center justify-between  w-full">
-                  {categories.map((category) => (
-                    <label
-                      key={category.id}
-                      className={`flex flex-wrap text-sm rounded-lg items-center justify-center border-2 overflow-hidden border-double border-white mt-1 w-5/12 px-5 py-2 sm:px-5 sm:py-3 cursor-pointer ${selectedCategories === category.name ? "border-[1px] border-[#546ef6] text-[#546ef6] bg-sky-50/40" : ""} `}
-                    >
-                      <input
-                        type="radio"
-                        name="radioButtons"
-                        className="hidden"
-                        onClick={() => handleButtonClick(category.name)}
-                      />
-                      <span className="font-medium">{category.name}</span>
-                    </label>
-                  ))}
-                  {/* {buttons.map((button) => (
-                    <label
-                      key={button.id}
-                      className={`flex flex-wrap text-sm rounded-lg items-center justify-center border-2 overflow-hidden border-double border-white mt-1 w-5/12 px-5 py-2  sm:px-5 sm:py-3  cursor-pointer ${selectedButton === button.label
-                        ? "border-[1px] border-[#546ef6] text-[#546ef6] bg-sky-50/40" : ""} `}
-                    >
-                      <input
-                        type="radio"
-                        name="radioButtons"
-                        className="hidden"
-                        onClick={() => handleButtonClick(button.label)}
-                      />
-                      <span className="font-medium">{button.label}</span>
-                    </label>
-                  ))} */}
+                <div className="flex flex-wrap items-center justify-between w-full">
+                  {categories.length > 0 ? (
+                    categories.map((category) => (
+                      <label
+                        key={category.id}
+                        className={`flex flex-wrap text-sm rounded-lg items-center justify-center border-2 overflow-hidden border-double border-white mt-1 w-5/12 px-5 py-2 sm:px-5 sm:py-3 cursor-pointer ${selectedCategories === category.name ? "border-[1px] border-[#546ef6] text-[#546ef6] bg-sky-50/40" : ""}`}
+                      >
+                        <input
+                          type="radio"
+                          name="radioButtons"
+                          className="hidden"
+                          onClick={() => handleButtonClick(category.name)}
+                        />
+                        <span className="font-medium">{category.name}</span>
+                      </label>
+                    ))
+                  ) : (
+                    <div className="w-full text-center py-4">
+                      No categories to display
+                    </div>
+                  )}
                 </div>
+
 
                 <div className="flex flex-row gap-2 items-center justify-between   w-full  mt-4 mb-4">
                   <div className="relative w-1/2 h-full  bg-cyan-50">
@@ -521,7 +589,7 @@ const Createpost = () => {
                       id="fromTime"
                       value={fromTime}
 
-                      onChange={(e) => setFromTime(e.target.value)}
+                      onChange={handleFromTimeChange}
                       className="rounded-lg border-[1px] border-dashed border-[#546ef6] text-xs h-8 w-full "
                     />{" "}
                   </div>
@@ -540,8 +608,10 @@ const Createpost = () => {
                       id="toTime"
                       value={toTime}
                       placeholder="To time"
-                      onClick={(e) => e.target.focus()} // Trigger focus when clicked
-                      onChange={(e) => setToTime(e.target.value)}
+                      // onClick={(e) => e.target.focus()} // Trigger focus when clicked
+                      onChange={handleToTimeChange}
+                      min={fromTime}
+                      max={maxToTime}
                       className="rounded-lg border-[1px] border-dashed border-[#546ef6] text-xs h-8 w-full"
                     />
                   </div>

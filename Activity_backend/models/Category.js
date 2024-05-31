@@ -13,7 +13,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       isEnabled: {
         type: DataTypes.BOOLEAN,
-        defaultValue: false, // Default value is true (enabled)
+        defaultValue: true, // Default value is true (enabled)
       },
     },
     {

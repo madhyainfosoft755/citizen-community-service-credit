@@ -145,12 +145,12 @@ const DesktopSevenPage = () => {
           </Text>
 
         </div>
-        <div className="post-shower w-full p-4 overflow-scroll scroller">
+        <div className="post-shower w-full p-4">
           {posts.length > 0 ? (
             posts.map((post) => (
-              <div key={post.id} className="post-item p-4 mb-4 bg-white rounded shadow flex items-center justify-between bg-[#f1f3ff] overflow-scroll scroller">
+              <div key={post.id} className="post-item p-4 mb-4 bg-white rounded shadow flex items-center justify-between bg-[#f1f3ff]">
                 <div>
-                <Text size="txtInterSemiBold17">{post.user && post.user.name ? post.user.name : "Unknown User"}</Text>
+                <Text size="txtInterSemiBold17">{post.user.name}</Text>
                 <Text className="text-xs mt-1">Requested for {formatTime(post.totalTime)} Hours approval </Text>
                 </div>
                 <button className="text-[#546ef6] font-semibold" onClick={() => approveHoursRequest(post.id)}>Approve</button>                

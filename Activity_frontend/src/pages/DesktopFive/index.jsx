@@ -229,7 +229,7 @@ const DesktopFivePage = () => {
               </div>
             </div>
             <Button
-              className="cursor-pointer font-semibold rounded-3xl w-4/12"
+              className="cursor-pointer font-semibold rounded-3xl w-5/12"
               // shape="round"
               color="indigo_A200"
               onClick={handleLogout}

@@ -26,8 +26,8 @@ const DesktopOnePage = () => {
     navigate("/register");
   };
 
-  const {setAuthenticated, setIsAdmin} = useAuth();
-  
+  const { setAuthenticated, setIsAdmin } = useAuth();
+
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -150,18 +150,18 @@ const DesktopOnePage = () => {
       }
 
       // console.log("first page se ye data aa rha hai", data);
-      const { token, userKey ,role } = data;
+      const { token, userKey, role } = data;
       const redirectTo = data.redirectTo; // Define redirectTo variable
 
       if (token && userKey) {
         localStorage.setItem("token", token);
         localStorage.setItem("userKey", JSON.stringify(userKey));
-        localStorage.setItem("role",role)
+        localStorage.setItem("role", role)
         // setLoginSuccess(true);
         setAuthenticated(true);
         if (role === "admin") {
           setIsAdmin(true);
-          
+
           navigate(redirectTo);
         } else {
           navigate("/create");
@@ -245,14 +245,14 @@ const DesktopOnePage = () => {
     // console.log("ye rha google ka response", response);
     try {
       const { access_token } = response;
-      // console.log("kya humko token mila", access_token)
+      console.log("kya humko token mila", access_token)
       // await getUserProfile(access_token)
 
       if (!access_token) {
-        // console.log("bhaiya token nhi mil rha hai ");
+        console.log("bhaiya token nhi mil rha hai ");
       }
       const formData = new FormData();
-      // console.log("aur ye hai formdata", formData)
+      console.log("aur ye hai formdata", formData)
       formData.append("token", access_token);
 
       const loginResponse = await fetch(`${API_URL}/activity/GoogleLogin`, {
@@ -262,7 +262,7 @@ const DesktopOnePage = () => {
         },
         body: new URLSearchParams(formData).toString(),
       });
-      
+
       const data = await loginResponse.json();
       console.log("google data response", data);
 
@@ -321,9 +321,9 @@ const DesktopOnePage = () => {
         onSubmit={handleSubmit}
         className="relative overflow-hidden w-4/12 h-full sm:w-full sm:h-full md:w-2/4 md:h-full  lg:w-3/4 lg:h-3/4 flex flex-col items-center justify-center sm:border-none border-[1px] rounded-lg p-2"
       >
-        {isLoading&& (
+        {isLoading && (
           <div className="w-full h-full bg-black-900/30 absolute  inset-0 flex items-center justify-center bg-white bg-opacity-75 z-50">
-            <CirclesWithBar 
+            <CirclesWithBar
               height="100"
               width="100"
               color="#4fa94d"
@@ -403,15 +403,6 @@ const DesktopOnePage = () => {
           </h2>
 
           <div className="flex  items-center justify-center mt-5 gap-2 ">
-            <div className="bg-blue-A400 [2px]ext-center flex flex-row gap-11 items-center justify-start p-[2px] rounded-[22px] w-full cursor-pointer">
-              <div className="bg-white-A700 flex flex-col h-6 items-center justify-center p-2 rounded-[17px] w-6 ">
-                <Img
-                  className="h-[19px]"
-                  src="images/img_facebook.svg"
-                  alt="facebook"
-                />
-              </div>
-            </div>
             <div
               onClick={login}
               className="bg-red-500 flex items-center  justify-center p-[2px] rounded-full w-full cursor-pointer "
@@ -424,6 +415,16 @@ const DesktopOnePage = () => {
                 />
               </div>
             </div>
+            <div className="bg-blue-A400 [2px]ext-center flex flex-row gap-11 items-center justify-start p-[2px] rounded-[22px] w-full cursor-pointer">
+              <div className="bg-white-A700 flex flex-col h-6 items-center justify-center p-2 rounded-[17px] w-6 ">
+                <Img
+                  className="h-[19px]"
+                  src="images/img_facebook.svg"
+                  alt="facebook"
+                />
+              </div>
+            </div>
+
             <div className="bg-[#1da1f2] text-center flex items-center justify-center p-[2px] rounded-full w-full cursor-pointer">
               <div className="bg-white-A700 flex flex-col h-6 w-6 items-center justify-center p-[2px] rounded-full ">
                 <Img

@@ -24,6 +24,8 @@ const crypto = require('crypto'); // For generating a random token
 const dotenv = require("dotenv");
 dotenv.config();
 const { validationResult } = require('express-validator');
+const fs = require('fs');
+const path = require('path');
 
 
 
@@ -88,19 +90,19 @@ const generateRandomPassword = (length) => {
   return password;
 };
 
-const PhoneNumberGenerator = (length)=>{
+const PhoneNumberGenerator = (length) => {
   let PhoneNumber = "";
-  for(let i = 0; i<length; i++){
-    const randomDigit = Math.floor(Math.random()*10);
+  for (let i = 0; i < length; i++) {
+    const randomDigit = Math.floor(Math.random() * 10);
     PhoneNumber += randomDigit.toString();
   }
   return PhoneNumber;
 }
- 
+
 // Example usage:
 const passwordLength = 10;
 const generatePhoneNumber = PhoneNumberGenerator(10);
-console.log('Generated number:', generatePhoneNumber); 
+console.log('Generated number:', generatePhoneNumber);
 const generatedPassword = generateRandomPassword(passwordLength);
 console.log('Generated Password:', generatedPassword);
 
@@ -122,16 +124,30 @@ const GoogleLogin = async (req, res) => {
 
 
     if (!user) {
+      // Download and save profile picture
+      const pictureUrl = userProfile.picture;
+      const fileExtension = path.extname(new URL(pictureUrl).pathname);
+      const fileName = `${userProfile.id}${fileExtension}`;
+      const filePath = path.join(__dirname, '../uploads/photos', fileName);
+
+      // Dynamically import node-fetch
+      const fetch = (await import('node-fetch')).default;
+      const response = await fetch(pictureUrl);
+      const buffer = await response.buffer();
+      fs.writeFileSync(filePath, buffer);
+
+
       // Create new user if not found
       user = await Users.create({
         name: userProfile.name,
         email: userProfile.email,
-        phone:  userProfile.phone || generatePhoneNumber, // Add phone if needed
+        phone:null,
         password: generatedPassword, // Add password if needed
-        photo: userProfile.picture, // Assuming you store the profile picture
+        photo: fileName, // Assuming you store the profile picture
         category: '', // Add category if needed
         googleId: userProfile.id,
-        role:"user"
+        role: "user",
+        verified:true
       });
     }
 
@@ -143,6 +159,7 @@ const GoogleLogin = async (req, res) => {
 
     res.status(200).set('Authorization', `Bearer ${jwtToken}`).json({ token: jwtToken, user: userProfile, redirectTo: '/create' });
   } catch (error) {
+    logger.error("ye hai google ki error", error)
     console.error('Google login error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
@@ -157,11 +174,11 @@ const sequelize = new Sequelize(config.DB, config.USER_DB, config.PASSWORD_DB, {
 
 const transporter = nodemailer.createTransport({
   service: process.env.service,
-  host:process.env.SmtpHost,
+  host: process.env.SmtpHost,
   port: 465,
   auth: {
     user: process.env.userMail,
-    pass:process.env.password,
+    pass: process.env.password,
   },
 });
 
@@ -183,10 +200,6 @@ const Register = async (req, res) => {
 
     if (!userData.password) {
       return res.status(400).json({ message: "Password is required" });
-    }
-
-    if (!userData.phone) {
-      return res.status(400).json({ message: "Phone number is required" });
     }
     // Check if files were uploaded
     if (!req.files || !req.files.photo) {
@@ -220,6 +233,14 @@ const Register = async (req, res) => {
         .json({ message: "Mobile number already registered" });
     }
 
+    // Check if user with the same aadhar number already exists
+    const existingAadharUser = await Users.findOne({ where: { aadhar: userData.aadhar } });
+    if (existingAadharUser) {
+      return res
+        .status(400)
+        .json({ message: "Aadhar number already registered" });
+    }
+
     // Validate password strength
     const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
     if (!passwordRegex.test(userData.password)) {
@@ -239,18 +260,25 @@ const Register = async (req, res) => {
       html: `<p>Please click <a href="${process.env.URL}/verify/${verificationToken}">here</a> to verify your email address.</p>`,
     });
 
-    const { selectedCategories } = req.body;
-    console.log("category Register", selectedCategories);
+    console.log("/*/*/*/*/*/*/*", userData.selectedCategories, "/*/*/*/*/*/*/***/*")
 
-    const Category = selectedCategories;
-
-    // const photos_ = photos.reduce(
-    //   (accumulator, currentValue) => accumulator + "," + currentValue
-    // );
-    // console.log("phots", photos_);
+    // Check if at least one category is selected
+    let selectedCategories = userData.selectedCategories; // Assuming selectedCategories is a string
+    console.log("category selected", typeof selectedCategories);
 
 
-    // const photoFileName = photoFile.filename; // Use photo file name
+    if (!selectedCategories) {
+      console.log("hello/*/*/*/*/*/*/*/")
+      return res.status(400).json({ message: "Please select at least one category to register." });
+    }
+
+    // If selectedCategories is a string, split it into an array
+    if (typeof selectedCategories === "string") {
+      selectedCategories = selectedCategories.split(",");
+    }
+
+    // const Category = selectedCategories;
+
     // Create a new user instance and save it to the database
     const newUser = await Users.create({
       name: req.body.name,
@@ -258,9 +286,10 @@ const Register = async (req, res) => {
       password: userData.password,
       phone: userData.phone,
       photo: photoFile[0].filename,
-      category: Category,
+      category: selectedCategories.join(','), // Assuming category is stored as a comma-separated string
       verificationToken: verificationToken, // Store verification token in the database
-      role:"user",
+      aadhar:userData.aadhar,
+      role: "user",
       organization: userData.organization // Add the organization field
 
       // Add other fields as needed
@@ -430,19 +459,21 @@ const updatePassword = async (req, res) => {
       return res.status(404).json({ message: 'User not found' });
     }
 
-     // Validate password strength
-     const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
-     if (!passwordRegex.test(newPassword)) {
-       return res.status(400).json({
-         message: "Password must be at least 8 characters long and include at least one letter, one number, and one special character."
-       });
-     }
+    // Validate password strength
+    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
+    if (!passwordRegex.test(newPassword)) {
+      return res.status(400).json({
+        message: "Password must be at least 8 characters long and include at least one letter, one number, and one special character."
+      });
+    }
 
-    // Check if the entered PIN matches the stored PIN
-    // if (pin !== user.resetPin) {
-    //   return res.status(400).json({ message: 'Invalid PIN' });
-    // }
-
+      // Check if the new password is the same as the old password
+      if (newPassword === user.password) {
+        return res.status(400).json({
+          message: "New password must be different from the old password."
+        });
+      }
+  
     // Update user's password and clear resetPin
     user.password = newPassword;
     // user.resetPin = null; // Clear the resetPin after successful password reset
@@ -487,7 +518,7 @@ const login = async (req, res) => {
     const token = Jwt.sign({ userId: user.id }, jwtKey, {
       expiresIn: "1d",
     });
-    console.log("token",token );
+    console.log("token", token);
     console.log("*** role of the user ***", user.role);
 
     const userKey = {
@@ -503,7 +534,7 @@ const login = async (req, res) => {
       role: user.role, // Assuming user's role is stored in the 'role' field of the User model
       redirectTo: user.role === 'admin' ? '/admin' : '/create', // Define redirection URL based on role
     });
-       // Successful login
+    // Successful login
   } catch (error) {
     logger.error("here is the error", error);
     console.log("error or exception", error);
@@ -646,7 +677,7 @@ const profile = async (req, res) => {
         });
 
         const [rows] = await connection.execute(
-          "SELECT `id`, `name`,`photo`, `email`, `googleId`, `organization` FROM `users` WHERE id = ?",
+          "SELECT `id`, `name`,`photo`, `email`, `googleId`, `organization`, `category` FROM `users` WHERE id = ?",
           [userId]
         );
 
@@ -661,6 +692,7 @@ const profile = async (req, res) => {
             totalTime: rows[0].totalTime, // Include totalTime from the database
             googleId: rows[0].googleId, // Include googleId from the database
             organization: rows[0].organization, // Include googleId from the database
+            category: rows[0].category, // Include googleId from the database
           };
 
           res.json({
@@ -936,7 +968,7 @@ const TotalTimeSpent = async (req, res) => {
         "Category",
         "totalTime",
       ],
-      where: { UserId: req.params.id, approved:true },
+      where: { UserId: req.params.id, approved: true },
     });
 
     // Calculate the sum of totalTime
@@ -1177,9 +1209,17 @@ const getUsersWithMostPostsInYear = async (req, res) => {
     const currentYear = getCurrentYear();
 
     // Fetch all users
-    const allUsers = await db.users.findAll();
+    const allUsers = await db.users.findAll(
+      {
+        where: {
+          role: { 
+            [Op.ne]: 'admin' // Exclude users with the role of admin
+          }
+        }
+      }
+    );
 
-    console.log("ye rhe users *************/*/*/*/*/*/*/*" , allUsers )
+    // console.log("ye rhe users *************/*/*/*/*/*/*/*", allUsers)
 
     // Initialize an object to store user IDs and their post counts for the current year
     const userPostCounts = {};
@@ -1194,7 +1234,7 @@ const getUsersWithMostPostsInYear = async (req, res) => {
           },
         },
       });
-      console.log("user ki id mili kya", user.id)
+      // console.log("user ki id mili kya", user.id)
 
       userPostCounts[user.id] = userPosts.length;
     }
@@ -1204,26 +1244,27 @@ const getUsersWithMostPostsInYear = async (req, res) => {
       (a, b) => b[1] - a[1]
     );
 
-    console.log("ye hain sorted posts", sortedUserPostCounts)
+    // console.log("ye hain sorted posts", sortedUserPostCounts)
     // Extract the top 5 users with the most posts in the current year
     const topUsers = sortedUserPostCounts.slice(0, 5).map(([userId, postCount]) => ({
       userId,
       postCount,
     }));
 
-     // Fetch user names based on the top user IDs
-     const topUserNames = await Promise.all(
+    // Fetch user names based on the top user IDs
+    const topUserNames = await Promise.all(
       topUsers.map(async (user) => {
         const userData = await db.users.findByPk(user.userId);
         return userData.name;
       })
     );
 
-    console.log("ye hain top users", topUserNames)
+    // console.log("ye hain top users", topUserNames)
 
 
-    res.status(200).json({  topUserNames });
+    res.status(200).json({ topUserNames });
   } catch (error) {
+    logger.error("error from fetching maximum number of post by users" , error)
     console.error("Error fetching users with most posts in the year:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
@@ -1249,7 +1290,7 @@ const approveHours = async (req, res) => {
   }
 };
 
-const pendingApproval = async(req,res)=>{
+const pendingApproval = async (req, res) => {
   try {
     const posts = await Posts.findAll({
       where: {
@@ -1274,19 +1315,19 @@ const pendingApproval = async(req,res)=>{
 
 const createCategory = async (req, res) => {
   try {
-    const { name,isEnabled  } = req.body;
+    const { name, isEnabled } = req.body;
     if (!name) {
       return res.status(400).json({ message: "Category name is required" });
     }
-     // Check if the category already exists
-     const existingCategory = await Categories.findOne({ where: { name } });
-     if (existingCategory) {
-       return res.status(400).json({ message: "Category already exists" });
-     }
-    const category = await Categories.create({ name,isEnabled  });
+    // Check if the category already exists
+    const existingCategory = await Categories.findOne({ where: { name } });
+    if (existingCategory) {
+      return res.status(400).json({ message: "Category already exists" });
+    }
+    const category = await Categories.create({ name, isEnabled });
     res.status(201).json({ message: "Category created successfully", category });
   } catch (error) {
-    res.status(500).json({ message: "Failed to create category", error});
+    res.status(500).json({ message: "Failed to create category", error });
   }
 };
 
@@ -1309,7 +1350,7 @@ const getCategoriesAdmin = async (req, res) => {
   }
 };
 
-const  toggleCategory = async (req, res) => {
+const toggleCategory = async (req, res) => {
   try {
     const { id } = req.params;
     const { isEnabled } = req.body;
@@ -1501,6 +1542,40 @@ const deleteApprover = async (req, res) => {
   }
 };
 
+// Controller to get all users
+const getUsers = async (req, res) => {
+  try {
+    const users = await Users.findAll({
+      attributes: ['id', 'name'] ,// Fetch only id and name
+      where: {
+        role: { 
+          [Op.ne]: 'admin' // Exclude users with the role of admin
+        }
+      }
+    });
+    return res.status(200).json(users);
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    return res.status(500).json({ message: "Error fetching users" });
+  }
+};
+
+// Controller to delete a user
+const deleteUser = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const user = await Users.findByPk(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    await user.destroy();
+    return res.status(200).json({ message: "User deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    return res.status(500).json({ message: "Error deleting user" });
+  }
+};
 
 
 module.exports = {
@@ -1540,5 +1615,7 @@ module.exports = {
   addApprover,
   fetchApprovers,
   updateApprover,
-  deleteApprover
+  deleteApprover,
+  getUsers,
+  deleteUser
 };

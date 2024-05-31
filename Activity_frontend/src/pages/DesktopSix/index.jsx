@@ -6,6 +6,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCirclePlus, faCircleXmark, faSquareCheck } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
 import { API_URL } from "Constant";
+import * as Switch from '@radix-ui/react-switch';
+// import * as ToggleGroup from '@radix-ui/react-toggle-group';
 import "./style.css"
 
 const DesktopSixPage = () => {
@@ -217,11 +219,20 @@ const DesktopSixPage = () => {
           
         {categories.length > 0 ? (
             categories.map((category) => (
-              <div key={category.id} className="bg-gray-100 p-2 rounded-md w-full flex items-center justify-between">
+              <div key={category.id} className={`bg-gray-100 p-2 rounded-md w-full flex items-center justify-between overflow-hidden ${category.isEnabled ? 'border-2 border-green-300 shadow-green-glow' : ''}`}>
                 <h1>{category.name}</h1>
-                <Button className="rounded-xl" onClick={() => handleToggleCategory(category.id, category.isEnabled)}>
+                
+                <Switch.Root
+                  className="SwitchRoot"
+                  checked={category.isEnabled}
+                  onCheckedChange={(checked) => handleToggleCategory(category.id, category.isEnabled)}
+                >
+                  <Switch.Thumb className="SwitchThumb" />
+                </Switch.Root>
+                
+                {/* <Button className="rounded-xl" onClick={() => handleToggleCategory(category.id, category.isEnabled)}>
                   {category.isEnabled ? "Disable" : "Enable"}
-                </Button>
+                </Button> */}
               </div>
             ))
           ) : (

@@ -121,7 +121,7 @@ const Forget = () => {
   return (
     <div className="w-screen h-screen sm:w-screen sm:h-screen md:w-screen md:h-screen flex items-start justify-center p-4  sm:p-0">
 
-      <div className="relative overflow-hidden w-4/12 h-full sm:w-full flex items-center justify-center  border-[1px] rounded-lg">
+      <div className="relative overflow-hidden w-4/12 h-full sm:w-full md:w-7/12 flex items-center justify-center  border-[1px] rounded-lg">
         <div className="w-64 h-64 absolute rounded-full -top-10 -right-20 bg-blue-200/20"></div>
         <div className="w-64 h-64 absolute rounded-full -bottom-10 -left-20 bg-blue-200/20"></div>
         <div className="relative p-8 flex flex-col items-center justify-center  w-full h-full sm:w-full sm:h-full ">

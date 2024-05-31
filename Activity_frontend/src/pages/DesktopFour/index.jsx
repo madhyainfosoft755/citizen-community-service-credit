@@ -194,7 +194,7 @@ const DesktopFourPage = () => {
           {isPopUpVisible && (
             <PopupComponent post={selectedPost} onClose={() => setIsPopUpVisible(false)} />
           )}
-          <div className="w-4/12 h-full  flex items-start justify-center  sm:shadow-none  border-[1px]  rounded-lg sm:rounded-none lg:w-[33%] lg:h-full sm:w-full sm:h-full md:w-full md:h-full">
+          <div className="w-4/12 h-full  flex items-start justify-center  sm:shadow-none  border-[1px]  rounded-lg sm:rounded-none  lg:h-full sm:w-full sm:h-full md:w-7/12 md:h-full">
             <div className="flex flex-col  items-center justify-start w-full h-full">
               <div className="bg-gray-50 flex flex-row items-center justify-between p-3 sm:px-5 w-full ">
                 <div className="flex flex-row gap-2 items-center justify-center ml-[5px]">
@@ -221,7 +221,7 @@ const DesktopFourPage = () => {
                   </div>
                 </div>
                 <Button
-                  className="rounded-3xl w-4/12 cursor-pointer font-semibold "
+                  className="rounded-3xl w-5/12 cursor-pointer font-semibold "
                   // shape="round"
                   color="indigo_A200"
                   onClick={direct}

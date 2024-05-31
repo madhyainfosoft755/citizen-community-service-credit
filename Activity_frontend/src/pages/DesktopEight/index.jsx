@@ -119,6 +119,7 @@ const DesktopEightPage = () => {
         setApprovers(data);
         notify(data.message)
       } else {
+        setApprovers(data)
         notify(data.message);
       }
     } catch (error) {

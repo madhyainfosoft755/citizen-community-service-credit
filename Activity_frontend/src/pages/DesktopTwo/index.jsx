@@ -37,10 +37,11 @@ const Register = () => {
   const [mobileError, setMobileError] = useState(""); // State for mobile number error
   const [aadharError, setAadharError] = useState(""); // State for Aadhar number error
   const [categories, setCategories] = useState([]);
+  // console.log("ye hai selected categories", categories)
   const [selectedCategories, setSelectedCategories] = useState([]); // this function for get selected are
   const [organizations, setOrganizations] = useState([]); // State for organizations
   const [selectedOrganization, setSelectedOrganization] = useState(""); // State for selected organization
-  const [buttonStates, setButtonStates] = useState(Array(3).fill(false)); // Assuming 3 buttons, adjust the size as needed
+  const [buttonStates, setButtonStates] = useState(Array(6).fill(false)); // Assuming 6 buttons, adjust the size as needed
   const [selectedFile, setSelectedFile] = useState(null);
   const [isMobileVerified, setIsMobileVerified] = useState(false);
   const [fieldBeingEdited, setFieldBeingEdited] = useState("");
@@ -91,14 +92,26 @@ const Register = () => {
     fetchOrganizations();
   }, []);
 
-
-
-
-
   const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    setSelectedFile(file);
-    // console.log("file", file.name);
+     const file = e.target.files[0];
+     if (!file) {
+      // No file selected
+      return;
+    }
+  
+    // Get the file extension
+    const fileExtension = file.name.split(".").pop().toLowerCase();
+  
+    // Allowed image extensions
+    const allowedExtensions = ["jpg", "jpeg", "png", "gif"];
+  
+    // Check if the selected file is an image
+    if (allowedExtensions.includes(fileExtension) && file.type.startsWith("image/")) {
+      setSelectedFile(file);
+    } else {
+      // Handle error or notify the user that only image files are allowed
+      notify("Please select an image file.");
+    }
   };
 
   const handleButtonClick = (index, value) => {
@@ -109,14 +122,25 @@ const Register = () => {
     });
 
     setSelectedCategories((prevCategories) => {
-      if (prevCategories.includes(value)) {
-        // If category is already selected, remove it
-        return prevCategories.filter((category) => category !== value);
-      } else {
-        // If category is not selected, add it
-        return [...prevCategories, value];
-      }
-    });
+    //   if (prevCategories.includes(value)) {
+    //     // If category is already selected, remove it
+    //     return prevCategories.filter((category) => category !== value);
+    //   } else {
+    //     // If category is not selected, add it
+    //     return [...prevCategories, value];
+    //   }
+    // });
+    const updatedCategories = [...prevCategories];
+    const valueIndex = updatedCategories.indexOf(value);
+    if (valueIndex !== -1) {
+      // If category is already selected, remove it
+      updatedCategories.splice(valueIndex, 1);
+    } else {
+      // If category is not selected, add it
+      updatedCategories.push(value);
+    }
+    return updatedCategories;
+  });
   };
 
   const handleInputChange = (e) => {
@@ -225,6 +249,11 @@ const Register = () => {
     // Reset mobile number error state if valid
     setMobileError("");
 
+    if (!selectedCategories || selectedCategories.length === 0) {
+      notify("Please select at least one category to register.");
+      return;
+    }
+
     const formsDATA = new FormData();
     formsDATA.append("name", e.target[0].value);
     formsDATA.append("email", e.target[1].value);
@@ -237,10 +266,7 @@ const Register = () => {
     formsDATA.append("photo", selectedFile);
     formsDATA.append("organization", selectedOrganization);
 
-    const formDataJson = {};
-    for (const [key, value] of formsDATA.entries()) {
-      formDataJson[key] = value;
-    }
+
 
     try {
       setIsloading(true)
@@ -460,6 +486,7 @@ const Register = () => {
               <h2 className="font-semibold">Profile Picture </h2>
               <InputWithIconAndText
                 type="file"
+                accept="image/*"
                 className="w-[250px] pt-1 pb-1 pl-1 border-double border-4  rounded-lg focus:border-emerald-300 ease-in duration-300"
                 onChange={handleFileChange}
                 placeholder="select a file"
@@ -474,7 +501,7 @@ const Register = () => {
                   <button
                     key={index}
                     type="button"
-                    className={`p-2 text-center rounded ${buttonStates[index] ? "bg-[#546ef6] text-white" : "bg-gray-200 text-black"
+                    className={`p-2 rounded ${buttonStates[index] ? "bg-[#546ef6] text-white" : "bg-gray-200 text-black"
                       }`}
                     onClick={() => handleButtonClick(index, category.name)}
                   >

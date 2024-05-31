@@ -13,8 +13,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       phone: {
         type: DataTypes.STRING,
-        allowNull: false,
-        unique: true,
+        allowNull: true,
       },
       password: {
         type: DataTypes.STRING,
@@ -27,7 +26,7 @@ module.exports = (sequelize, DataTypes) => {
       },
       category: {
         type: DataTypes.STRING,
-        allowNull: true,
+        allowNull: false,
       },
       googleId:{
         type: DataTypes.STRING,
@@ -55,7 +54,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING, // Adjust the type based on your requirements
         allowNull: true,        // Set to false if it's mandatory
       },
-
+      aadhar:{
+        type: DataTypes.STRING,
+        allowNull: true,
+      }
 
     },
     {

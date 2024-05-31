@@ -6,7 +6,6 @@ const passport = require('passport');
 const session = require('express-session');
 const dotenv = require("dotenv");
 const {User} = require('./models/LoginRouter')
-const fs = require('fs');
 const { Strategy: GoogleStrategy } = require("passport-google-oauth20");
 dotenv.config();
 
@@ -44,17 +43,6 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'images')));
 app.use(express.static(path.join(__dirname, 'videos')));
 
-// Create upload directories if they don't exist
-const ensureDirectoriesExist = () => {
-  const directories = ['uploads/photos', 'uploads/videos'];
-  directories.forEach(dir => {
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-  });
-};
-
-ensureDirectoriesExist();
 
 
 // app.get('/image/:image', (req, res) => {

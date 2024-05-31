@@ -37,12 +37,16 @@ const {
   addApprover,
   fetchApprovers,
   updateApprover,
-  deleteApprover
+  deleteApprover,
+  getUsers,
+  deleteUser
 
 } = require("../controllers/LoginController");
 const { upload } = require("../utils/util");
 // Express route 
 router.get("/output", output);  
+router.get("/getUsers",getUsers)
+router.delete("/deleteUser/:id",deleteUser )
 router.put("/updateApprover/:id",updateApprover )
 router.delete("/deleteApprover/:id",deleteApprover )
 router.get("/fetchApprovers", fetchApprovers)
@@ -64,7 +68,7 @@ router.post("/updatePassword",updatePassword)
 router.post("/forgetpassword",forgetpassword)
 router.post("/verifyPin",verifyPin)
 router.get("/verify/:token", verify);
-router.post('/GoogleLogin', GoogleLogin);
+router.post('/GoogleLogin',upload, GoogleLogin);
 router.get("/varifybytoken", varifybytoken);
 router.post("/login", login);
 router.post("/varifybytiken", varifybytiken);

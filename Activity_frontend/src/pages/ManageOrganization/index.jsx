@@ -5,6 +5,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCirclePlus, faCircleXmark, faSquareCheck } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
 import { API_URL } from "Constant";
+import * as Switch from '@radix-ui/react-switch';
+import "./style.css"
 
 const OrganizationManagementPage = () => {
   const notify = (e) => toast(e);
@@ -152,9 +154,13 @@ const OrganizationManagementPage = () => {
             organizations.map((organization) => (
               <div key={organization.id} className="bg-gray-100 p-2 rounded-md w-full flex items-center justify-between">
                 <h1>{organization.name}</h1>
-                <Button className="rounded-xl" onClick={() => toggleOrganization(organization.id)}>
-                  {organization.isEnabled ? 'Disable' : 'Enable'}
-                </Button>
+                <Switch.Root
+                  className="SwitchRoot"
+                  checked={organization.isEnabled}
+                  onCheckedChange={(checked) => toggleOrganization(organization.id, organization.isEnabled)}
+                >
+                  <Switch.Thumb className="SwitchThumb" />
+                </Switch.Root>
               </div>
             ))
           ) : (
