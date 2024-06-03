@@ -195,11 +195,11 @@ const DesktopSixPage = () => {
         </div>
 
         {showinput && (
-          <div className="w-11/12 flex flex-col items-center justify-center absolute top-20 ">
-          <div className={`w-11/12 rounded-xl flex items-center justify-center gap-1 border-[1px] p-1 bg-white-A700 ${error ? 'border-[1px] border-red-500' : 'border-gray-500 shadow  shadow-black-900 '}`}>
+          <div className="w-11/12 flex flex-col items-center justify-center absolute top-20  z-20">
+          <div className={`w-11/12 rounded-xl flex items-center justify-center gap-1 border-[1px] p-1 bg-white-A700/70 ${error ? 'border-[1px] border-red-500' : 'border-gray-500 shadow  shadow-black-900 '}`}>
             <input
               type="text"
-              className="w-4/5 rounded-xl outline-none border-0 "
+              className="w-full rounded-xl outline-none border-0 bg-white-A700/70 "
               onChange={handleInputChange}
               value={categoryName}
             />

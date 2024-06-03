@@ -1,15 +1,115 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import { Button, Img, Text } from "components";
 import { useNavigate } from "react-router-dom";
+import DatePicker from "react-datepicker"; // Import the DatePicker component
+import "react-datepicker/dist/react-datepicker.css"; // Import the DatePicker styles
+import { API_URL } from "Constant";
+import { Pie } from 'react-chartjs-2';
+import 'chart.js/auto';
+import { toast } from "react-toastify";
 
 const DesktopNinePage = () => {
+  const notify = (e) => toast(e);
   const navigate = useNavigate();
+  const [selectedDate, setSelectedDate] = useState(new Date()); // State for selected date
+  const [showCalendar, setShowCalendar] = useState(false); // State to control calendar visibility
+  const [posts, setPosts] = useState([]);
+  const [error, setError] = useState(null);
+  const [selectedCategory, setSelectedCategory] = useState(""); // State for selected category
+  const [showCategoryDropdown, setShowCategoryDropdown] = useState(false); // State to control category dropdown visibility
+  const [categories, setCategories] = useState([]); // State for categories
+
+
+  const handleDateSelection = (date) => {
+    setSelectedDate(date);
+    setShowCalendar(false); // Close the calendar after date selection
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch(`${API_URL}/activity/getCategoriesAdmin`);
+      if (!response.ok) {
+        toast.error('Failed to fetch categories');
+      }
+      const data = await response.json();
+      setCategories(data);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  }
+
+
+  useEffect(() => {
+    // Fetch categories when component mounts
+    fetchCategories();
+  }, []);
+
+  const handleCategorySelection = (category) => {
+    setSelectedCategory(category);
+    setShowCategoryDropdown(false); // Close the dropdown after category selection
+  };
+
+  const fetchPostsForDate = async (date) => {
+    if (!selectedDate) {
+      alert("Please select a date first.");
+      return;
+    }
+
+    const formattedDate = selectedDate.toISOString().split('T')[0]; // Format date as YYYY-MM-DD
+
+    try {
+      const response = await fetch(`${API_URL}/activity/postsForDate?date=${formattedDate}`);
+      if (!response.ok) {
+        console.log("Failed to fetch posts for the selected date.");
+        const errorData = await response.json();
+        setError(errorData.error);
+        setPosts([]);
+        return;
+      }
+      const data = await response.json();
+      setPosts(data);
+      setError(null);
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+      setError("An error occurred while fetching posts.");
+      setPosts([]);
+    }
+  }
+
+
+  const processData = (posts) => {
+    const categoryCount = posts.reduce((acc, post) => {
+      acc[post.category] = (acc[post.category] || 0) + 1;
+      return acc;
+    }, {});
+
+    return {
+      labels: Object.keys(categoryCount),
+      datasets: [
+        {
+          data: Object.values(categoryCount),
+          backgroundColor: [
+            '#FF6384',
+            '#36A2EB',
+            '#FFCE56',
+            '#4BC0C0',
+            '#9966FF',
+            '#FF9F40',
+            '#FF6384',
+            '#36A2EB'
+          ],
+        },
+      ],
+    };
+  };
+
+
   return (
     <>
       <div className="w-screen h-screen bg-white-A700 flex items-start justify-center sm:w-screen sm:h-screen md:w-screen md:h-screen p-5 sm:p-0">
-        <div className="relative w-4/12 h-full sm:w-full sm:h-full md:w-3/4 md:h-full lg:w-3/4 lg:h-full flex flex-col items-center justify-start gap-5 border-[1px] rounded-lg sm:rounded-none overflow-hidden">
-          <div className="relative w-full flex flex-col items-center justify-center gap-2">
+        <div className="relative  w-4/12 h-full sm:w-full sm:h-full md:w-3/4 md:h-full lg:w-3/4 lg:h-full flex flex-col items-center justify-start gap-5 border-[1px] rounded-lg sm:rounded-none overflow-hidden">
+          <div className="relative w-full h-full flex flex-col items-center justify-center gap-2">
             <div className="bg-white-A700 flex flex-row items-center justify-between p-5 shadow-bs3 w-full">
               <div onClick={() => navigate("/admin")}>
                 <Img className="h-4 cursor-pointer" src="images/img_arrowleft.svg" alt="arrowleft" />
@@ -22,49 +122,89 @@ const DesktopNinePage = () => {
               </Text>
               <div />
             </div>
-            <div className="flex flex-col md:gap-10 gap-[449px] items-center justify-start w-[85%] md:w-full">
+            <div className="flex flex-col items-center justify-center w-full h-full md:w-full ">
               <div
-                className="bg-cover bg-no-repeat flex flex-col h-[122px] items-center justify-end p-5 w-full bg-blue-300"
+                className=" flex flex-col items-center justify-between p-2 gap-2 w-full h-full "
               >
-                <div className="flex flex-col items-center justify-start w-[94%] md:w-full">
-                  <div className="flex flex-col gap-[11px] items-center justify-start w-full">
-                    <div className="flex flex-row gap-2.5 items-center justify-between w-full">
+                <div className="flex flex-col items-center justify-center w-full md:w-full bg-blue-400 rounded-lg">
+                  <div className="flex flex-row gap-4 items-center justify-center w-full h-12 flex-wrap ">
+                    <div className=" relative w-1/3 ">
+
                       <Button
-                        className="!text-black-900 cursor-pointer font-medium min-w-[140px] text-center text-xs"
+                        className="text-black-900 cursor-pointer font-medium w-full text-center text-xs"
                         shape="round"
+                        onClick={() => setShowCalendar(true)} // Show calendar on button click
                       >
                         Select Date
                       </Button>
+                      {/* Calendar Popup */}
+                      {showCalendar && (
+                        <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center z-50 bg-white-A700  rounded shadow">
+                          <DatePicker
+                            selected={selectedDate}
+                            onChange={handleDateSelection}
+                            // minDate={new Date()} // Optional: Restrict past dates
+                            showPopperArrow={false} // Optional: Hide the arrow in the calendar popup
+                            dateFormat="dd/MM/yyyy" // Optional: Customize date format
+                            className="text-xs text-center"
+                          />
+                        </div>
+                      )}
+                    </div>
+
+                    <div className=" relative w-1/3 ">
+
                       <Button
-                        className="!text-black-900 cursor-pointer font-medium min-w-[140px] text-center text-xs"
+                        className="!text-black-900 cursor-pointer font-medium w-full text-center text-xs"
                         shape="round"
+                        onClick={() => setShowCategoryDropdown(!showCategoryDropdown)} // Toggle category dropdown on button click
                       >
                         Select Category
                       </Button>
-                    </div>
-                    <div className="flex flex-row gap-2.5 items-center justify-between w-full">
-                      <Button
-                        className="!text-black-900 cursor-pointer font-medium min-w-[140px] text-center text-xs"
-                        shape="round"
-                      >
-                        Select City
-                      </Button>
-                      <Button
-                        className="!text-black-900 cursor-pointer font-medium min-w-[140px] text-center text-xs"
-                        shape="round"
-                      >
-                        Select State
-                      </Button>
+                      {showCategoryDropdown && (
+                        <div className="absolute top-full left-0 w-full bg-white-A700 shadow rounded z-50">
+                          {categories.map((category) => (
+                            <div
+                              key={category.id}
+                              className="p-2 cursor-pointer hover:bg-blue-200"
+                              onClick={() => handleCategorySelection(category.name)}
+                            >
+                              {category.name}
+                            </div>
+                          ))}
+                        </div>
+                      )}
                     </div>
                   </div>
+                  {/* <div className="flex flex-row gap-4 items-center justify-center w-full h-12 flex-wrap ">
+                    <Button
+                      className="!text-black-900 cursor-pointer font-medium w-1/3 text-center text-xs"
+                      shape="round"
+                    >
+                      Select City
+                    </Button>
+                    <Button
+                      className="!text-black-900 cursor-pointer font-medium w-1/3 text-center text-xs"
+                      shape="round"
+                    >
+                      Select State
+                    </Button>
+                  </div> */}
                 </div>
-              <Button
-                className="cursor-pointer font-semibold min-w-[350px] text-base text-center"
-                shape="round"
-                color="indigo_A200"
-              >
-                GENERATE REPORT
-              </Button>
+                <div className="w-full h-2/3 flex items-center justify-center bg-[#d6e2f8] rounded-md">
+                  {posts.length > 0 ? (
+                    <Pie data={processData(posts)} className="w-full h-full" />
+                  ) : (
+                    <p>No posts found </p>
+                  )}
+                </div>
+                <Button
+                  className="cursor-pointer font-semibold w-full text-base text-center rounded-md"
+                  color="indigo_A200"
+                  onClick={fetchPostsForDate}
+                >
+                  GENERATE REPORT
+                </Button>
               </div>
             </div>
           </div>

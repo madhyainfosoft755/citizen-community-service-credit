@@ -8,13 +8,13 @@ import Location from "pages/Location/Location";
 import { useAuth } from "components/AuthProvider/AuthProvider";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faLocationDot, faCalendarAlt } from "@fortawesome/free-solid-svg-icons";
+import { faLocationDot  } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
 import { CirclesWithBar } from 'react-loader-spinner'
+import { differenceInHours, parse,isSameDay } from 'date-fns'; // Importing necessary functions from date-fns
 
 const Createpost = () => {
   const [isLoading, setIsLoading] = useState(false); // State for loader
-  const [password, setPassword] = useState("");
   const notify = (e) => toast(e);
   const navigate = useNavigate();
   const [currentDate, setCurrentDate] = useState("");
@@ -43,7 +43,6 @@ const Createpost = () => {
   });
   const [selectedFile, setSelectedFile] = useState(null);
   const [selectedVideo, setSelectedVideo] = useState(null);
-  const [selectedButton, setSelectedButton] = useState(null);
   const [locationData, setLocationData] = useState({
     city: "",
     state: "",
@@ -144,7 +143,6 @@ const Createpost = () => {
   };
 
   const handleButtonClick = (name) => {
-    setSelectedButton(name);
     setSelectedCategories(name);
   };
 
@@ -300,15 +298,15 @@ const Createpost = () => {
     setFromTime(fromTime);
 
     const fromTime24 = convertTo24HourFormat(fromTime);
-    const [hours, minutes] = fromTime24.split(":");
+    const [hours, minutes] = fromTime24.split(':');
     const fromTimeDate = new Date();
     fromTimeDate.setHours(parseInt(hours));
     fromTimeDate.setMinutes(parseInt(minutes));
     fromTimeDate.setSeconds(0);
 
     const maxToTimeDate = new Date(fromTimeDate.getTime() + 8 * 60 * 60 * 1000);
-    const maxHours = String(maxToTimeDate.getHours()).padStart(2, "0");
-    const maxMinutes = String(maxToTimeDate.getMinutes()).padStart(2, "0");
+    const maxHours = String(maxToTimeDate.getHours()).padStart(2, '0');
+    const maxMinutes = String(maxToTimeDate.getMinutes()).padStart(2, '0');
     const maxToTime = `${maxHours}:${maxMinutes}`;
 
     setMaxToTime(maxToTime);
@@ -316,26 +314,21 @@ const Createpost = () => {
 
   const handleToTimeChange = (e) => {
     const toTime = e.target.value;
-    const toTime24 = convertTo24HourFormat(toTime);
+    const toTimeDate = parse(toTime, 'HH:mm', new Date());
+    const fromTimeDate = parse(fromTime, 'HH:mm', new Date());
+    
+    if (!isSameDay(toTimeDate, fromTimeDate)) {
+      toast.error('Time must be within the selected date');
+      return;
+    }
 
-    const [fromHours, fromMinutes] = convertTo24HourFormat(fromTime).split(":");
-    const fromTimeDate = new Date();
-    fromTimeDate.setHours(parseInt(fromHours));
-    fromTimeDate.setMinutes(parseInt(fromMinutes));
-    fromTimeDate.setSeconds(0);
 
-    const [toHours, toMinutes] = toTime24.split(":");
-    const toTimeDate = new Date();
-    toTimeDate.setHours(parseInt(toHours));
-    toTimeDate.setMinutes(parseInt(toMinutes));
-    toTimeDate.setSeconds(0);
+    const timeDifference = differenceInHours(toTimeDate, fromTimeDate);
 
-    const timeDifference = toTimeDate - fromTimeDate;
-
-    if (timeDifference <= 8 * 60 * 60 * 1000 && timeDifference > 0) {
+    if (timeDifference <= 8 && timeDifference >= 0) {
       setToTime(toTime);
     } else {
-      toast.error("To time must be within 8 hours of the from time");
+      toast.error('To time must be within 8 hours of the from time');
     }
   };
 

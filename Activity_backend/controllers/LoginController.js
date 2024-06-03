@@ -241,6 +241,11 @@ const Register = async (req, res) => {
         .json({ message: "Aadhar number already registered" });
     }
 
+    // Validate Aadhar number length
+    if (userData.aadhar.length !== 12) {
+      return res.status(400).json({ message: "Entered Aadhar number is not valid. It must be 12 digits long." });
+    }
+    
     // Validate password strength
     const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
     if (!passwordRegex.test(userData.password)) {
@@ -1025,6 +1030,24 @@ const postsdata = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+const postsForDate = async (req, res) => {
+    try {
+      const {date} = req.query;
+      console.log("this is the date", date)
+    const posts = await db.Posts.findAll({
+      where: { Date: date },
+    });
+    if (posts.length === 0) {
+      return res.status(404).json({ error: "No posts found for the specified date." });
+    }
+
+    res.json(posts);
+  } catch (error) {
+    logger.error("here is the error", error);
+    console.error(error);
+    res.status(500).json({ error: "kuch" });
+  }
+};
 
 const endorsePost = async (req, res) => {
   const postId = req.params.id;
@@ -1617,5 +1640,6 @@ module.exports = {
   updateApprover,
   deleteApprover,
   getUsers,
-  deleteUser
+  deleteUser,
+  postsForDate
 };
