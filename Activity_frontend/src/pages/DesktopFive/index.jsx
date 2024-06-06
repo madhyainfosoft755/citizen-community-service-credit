@@ -17,8 +17,11 @@ const DesktopFivePage = () => {
   const [totalTime, setTotalTime] = useState(null); // Added state for total time
   const [userName, setUserName] = useState(""); // Added state for user name
   const [usersWithMostPostsInYear, setUsersWithMostPostsInYear] = useState([]);
+  const [selectedUser, setSelectedUser] = useState(null); // State for selected user
+  const [userPosts, setUserPosts] = useState([]); // State for user's posts
+  const [isPopupVisible, setIsPopupVisible] = useState(false); // State for popup visibility
 
-
+  console.log(`ye hain ${selectedUser} ke posts`, userPosts)
 
   const checkTokenExpiry = async (token) => {
     try {
@@ -142,7 +145,7 @@ const DesktopFivePage = () => {
   }, []);
 
 
- 
+
 
   const MostPostsInYear = async () => {
     try {
@@ -172,31 +175,76 @@ const DesktopFivePage = () => {
     }
   };
 
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+  };
 
+  const fetchUserPosts = async (userId) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${API_URL}/activity/getPostsByUser/${userId}`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const posts = await response.json();
+        const formattedPosts = posts.map(post => ({
+          ...post,
+          Date: formatDate(post.Date),
+        }));
+        setUserPosts(formattedPosts);
+        setIsPopupVisible(true);
+      } else {
+        console.error("Error fetching user's posts:", response.status);
+        setError("An error occurred while fetching user's posts.");
+      }
+    } catch (error) {
+      console.error("Error fetching user's posts:", error);
+      setError("An error occurred while fetching user's posts.");
+    }
+  };
+
+  const handleUserClick = (userId) => {
+    fetchUserPosts(userId);
+    const selectedUser = usersWithMostPostsInYear.find(user => user.id === userId);
+    setSelectedUser(selectedUser.name);
+  };
+
+  const closePopup = () => {
+    setIsPopupVisible(false);
+    setUserPosts([]);
+  };
   const direct = () => {
     navigate("/activity");
   };
 
-  const apphour = ()=>{
+  const apphour = () => {
     navigate("/approvehours")
   }
-  const magcate = ()=>{
+  const magcate = () => {
     navigate("/managecategories")
   }
-  const mngapp = ()=>{
+  const mngapp = () => {
     navigate("/approvers")
   }
-  const mnguser = ()=>{
+  const mnguser = () => {
     navigate("/manageusers")
   }
-  const mngorg = ()=>{
+  const mngorg = () => {
     navigate("/manageorganization")
   }
-  const generatereport = ()=>{
+  const generatereport = () => {
     navigate("/generatereport")
   }
 
-  
+
 
 
   return (
@@ -234,7 +282,7 @@ const DesktopFivePage = () => {
               color="indigo_A200"
               onClick={handleLogout}
             >
-            LOGOUT
+              LOGOUT
               {/* {carouselTexts[textIndex]} */}
             </Button>
           </div>
@@ -245,39 +293,23 @@ const DesktopFivePage = () => {
             <div className=" h-[90%] scroller overflow-x-auto p-3 ">
               <div className="flex h-full space-x-2 ">
 
-                <div className="rounded-lg shadow-bs  shadow-black-900 w-40 h-full border-[1px] flex-shrink-0 flex flex-col items-center justify-center pt-4 text-xl font-medium">
-                  <h1 className="text-[#546ef6] font-bold">Month</h1>
-                  <div className="w-full h-full flex flex-col gap-2 pt-2  overflow-auto scroller">
-
-                    {usersWithMostPostsInYear.map((user, index) => (
-                      <div key={index} className=" flex-shrink-0 flex items-center justify-center text-sm font-medium">
-                        <h1>{user.charAt(0).toUpperCase() + user.slice(1)}</h1>
-                      </div>
-                    ))}
+                {['Month', 'Six Month', 'Year'].map((timeframe, index) => (
+                  <div key={index} className="rounded-lg shadow-bs shadow-black-900 w-40 h-full border-[1px] flex-shrink-0 flex flex-col items-center justify-center pt-4 text-xl font-medium">
+                    <h1 className="text-[#546ef6] font-bold">{timeframe}</h1>
+                    <div className="w-full h-full flex flex-col gap-2 pt-2 overflow-auto scroller">
+                      {usersWithMostPostsInYear.map((user, index) => (
+                        <div key={index} className="flex-shrink-0 flex items-center justify-center text-sm font-medium">
+                          <h1
+                            className="hover:underline hover:text-blue-300 hover:cursor-pointer"
+                            onClick={() => handleUserClick(user.id)}
+                          >
+                            {user.name.charAt(0).toUpperCase() + user.name.slice(1)}
+                          </h1>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                </div>
-                <div className="rounded-lg shadow-bs shadow-black-900 w-40 h-full border-[1px] flex-shrink-0 flex flex-col items-center justify-center pt-4 text-xl font-medium">
-                  <h1 className="text-[#546ef6] font-bold">Six Month</h1>
-                  <div className="w-full h-full flex flex-col gap-2 pt-2 overflow-auto scroller">
-
-                    {usersWithMostPostsInYear.map((user, index) => (
-                      <div key={index} className=" flex-shrink-0 flex items-center justify-center text-sm font-medium">
-                        <h1>{user.charAt(0).toUpperCase() + user.slice(1)}</h1>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <div className="rounded-lg shadow-bs shadow-black-900 w-40 h-full border-[1px] flex-shrink-0 flex flex-col items-center justify-center pt-4 text-xl font-medium">
-                  <h1 className="text-[#546ef6] font-bold">Year</h1>
-                  <div className="w-full h-full flex flex-col gap-2 pt-2 overflow-auto scroller">
-
-                    {usersWithMostPostsInYear.map((user, index) => (
-                      <div key={index} className=" flex-shrink-0 flex items-center justify-center text-sm font-medium">
-                        <h1>{user.charAt(0).toUpperCase() + user.slice(1)}</h1>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                ))}
                 <div className="w-[1px] h-full flex-shrink-0"></div>
               </div>
             </div>
@@ -294,13 +326,49 @@ const DesktopFivePage = () => {
             </div>
 
             <div className="flex flex-col items-center justify-center gap-1  w-full h-2/5  " >
-                  <button onClick={generatereport} className="w-4/5 p-2 rounded-full bg-[#546ef6] text-white-A700 text-base font-semibold">Generate Report</button>
-                  <button className="w-4/5 p-2  rounded-full bg-[#546ef6] text-white-A700 text-base font-semibold">Submit</button>
+              <button onClick={generatereport} className="w-4/5 p-2 rounded-full bg-[#546ef6] text-white-A700 text-base font-semibold">Generate Report</button>
+              <button className="w-4/5 p-2  rounded-full bg-[#546ef6] text-white-A700 text-base font-semibold">Submit</button>
             </div>
           </div>
         </div>
 
+
+
+        {isPopupVisible && (
+          <div className="absolute w-full h-full inset-0 flex items-center justify-center bg-black bg-opacity-50">
+            <div className="w-full h-full bg-black-900/80 rounded-lg p-6 shadow-lg flex flex-col items-center justify-center">
+              <div className="bg-white-A700 p-3 rounded-md font-sans flex flex-col shadow-blue-500 shadow-bs2 items-center justify-start overflow-auto">
+              {/* <h2 className="text-2xl font-bold mb-4">Posts by {selectedUser}</h2> */}
+              <h2 className="text-2xl font-bold mb-4">{selectedUser} made {userPosts.length} posts</h2>
+                {userPosts.length > 0 ? (
+                  userPosts.map((post) => (
+                    <div key={post.id} className="mb-2 border-4 border-gray-200  p-2 w-full border-double  rounded-md">
+                      <h3 className="font-semibold">Category: {post.category}</h3>
+                      <h3 className="font-semibold">Date: {post.Date}</h3>
+                      <h3 className="font-semibold">Time: {post.totalTime}</h3>
+                    </div>
+                  ))
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <Img
+                      className="w-[80%] h-auto object-cover object-center"
+                      src="images/nopost.svg"
+                      alt="No posts available for endorsement"
+                    />
+                  </div>
+                )}
+              </div>
+              <button
+                className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded"
+                onClick={closePopup}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        )}
       </div>
+
     </div>
 
   );

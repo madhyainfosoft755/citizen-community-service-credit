@@ -107,7 +107,7 @@ const generatedPassword = generateRandomPassword(passwordLength);
 console.log('Generated Password:', generatedPassword);
 
 
-const GoogleLogin = async (req, res) => { 
+const GoogleLogin = async (req, res) => {
   const { token } = req.body;
   console.log("*****token********", token)
 
@@ -141,15 +141,15 @@ const GoogleLogin = async (req, res) => {
       user = await Users.create({
         name: userProfile.name,
         email: userProfile.email,
-        phone:null,
+        phone: null,
         password: generatedPassword, // Add password if needed
         photo: fileName, // Assuming you store the profile picture
         category: JSON.stringify(['Others']), // Assign "Others" category during user creation
         googleId: userProfile.id,
         role: "user",
-        verified:true
+        verified: true
       });
-      
+
     }
 
     // Generate JWT token for the user
@@ -246,7 +246,7 @@ const Register = async (req, res) => {
     if (userData.aadhar.length !== 12) {
       return res.status(400).json({ message: "Entered Aadhar number is not valid. It must be 12 digits long." });
     }
-    
+
     // Validate password strength
     const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
     if (!passwordRegex.test(userData.password)) {
@@ -266,7 +266,7 @@ const Register = async (req, res) => {
       html: `<p>Please click <a href="${process.env.URL}/verify/${verificationToken}">here</a> to verify your email address.</p>`,
     });
 
-    
+
     // Ensure "Others" category is always present
     let selectedCategories = userData.selectedCategories;
     console.log("Category selected:", selectedCategories);
@@ -294,9 +294,9 @@ const Register = async (req, res) => {
       password: userData.password,
       phone: userData.phone,
       photo: photoFile[0].filename,
-      category:  JSON.stringify(selectedCategories), // Store as a JSON string
+      category: JSON.stringify(selectedCategories), // Store as a JSON string
       verificationToken: verificationToken, // Store verification token in the database
-      aadhar:userData.aadhar,
+      aadhar: userData.aadhar,
       role: "user",
       organization: userData.organization // Add the organization field
 
@@ -475,13 +475,13 @@ const updatePassword = async (req, res) => {
       });
     }
 
-      // Check if the new password is the same as the old password
-      if (newPassword === user.password) {
-        return res.status(400).json({
-          message: "New password must be different from the old password."
-        });
-      }
-  
+    // Check if the new password is the same as the old password
+    if (newPassword === user.password) {
+      return res.status(400).json({
+        message: "New password must be different from the old password."
+      });
+    }
+
     // Update user's password and clear resetPin
     user.password = newPassword;
     // user.resetPin = null; // Clear the resetPin after successful password reset
@@ -1221,14 +1221,12 @@ const getUsersWithMostPostsInYear = async (req, res) => {
     const allUsers = await db.users.findAll(
       {
         where: {
-          role: { 
+          role: {
             [Op.ne]: 'admin' // Exclude users with the role of admin
           }
         }
       }
     );
-
-    // console.log("ye rhe users *************/*/*/*/*/*/*/*", allUsers)
 
     // Initialize an object to store user IDs and their post counts for the current year
     const userPostCounts = {};
@@ -1264,7 +1262,8 @@ const getUsersWithMostPostsInYear = async (req, res) => {
     const topUserNames = await Promise.all(
       topUsers.map(async (user) => {
         const userData = await db.users.findByPk(user.userId);
-        return userData.name;
+        console.log(userData)
+        return { name: userData.name, id: userData.id };
       })
     );
 
@@ -1273,7 +1272,7 @@ const getUsersWithMostPostsInYear = async (req, res) => {
 
     res.status(200).json({ topUserNames });
   } catch (error) {
-    logger.error("error from fetching maximum number of post by users" , error)
+    logger.error("error from fetching maximum number of post by users", error)
     console.error("Error fetching users with most posts in the year:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
@@ -1555,9 +1554,9 @@ const deleteApprover = async (req, res) => {
 const getUsers = async (req, res) => {
   try {
     const users = await Users.findAll({
-      attributes: ['id', 'name'] ,// Fetch only id and name
+      attributes: ['id', 'name'],// Fetch only id and name
       where: {
-        role: { 
+        role: {
           [Op.ne]: 'admin' // Exclude users with the role of admin
         }
       }
@@ -1589,21 +1588,21 @@ const deleteUser = async (req, res) => {
 //controller for getting all posts on a particular date
 const postsForDate = async (req, res) => {
   try {
-    const {date} = req.query;
+    const { date } = req.query;
     console.log("this is the date", date)
-  const posts = await db.Posts.findAll({
-    where: { Date: date },
-  });
-  if (posts.length === 0) {
-    return res.status(404).json({ error: "No posts found for the specified date." });
-  }
+    const posts = await db.Posts.findAll({
+      where: { Date: date },
+    });
+    if (posts.length === 0) {
+      return res.status(404).json({ error: "No posts found for the specified date." });
+    }
 
-  res.json(posts);
-} catch (error) {
-  logger.error("here is the error", error);
-  console.error(error);
-  res.status(500).json({ error: "kuch" });
-}
+    res.json(posts);
+  } catch (error) {
+    logger.error("here is the error", error);
+    console.error(error);
+    res.status(500).json({ error: "kuch" });
+  }
 };
 
 //controller that fetches posts from the past seven days based on a given category
@@ -1637,6 +1636,38 @@ const postsForCategory = async (req, res) => {
     res.status(500).json({ error: "An error occurred while fetching posts." });
   }
 };
+
+const getPostsByUser = async (req, res) => {
+  try {
+    const userId = req.params.userId;
+
+    // Validate user ID
+    if (!userId) {
+      return res.status(400).json({ error: "User ID is required" });
+    }
+
+    // Fetch posts by user ID
+    const userPosts = await db.Posts.findAll({
+      where: {
+        UserId: userId,
+      },
+      order: [['Date', 'DESC']], // Order posts by date in descending order
+    });
+
+    // Check if posts exist
+    if (userPosts.length === 0) {
+      return res.status(404).json({ error: "No posts found for this user" });
+    }
+
+    res.status(200).json(userPosts);
+  } catch (error) {
+    console.error("Error fetching posts by user:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+
+
 
 module.exports = {
   output,
@@ -1679,5 +1710,6 @@ module.exports = {
   getUsers,
   deleteUser,
   postsForDate,
-  postsForCategory
+  postsForCategory,
+  getPostsByUser,
 };
