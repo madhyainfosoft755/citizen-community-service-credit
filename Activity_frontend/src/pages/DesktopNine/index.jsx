@@ -271,7 +271,7 @@ const DesktopNinePage = () => {
                     {selectedCategory || isByDate ? (
                       <Text  className="text-gray-700 text-center">
                         {isByDate
-                          ? `Data of different categories for ${format(new Date(),"dd-MM-yyyy")}`
+                          ? `Data of different categories for ${format(selectedDate,"dd-MM-yyyy")}`
                           : `Data of the ${selectedCategory} from ${format(subDays(new Date(), 6), 'dd-MM-yyyy')} to ${format(new Date(), 'dd-MM-yyyy')}`}
                       </Text>
                     ) : null}

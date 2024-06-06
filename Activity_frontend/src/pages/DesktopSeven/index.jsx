@@ -5,12 +5,14 @@ import { useNavigate } from "react-router-dom";
 import { API_URL } from "Constant";
 import "./style.css";
 import { toast } from "react-toastify";
+import PopupComponent from "components/popup";
 
 const DesktopSevenPage = () => {
   const navigate = useNavigate();
   const notify = (e) => toast(e);
   const [posts, setPosts] = useState([]);
-
+  const [selectedPost, setSelectedPost] = useState(null);
+  const [isPopupVisible, setIsPopupVisible] = useState(false);
 
   const checkTokenExpiry = async (token) => {
     try {
@@ -35,25 +37,25 @@ const DesktopSevenPage = () => {
     }
   };
 
-  const postForApproval = async()=>{
+  const postForApproval = async () => {
     try {
-        const token = localStorage.getItem("token");
-        const response = await fetch(`${API_URL}/activity/pendingApproval`, {
-          method: "GET",
-          headers: { Authorization: `Bearer ${token}` },
-        });
-      
-        const data = await response.json();
-        // console.log("ye hai response",data)
-        if (response.ok) {
-          setPosts(data)
-        }
-        else{
-          // console.log("hello")
-          setPosts([])
-          notify(data.message)
-        }
-       
+      const token = localStorage.getItem("token");
+      const response = await fetch(`${API_URL}/activity/pendingApproval`, {
+        method: "GET",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      const data = await response.json();
+      // console.log("ye hai response",data)
+      if (response.ok) {
+        setPosts(data)
+      }
+      else {
+        // console.log("hello")
+        setPosts([])
+        notify(data.message)
+      }
+
     }
     catch (error) {
       console.error("Error fetching requests for approval", error);
@@ -110,7 +112,15 @@ const DesktopSevenPage = () => {
   }, []); // Empty dependency array ensures that this effect runs only once on mount
 
 
-  
+  const handlePostClick = (post) => {
+    setSelectedPost(post);
+    setIsPopupVisible(true);
+  };
+
+  const handleClosePopup = () => {
+    setIsPopupVisible(false);
+    setSelectedPost(null);
+  };
 
   const goback = () => {
     navigate("/admin");
@@ -122,10 +132,10 @@ const DesktopSevenPage = () => {
     const [hours, minutes] = time.split(":");
     const formattedHours = parseInt(hours, 10) < 10 ? hours.replace(/^0+/, '') : hours;
     const formattedMinutes = parseInt(minutes, 10) !== 0 ? `:${minutes}` : '';
-  return `${formattedHours}${formattedMinutes}`;
+    return `${formattedHours}${formattedMinutes}`;
   };
 
-
+  console.log("ye rhe posts", posts)
   return (
     <div className=" flex items-center justify-center p-4 sm:p-0  w-screen h-screen sm:w-screen sm:h-screen">
       <div className=" relative w-4/12 h-full sm:w-full sm:h-full md:w-3/4 md:h-full  lg:w-3/4 lg:h-full  flex flex-col items-center  justify-start border-[1px] gap-4  rounded-lg sm:rounded-none overflow-hidden">
@@ -145,28 +155,35 @@ const DesktopSevenPage = () => {
           </Text>
 
         </div>
-        <div className="post-shower w-full p-4">
+        <div className="post-showe w-full p-4 overflow-auto scroller">
           {posts.length > 0 ? (
             posts.map((post) => (
-              <div key={post.id} className="post-item p-4 mb-4 bg-white rounded shadow flex items-center justify-between bg-[#f1f3ff]">
+              <div onClick={() => handlePostClick(post)} key={post.id} className="post-item cursor-pointer p-4 mb-4  bg-white rounded shadow flex items-center justify-between bg-[#f1f3ff]">
                 <div>
-                <Text size="txtInterSemiBold17">{post.user.name}</Text>
-                <Text className="text-xs mt-1">Requested for {formatTime(post.totalTime)} Hours approval </Text>
+                  <Text size="txtInterSemiBold17">{post.user.name}</Text>
+                  <Text className="text-xs mt-1">Requested for {formatTime(post.totalTime)} Hours approval </Text>
                 </div>
-                <button className="text-[#546ef6] font-semibold" onClick={() => approveHoursRequest(post.id)}>Approve</button>                
+                <button className="text-[#546ef6] font-semibold border-2 rounded-md border-gray-300 p-2" onClick={(e) => {
+                  e.stopPropagation();
+                  approveHoursRequest(post.id);
+                }}>Approve</button>
+
               </div>
             ))
           ) : (
             <div className="w-full h-full flex items-center justify-center">
-                      <Img
-                        className="w-[80%] h-auto object-cover object-center"
-                        src="images/nopost.svg"
-                        alt="No posts available for endorsement"
-                      />
-                    </div>
+              <Img
+                className="w-[80%] h-auto object-cover object-center"
+                src="images/nopost.svg"
+                alt="No posts available for endorsement"
+              />
+            </div>
           )}
         </div>
       </div>
+      {isPopupVisible && selectedPost && (
+        <PopupComponent className="w-full h-full" post={selectedPost} onClose={handleClosePopup} />
+      )}
     </div>
   );
 };

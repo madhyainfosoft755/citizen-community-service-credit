@@ -239,40 +239,40 @@ const DesktopFivePage = () => {
             </Button>
           </div>
 
-          <div className="w-full h-full  p-1">
+          <div className="w-full h-1/2   p-1">
 
             <h1 className="text-xl font-semibold w-full pl-3">Top Five Stars</h1>
             <div className=" h-[90%] scroller overflow-x-auto p-3 ">
-              <div className="flex h-full space-x-3 ">
+              <div className="flex h-full space-x-2 ">
 
-                <div className="rounded-lg shadow-bs  shadow-black-900 w-48 h-full border-[1px] flex-shrink-0 flex flex-col items-center justify-center pt-4 text-xl font-medium">
+                <div className="rounded-lg shadow-bs  shadow-black-900 w-40 h-full border-[1px] flex-shrink-0 flex flex-col items-center justify-center pt-4 text-xl font-medium">
                   <h1 className="text-[#546ef6] font-bold">Month</h1>
-                  <div className="w-full h-full flex flex-col gap-3 pt-2">
+                  <div className="w-full h-full flex flex-col gap-2 pt-2  overflow-auto scroller">
 
                     {usersWithMostPostsInYear.map((user, index) => (
-                      <div key={index} className=" flex-shrink-0 flex items-center justify-center text-base font-medium">
+                      <div key={index} className=" flex-shrink-0 flex items-center justify-center text-sm font-medium">
                         <h1>{user.charAt(0).toUpperCase() + user.slice(1)}</h1>
                       </div>
                     ))}
                   </div>
                 </div>
-                <div className="rounded-lg shadow-bs shadow-black-900 w-48 h-full border-[1px] flex-shrink-0 flex flex-col items-center justify-center pt-4 text-xl font-medium">
+                <div className="rounded-lg shadow-bs shadow-black-900 w-40 h-full border-[1px] flex-shrink-0 flex flex-col items-center justify-center pt-4 text-xl font-medium">
                   <h1 className="text-[#546ef6] font-bold">Six Month</h1>
-                  <div className="w-full h-full flex flex-col gap-3 pt-2">
+                  <div className="w-full h-full flex flex-col gap-2 pt-2 overflow-auto scroller">
 
                     {usersWithMostPostsInYear.map((user, index) => (
-                      <div key={index} className=" flex-shrink-0 flex items-center justify-center text-base font-medium">
+                      <div key={index} className=" flex-shrink-0 flex items-center justify-center text-sm font-medium">
                         <h1>{user.charAt(0).toUpperCase() + user.slice(1)}</h1>
                       </div>
                     ))}
                   </div>
                 </div>
-                <div className="rounded-lg shadow-bs shadow-black-900 w-48 h-full border-[1px] flex-shrink-0 flex flex-col items-center justify-center pt-4 text-xl font-medium">
+                <div className="rounded-lg shadow-bs shadow-black-900 w-40 h-full border-[1px] flex-shrink-0 flex flex-col items-center justify-center pt-4 text-xl font-medium">
                   <h1 className="text-[#546ef6] font-bold">Year</h1>
-                  <div className="w-full h-full flex flex-col gap-3 pt-2">
+                  <div className="w-full h-full flex flex-col gap-2 pt-2 overflow-auto scroller">
 
                     {usersWithMostPostsInYear.map((user, index) => (
-                      <div key={index} className=" flex-shrink-0 flex items-center justify-center text-base font-medium">
+                      <div key={index} className=" flex-shrink-0 flex items-center justify-center text-sm font-medium">
                         <h1>{user.charAt(0).toUpperCase() + user.slice(1)}</h1>
                       </div>
                     ))}
@@ -283,13 +283,13 @@ const DesktopFivePage = () => {
             </div>
           </div>
 
-          <div className=" w-full h-full pt-3 ">
+          <div className=" w-full h-full  pt-3 ">
             <div className=" w-full h-3/5 flex flex-wrap items-center justify-between pl-4 pr-4 pt-1 pb-1">
-              <div className="w-[48%] rounded-lg bg-[#e9ecfe] border-[1px] border-[#546ef6] text-[#546ef6] h-1/4 flex  items-center justify-center font-semibold cursor-pointer" onClick={apphour}><h1>Approve Hours</h1></div>
-              <div className="w-[48%] rounded-lg bg-[#e9ecfe] border-[1px] border-[#546ef6] text-[#546ef6] h-1/4 flex flex-shrink-2 items-center justify-center font-semibold cursor-pointer" onClick={magcate}><h1>Manage Category</h1></div>
-              <div className="w-[48%] rounded-lg bg-[#e9ecfe] border-[1px] border-[#546ef6] text-[#546ef6] h-1/4 flex flex-shrink-2 items-center justify-center font-semibold cursor-pointer" onClick={mngapp}><h1>Manage Approvers</h1></div>
-              <div className="w-[48%] rounded-lg bg-[#e9ecfe] border-[1px] border-[#546ef6] text-[#546ef6] h-1/4 flex flex-shrink-2 items-center justify-center font-semibold cursor-pointer" onClick={mnguser}><h1>Manage Users</h1></div>
-              <div className="w-full rounded-lg bg-[#e9ecfe] border-[1px] border-[#546ef6] text-[#546ef6] h-1/4 flex flex-shrink-2 items-center justify-center font-semibold cursor-pointer" onClick={mngorg}><h1>Manage Organisation</h1></div>
+              <div className="w-[48%] rounded-lg bg-[#e9ecfe] border-[1px] border-[#546ef6] text-[#546ef6] h-1/5 flex  items-center justify-center font-semibold cursor-pointer text-center" onClick={apphour}><h1>Approve Hours</h1></div>
+              <div className="w-[48%] rounded-lg bg-[#e9ecfe] border-[1px] border-[#546ef6] text-[#546ef6] h-1/5 flex flex-shrink-2 items-center justify-center font-semibold cursor-pointer text-center" onClick={magcate}><h1>Manage Category</h1></div>
+              <div className="w-[48%] rounded-lg bg-[#e9ecfe] border-[1px] border-[#546ef6] text-[#546ef6] h-1/5 flex flex-shrink-2 items-center justify-center font-semibold cursor-pointer text-center" onClick={mngapp}><h1>Manage Approvers</h1></div>
+              <div className="w-[48%] rounded-lg bg-[#e9ecfe] border-[1px] border-[#546ef6] text-[#546ef6] h-1/5 flex flex-shrink-2 items-center justify-center font-semibold cursor-pointer text-center" onClick={mnguser}><h1>Manage Users</h1></div>
+              <div className="w-full rounded-lg bg-[#e9ecfe] border-[1px] border-[#546ef6] text-[#546ef6] h-1/5 flex flex-shrink-2 items-center justify-center font-semibold cursor-pointer text-center" onClick={mngorg}><h1>Manage Organisation</h1></div>
 
             </div>
 
