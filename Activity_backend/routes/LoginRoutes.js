@@ -40,7 +40,8 @@ const {
   deleteApprover,
   getUsers,
   deleteUser,
-  postsForDate
+  postsForDate,
+  postsForCategory
 
 } = require("../controllers/LoginController");
 const { upload } = require("../utils/util");
@@ -81,7 +82,7 @@ router.post("/AllDetails/:id", AllDetails);
 router.get("/postsdata/:id", postsdata);
 router.post("/postsdata/:id", postsdata);
 router.get("/postsForDate",postsForDate);
-router.post("/postsForDate/:id", postsForDate);
+router.get("/postsForCategory",postsForCategory);
 router.get("/CreateActivity", upload, CreateActivity);
 router.post("/CreateActivity", upload, CreateActivity);
 router.post("/Register", upload, Register);

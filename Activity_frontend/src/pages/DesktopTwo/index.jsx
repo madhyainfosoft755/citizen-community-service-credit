@@ -93,18 +93,18 @@ const Register = () => {
   }, []);
 
   const handleFileChange = (e) => {
-     const file = e.target.files[0];
-     if (!file) {
+    const file = e.target.files[0];
+    if (!file) {
       // No file selected
       return;
     }
-  
+
     // Get the file extension
     const fileExtension = file.name.split(".").pop().toLowerCase();
-  
+
     // Allowed image extensions
     const allowedExtensions = ["jpg", "jpeg", "png", "gif"];
-  
+
     // Check if the selected file is an image
     if (allowedExtensions.includes(fileExtension) && file.type.startsWith("image/")) {
       setSelectedFile(file);
@@ -122,25 +122,25 @@ const Register = () => {
     });
 
     setSelectedCategories((prevCategories) => {
-    //   if (prevCategories.includes(value)) {
-    //     // If category is already selected, remove it
-    //     return prevCategories.filter((category) => category !== value);
-    //   } else {
-    //     // If category is not selected, add it
-    //     return [...prevCategories, value];
-    //   }
-    // });
-    const updatedCategories = [...prevCategories];
-    const valueIndex = updatedCategories.indexOf(value);
-    if (valueIndex !== -1) {
-      // If category is already selected, remove it
-      updatedCategories.splice(valueIndex, 1);
-    } else {
-      // If category is not selected, add it
-      updatedCategories.push(value);
-    }
-    return updatedCategories;
-  });
+      //   if (prevCategories.includes(value)) {
+      //     // If category is already selected, remove it
+      //     return prevCategories.filter((category) => category !== value);
+      //   } else {
+      //     // If category is not selected, add it
+      //     return [...prevCategories, value];
+      //   }
+      // });
+      const updatedCategories = [...prevCategories];
+      const valueIndex = updatedCategories.indexOf(value);
+      if (valueIndex !== -1) {
+        // If category is already selected, remove it
+        updatedCategories.splice(valueIndex, 1);
+      } else {
+        // If category is not selected, add it
+        updatedCategories.push(value);
+      }
+      return updatedCategories;
+    });
   };
 
   const handleInputChange = (e) => {
@@ -494,14 +494,14 @@ const Register = () => {
             </div>
 
 
-            <div className="w-full h-auto flex flex-col items-center justify-center  relative">
-              <label className="block font-bold mb-2">Select Categories:</label>
-              <div className="grid grid-cols-3 gap-2">
+            <div className="w-full h-auto flex flex-col items-center justify-center  relative ">
+              <label className="block font-bold mb-1">Select Categories:</label>
+              <div className="grid grid-cols-3 gap-1 w-full">
                 {categories.map((category, index) => (
                   <button
                     key={index}
                     type="button"
-                    className={`p-2 rounded ${buttonStates[index] ? "bg-[#546ef6] text-white" : "bg-gray-200 text-black"
+                    className={`p-1 rounded text-xs text-center ${buttonStates[index] ? "bg-[#546ef6] text-white" : "bg-gray-200 text-black"
                       }`}
                     onClick={() => handleButtonClick(index, category.name)}
                   >

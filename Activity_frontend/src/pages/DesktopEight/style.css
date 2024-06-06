@@ -1,3 +1,7 @@
 .scroller::-webkit-scrollbar{
     display: none;
 }
+
+.input-error {
+    border-color: red !important;
+  }

@@ -80,12 +80,12 @@ const Forget = () => {
   };
 
   const handleUpdatePassword = async () => {
-    if (newPassword !== confirmNewPassword) {
-      notify("Passwords do not match")
-      return;
-    }
     if (!newPassword.trim()) {
       notify("New password cannot be empty");
+      return;
+    }
+    if (!confirmNewPassword.trim()) {
+      notify("Confirm password cannot be empty");
       return;
     }
     if (newPassword.length < 8) {

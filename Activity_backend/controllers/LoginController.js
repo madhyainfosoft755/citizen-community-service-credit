@@ -107,7 +107,7 @@ const generatedPassword = generateRandomPassword(passwordLength);
 console.log('Generated Password:', generatedPassword);
 
 
-const GoogleLogin = async (req, res) => {
+const GoogleLogin = async (req, res) => { 
   const { token } = req.body;
   console.log("*****token********", token)
 
@@ -144,11 +144,12 @@ const GoogleLogin = async (req, res) => {
         phone:null,
         password: generatedPassword, // Add password if needed
         photo: fileName, // Assuming you store the profile picture
-        category: '', // Add category if needed
+        category: JSON.stringify(['Others']), // Assign "Others" category during user creation
         googleId: userProfile.id,
         role: "user",
         verified:true
       });
+      
     }
 
     // Generate JWT token for the user
@@ -265,22 +266,24 @@ const Register = async (req, res) => {
       html: `<p>Please click <a href="${process.env.URL}/verify/${verificationToken}">here</a> to verify your email address.</p>`,
     });
 
-    console.log("/*/*/*/*/*/*/*", userData.selectedCategories, "/*/*/*/*/*/*/***/*")
+    
+    // Ensure "Others" category is always present
+    let selectedCategories = userData.selectedCategories;
+    console.log("Category selected:", selectedCategories);
 
-    // Check if at least one category is selected
-    let selectedCategories = userData.selectedCategories; // Assuming selectedCategories is a string
-    console.log("category selected", typeof selectedCategories);
-
-
-    if (!selectedCategories) {
-      console.log("hello/*/*/*/*/*/*/*/")
-      return res.status(400).json({ message: "Please select at least one category to register." });
-    }
-
-    // If selectedCategories is a string, split it into an array
     if (typeof selectedCategories === "string") {
-      selectedCategories = selectedCategories.split(",");
+      selectedCategories = JSON.parse(selectedCategories);
     }
+
+    if (!Array.isArray(selectedCategories)) {
+      selectedCategories = [selectedCategories];
+    }
+
+    if (!selectedCategories.includes("Others")) {
+      selectedCategories.push("Others");
+    }
+
+    console.log("Final categories:", selectedCategories);
 
     // const Category = selectedCategories;
 
@@ -291,7 +294,7 @@ const Register = async (req, res) => {
       password: userData.password,
       phone: userData.phone,
       photo: photoFile[0].filename,
-      category: selectedCategories.join(','), // Assuming category is stored as a comma-separated string
+      category:  JSON.stringify(selectedCategories), // Store as a JSON string
       verificationToken: verificationToken, // Store verification token in the database
       aadhar:userData.aadhar,
       role: "user",
@@ -465,10 +468,10 @@ const updatePassword = async (req, res) => {
     }
 
     // Validate password strength
-    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[~`!@#$%^&*()-_=+{}[\]|;:'",.<>?\\/])[A-Za-z\d~`!@#$%^&*()-_=+{}[\]|;:'",.<>?\\/]{8,}$/;
     if (!passwordRegex.test(newPassword)) {
       return res.status(400).json({
-        message: "Password must be at least 8 characters long and include at least one letter, one number, and one special character."
+        message: "Password must include at least one small letter, one capital letter, one number and one special character."
       });
     }
 
@@ -1030,24 +1033,7 @@ const postsdata = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
-const postsForDate = async (req, res) => {
-    try {
-      const {date} = req.query;
-      console.log("this is the date", date)
-    const posts = await db.Posts.findAll({
-      where: { Date: date },
-    });
-    if (posts.length === 0) {
-      return res.status(404).json({ error: "No posts found for the specified date." });
-    }
 
-    res.json(posts);
-  } catch (error) {
-    logger.error("here is the error", error);
-    console.error(error);
-    res.status(500).json({ error: "kuch" });
-  }
-};
 
 const endorsePost = async (req, res) => {
   const postId = req.params.id;
@@ -1600,6 +1586,57 @@ const deleteUser = async (req, res) => {
   }
 };
 
+//controller for getting all posts on a particular date
+const postsForDate = async (req, res) => {
+  try {
+    const {date} = req.query;
+    console.log("this is the date", date)
+  const posts = await db.Posts.findAll({
+    where: { Date: date },
+  });
+  if (posts.length === 0) {
+    return res.status(404).json({ error: "No posts found for the specified date." });
+  }
+
+  res.json(posts);
+} catch (error) {
+  logger.error("here is the error", error);
+  console.error(error);
+  res.status(500).json({ error: "kuch" });
+}
+};
+
+//controller that fetches posts from the past seven days based on a given category
+const postsForCategory = async (req, res) => {
+  try {
+    const { category } = req.query;
+    if (!category) {
+      return res.status(400).json({ error: "Category is required" });
+    }
+
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+    const posts = await db.Posts.findAll({
+      where: {
+        category,
+        Date: {
+          [Op.gte]: sevenDaysAgo
+        }
+      },
+    });
+
+    if (posts.length === 0) {
+      return res.status(404).json({ error: "No posts found for the specified category in the last seven days." });
+    }
+
+    res.json(posts);
+  } catch (error) {
+    logger.error("Error fetching posts for category in the last seven days", error);
+    console.error(error);
+    res.status(500).json({ error: "An error occurred while fetching posts." });
+  }
+};
 
 module.exports = {
   output,
@@ -1641,5 +1678,6 @@ module.exports = {
   deleteApprover,
   getUsers,
   deleteUser,
-  postsForDate
+  postsForDate,
+  postsForCategory
 };

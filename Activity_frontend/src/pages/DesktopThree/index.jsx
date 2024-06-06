@@ -8,12 +8,13 @@ import Location from "pages/Location/Location";
 import { useAuth } from "components/AuthProvider/AuthProvider";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faLocationDot  } from "@fortawesome/free-solid-svg-icons";
+import { faLocationDot } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
 import { CirclesWithBar } from 'react-loader-spinner'
-import { differenceInHours, parse,isSameDay } from 'date-fns'; // Importing necessary functions from date-fns
+import { differenceInHours, parse, isSameDay } from 'date-fns'; // Importing necessary functions from date-fns
 
 const Createpost = () => {
+  const [selfDeclarationChecked, setSelfDeclarationChecked] = useState(false);
   const [isLoading, setIsLoading] = useState(false); // State for loader
   const notify = (e) => toast(e);
   const navigate = useNavigate();
@@ -76,17 +77,19 @@ const Createpost = () => {
             const sortedCategories = filterCategories.sort((a, b) => a.name.localeCompare(b.name));
             const limitedCategories = sortedCategories.slice(0, 6);
             setCategories(limitedCategories);
+          
+          // Check if count is less than 6 and add "Others" category
+          if (filterCategories.length < 6) {
+            const othersCategory = { id: "others", name: "Others" };
+            setCategories(prevCategories => [...prevCategories, othersCategory]);
           }
-          else {
-            // notify(data.message)
-            console.log(data.message)
-
-          }
-
         } else {
-          console.error("Error fetching categories:", data.message);
+          console.log(data.message);
         }
-      } catch (error) {
+      } else {
+        console.error("Error fetching categories:", data.message);
+      }
+    } catch (error) {
         console.error("Error fetching categories:", error);
       }
     };
@@ -316,7 +319,7 @@ const Createpost = () => {
     const toTime = e.target.value;
     const toTimeDate = parse(toTime, 'HH:mm', new Date());
     const fromTimeDate = parse(fromTime, 'HH:mm', new Date());
-    
+
     if (!isSameDay(toTimeDate, fromTimeDate)) {
       toast.error('Time must be within the selected date');
       return;
@@ -516,7 +519,7 @@ const Createpost = () => {
                     categories.map((category) => (
                       <label
                         key={category.id}
-                        className={`flex flex-wrap text-sm rounded-lg items-center justify-center border-2 overflow-hidden border-double border-white mt-1 w-5/12 px-5 py-2 sm:px-5 sm:py-3 cursor-pointer ${selectedCategories === category.name ? "border-[1px] border-[#546ef6] text-[#546ef6] bg-sky-50/40" : ""}`}
+                        className={`flex flex-wrap text-xs text-center rounded-lg items-center justify-center border-2 overflow-hidden border-double border-white mt-1 w-5/12 px-5 py-2 sm:px-5 sm:py-2 cursor-pointer ${selectedCategories === category.name ? "border-[1px] border-[#546ef6] text-[#546ef6] bg-sky-50/40" : ""}`}
                       >
                         <input
                           type="radio"
@@ -534,7 +537,10 @@ const Createpost = () => {
                   )}
                 </div>
 
-
+                <div className="w-full h-5 flex items-center justify-center mt-1 mb-1 border-[1px] p-1 rounded-md" >
+                  <small className="font-bold">Description:</small>
+                  <input type="text" placeholder="Add description for the selected category" className="w-full h-full border-none text-xs" />
+                </div>
                 <div className="flex flex-row gap-2 items-center justify-between   w-full  mt-4 mb-4">
                   <div className="relative w-1/2 h-full  bg-cyan-50">
                     <h1 className="absolute  -top-5 left-0  text-sm">Location</h1>
@@ -565,11 +571,11 @@ const Createpost = () => {
                   </div>
                 </div>
                 <div className="  flex items-center justify-between  gap-2 w-full ">
-                  <h4 className="text-base font-semibold w-1/5 h-full flex items-center justify-start">
+                  <h4 className="text-base font-semibold w-fit h-full flex items-center justify-start ">
                     Add Time:
                   </h4>
 
-                  <div className="relative flex flex-col items-start justify-center w-1/3 h-full">
+                  <div className="relative flex flex-col items-start justify-center w-1/3 ">
                     <label
                       htmlFor="fromTime"
                       className="absolute -top-5 -left-1 text-xs  left-13 ml-2 mt-1 text-gray-500"
@@ -583,11 +589,11 @@ const Createpost = () => {
                       value={fromTime}
 
                       onChange={handleFromTimeChange}
-                      className="rounded-lg border-[1px] border-dashed border-[#546ef6] text-xs h-8 w-full "
+                      className="rounded-lg border-[1px] border-dashed border-[#546ef6] text-xs h-auto w-full "
                     />{" "}
                   </div>
 
-                  <div className="relative flex flex-col items-start justify-center w-1/3"
+                  <div className="relative flex flex-col items-start justify-center w-1/3 "
                   >
                     <label
                       htmlFor="toTime"
@@ -605,12 +611,12 @@ const Createpost = () => {
                       onChange={handleToTimeChange}
                       min={fromTime}
                       max={maxToTime}
-                      className="rounded-lg border-[1px] border-dashed border-[#546ef6] text-xs h-8 w-full"
+                      className="rounded-lg border-[1px] border-dashed border-[#546ef6] text-xs h-auto w-full "
                     />
                   </div>
                 </div>
                 <List className="flex items-center justify-center w-full gap-3 ">
-                  <div className="flex flex-1 flex-col gap-1 mb-2 items-start justify-start w-full ">
+                  <div className="flex flex-1 flex-col gap-1 mb-1 items-start justify-start w-full ">
                     <Text
                       className="text-base text-gray-900"
                       size="txtInterSemiBold16Gray900"
@@ -638,7 +644,7 @@ const Createpost = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="flex flex-1 flex-col gap-1 mb-2 items-start justify-start w-full">
+                  <div className="flex flex-1 flex-col gap-1 mb-1 items-start justify-start w-full">
                     <Text
                       className="text-base text-gray-900"
                       size="txtInterSemiBold16Gray900"
@@ -671,16 +677,17 @@ const Createpost = () => {
                     </div>
                   </div>
                 </List>
-                {/* <Text
-                    className="mt-[27px] text-base text-gray-900"
-                    size="txtInterSemiBold16Gray900"
-                  >
-                    Add Hours Spent
-                  </Text> */}
+               
+                <div className="flex items-start justify-center gap-1">
+                    <input type="checkbox" checked={selfDeclarationChecked}
+                      onChange={(e) => setSelfDeclarationChecked(e.target.checked)}
+                      className="border-[2px] !border-gray-500 appearance-none checked:border-gray-500 h-4 w-4"
+                       />
+                  <h1 className="text-xs italic"><span className="text-xs font-bold">Self Declaration:</span> "I hereby declare that this is a non paid voluntary activity that I have done on my own in the interest of general public and social interest and I have submitted true and authentic information only".</h1>
+                </div>
                 <Button
-                  className="cursor-pointer font-semibold w-full mt-3 mb-1 text-sm text-center rounded-3xl"
-                  // shape="round"
-                  color="indigo_A200"
+                  className={`cursor-pointer font-semibold w-full mt-3 sm:mt-0 sm:p-2 mb-1 text-sm text-center rounded-3xl ${selfDeclarationChecked ? "bg-[#546ef6] text-white" : "bg-gray-300 text-gray-500"}`}
+                  disabled={!selfDeclarationChecked}
                 >
                   SUBMIT
                 </Button>

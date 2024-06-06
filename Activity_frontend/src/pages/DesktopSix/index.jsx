@@ -103,7 +103,7 @@ const DesktopSixPage = () => {
         },
       });
       const data = await response.json();
-      console.log("ye hai data", data)
+      // console.log("ye hai data", data)
       if (response.ok) {
         if(data.length >0){
 
@@ -168,7 +168,7 @@ const DesktopSixPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty dependency array ensures that this effect runs only once on mount
 
-  console.log("ye hai posts", categories)
+  // console.log("ye hai posts", categories)
 
   return (
     <div className="w-screen h-screen  bg-white-A700 flex items-start justify-center sm:w-screen sm:h-screen md:w-screen md:h-screen p-5 sm:p-0">

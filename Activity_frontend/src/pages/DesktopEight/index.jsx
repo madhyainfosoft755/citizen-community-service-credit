@@ -15,6 +15,7 @@ const DesktopEightPage = () => {
   const [showinput, setShowInput] = useState(false)
   const [error, setError] = useState("")
   const [approvers, setApprovers] = useState([]);
+  const [errors, setErrors] = useState({});
 
   const goback = () => {
     navigate("/admin")
@@ -68,6 +69,20 @@ const DesktopEightPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty dependency array ensures that this effect runs only once on mount
 
+  const validateEmail = (email) => {
+    const re = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+    return re.test(email);
+  };
+
+  const validatePhone = (phone) => {
+    return /^\d{10}$/.test(phone);
+  };
+
+  const validateAadhar = (aadhar) => {
+    return /^\d{12}$/.test(aadhar);
+  };
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
@@ -79,6 +94,23 @@ const DesktopEightPage = () => {
       address: formData.get("address"),
       aadhar: formData.get("aadhar"),
     };
+
+    const newErrors = {};
+
+    if (!validateEmail(data.email)) {
+      newErrors.email = "Invalid email format";
+    }
+    if (!validatePhone(data.phone)) {
+      newErrors.phone = "Phone number must be 10 digits";
+    }
+    if (!validateAadhar(data.aadhar)) {
+      newErrors.aadhar = "Aadhar number must be 12 digits";
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
 
     console.log("ye hai data ", data)
     try {
@@ -153,7 +185,7 @@ const DesktopEightPage = () => {
       if (response.ok) {
         notify("Approver deleted successfully");
         fetchApprovers(); // Refetch approvers after delete
-        
+
       } else {
         fetchApprovers(); // Refetch approvers after delete
         console.error("Failed to delete approver");
@@ -196,22 +228,35 @@ const DesktopEightPage = () => {
                   <FontAwesomeIcon icon={faUser} className="text-[#546ef6] ml-2" />
                   <input type="text" className="w-full h-7 border-none" name="name" placeholder="Name" required />
                 </div>
-                <div className="w-full flex items-center justify-center bg-white-A700 rounded-md border-[1px] border-gray-300 overflow-hidden">
-                  <FontAwesomeIcon icon={faEnvelope} className="text-[#546ef6] ml-2" />
-                  <input type="email" className="w-full h-7 border-none" name="email" placeholder="Email" required />
+                {errors.name && <small className="text-red-500">{errors.name}</small>}
+                <div className="w-full">
+
+                  <div className={`w-full flex  items-center justify-center bg-white-A700 rounded-md border-[1px] ${errors.email ? "input-error" : "border-gray-300"} overflow-hidden`}>
+                    <FontAwesomeIcon icon={faEnvelope} className="text-[#546ef6] ml-2" />
+                    <input type="email" className="w-full h-7 border-none" name="email" placeholder="Email" required />
+                  </div>
+                  {errors.email && <small className="text-red-500 text-xs w-full text-center">{errors.email}</small>}
                 </div>
-                <div className="w-full flex items-center justify-center bg-white-A700 rounded-md border-[1px] border-gray-300 overflow-hidden">
-                  <FontAwesomeIcon icon={faPhone} className="text-[#546ef6] ml-2" />
-                  <input type="number" className="w-full h-7 border-none" placeholder="Phone Number" name="phone" required />
+                <div className="w-full">
+                  <div className={`w-full flex  items-center justify-center bg-white-A700 rounded-md border-[1px] ${errors.phone ? "input-error" : "border-gray-300"} overflow-hidden`}>
+                    <FontAwesomeIcon icon={faPhone} className="text-[#546ef6] ml-2" />
+                    <input type="number" className="w-full h-7 border-none" placeholder="Phone Number" name="phone" required />
+                  </div>
+                  {errors.phone && <small className="text-red-500 text-xs w-full text-center">{errors.phone}</small>}
                 </div>
                 <div className="w-full flex items-center justify-center bg-white-A700 rounded-md border-[1px] border-gray-300 overflow-hidden">
                   <FontAwesomeIcon icon={faLocationCrosshairs} className="text-[#546ef6] ml-2" />
                   <input type="text" className="w-full h-7 border-none" placeholder="Address" name="address" required />
                 </div>
-                <div className="w-full flex items-center justify-center bg-white-A700 rounded-md border-[1px] border-gray-300 overflow-hidden">
-                  <FontAwesomeIcon icon={faIdCard} className="text-[#546ef6] ml-2" />
-                  <input type="number" className="w-full h-7 border-none" placeholder="Aadhar" name="aadhar" />
-                </div>
+                {errors.address && <small className="text-red-500">{errors.address}</small>}
+                <div className="w-full">
+
+                  <div className={`w-full flex  items-center justify-center bg-white-A700 rounded-md border-[1px] ${errors.aadhar ? "input-error" : "border-gray-300"} overflow-hidden`}>
+                    <FontAwesomeIcon icon={faIdCard} className="text-[#546ef6] ml-2" />
+                    <input type="number" className="w-full h-7 border-none" placeholder="Aadhar" name="aadhar" />
+                  </div>
+                  {errors.aadhar && <small className="text-red-500 text-xs w-full text-center">{errors.aadhar}</small>}
+                </  div>
                 <button className="bg-[#546ef6] px-4 py-2 w-3/5 rounded-full ">Submit</button>
               </form>
             </div>
@@ -222,17 +267,17 @@ const DesktopEightPage = () => {
           {approvers.length > 0 ? (
             approvers.map((approver, index) => (
               <div key={index} className="w-full border p-2 rounded-md flex items-center justify-between bg-[#e9ecfe]">
-              <div>
-                <Text className="font-semibold text-xl ml-3">{approver.name}</Text>
-              </div>
-              <div className=" flex gap-3 " >
-              <Button className="rounded-md" onClick={() => handleUpdateApprover(approver.id)}>
-                <FontAwesomeIcon icon={faEdit} className="text-[#546ef6] text-xl" />
-              </Button>
-              <Button className="rounded-md" onClick={() => handleDeleteApprover(approver.id)}>
-                <FontAwesomeIcon icon={faTrash} className="text-[#546ef6] text-xl" />
-              </Button>
-              </div>
+                <div>
+                  <Text className="font-semibold text-xl ml-3">{approver.name}</Text>
+                </div>
+                <div className=" flex gap-3 " >
+                  <Button className="rounded-md" onClick={() => handleUpdateApprover(approver.id)}>
+                    <FontAwesomeIcon icon={faEdit} className="text-[#546ef6] text-xl" />
+                  </Button>
+                  <Button className="rounded-md" onClick={() => handleDeleteApprover(approver.id)}>
+                    <FontAwesomeIcon icon={faTrash} className="text-[#546ef6] text-xl" />
+                  </Button>
+                </div>
                 {/* <Text>Email: {approver.email}</Text> */}
                 {/* Add other approver details here */}
               </div>

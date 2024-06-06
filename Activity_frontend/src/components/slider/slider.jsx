@@ -61,16 +61,17 @@ const Slider1 = ({ items , isPopUpVisible, setIsPopUpVisible, setSelectedPost, s
     autoplay: true,
     autoplaySpeed: 5000,
     rtl: true,
+    dots:true
   };
 
   return (
-    <div className="w-full h-full   border-none outline-none">
+    <div className="w-full h-full border-none outline-none">
 
       {locationData && locationData.length > 0 && items ? (
         <Slider {...settings}>
           {locationData.map((item, index) => (
             <div key={item.id}>
-              <div className="h-44 sm:h-52 sm:h-50">
+              <div className="h-48 sm:h-52 sm:h-50">
                 {item && item.photos && (
                   <img
                     className="w-full h-full object-cover object-top"
@@ -79,40 +80,40 @@ const Slider1 = ({ items , isPopUpVisible, setIsPopUpVisible, setSelectedPost, s
                   />
                 )}
               </div>
-              <div className="h-full py-4 mt-2 grid grid-rows-3 gap-4">
-                <div className="flex items-center justify-between gap-2">
-                  <div className="w-34 ml-3 flex flex-col items-center justify-center">
+              <div className="w-full h-48 py-2 px-2 sm:p-1 md:p-0 mt-2 sm:mt-1 flex flex-col gap-2 sm:gap-0 items-center justify-between ">
+                <div className="w-full h-2/5 flex items-center justify-between gap-2 ">
+                  <div className="h-full flex flex-col items-start justify-center ">
                     <h3 className="text-gray-500 mb-1 font-semibold underline">Activity</h3>
-                    <h3 className="text-center ">{item.category}</h3>
+                    <h3 className="text-left ">{item.category}</h3>
                   </div>
 
-                  <div className=" flex flex-col items-end mr-4 justify-center">
+                  <div className="h-full flex flex-col items-end justify-center">
                     <h3 className="text-gray-500 font-semibold  mb-1 underline">Location</h3>
-                    <h3 className="flex flex-wrap ">
+                    <h3 className="flex flex-nowrap text-right ">
                       {item.city},{item.state}
                     </h3>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between gap-2">
-                  <div className="w-24 flex flex-col items-center justify-center">
+                <div className="w-full h-2/5 flex items-center justify-between gap-2 ">
+                  <div className="flex flex-col items-start justify-center">
                     <h3 className="text-gray-500 mb-1 font-semibold underline">Total Time</h3>
                     <h3 className=" ">{item.totalTime}</h3>
                   </div>
 
-                  <div className="w-24 flex flex-col items-center justify-center">
+                  <div className=" flex flex-col items-end justify-center">
                     <h3 className="text-gray-500 mb-1 font-semibold underline">Endorsed</h3>
                     <h3 className="">{item.endorsementCounter >= 3 ? "YES" : "NO"}</h3>
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between gap-2">
-                  <div className="w-24 flex flex-col items-center justify-center">
+                <div className="w-full h-2/5 flex items-center justify-between gap-2">
+                  <div className=" flex flex-col items-start justify-center">
                     <h3 className="text-gray-500 mb-1 font-semibold underline">Approved</h3>
                     <h3 className="">{item.approved == true ? "YES" : "NO"}</h3>
                   </div>
 
-                  <div className="w-24 flex flex-col items-center justify-center">
+                  <div className="flex flex-col items-end justify-center">
                     <h3 className="text-gray-500 mb-1 font-semibold underline">Images</h3>
                     <button onClick={() => handleViewPost(item)} className="text-blue-600 underline">View</button>
                   </div>

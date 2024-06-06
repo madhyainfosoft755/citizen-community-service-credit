@@ -238,7 +238,7 @@ const DesktopFourPage = () => {
 
               <div className="flex sm:flex-col flex-col gap-[25px] items-center justify-between w-5/6 sm:w-11/12 h-full sm:h-full  p-2 ">
                 <div className=" w-full h-full sm:w-full sm:h-[60vh] rounded-xl relative   border-[1px] border-gray overflow-hidden">
-                  <Slider1 className="w-full h-full p-2" items={userPosts} isPopUpVisible={isPopUpVisible}
+                  <Slider1 className="w-full h-full " items={userPosts} isPopUpVisible={isPopUpVisible}
                     setIsPopUpVisible={setIsPopUpVisible}
                     setSelectedPost={setSelectedPost} 
                     selectedPost={selectedPost}
