@@ -6,10 +6,11 @@ import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
 import "./slider.css";
 import PopupComponent from "components/popup";
-
+import SplashScreen from "components/Splash Screen/SplashScreen";
 
 const Slider1 = ({ items , isPopUpVisible, setIsPopUpVisible, setSelectedPost, selectedPost }) => {
   const [locationData, setLocationData] = useState([]);
+  const [showSplashScreen, setShowSplashScreen] = useState(true); // State to control splash screen visibility
     // console.log("kya endrose aa rha hai", items)
 
   useEffect(() => {
@@ -47,6 +48,16 @@ const Slider1 = ({ items , isPopUpVisible, setIsPopUpVisible, setSelectedPost, s
     fetchData();
   }, [items]);
 
+  // useEffect(() => {
+  //   // Hide the splash screen after 2 seconds
+  //   const timer = setTimeout(() => {
+  //     setShowSplashScreen(false);
+  //   }, 2000);
+
+  //   // Cleanup timer
+  //   return () => clearTimeout(timer);
+  // }, []);
+
   const handleViewPost = (post) => {
     setSelectedPost(post);
     setIsPopUpVisible(true);
@@ -61,13 +72,16 @@ const Slider1 = ({ items , isPopUpVisible, setIsPopUpVisible, setSelectedPost, s
     autoplay: true,
     autoplaySpeed: 5000,
     rtl: true,
-    dots:true
   };
 
   return (
     <div className="w-full h-full border-none outline-none">
 
-      {locationData && locationData.length > 0 && items ? (
+      
+      {showSplashScreen ? (
+        <SplashScreen onAnimationEnd={() => setShowSplashScreen(false)} /> // Handle the end of the splash screen animation
+      ) : (
+      locationData && locationData.length > 0 && items ? (
         <Slider {...settings}>
           {locationData.map((item, index) => (
             <div key={item.id}>
@@ -130,7 +144,8 @@ const Slider1 = ({ items , isPopUpVisible, setIsPopUpVisible, setSelectedPost, s
             alt="No posts available for endorsement"
           />
         </div>
-      )}
+      )
+    )}
      
     </div>
   );

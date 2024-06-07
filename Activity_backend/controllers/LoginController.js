@@ -248,7 +248,7 @@ const Register = async (req, res) => {
     }
 
     // Validate password strength
-    const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&])[A-Za-z\d@$!%*#?&]{8,}$/;
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[~`!@#$%^&*()-_=+{}[\]|;:'",.<>?\\/])[A-Za-z\d~`!@#$%^&*()-_=+{}[\]|;:'",.<>?\\/]{8,}$/;
     if (!passwordRegex.test(userData.password)) {
       return res.status(400).json({
         message: "Password must be at least 8 characters long and include at least one letter, one number, and one special character."

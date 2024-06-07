@@ -561,6 +561,7 @@ const Createpost = () => {
                       name="datepicker"
                       value={currentDate}
                       onChange={handleDateChange}
+                      max={new Date().toISOString().split('T')[0]} // Restrict to today's date
                       className="w-full h-full px-3 py-2 bg-[#eff2ff] text-sm shadow-sm shadow-black-900/10 rounded-md border-[1px] border-gray-300 focus:outline-none focus:border-blue-500 appearance-none"
                     />
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">

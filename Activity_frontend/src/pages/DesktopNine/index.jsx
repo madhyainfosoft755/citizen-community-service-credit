@@ -21,6 +21,7 @@ const DesktopNinePage = () => {
   const [categories, setCategories] = useState([]); // State for categories
   const [dateRange, setDateRange] = useState(""); // State for date range
   const [isByDate, setIsByDate] = useState(false); // State to distinguish between date and category report
+  const [reportGenerated, setReportGenerated] = useState(false); // State to control data display below chart
 
   const handleDateSelection = (date) => {
     setSelectedDate(date);
@@ -73,6 +74,7 @@ const DesktopNinePage = () => {
       setError(null);
       setDateRange(`${formattedDate} to ${formattedDate}`); // Set date range
       setIsByDate(true); // Set isByDate to true for date report
+      setReportGenerated(true);
     } catch (error) {
       console.error("Error fetching posts:", error);
       setError("An error occurred while fetching posts.");
@@ -104,6 +106,7 @@ const DesktopNinePage = () => {
       setError(null);
       setDateRange(`${formattedDate} to ${formattedDate}`); // Set date range
       setIsByDate(false); // Set isByDate to false for category report
+      setReportGenerated(true);
     } catch (error) {
       console.error("Error fetching posts:", error);
       setError("An error occurred while fetching posts.");
@@ -203,11 +206,11 @@ const DesktopNinePage = () => {
                   <div className="flex flex-row gap-4 items-center justify-center w-full h-12 flex-wrap ">
                     <div className=" relative w-1/3 ">
                       <Button
-                        className="text-black-900 cursor-pointer font-medium w-full text-center text-xs"
+                        className="w-full text-black-900 cursor-pointer font-medium text-center text-xs"
                         shape="round"
                         onClick={() => setShowCalendar(true)} // Show calendar on button click
                       >
-                        Select Date
+                        {selectedDate ? format(selectedDate, 'dd/MM/yyyy') : 'Select Date'}
                       </Button>
                       {/* Calendar Popup */}
                       {showCalendar && (
@@ -215,7 +218,7 @@ const DesktopNinePage = () => {
                           <DatePicker
                             selected={selectedDate}
                             onChange={handleDateSelection}
-                            // minDate={new Date()} // Optional: Restrict past dates
+                            maxDate={new Date()} // Optional: Restrict past dates
                             showPopperArrow={false} // Optional: Hide the arrow in the calendar popup
                             dateFormat="dd/MM/yyyy" // Optional: Customize date format
                             className="text-xs text-center"
@@ -229,7 +232,7 @@ const DesktopNinePage = () => {
                         shape="round"
                         onClick={() => setShowCategoryDropdown(!showCategoryDropdown)} // Toggle category dropdown on button click
                       >
-                        Select Category
+                        {selectedCategory || "Select Category"}
                       </Button>
                       {showCategoryDropdown && (
                         <div className="absolute top-full left-0 w-full bg-white-A700 shadow rounded z-50">
@@ -266,17 +269,24 @@ const DesktopNinePage = () => {
                     <p>No posts found</p>
                   )}
                 </div>
-                <div className="w-full flex items-center justify-center ">
-                  <Text size="txtInterRegular14" className="text-gray-700">
-                    {selectedCategory || isByDate ? (
-                      <Text  className="text-gray-700 text-center">
-                        {isByDate
-                          ? `Data of different categories for ${format(selectedDate,"dd-MM-yyyy")}`
-                          : `Data of the ${selectedCategory} from ${format(subDays(new Date(), 6), 'dd-MM-yyyy')} to ${format(new Date(), 'dd-MM-yyyy')}`}
+                {
+                  reportGenerated && (
+                    <div className="w-full flex items-center justify-center ">
+                      <Text size="txtInterRegular14" className="text-gray-700">
+
+
+                        {selectedCategory || isByDate ? (
+                          <Text className="text-gray-700 text-center">
+                            {isByDate
+                              ? `Data of different categories for ${format(selectedDate, "dd-MM-yyyy")}`
+                              : `Data of the ${selectedCategory} from ${format(subDays(new Date(), 6), 'dd-MM-yyyy')} to ${format(new Date(), 'dd-MM-yyyy')}`}
+                          </Text>
+                        ) : null}
                       </Text>
-                    ) : null}
-                  </Text>
-                </div>
+                    </div>
+
+                  )
+                }
                 <div className="flex items-center justify-between gap-2 w-full">
                   <Button
                     className="cursor-pointer font-semibold w-full text-base text-center rounded-md"
