@@ -8,7 +8,7 @@ const SplashScreen = ({ onAnimationEnd }) => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsShrinking(true);
-    }, 2000);
+    }, 3500);
 
     return () => clearTimeout(timer);
   }, []);
@@ -17,7 +17,7 @@ const SplashScreen = ({ onAnimationEnd }) => {
     if (isShrinking) {
       const animationTimer = setTimeout(() => {
         onAnimationEnd();
-      }, 500); // Match the duration of the shrink animation
+      }, 190); // Match the duration of the shrink animation
 
       return () => clearTimeout(animationTimer);
     }
