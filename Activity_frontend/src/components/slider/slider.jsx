@@ -85,7 +85,7 @@ const Slider1 = ({ items , isPopUpVisible, setIsPopUpVisible, setSelectedPost, s
         <Slider {...settings}>
           {locationData.map((item, index) => (
             <div key={item.id}>
-              <div className="h-48 sm:h-52 sm:h-50">
+              <div className="h-48 sm:h-52 sm:h-50 md:h-full">
                 {item && item.photos && (
                   <img
                     className="w-full h-full object-cover object-top"

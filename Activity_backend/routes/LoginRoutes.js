@@ -24,6 +24,8 @@ const {
   TotalTimeSpent,
   verifyToken,
   getUsersWithMostPostsInYear,
+  getUsersWithMostPostsInSixMonths,
+  getUsersWithMostPostsInMonth,
   approveHours,
   pendingApproval,
   createCategory,
@@ -40,7 +42,7 @@ const {
   deleteApprover,
   getUsers,
   deleteUser,
-  postsForDate,
+  postsForDateRange,
   postsForCategory,
   getPostsByUser
 
@@ -57,6 +59,8 @@ router.get("/fetchApprovers", fetchApprovers)
 router.post("/addApprover",addApprover)
 router.get("/pendingApproval", pendingApproval);  
 router.get("/getUsersWithMostPostsInYear", getUsersWithMostPostsInYear)
+router.get("/getUsersWithMostPostsInSixMonths", getUsersWithMostPostsInSixMonths)
+router.get("/getUsersWithMostPostsInMonth", getUsersWithMostPostsInMonth)
 router.put("/approveHours/:postId", approveHours)
 router.post("/createCategory", createCategory)
 router.get("/getCategories", getCategories)
@@ -83,8 +87,8 @@ router.get("/AllDetails/:id", AllDetails);
 router.post("/AllDetails/:id", AllDetails);
 router.get("/postsdata/:id", postsdata);
 router.post("/postsdata/:id", postsdata);
-router.get("/postsForDate",postsForDate);
-router.get("/postsForCategory",postsForCategory);
+router.get("/postsForDateRange",postsForDateRange);
+router.post("/postsForCategory",postsForCategory);
 router.get("/CreateActivity", upload, CreateActivity);
 router.post("/CreateActivity", upload, CreateActivity);
 router.post("/Register", upload, Register);

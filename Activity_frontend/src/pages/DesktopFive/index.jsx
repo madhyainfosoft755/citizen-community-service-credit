@@ -17,11 +17,13 @@ const DesktopFivePage = () => {
   const [totalTime, setTotalTime] = useState(null); // Added state for total time
   const [userName, setUserName] = useState(""); // Added state for user name
   const [usersWithMostPostsInYear, setUsersWithMostPostsInYear] = useState([]);
+  const [usersWithMostPostsInSixMonths, setUsersWithMostPostsInSixMonths] = useState([]);
+  const [usersWithMostPostsInMonth, setUsersWithMostPostsInMonth] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null); // State for selected user
   const [userPosts, setUserPosts] = useState([]); // State for user's posts
   const [isPopupVisible, setIsPopupVisible] = useState(false); // State for popup visibility
 
-  console.log(`ye hain ${selectedUser} ke posts`, userPosts)
+  // console.log(`ye hain ${selectedUser} ke posts`, userPosts)
 
   const checkTokenExpiry = async (token) => {
     try {
@@ -58,6 +60,8 @@ const DesktopFivePage = () => {
       // Fetch user data when component mounts
       fetchUserData(token);
       MostPostsInYear(token)
+      fetchMostPostsInSixMonths(token);
+      fetchMostPostsInMonth(token);
       checkTokenExpiry(token);
     }
 
@@ -175,6 +179,64 @@ const DesktopFivePage = () => {
     }
   };
 
+  const fetchMostPostsInSixMonths = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        navigate("/login");
+        return;
+      }
+      const response = await fetch(`${API_URL}/activity/getUsersWithMostPostsInSixMonths`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const { topUserNames } = await response.json();
+        setUsersWithMostPostsInSixMonths(Array.isArray(topUserNames) ? topUserNames : []);
+      } else {
+        console.error("Error fetching users with most posts in six months:", response.status);
+        setError("An error occurred while fetching users with most posts in six months.");
+      }
+    } catch (error) {
+      console.error("Error fetching users with most posts in six months:", error);
+      setError("An error occurred while fetching users with most posts in six months.");
+    }
+  };
+
+  const fetchMostPostsInMonth = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        navigate("/login");
+        return;
+      }
+      const response = await fetch(`${API_URL}/activity/getUsersWithMostPostsInMonth`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const { topUserNames } = await response.json();
+        setUsersWithMostPostsInMonth(Array.isArray(topUserNames) ? topUserNames : []);
+      } else {
+        console.error("Error fetching users with most posts in month:", response.status);
+        setError("An error occurred while fetching users with most posts in month.");
+      }
+    } catch (error) {
+      console.error("Error fetching users with most posts in month:", error);
+      setError("An error occurred while fetching users with most posts in month.");
+    }
+  };
+
+
+  // console.log("ye hai current year ke posts", usersWithMostPostsInYear)
+
+
   const formatDate = (dateString) => {
     const date = new Date(dateString);
     const day = String(date.getDate()).padStart(2, '0');
@@ -184,6 +246,7 @@ const DesktopFivePage = () => {
   };
 
   const fetchUserPosts = async (userId) => {
+    console.log("ye hai user id",userId)
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(`${API_URL}/activity/getPostsByUser/${userId}`, {
@@ -193,8 +256,8 @@ const DesktopFivePage = () => {
         },
       });
 
+      const posts = await response.json();
       if (response.ok) {
-        const posts = await response.json();
         const formattedPosts = posts.map(post => ({
           ...post,
           Date: formatDate(post.Date),
@@ -202,7 +265,8 @@ const DesktopFivePage = () => {
         setUserPosts(formattedPosts);
         setIsPopupVisible(true);
       } else {
-        console.error("Error fetching user's posts:", response.status);
+        notify(posts.error)
+        // console.error("Error fetching user's posts:", response.status);
         setError("An error occurred while fetching user's posts.");
       }
     } catch (error) {
@@ -214,6 +278,7 @@ const DesktopFivePage = () => {
   const handleUserClick = (userId) => {
     fetchUserPosts(userId);
     const selectedUser = usersWithMostPostsInYear.find(user => user.id === userId);
+    console.log("ye hai selected user ka naam", selectedUser)
     setSelectedUser(selectedUser.name);
   };
 
@@ -221,6 +286,7 @@ const DesktopFivePage = () => {
     setIsPopupVisible(false);
     setUserPosts([]);
   };
+
   const direct = () => {
     navigate("/activity");
   };
@@ -287,26 +353,37 @@ const DesktopFivePage = () => {
             </Button>
           </div>
 
-          <div className="w-full h-1/2   p-1">
-
+          <div className="w-full h-1/2 p-1">
             <h1 className="text-xl font-semibold w-full pl-3">Top Five Stars</h1>
-            <div className=" h-[90%] scroller overflow-x-auto p-3 ">
-              <div className="flex h-full space-x-2 ">
-
-                {['Month', 'Six Month', 'Year'].map((timeframe, index) => (
-                  <div key={index} className="rounded-lg shadow-bs shadow-black-900 w-40 h-full border-[1px] flex-shrink-0 flex flex-col items-center justify-center pt-4 text-xl font-medium">
+            <div className="h-[90%] scroller overflow-x-auto p-3">
+              <div className="flex h-full space-x-2">
+                {[
+                  { timeframe: 'Month', users: usersWithMostPostsInMonth },
+                  { timeframe: 'Six Months', users: usersWithMostPostsInSixMonths },
+                  { timeframe: 'Year', users: usersWithMostPostsInYear },
+                ].map(({ timeframe, users }, index) => (
+                  <div
+                    key={index}
+                    className="rounded-lg shadow-bs shadow-black-900 w-40 h-full border-[1px] flex-shrink-0 flex flex-col items-center justify-center pt-4 text-xl font-medium"
+                  >
                     <h1 className="text-[#546ef6] font-bold">{timeframe}</h1>
-                    <div className="w-full h-full flex flex-col gap-2 pt-2 overflow-auto scroller">
-                      {usersWithMostPostsInYear.map((user, index) => (
-                        <div key={index} className="flex-shrink-0 flex items-center justify-center text-sm font-medium">
-                          <h1
-                            className="hover:underline hover:text-blue-300 hover:cursor-pointer"
-                            onClick={() => handleUserClick(user.id)}
-                          >
-                            {user.name.charAt(0).toUpperCase() + user.name.slice(1)}
-                          </h1>
+                    <div className="w-full h-full flex flex-col gap-1 pt-2 overflow-auto scroller">
+                      {users.length > 0 ? (
+                        users.map((user, userIndex) => (
+                          <div key={userIndex} className="flex-shrink-0 flex items-center justify-center text-sm font-medium">
+                            <h1
+                              className="hover:underline hover:text-blue-300 hover:cursor-pointer"
+                              onClick={() => handleUserClick(user.id)}
+                            >
+                              {user.name.charAt(0).toUpperCase() + user.name.slice(1)}
+                            </h1>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="flex-shrink-0 flex items-center justify-center text-sm font-medium">
+                          <h1>No data available</h1>
                         </div>
-                      ))}
+                      )}
                     </div>
                   </div>
                 ))}
@@ -314,6 +391,7 @@ const DesktopFivePage = () => {
               </div>
             </div>
           </div>
+
 
           <div className=" w-full h-full  pt-3 ">
             <div className=" w-full h-3/5 flex flex-wrap items-center justify-between pl-4 pr-4 pt-1 pb-1">
@@ -338,8 +416,8 @@ const DesktopFivePage = () => {
           <div className="absolute w-full h-full inset-0 flex items-center justify-center bg-black bg-opacity-50">
             <div className="w-full h-full bg-black-900/80 rounded-lg p-6 shadow-lg flex flex-col items-center justify-center">
               <div className="bg-white-A700 p-3 rounded-md font-sans flex flex-col shadow-blue-500 shadow-bs2 items-center justify-start overflow-auto">
-              {/* <h2 className="text-2xl font-bold mb-4">Posts by {selectedUser}</h2> */}
-              <h2 className="text-2xl font-bold mb-4">{selectedUser} made {userPosts.length} posts</h2>
+                {/* <h2 className="text-2xl font-bold mb-4">Posts by {selectedUser}</h2> */}
+                <h2 className="text-2xl font-bold mb-4">{selectedUser} made {userPosts.length} posts</h2>
                 {userPosts.length > 0 ? (
                   userPosts.map((post) => (
                     <div key={post.id} className="mb-2 border-4 border-gray-200  p-2 w-full border-double  rounded-md">

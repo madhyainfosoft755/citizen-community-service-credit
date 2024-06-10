@@ -1278,6 +1278,125 @@ const getUsersWithMostPostsInYear = async (req, res) => {
   }
 };
 
+
+// Controller to fetch users with the most posts in the last six months
+const getUsersWithMostPostsInSixMonths = async (req, res) => {
+  try {
+    const currentDate = new Date();
+    const sixMonthsAgo = new Date(currentDate.setMonth(currentDate.getMonth() - 6));
+
+    // Fetch all users
+    const allUsers = await db.users.findAll({
+      where: {
+        role: {
+          [Op.ne]: 'admin' // Exclude users with the role of admin
+        }
+      }
+    });
+
+    // Initialize an object to store user IDs and their post counts for the past six months
+    const userPostCounts = {};
+
+    // Iterate through all users to count their posts in the past six months
+    for (const user of allUsers) {
+      const userPosts = await db.Posts.findAll({
+        where: {
+          UserId: user.id,
+          Date: {
+            [Op.between]: [sixMonthsAgo.toISOString().split('T')[0], new Date().toISOString().split('T')[0]],
+          },
+        },
+      });
+
+      userPostCounts[user.id] = userPosts.length;
+    }
+
+    // Sort the userPostCounts object by post count in descending order
+    const sortedUserPostCounts = Object.entries(userPostCounts).sort(
+      (a, b) => b[1] - a[1]
+    );
+
+    // Extract the top 5 users with the most posts in the past six months
+    const topUsers = sortedUserPostCounts.slice(0, 5).map(([userId, postCount]) => ({
+      userId,
+      postCount,
+    }));
+
+    // Fetch user names based on the top user IDs
+    const topUserNames = await Promise.all(
+      topUsers.map(async (user) => {
+        const userData = await db.users.findByPk(user.userId);
+        return { name: userData.name, id: userData.id, postCount: user.postCount };
+      })
+    );
+
+    res.status(200).json({ topUserNames });
+  } catch (error) {
+    logger.error("Error fetching users with most posts in the past six months", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+// Controller to fetch users with the most posts in the current month
+const getUsersWithMostPostsInMonth = async (req, res) => {
+  try {
+    const currentDate = new Date();
+    const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
+    const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+
+    // Fetch all users
+    const allUsers = await db.users.findAll({
+      where: {
+        role: {
+          [Op.ne]: 'admin' // Exclude users with the role of admin
+        }
+      }
+    });
+
+    // Initialize an object to store user IDs and their post counts for the current month
+    const userPostCounts = {};
+
+    // Iterate through all users to count their posts in the current month
+    for (const user of allUsers) {
+      const userPosts = await db.Posts.findAll({
+        where: {
+          UserId: user.id,
+          Date: {
+            [Op.between]: [startOfMonth.toISOString().split('T')[0], endOfMonth.toISOString().split('T')[0]],
+          },
+        },
+      });
+
+      userPostCounts[user.id] = userPosts.length;
+    }
+
+    // Sort the userPostCounts object by post count in descending order
+    const sortedUserPostCounts = Object.entries(userPostCounts).sort(
+      (a, b) => b[1] - a[1]
+    );
+
+    // Extract the top 5 users with the most posts in the current month
+    const topUsers = sortedUserPostCounts.slice(0, 5).map(([userId, postCount]) => ({
+      userId,
+      postCount,
+    }));
+
+    // Fetch user names based on the top user IDs
+    const topUserNames = await Promise.all(
+      topUsers.map(async (user) => {
+        const userData = await db.users.findByPk(user.userId);
+        return { name: userData.name, id: userData.id, postCount: user.postCount };
+      })
+    );
+
+    res.status(200).json({ topUserNames });
+  } catch (error) {
+    logger.error("Error fetching users with most posts in the current month", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
+
 const approveHours = async (req, res) => {
   const { postId } = req.params;
 
@@ -1586,53 +1705,74 @@ const deleteUser = async (req, res) => {
 };
 
 //controller for getting all posts on a particular date
-const postsForDate = async (req, res) => {
+const postsForDateRange = async (req, res) => {
   try {
-    const { date } = req.query;
-    console.log("this is the date", date)
+    const { start, end } = req.query;
+
+    // Validate the input dates
+    if (!start || !end) {
+      return res.status(400).json({ error: "Both start and end dates are required." });
+    }
+
     const posts = await db.Posts.findAll({
-      where: { Date: date },
+      where: {
+        Date: {
+          [db.Sequelize.Op.between]: [start, end],
+        },
+      },
     });
+    console.log("ye hain selected range of date ke posts",posts)
+
     if (posts.length === 0) {
-      return res.status(404).json({ error: "No posts found for the specified date." });
+      return res.status(404).json({ error: "No posts found for the specified date range." });
     }
 
     res.json(posts);
   } catch (error) {
-    logger.error("here is the error", error);
+    logger.error("Error fetching posts for date range", error);
     console.error(error);
-    res.status(500).json({ error: "kuch" });
+    res.status(500).json({ error: "An error occurred while fetching posts." });
   }
 };
 
 //controller that fetches posts from the past seven days based on a given category
 const postsForCategory = async (req, res) => {
   try {
-    const { category } = req.query;
-    if (!category) {
-      return res.status(400).json({ error: "Category is required" });
+    const { categories, start, end } = req.body; // Assuming categories, start, and end dates are passed in the request body
+
+    // Validate the input
+    if (!categories || categories.length === 0) {
+      return res.status(400).json({ error: "Categories are required" });
     }
 
-    const sevenDaysAgo = new Date();
-    sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+    let dateCondition = {};
+    let errorMessage = "No posts found for the specified categories and date range.";
+    if (start && end) {
+      dateCondition = { [Op.between]: [start, end] };
+      errorMessage = "No posts found for the specified categories in the selected date range.";
+    } else {
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      dateCondition = { [Op.gte]: thirtyDaysAgo };
+      errorMessage = "No posts found for the specified categories within past 30 days.";
+    }
 
     const posts = await db.Posts.findAll({
       where: {
-        category,
-        Date: {
-          [Op.gte]: sevenDaysAgo
-        }
+        category: {
+          [Op.in]: categories,
+        },
+        Date: dateCondition,
       },
     });
 
     if (posts.length === 0) {
-      return res.status(404).json({ error: "No posts found for the specified category in the last seven days." });
+      return res.status(404).json({ error: errorMessage});
     }
 
     res.json(posts);
   } catch (error) {
-    logger.error("Error fetching posts for category in the last seven days", error);
-    console.error(error);
+    console.error("Error fetching posts for categories and date range", error);
     res.status(500).json({ error: "An error occurred while fetching posts." });
   }
 };
@@ -1692,6 +1832,8 @@ module.exports = {
   TotalTimeSpent,
   verifyToken,
   getUsersWithMostPostsInYear,
+  getUsersWithMostPostsInSixMonths,
+  getUsersWithMostPostsInMonth,
   approveHours,
   adminAuthMiddleware,
   pendingApproval,
@@ -1709,7 +1851,7 @@ module.exports = {
   deleteApprover,
   getUsers,
   deleteUser,
-  postsForDate,
+  postsForDateRange,
   postsForCategory,
   getPostsByUser,
 };
