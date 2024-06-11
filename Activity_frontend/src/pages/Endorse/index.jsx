@@ -30,20 +30,43 @@ const Endorse = () => {
   });
   const transitionRef = useRef(null);
   const searchBarRef = useRef(null); // Ref for the search bar component
-  const categories = [
-    { id: 1, label: "Gardening" },
-    { id: 2, label: "Cleaning" },
-    { id: 3, label: "Teaching Poor" },
-    { id: 4, label: "Planting Tree" },
-    { id: 5, label: "Marathon" },
-    { id: 6, label: "Social Activities" },
-  ];
+  // const categories = [
+  //   { id: 1, label: "Gardening" },
+  //   { id: 2, label: "Cleaning" },
+  //   { id: 3, label: "Teaching Poor" },
+  //   { id: 4, label: "Planting Tree" },
+  //   { id: 5, label: "Marathon" },
+  //   { id: 6, label: "Social Activities" },
+  // ];
+
+  const [categories, setCategories]= useState([])
   const [cityNames, setCityNames] = useState({}); // Default value can be 'Unknown City'
   const [popupData, setPopupData] = useState(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [userName, setUserName] = useState("")
   const [endorsedPosts, setEndorsedPosts] = useState([]); // State variable to track endorsed posts
   const [refresh, setRefresh] = useState(false)
+
+
+  const fetchCategories = async () => {
+    try {
+      const response = await fetch(`${API_URL}/activity/getCategoriesAdmin`);
+      if (!response.ok) {
+        toast.error('Failed to fetch categories');
+      }
+      const data = await response.json();
+      // console.log("ye hai categories", data)
+      setCategories(data);
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
+  }
+
+  useEffect(() => {
+    // Fetch categories when component mounts
+    fetchCategories();
+  }, []);
+
 
   // Function to open the popup with photos and videos
   const openPopup = (post) => {
@@ -313,62 +336,6 @@ const Endorse = () => {
     return cityNames[postId] || "Loading...";
   };
 
-  // Inside the component where the "Endorsement" button is rendered for each post
-  // const handleEndorsement = async (postId, userId) => {
-  //   try {
-  //     const token = localStorage.getItem("token");
-  //     if (!token) {
-  //       navigate("/login");
-  //       return;
-  //     }
-  //     console.log("kya hai postId", postId, userId);
-
-
-  //     // Check if the post has already been endorsed by the user
-  //     const isEndorsed = userPosts.some(post => post.id === postId && post.endorsedByCurrentUser);
-  //     if (isEndorsed) {
-  //       console.error("You have already endorsed this post.");
-  //       // Handle case where the post is already endorsed
-  //       return;
-  //     }
-
-  //     const response = await fetch(
-  //       `${API_URL}/activity/endorsePost/${postId}`,
-  //       {
-  //         method: "POST",
-  //         headers: {
-  //           Authorization: `Bearer ${token}`,
-  //           "Content-Type": "application/json",
-  //         },
-  //         body: JSON.stringify({ userId }), // Send userId in the request body
-  //       }
-  //     );
-
-  //     if (response.ok) {
-  //       // Update the userPosts or filteredPosts state with the updated data
-  //       // This depends on how your backend responds after updating the endorsements count
-  //       // For example, you could refetch the user's posts or update the specific post in the state
-  //       // fetchUserPosts(userData.userData.id); // Example: Refetch user's posts
-  //       console.log("Selected post is endorsed PostID:", postId);
-  //       // Update the state to mark the post as endorsed by the current user
-  //       setUserPosts((prevPosts) =>
-  //         prevPosts.map((post) =>
-  //           post.id === postId ? { ...post, endorsedByCurrentUser: true } : post
-  //         )
-  //       );
-  //     }
-  //     else {
-  //       console.error("You have already endorsed this post:", response.status);
-  //       notify(response.status)
-  //       // Handle error accordingly
-  //     }
-  //   } catch (error) {
-  //     console.error("Error endorsing post:", error);
-  //     notify(error)
-  //     // Handle error accordingly
-  //   }
-  // };
-
   const [textIndex, setTextIndex] = useState(0);
   const carouselTexts = [`${totalTime || 0} Hours`, 'Create Activity']; // Add your carousel text here
 
@@ -505,11 +472,11 @@ const Endorse = () => {
                                 })
                               }
                             >
-                              <option value="">All Categories</option>
+                              <option className="sm:text-xs" value="">All Categories</option>
                               {/* Map over categories and render options */}
                               {categories.map((category) => (
-                                <option key={category.id} value={category.label}>
-                                  {category.label}
+                                <option className="sm:text-xs" key={category.id} value={category.name}>
+                                  {category.name}
                                 </option>
                               ))}
                             </select>

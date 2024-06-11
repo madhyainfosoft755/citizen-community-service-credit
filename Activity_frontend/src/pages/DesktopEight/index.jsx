@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import { Button, Img, Text } from "components";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCirclePlus, faCircleXmark, faSquareCheck, faUser, faEnvelope, faPhone, faLocationCrosshairs, faIdCard, faKey, faLock, faDeleteLeft, faDumpster, faTrash, faEdit } from "@fortawesome/free-solid-svg-icons";
+import { faCirclePlus, faCircleXmark, faSquareCheck, faUser, faEnvelope, faPhone, faLocationCrosshairs, faIdCard, faKey, faLock, faDeleteLeft, faDumpster, faTrash, faEdit, faCross } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
 import { API_URL } from "Constant";
 import "./style.css"
@@ -16,15 +16,36 @@ const DesktopEightPage = () => {
   const [error, setError] = useState("")
   const [approvers, setApprovers] = useState([]);
   const [errors, setErrors] = useState({});
+  const popUpRef = useRef(null); // Create a ref for the pop-up
 
+
+  
   const goback = () => {
     navigate("/admin")
   }
 
+ 
+
+  const handleClickOutside = (event) => {
+   if (true ){
+      setShowInput(false); // Close the pop-up if click is outside it
+      
+      console.log("2",event.target)
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside); // Attach event listener on mount
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside); // Detach event listener on unmount
+    };
+  }, []); // Empty dependency array ensures that this effect runs only once on mount
+
+
   const toggleinput = () => {
     setShowInput(!showinput)
+    console.log("thi is event", showinput)
   }
-
   const checkTokenExpiry = async (token) => {
     try {
       const response = await fetch(`${API_URL}/activity/profile`, {
@@ -126,6 +147,8 @@ const DesktopEightPage = () => {
         notify("Approver added successfully");
         setShowInput(false);
         fetchApprovers();
+        setError('')
+        setErrors({})
       } else {
         const errorData = await response.json();
         setError(errorData.message || "Error adding approver");
@@ -215,13 +238,20 @@ const DesktopEightPage = () => {
             >
               Manage Approvers
             </Text>
-            <Button className="rounded-xl " onClick={toggleinput}>
-              <FontAwesomeIcon icon={showinput ? faCircleXmark : faCirclePlus} className="text-[#546ef6] text-2xl " />
+            {
+              showinput ?
+              
+            <Button className="rounded-xl btn" key={0} onChange={()=>{}}>
+              <FontAwesomeIcon icon={ faCircleXmark} className="text-[#546ef6] text-2xl " />
+            </Button>:
+            <Button className="rounded-xl " key={1} onClick={toggleinput}>
+              <FontAwesomeIcon icon={ faCirclePlus} className="text-[#546ef6] text-2xl " />
             </Button>
+            }
           </div>
 
           {showinput && (
-            <div className="w-11/12 flex flex-col items-center justify-center absolute top-20 rounded-xl overflow-hidden shadow shadow-black-900">
+            <div ref={popUpRef} className="w-11/12 flex flex-col items-center justify-center absolute top-20 rounded-xl overflow-hidden shadow shadow-black-900">
               <form onSubmit={handleSubmit} className="w-full h-full flex flex-col items-center justify-center gap-2 bg-white-A700/50 border-2  rounded-xl overflow-hidden p-2">
 
                 <div className="w-full flex items-center justify-center bg-white-A700 rounded-md border-[1px] border-gray-300 overflow-hidden">
@@ -256,7 +286,7 @@ const DesktopEightPage = () => {
                     <input type="number" className="w-full h-7 border-none" placeholder="Aadhar" name="aadhar" />
                   </div>
                   {errors.aadhar && <small className="text-red-500 text-xs w-full text-center">{errors.aadhar}</small>}
-                </  div>
+                </div>
                 <button className="bg-[#546ef6] px-4 py-2 w-3/5 rounded-full ">Submit</button>
               </form>
             </div>

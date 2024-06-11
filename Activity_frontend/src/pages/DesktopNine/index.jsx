@@ -23,8 +23,8 @@ const DesktopNinePage = () => {
   const [isByDate, setIsByDate] = useState(false); // State to distinguish between date and category report
   // const [startDate, setStartDate] = useState(subDays(new Date(), 30));
   // const [endDate, setEndDate] = useState(new Date());
-  const [startDate, setStartDate] = useState(null);
-  const [endDate, setEndDate] = useState(null);
+  const [startDate, setStartDate] = useState(subDays(new Date(), 31));
+  const [endDate, setEndDate] = useState(new Date());
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
   const [chartData, setChartData] = useState(null); // State variable to hold chart data
@@ -93,6 +93,11 @@ const DesktopNinePage = () => {
     fetchCategories();
   }, []);
 
+  useEffect(() => {
+    // Fetch posts when component mounts with default dates and all categories selected
+    fetchPostsForDateRange(startDate, endDate);
+  }, [startDate, endDate, categories]);
+
   const handleCategorySelection = (category) => {
     let updatedCategories = [];
     if (category === "All Categories") {
@@ -110,6 +115,7 @@ const DesktopNinePage = () => {
     setSelectedCategories(updatedCategories);
     fetchPostsForSelectedCategories(updatedCategories);
   };
+
 
   // const fetchPostsForDate = async (date) => {
   //   if (!selectedDate) {
@@ -175,14 +181,14 @@ const DesktopNinePage = () => {
   const fetchPostsForSelectedCategories = async (categories) => {
     try {
       let formattedStartDate = '';
-    let formattedEndDate = '';
+      let formattedEndDate = '';
 
-    if (startDate) {
-      formattedStartDate = format(startDate, 'yyyy-MM-dd');
-    }
-    if (endDate) {
-      formattedEndDate = format(endDate, 'yyyy-MM-dd');
-    }
+      if (startDate) {
+        formattedStartDate = format(startDate, 'yyyy-MM-dd');
+      }
+      if (endDate) {
+        formattedEndDate = format(endDate, 'yyyy-MM-dd');
+      }
       const response = await fetch(`${API_URL}/activity/postsForCategory`, {
         method: 'POST',
         headers: {
@@ -378,49 +384,90 @@ const DesktopNinePage = () => {
                   <div className="flex flex-row gap-4 items-center justify-center w-full h-12 flex-wrap ">
 
                     <div className="relative w-full h-full flex gap-2  p-1" ref={datepickerRef}>
-                      <Button
-                        className="w-1/2 text-black-900 cursor-pointer font-medium text-center text-xs"
-                        shape="round"
-                        onClick={() => setShowStartDatePicker(!showStartDatePicker)}
-                      >
-                        {startDate ? format(startDate, 'dd/MM/yyyy') : 'From Date'}
-                      </Button>
+                      <div className="relative w-1/2 h-full overflow-X-hidden ">
+                        <label
+                          className={`absolute left-2  transition-all duration-200 text-center text-xs bg-white-A700 rounded ${showStartDatePicker === true || startDate
+                            ? '-top-1 text-xs text-center text-gray-700'
+                            : 'top-1/2 transform -translate-y-1/2 translate-x-3 sm:translate-x-0 text-gray-500'
+                            }`}
+                          onClick={() => setShowStartDatePicker(!showStartDatePicker)}
+                        >
+                          From Date
+                        </label>
+                        <Button
+                          className={`w-full h-full text-black-900 cursor-pointer font-medium text-center text-xs ${showStartDatePicker === true || startDate ? 'border-2 border-black-900_87' : 'border-none'}`}
+                          shape="round"
+                          onClick={() => setShowStartDatePicker(!showStartDatePicker)}
+                        >
+                          {startDate ? format(startDate, 'dd/MM/yyyy') : ''}
+                        </Button>
+                      </div>
                       {showStartDatePicker && (
                         <div className="absolute -bottom-40 left-0 w-full h-full flex items-center justify-center z-50 ">
                           <DatePicker
                             selected={startDate}
                             onChange={handleStartDateChange}
-                            maxDate={new Date()}
+                            selectsStart
+                            startDate={startDate}
+                            endDate={endDate}
+                            maxDate={endDate || new Date()}
                             inline
                           />
                         </div>
                       )}
 
-                      <Button
-                        className="w-1/2 text-black-900 cursor-pointer font-medium text-center text-xs"
-                        shape="round"
-                        onClick={() => setShowEndDatePicker(!showEndDatePicker)}
-                      >
-                        {endDate ? format(endDate, 'dd/MM/yyyy') : 'To Date'}
-                      </Button>
+                      <div className="relative w-1/2 h-full overflow-X-hidden ">
+                        <label
+                          className={`absolute left-2 transition-all duration-200 text-center text-xs bg-white-A700 rounded ${showEndDatePicker === true || endDate
+                            ? '-top-1 text-xs text-center text-gray-700'
+                            : 'top-1/2 transform -translate-y-1/2 translate-x-4 sm:translate-x-2 text-gray-500'
+                            }`}
+                          onClick={() => setShowEndDatePicker(!showEndDatePicker)}
+                        >
+                          To Date
+                        </label>
+                        <Button
+                          className={`w-full h-full text-black-900 cursor-pointer font-medium text-center text-xs ${showEndDatePicker === true || endDate ? 'border-2 border-black-900_87' : 'border-none'}`}
+                          shape="round"
+                          onClick={() => setShowEndDatePicker(!showEndDatePicker)}
+                        >
+                          {endDate ? format(endDate, 'dd/MM/yyyy') : ''}
+                        </Button>
+                      </div>
                       {showEndDatePicker && (
                         <div className="absolute -bottom-40 left-0 w-full h-full flex items-center justify-center z-50">
                           <DatePicker
                             selected={endDate}
                             onChange={handleEndDateChange}
+                            selectsEnd
+                            startDate={startDate}
+                            endDate={endDate}
+                            minDate={startDate || subDays(new Date())}
                             maxDate={new Date()}
                             inline
                           />
                         </div>
                       )}
 
-                      <Button
-                        className="!text-black-900 cursor-pointer font-medium w-full text-center text-xs"
-                        shape="round"
-                        onClick={() => setShowCategoryDropdown(!showCategoryDropdown)} // Toggle category dropdown on button click
-                      >
-                        {selectedCategories.length > 0 ? selectedCategories.join(", ") : "Select Category"}
-                      </Button>
+                      <div className="relative w-1/2 h-full overflow-X-hidden ">
+                        <label
+                          className={`absolute left-2 transition-all duration-200 text-center text-xs bg-white-A700 rounded ${selectedCategories.length > 0 || showCategoryDropdown
+                            ? '-top-1 text-xs text-center text-gray-700'
+                            : 'top-1/2 transform -translate-y-1/2 translate-x-4 sm:translate-x-1 text-gray-500'
+                            }`}
+                          onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
+                        >
+                          Select Category
+                        </label>
+                        <Button
+                          className={`!text-black-900 cursor-pointer font-medium w-full h-full text-center text-xs overflow-hidden flex  ${selectedCategories.length > 0 || showCategoryDropdown
+                            ? 'border-2 border-black-900_87' : 'border-none'}`}
+                          shape="round"
+                          onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
+                        >
+                          {selectedCategories.length > 0 ? selectedCategories.join(", ") : ""}
+                        </Button>
+                      </div>
                       {showCategoryDropdown && (
                         <div className="absolute top-full left-0 w-full bg-white-A700 shadow rounded z-50" ref={dropdownRef}>
                           <div className="p-2 cursor-pointer hover:bg-blue-200 flex items-center">
