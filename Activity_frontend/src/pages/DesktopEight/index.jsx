@@ -44,7 +44,8 @@ const DesktopEightPage = () => {
 
   const toggleinput = () => {
     setShowInput(!showinput)
-    console.log("thi is event", showinput)
+    setError("")
+    setErrors({})
   }
   const checkTokenExpiry = async (token) => {
     try {
