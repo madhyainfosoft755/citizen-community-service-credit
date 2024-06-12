@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Button, Input, Text } from "components";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -15,6 +15,7 @@ const OrganizationManagementPage = () => {
   const [organizationName, setOrganizationName] = useState("");
   const [error, setError] = useState("");
   const [organizations, setOrganizations] = useState([]);
+  const popUpRef = useRef(null); // Create a ref for the pop-up
 
   const goBack = () => {
     navigate("/admin");
@@ -22,12 +23,33 @@ const OrganizationManagementPage = () => {
 
   const toggleInput = () => {
     setShowInput(!showInput);
+    if (showInput) {
+      setOrganizationName("");
+      setError("");
+    }
   };
 
   const handleInputChange = (e) => {
     setOrganizationName(e.target.value);
     setError("");
   };
+
+  const handleClickOutside = (event) => {
+    if (popUpRef.current && !popUpRef.current.contains(event.target)) {
+      setShowInput(false); // Close the pop-up if click is outside it
+      setError("")
+      setOrganizationName("")
+      // console.log("2",event.target)
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("mousedown", handleClickOutside); // Attach event listener on mount
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside); // Detach event listener on unmount
+    };
+  }, []); // Empty dependency array ensures that this effect runs only once on mount
+
 
   const handleCreateOrganization = async () => {
     try {
@@ -113,6 +135,7 @@ const OrganizationManagementPage = () => {
     }
   }, [navigate]);
 
+
   return (
     <div className="w-screen h-screen  bg-white-A700 flex items-start justify-center sm:w-screen sm:h-screen md:w-screen md:h-screen p-5 sm:p-0">
       <div className="relative w-4/12 h-full sm:w-full sm:h-full md:w-3/4 md:h-full  lg:w-3/4 lg:h-full  flex flex-col items-center  justify-start gap-5 border-[1px] rounded-lg sm:rounded-none overflow-hidden">
@@ -124,13 +147,20 @@ const OrganizationManagementPage = () => {
             <Text className="text-gray-900" size="txtInterSemiBold17">
               Manage Organizations
             </Text>
-            <Button className="rounded-xl" onClick={toggleInput}>
-              <FontAwesomeIcon icon={showInput ? faCircleXmark : faCirclePlus} className="text-[#546ef6] text-2xl" />
-            </Button>
+            {
+              showInput ?
+
+                <Button className="rounded-xl btn" key={0} onChange={() => { }}>
+                  <FontAwesomeIcon icon={faCircleXmark} className="text-[#546ef6] text-2xl " />
+                </Button> :
+                <Button className="rounded-xl " key={1} onClick={toggleInput}>
+                  <FontAwesomeIcon icon={faCirclePlus} className="text-[#546ef6] text-2xl " />
+                </Button>
+            }
           </div>
 
           {showInput && (
-            <div className="w-11/12 flex flex-col items-center justify-center absolute top-20 z-20">
+            <div ref={popUpRef} className="w-11/12 flex flex-col items-center justify-center absolute top-20 z-20">
               <div className={`w-11/12 rounded-xl flex items-center justify-center gap-1 border-[1px] p-1 bg-white-A700/70 ${error ? 'border-[1px] border-red-500' : 'border-gray-500 shadow shadow-black-900'}`}>
                 <input
                   type="text"

@@ -30,7 +30,7 @@ const DesktopEightPage = () => {
    if (popUpRef.current && !popUpRef.current.contains(event.target) ){
       setShowInput(false); // Close the pop-up if click is outside it
       
-      console.log("2",event.target)
+      // console.log("2",event.target)
     }
   };
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import { Button, Img, Text } from "components";
 import { useNavigate } from "react-router-dom";
@@ -17,6 +17,7 @@ const DesktopSixPage = () => {
   const [categoryName, setCategoryName] = useState(""); // State for the category name
   const [error, setError] = useState("")
   const [categories, setCategories] = useState([]); // State for the categories
+  const popUpRef = useRef(null); // Create a ref for the pop-up
 
   const toggleInput = () => {
     setShowInput(!showinput);
@@ -29,9 +30,26 @@ const DesktopSixPage = () => {
     navigate("/admin")
   }
 
+  const handleClickOutside = (event) => {
+    if (popUpRef.current && !popUpRef.current.contains(event.target) ){
+       setShowInput(false); // Close the pop-up if click is outside it
+       setError("")
+       setCategoryName("")
+       // console.log("2",event.target)
+     }
+   };
+   
+ 
+   useEffect(() => {
+     document.addEventListener("mousedown", handleClickOutside); // Attach event listener on mount
+     return () => {
+       document.removeEventListener("mousedown", handleClickOutside); // Detach event listener on unmount
+     };
+   }, []); // Empty dependency array ensures that this effect runs only once on mount
+ 
   const toggleinput = () => {
     setShowInput(!showinput)
-    console.log(showinput)
+    // console.log(showinput)
     if(showinput){
       setCategoryName("")
       setError("");
@@ -194,13 +212,20 @@ const DesktopSixPage = () => {
           >
             Manage Categories
           </Text>
-          <Button className="rounded-xl " onClick={toggleinput}>
-            <FontAwesomeIcon icon={showinput ? faCircleXmark : faCirclePlus} className="text-[#546ef6] text-2xl " />
-          </Button>
+          {
+              showinput ?
+              
+            <Button className="rounded-xl btn" key={0} onChange={()=>{}}>
+              <FontAwesomeIcon icon={ faCircleXmark} className="text-[#546ef6] text-2xl " />
+            </Button>:
+            <Button className="rounded-xl " key={1} onClick={toggleinput}>
+              <FontAwesomeIcon icon={ faCirclePlus} className="text-[#546ef6] text-2xl " />
+            </Button>
+            }
         </div>
 
         {showinput && (
-          <div className="w-11/12 flex flex-col items-center justify-center absolute top-20  z-20">
+          <div ref={popUpRef} className="w-11/12 flex flex-col items-center justify-center absolute top-20  z-20">
           <div className={`w-11/12 rounded-xl flex items-center justify-center gap-1 border-[1px] p-1 bg-white-A700/70 ${error ? 'border-[1px] border-red-500' : 'border-gray-500 shadow  shadow-black-900 '}`}>
             <input
               type="text"
