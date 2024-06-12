@@ -47,11 +47,21 @@ const DesktopOnePage = () => {
   const [showResendButton, setShowResendButton] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [eyeIcon, setEyeIcon] = useState(faEye);
+
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
     setEyeIcon(showPassword ? faEye : faEyeSlash);
   };
 
+
+  const logout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("userKey");
+    localStorage.removeItem("role");
+    setAuthenticated(false);
+    setIsAdmin(false);
+    navigate("/login");
+  };
 
   useEffect(() => {
     // Function to get and format the current date
@@ -66,6 +76,11 @@ const DesktopOnePage = () => {
 
     // Call the function when the component mounts
     getCurrentDate();
+
+    // If the user is already authenticated, log them out
+    if (localStorage.getItem("token")) {
+      logout();
+    }
   }, []);
 
   const handleInputChange = (event) => {

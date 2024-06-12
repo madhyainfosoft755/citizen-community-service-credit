@@ -31,6 +31,11 @@ const DesktopSixPage = () => {
 
   const toggleinput = () => {
     setShowInput(!showinput)
+    console.log(showinput)
+    if(showinput){
+      setCategoryName("")
+      setError("");
+    }
   }
 
   const handleInputChange = (e) => {
@@ -225,7 +230,7 @@ const DesktopSixPage = () => {
                 <Switch.Root
                   className="SwitchRoot"
                   checked={category.isEnabled}
-                  onCheckedChange={(checked) => handleToggleCategory(category.id, category.isEnabled)}
+                  onCheckedChange={() => handleToggleCategory(category.id, category.isEnabled)}
                 >
                   <Switch.Thumb className="SwitchThumb" />
                 </Switch.Root>
