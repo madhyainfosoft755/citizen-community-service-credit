@@ -8,6 +8,7 @@ import { faArrowLeft, faAngleLeft } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import PopupComponent from "components/popup";
 import "./style.css"
+import { format } from "date-fns";
 
 const UsersPosts = () => {
     const { userId } = useParams();
@@ -56,7 +57,7 @@ const UsersPosts = () => {
         fetchUserPosts();
     }, [userId, navigate]);
 
-    // console.log("ye hai posts", userData)
+    console.log("ye hai posts", userPosts)
 
     const fetchCityName = async (latitude, longitude) => {
         try {
@@ -104,7 +105,6 @@ const UsersPosts = () => {
         setPopupData(post);
         setIsPopupOpen(true);
     };
-    console.log("kya ye khula",isPopupOpen)
 
     const closePopup = () => {
         setIsPopupOpen(false);
@@ -113,6 +113,8 @@ const UsersPosts = () => {
     const goback = () => {
         navigate("/admin")
     }
+
+
     return (
         <div className="w-screen h-screen bg-white-A700 flex items-start justify-center sm:w-screen sm:h-screen md:w-screen md:h-screen p-5 sm:p-0">
             <div className="relative w-4/12 h-full sm:w-full sm:h-full md:w-3/4 md:h-full lg:w-3/4 lg:h-full flex flex-col items-center justify-center border-[1px] rounded-lg sm:rounded-none overflow-hidden">
@@ -147,13 +149,14 @@ const UsersPosts = () => {
                                         <th>Time</th>
                                         <th>Location</th>
                                         <th>Image</th>
+                                        <th>Date</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {userPosts.map((post) => (
                                         <tr key={post.id} className="border-b-2">
-                                            <td className="py-3 px-8">{post.category}</td>
-                                            <td className="py-3 px-10">{userData && userData.name}</td>
+                                            <td className="py-3 px-4">{post.category}</td>
+                                            <td className="py-3 px-8">{userData && userData.name}</td>
                                             <td className="p-3">{post.totalTime}</td>
                                             <td className="py-3 px-10">
                                                 {post.latitude && post.longitude ? (
@@ -170,6 +173,9 @@ const UsersPosts = () => {
                                                 >
                                                     View
                                                 </a>
+                                            </td>
+                                            <td className="px-2">
+                                            {format(new Date(post.Date), 'dd MMMM yyyy')}
                                             </td>
 
                                         </tr>

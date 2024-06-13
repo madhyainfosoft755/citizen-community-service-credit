@@ -1340,7 +1340,7 @@ const getUsersWithMostPostsInMonth = async (req, res) => {
     const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
     const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
 
-    // Fetch all users
+    // Fetch all users excluding admins
     const allUsers = await db.users.findAll({
       where: {
         role: {
@@ -1349,30 +1349,33 @@ const getUsersWithMostPostsInMonth = async (req, res) => {
       }
     });
 
-    // Initialize an object to store user IDs and their post counts for the current month
-    const userPostCounts = {};
+    // Initialize an object to store user IDs and their approved post counts for the current month
+    const userApprovedPostCounts = {};
 
-    // Iterate through all users to count their posts in the current month
+    // Iterate through all users to count their approved posts in the current month
     for (const user of allUsers) {
-      const userPosts = await db.Posts.findAll({
+      const userApprovedPosts = await db.Posts.findAll({
         where: {
           UserId: user.id,
+          approved: true, // Only include approved posts
           Date: {
             [Op.between]: [startOfMonth.toISOString().split('T')[0], endOfMonth.toISOString().split('T')[0]],
           },
         },
       });
 
-      userPostCounts[user.id] = userPosts.length;
+      if (userApprovedPosts.length > 0) {
+        userApprovedPostCounts[user.id] = userApprovedPosts.length;
+      }
     }
 
-    // Sort the userPostCounts object by post count in descending order
-    const sortedUserPostCounts = Object.entries(userPostCounts).sort(
+    // Sort the userApprovedPostCounts object by approved post count in descending order
+    const sortedUserApprovedPostCounts = Object.entries(userApprovedPostCounts).sort(
       (a, b) => b[1] - a[1]
     );
 
-    // Extract the top 5 users with the most posts in the current month
-    const topUsers = sortedUserPostCounts.slice(0, 5).map(([userId, postCount]) => ({
+    // Extract the top 5 users with the most approved posts in the current month
+    const topUsers = sortedUserApprovedPostCounts.slice(0, 5).map(([userId, postCount]) => ({
       userId,
       postCount,
     }));
