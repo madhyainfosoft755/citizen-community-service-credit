@@ -1217,56 +1217,51 @@ const getUsersWithMostPostsInYear = async (req, res) => {
   try {
     const currentYear = getCurrentYear();
 
-    // Fetch all users
-    const allUsers = await db.users.findAll(
-      {
-        where: {
-          role: {
-            [Op.ne]: 'admin' // Exclude users with the role of admin
-          }
+    // Fetch all users excluding admins
+    const allUsers = await db.users.findAll({
+      where: {
+        role: {
+          [Op.ne]: 'admin' // Exclude users with the role of admin
         }
       }
-    );
+    });
 
-    // Initialize an object to store user IDs and their post counts for the current year
-    const userPostCounts = {};
+    // Initialize an array to store users with approved posts
+    const usersWithApprovedPosts = [];
 
-    // Iterate through all users to count their posts in the current year
+    // Iterate through all users to count their approved posts in the current year
     for (const user of allUsers) {
-      const userPosts = await db.Posts.findAll({
+      const userApprovedPosts = await db.Posts.findAll({
         where: {
           UserId: user.id,
+          approved: true, // Assuming 'approved' is a boolean column for approved posts
           Date: {
             [Op.between]: [`${currentYear}-01-01`, `${currentYear}-12-31`],
           },
         },
       });
-      // console.log("user ki id mili kya", user.id)
 
-      userPostCounts[user.id] = userPosts.length;
+      // Only include users with approved posts in the current year
+      if (userApprovedPosts.length > 0) {
+        usersWithApprovedPosts.push({
+          userId: user.id,
+          approvedPostCount: userApprovedPosts.length,
+        });
+      }
     }
 
-    // Sort the userPostCounts object by post count in descending order
-    const sortedUserPostCounts = Object.entries(userPostCounts).sort(
-      (a, b) => b[1] - a[1]
+    // Sort the usersWithApprovedPosts array by approved post count in descending order
+    const sortedUsersByApprovedPosts = usersWithApprovedPosts.sort(
+      (a, b) => b.approvedPostCount - a.approvedPostCount
     );
 
-    // console.log("ye hain sorted posts", sortedUserPostCounts)
-    // Extract the top 5 users with the most posts in the current year
-    const topUsers = sortedUserPostCounts.slice(0, 5).map(([userId, postCount]) => ({
-      userId,
-      postCount,
-    }));
-
-    // Fetch user names based on the top user IDs
+    // Fetch user names based on the sorted user IDs
     const topUserNames = await Promise.all(
-      topUsers.map(async (user) => {
+      sortedUsersByApprovedPosts.map(async (user) => {
         const userData = await db.users.findByPk(user.userId);
-        console.log(userData)
-        return { name: userData.name, id: userData.id };
+        return { name: userData.name, id: userData.id, approvedPostCount: user.approvedPostCount };
       })
     );
-
     // console.log("ye hain top users", topUserNames)
 
 
@@ -1285,7 +1280,7 @@ const getUsersWithMostPostsInSixMonths = async (req, res) => {
     const currentDate = new Date();
     const sixMonthsAgo = new Date(currentDate.setMonth(currentDate.getMonth() - 6));
 
-    // Fetch all users
+    // Fetch all users excluding admins
     const allUsers = await db.users.findAll({
       where: {
         role: {
@@ -1294,39 +1289,40 @@ const getUsersWithMostPostsInSixMonths = async (req, res) => {
       }
     });
 
-    // Initialize an object to store user IDs and their post counts for the past six months
-    const userPostCounts = {};
+    // Initialize an array to store users with approved posts
+    const usersWithApprovedPosts = [];
 
-    // Iterate through all users to count their posts in the past six months
+    // Iterate through all users to count their approved posts in the past six months
     for (const user of allUsers) {
-      const userPosts = await db.Posts.findAll({
+      const userApprovedPosts = await db.Posts.findAll({
         where: {
           UserId: user.id,
+          approved: true, // Assuming 'approved' is a boolean column for approved posts
           Date: {
             [Op.between]: [sixMonthsAgo.toISOString().split('T')[0], new Date().toISOString().split('T')[0]],
           },
         },
       });
 
-      userPostCounts[user.id] = userPosts.length;
+      // Only include users with approved posts in the past six months
+      if (userApprovedPosts.length > 0) {
+        usersWithApprovedPosts.push({
+          userId: user.id,
+          approvedPostCount: userApprovedPosts.length,
+        });
+      }
     }
 
-    // Sort the userPostCounts object by post count in descending order
-    const sortedUserPostCounts = Object.entries(userPostCounts).sort(
-      (a, b) => b[1] - a[1]
+    // Sort the usersWithApprovedPosts array by approved post count in descending order
+    const sortedUsersByApprovedPosts = usersWithApprovedPosts.sort(
+      (a, b) => b.approvedPostCount - a.approvedPostCount
     );
 
-    // Extract the top 5 users with the most posts in the past six months
-    const topUsers = sortedUserPostCounts.slice(0, 5).map(([userId, postCount]) => ({
-      userId,
-      postCount,
-    }));
-
-    // Fetch user names based on the top user IDs
+    // Fetch user names based on the sorted user IDs
     const topUserNames = await Promise.all(
-      topUsers.map(async (user) => {
+      sortedUsersByApprovedPosts.map(async (user) => {
         const userData = await db.users.findByPk(user.userId);
-        return { name: userData.name, id: userData.id, postCount: user.postCount };
+        return { name: userData.name, id: userData.id, approvedPostCount: user.approvedPostCount };
       })
     );
 
@@ -1721,7 +1717,7 @@ const postsForDateRange = async (req, res) => {
         },
       },
     });
-    console.log("ye hain selected range of date ke posts",posts)
+    console.log("ye hain selected range of date ke posts", posts)
 
     if (posts.length === 0) {
       return res.status(404).json({ error: "No posts found for the specified date range." });
@@ -1767,7 +1763,7 @@ const postsForCategory = async (req, res) => {
     });
 
     if (posts.length === 0) {
-      return res.status(404).json({ error: errorMessage});
+      return res.status(404).json({ error: errorMessage });
     }
 
     res.json(posts);
@@ -1786,20 +1782,43 @@ const getPostsByUser = async (req, res) => {
       return res.status(400).json({ error: "User ID is required" });
     }
 
+    // Fetch the user's profile data
+    const userProfile = await db.users.findOne({
+      where: { id: userId },
+      attributes: ['name', 'photo', 'email', 'organization', 'category'] // Include desired profile attributes
+    });
+
+    if (!userProfile) {
+      return res.status(404).json({ error: "User not found" });
+    }
     // Fetch posts by user ID
     const userPosts = await db.Posts.findAll({
       where: {
         UserId: userId,
       },
       order: [['Date', 'DESC']], // Order posts by date in descending order
+      include: [
+        {
+          model: Users,
+          attributes: ['name', 'photo'], // Include only the name attribute from the Users table
+        },
+      ],
     });
 
     // Check if posts exist
     if (userPosts.length === 0) {
-      return res.status(404).json({ error: "No posts found for this user" });
+      return res.status(200).json({
+        user: userProfile,
+        message: "No posts found for this user"
+      });
     }
+    // Combine user profile data with posts
+    const response = {
+      user: userProfile,
+      posts: userPosts,
+    };
 
-    res.status(200).json(userPosts);
+    res.status(200).json(response);
   } catch (error) {
     console.error("Error fetching posts by user:", error);
     res.status(500).json({ error: "Internal Server Error" });

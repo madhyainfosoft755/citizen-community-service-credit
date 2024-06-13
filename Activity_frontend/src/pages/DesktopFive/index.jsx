@@ -276,10 +276,12 @@ const DesktopFivePage = () => {
   };
 
   const handleUserClick = (userId) => {
-    fetchUserPosts(userId);
-    const selectedUser = usersWithMostPostsInYear.find(user => user.id === userId);
-    console.log("ye hai selected user ka naam", selectedUser)
-    setSelectedUser(selectedUser.name);
+      navigate(`/userspost/${userId}`)
+    
+    // fetchUserPosts(userId);
+    // const selectedUser = usersWithMostPostsInYear.find(user => user.id === userId);
+    // console.log("ye hai selected user ka naam", selectedUser)
+    // setSelectedUser(selectedUser.name);
   };
 
   const closePopup = () => {
