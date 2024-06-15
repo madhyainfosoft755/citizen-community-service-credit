@@ -816,6 +816,12 @@ const CreateActivity = async (req, res) => {
     const userId = getUserIdFromToken(req);
     // console.log("YE HAI USER KI ID", userId)
 
+    if(userId === null || userId === undefined){
+      console.log("no user id found");
+      logger.error("userid not found while creating activity", errors)
+      return ;
+    }
+
     const {
       selectedCategories,
       date,
