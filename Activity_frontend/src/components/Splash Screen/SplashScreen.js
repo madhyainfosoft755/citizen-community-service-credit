@@ -25,7 +25,7 @@ const SplashScreen = ({ onAnimationEnd }) => {
 
   return (
     <div className={`splash-screen w-full h-full flex items-center justify-center ${isShrinking ? 'shrink' : ''}`}>
-      <div className="splash-message  w-full h-full flex items-center justify-center bg-gray-600/90 text-white-A700 text-xl p-4 rounded shadow-lg">
+      <div className="splash-message  w-full h-full flex items-center justify-center bg-[#7777] text-white-A700 text-xl p-4 rounded shadow-lg">
         <h2>Swipe left or right to view your posts</h2>
       </div>
     </div>

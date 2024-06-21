@@ -811,7 +811,6 @@ const CreateActivity = async (req, res) => {
       return res.status(400).json({ errors: errors.array() });
     }
 
-
     // Extract userId from the token
     const userId = getUserIdFromToken(req);
     // console.log("YE HAI USER KI ID", userId)
@@ -1834,6 +1833,59 @@ const getPostsByUser = async (req, res) => {
   }
 };
 
+const reviewpostforuser = async (req, res) => {
+  try {
+    const {userId, postId} = req.params;
+
+    // Validate user ID
+    if (!userId || !postId) {
+      return res.status(400).json({ error: "User ID and Post ID are required" });
+    }
+
+    // Fetch the user's profile data
+    const userProfile = await db.users.findOne({
+      where: { id: userId },
+      attributes: ['name', 'photo', 'email', 'organization', 'category'] // Include desired profile attributes
+    });
+
+    if (!userProfile) {
+      return res.status(404).json({ error: "User not found" });
+    }
+    // Fetch posts by user ID
+    const userPosts = await db.Posts.findAll({
+      where: {
+        UserId: userId,
+        id: postId,
+      },
+      order: [['Date', 'DESC']], // Order posts by date in descending order
+      include: [
+        {
+          model: Users,
+          attributes: ['name', 'photo'], // Include only the name attribute from the Users table
+        },
+      ],
+    });
+
+    // Check if posts exist
+    if (userPosts.length === 0) {
+      return res.status(200).json({
+        user: userProfile,
+        message: "No posts found for this user"
+      });
+    }
+    // Combine user profile data with posts
+    const response = {
+      user: userProfile,
+      posts: userPosts,
+    };
+
+    res.status(200).json(response);
+  } catch (error) {
+    console.error("Error fetching posts by user:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 
 
 
@@ -1882,4 +1934,5 @@ module.exports = {
   postsForDateRange,
   postsForCategory,
   getPostsByUser,
+  reviewpostforuser
 };

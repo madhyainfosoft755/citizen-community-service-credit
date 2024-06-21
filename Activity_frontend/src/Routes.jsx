@@ -22,6 +22,7 @@ const Forget = React.lazy(()=>import("pages/ForgetPassword"))
 const DesktopTen = React.lazy(()=>import("pages/DekstopTen"))
 const ManageOrganization= React.lazy(()=>import("pages/ManageOrganization"))
 const UsersPosts = React.lazy(()=>import("pages/UsersPost"))
+const ReviewActivity = React.lazy(()=>import("pages/ReviewActivity"))
 
 const ProjectRoutes = () => { 
   // const { authenticated, setAuthenticated } = useAuth();
@@ -94,6 +95,7 @@ const ProjectRoutes = () => {
           <Route path="/manageusers" element={<ProtectedRoute element={DesktopTen} adminOnly />}  />
           <Route path="/manageorganization" element={<ProtectedRoute element={ManageOrganization} adminOnly />}  />
           <Route path="/userspost/:userId" element={<ProtectedRoute element={UsersPosts} adminOnly />}  />
+          <Route path="/reviewactivity/:userId/:postId" element={<ProtectedRoute element={ReviewActivity} adminOnly />}  />
 
 
            <Route path="*" element={<NotFound />} />

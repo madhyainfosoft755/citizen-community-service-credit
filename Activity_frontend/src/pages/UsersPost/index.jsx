@@ -4,7 +4,7 @@ import { API_URL } from "Constant";
 import { toast } from "react-toastify";
 import { Img } from "components";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowLeft, faAngleLeft } from "@fortawesome/free-solid-svg-icons";
+import { faAngleLeft } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import PopupComponent from "components/popup";
 import "./style.css"
@@ -18,8 +18,7 @@ const UsersPosts = () => {
     const [cityNames, setCityNames] = useState({});
     const [popupData, setPopupData] = useState(null);
     const [isPopupOpen, setIsPopupOpen] = useState(false);
-    const [isPopupVisible, setIsPopupVisible] = useState(false); // State for popup visibility
-    const [selectedUser, setSelectedUser] = useState(null); // State for selected user
+
 
     useEffect(() => {
         const fetchUserPosts = async () => {
@@ -121,7 +120,7 @@ const UsersPosts = () => {
                 <div className="flex flex-col items-center justify-start w-full h-full">
                     <div className="bg-gray-200 flex flex-row items-center justify-start gap-4 p-1  w-full h-1/12">
                         <div onClick={goback} className="w-5 h-5 flex items-center justify-center ml-3">
-                            <FontAwesomeIcon icon={faAngleLeft} className="text-[#546ef6] text-xl" />
+                            <FontAwesomeIcon icon={faAngleLeft} className="text-[#546ef6] text-xl hover:cursor-pointer" />
                         </div>
                         <div className="w-7/12 flex  gap-10 items-center justify-center">
                             <div className="w-full flex items-center gap-2 justify-between">
@@ -141,6 +140,14 @@ const UsersPosts = () => {
                     </div>
                     <div className="scroller flex flex-col gap-2  sm:gap-3 items-start justify-start p-2 sm:py-5 w-full h-full  overflow-y-auto">
                         {userPosts.length > 0 ? (
+                            <div className="w-full h-full flex items-center justify-center">
+                                <Img
+                                    className="w-1/2 h-auto object-cover object-center"
+                                    src="../images/nopost.svg"
+                                    alt="No posts available for endorsement"
+                                />
+                            </div>
+                        ):(
                             <table className="w-full ">
                                 <thead>
                                     <tr>
@@ -150,6 +157,7 @@ const UsersPosts = () => {
                                         <th>Location</th>
                                         <th>Image</th>
                                         <th>Date</th>
+                                        <th>Approved</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -178,19 +186,12 @@ const UsersPosts = () => {
                                             {format(new Date(post.Date), 'dd MMMM yyyy')}
                                             </td>
 
+                                                <td className="px-6">{post.approved?"Yes":"No"}</td>
                                         </tr>
                                     ))}
                                 </tbody>
                             </table>
-                        ) : (
-                            <div className="w-full h-full flex items-center justify-center">
-                                <Img
-                                    className="w-1/2 h-auto object-cover object-center"
-                                    src="images/nopost.svg"
-                                    alt="No posts available for endorsement"
-                                />
-                            </div>
-                        )}
+                        )  }
                     </div>
 
                     

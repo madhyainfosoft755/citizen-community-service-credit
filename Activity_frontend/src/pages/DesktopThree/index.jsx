@@ -48,16 +48,16 @@ const Createpost = () => {
     city: "",
     state: "",
   });
-  // const buttons = [
-  //   { id: 1, label: "Gardening" },
-  //   { id: 2, label: "Cleaning" },
-  //   { id: 3, label: "Teaching Poor" },
-  //   { id: 4, label: "Planting Tree" },
-  //   { id: 5, label: "Marathon" },
-  //   { id: 6, label: "Social Activities" },
-  // ];
-
   const [error, setError] = useState(null);
+  const [description, setDescription] = useState("");
+
+  const handleInputChange = (e) => {
+    const inputText = e.target.value;
+    if (inputText.length <= 300) {
+      setDescription(inputText);
+    }
+  };
+  const remainingChars = 300 - description.length;
 
   // console.log("user categoriees", userData.userData.category)
 
@@ -77,19 +77,19 @@ const Createpost = () => {
             const sortedCategories = filterCategories.sort((a, b) => a.name.localeCompare(b.name));
             const limitedCategories = sortedCategories.slice(0, 6);
             setCategories(limitedCategories);
-          
-          // Check if count is less than 6 and add "Others" category
-          if (filterCategories.length < 6) {
-            const othersCategory = { id: "others", name: "Others" };
-            setCategories(prevCategories => [...prevCategories, othersCategory]);
+
+            // Check if count is less than 6 and add "Others" category
+            if (filterCategories.length < 6) {
+              const othersCategory = { id: "others", name: "Others" };
+              setCategories(prevCategories => [...prevCategories, othersCategory]);
+            }
+          } else {
+            console.log(data.message);
           }
         } else {
-          console.log(data.message);
+          console.error("Error fetching categories:", data.message);
         }
-      } else {
-        console.error("Error fetching categories:", data.message);
-      }
-    } catch (error) {
+      } catch (error) {
         console.error("Error fetching categories:", error);
       }
     };
@@ -511,7 +511,7 @@ const Createpost = () => {
                     Select Category
                   </Text>
                   {userData && (
-                    <small>Organization: <span>{userData.userData.organization ? userData.userData.organization : 'NA'}</span></small>
+                    <h4 className="text-sm">Organization: <small>{userData.userData.organization ? userData.userData.organization : 'NA'}</small></h4>
                   )}
                 </div>
                 <div className="flex flex-wrap items-center justify-between w-full">
@@ -537,9 +537,17 @@ const Createpost = () => {
                   )}
                 </div>
 
-                <div className="w-full h-5 flex items-center justify-center mt-1 mb-1 border-[1px] p-1 rounded-md" >
-                  <small className="font-bold">Description:</small>
-                  <input type="text" placeholder="Add description for the selected category" className="w-full h-full border-none text-xs" />
+                <div className="w-full flex items-center justify-center border-[1px] px-1 rounded-md">
+                  <small className="font-bold inline">Description:</small>
+                  <input
+                    type="text"
+                    placeholder="Add description for the selected category"
+                    className="w-full h-8 border-none text-xs text-center"
+                    value={description}
+                    onChange={handleInputChange}
+                  />
+                  <span className="text-xs text-gray-500 ">{description.length}/300</span>
+
                 </div>
                 <div className="flex flex-row gap-2 items-center justify-between   w-full  mt-4 mb-4">
                   <div className="relative w-1/2 h-full  bg-cyan-50">
@@ -617,14 +625,13 @@ const Createpost = () => {
                   </div>
                 </div>
                 <List className="flex items-center justify-center w-full gap-3 ">
-                  <div className="flex flex-1 flex-col gap-1 mb-1 items-start justify-start w-full ">
+                  <div className="flex flex-1 flex-col mb-1 items-start justify-start w-full ">
                     <Text
-                      className="text-base text-gray-900"
-                      size="txtInterSemiBold16Gray900"
+                      className="text-sm font-semibold text-gray-900"
                     >
                       Photos
                     </Text>
-                    <div className="bg-gray-50_01 border border-dashed border-indigo-500 flex flex-col  items-center justify-end p-2 rounded-[5px] shadow-bs1 w-full">
+                    <div className="bg-gray-50_01 border border-dashed border-indigo-500 flex flex-col  items-center justify-end p-1 rounded-[5px] shadow-bs1 w-full">
                       <div className="flex flex-row gap-2.5 items-start justify-center mt-0.5 w-full sm:w-full">
                         <Text
                           className="text-[13px] text-indigo-A200"
@@ -632,7 +639,7 @@ const Createpost = () => {
                         >
                           {" "}
                           <input
-                            className="bg-gray-50_01  flex flex-col items-center justify-end p-2 rounded-[5px] shadow-bs1 w-full"
+                            className="bg-gray-50_01  flex flex-col items-center justify-end p-1 rounded-[5px] shadow-bs1 w-full"
                             name="file"
                             type="file"
                             id="photo"
@@ -645,27 +652,20 @@ const Createpost = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="flex flex-1 flex-col gap-1 mb-1 items-start justify-start w-full">
+                  <div className="flex flex-1 flex-col  mb-1 items-start justify-start w-full">
                     <Text
-                      className="text-base text-gray-900"
-                      size="txtInterSemiBold16Gray900"
+                      className="text-sm font-semibold text-gray-900"
                     >
                       Videos
                     </Text>
-                    <div className="bg-gray-50_01 border border-dashed border-indigo-500 flex flex-col items-center justify-end p-2 rounded-[5px] shadow-bs1 w-full">
+                    <div className="bg-gray-50_01 border border-dashed border-indigo-500 flex flex-col items-center justify-end p-1 rounded-[5px] shadow-bs1 w-full">
                       <div className="flex flex-row gap-2.5 items-start justify-center mt-0.5 w-full sm:w-full">
-                        {/* <Img
-                          className="h-3 w-3"
-                          src="images/img_twitter.svg"
-                          alt="twitter"
-                        /> */}
-
                         <Text
                           className="text-[13px] text-indigo-A200"
                           size="txtInterMedium13"
                         >
                           <input
-                            className="bg-gray-50_01  flex flex-col items-center justify-end p-2 rounded-[5px] shadow-bs1 w-full"
+                            className="bg-gray-50_01  flex flex-col items-center justify-end p-1 rounded-[5px] shadow-bs1 w-full"
                             type="file"
                             id="video"
                             accept="video/*"
@@ -678,16 +678,16 @@ const Createpost = () => {
                     </div>
                   </div>
                 </List>
-               
+
                 <div className="flex items-start justify-center gap-1">
-                    <input type="checkbox" checked={selfDeclarationChecked}
-                      onChange={(e) => setSelfDeclarationChecked(e.target.checked)}
-                      className="border-[2px] !border-gray-500 appearance-none checked:border-gray-500 h-4 w-4"
-                       />
+                  <input type="checkbox" checked={selfDeclarationChecked}
+                    onChange={(e) => setSelfDeclarationChecked(e.target.checked)}
+                    className="border-[2px] !border-gray-500 appearance-none checked:border-gray-500 h-4 w-4"
+                  />
                   <h1 className="text-xs italic"><span className="text-xs font-bold">Self Declaration:</span> "I hereby declare that this is a non paid voluntary activity that I have done on my own in the interest of general public and social interest and I have submitted true and authentic information only".</h1>
                 </div>
                 <Button
-                  className={`cursor-pointer font-semibold w-full mt-3 sm:mt-0 sm:p-2 mb-1 text-sm text-center rounded-3xl ${selfDeclarationChecked ? "bg-[#546ef6] text-white" : "bg-gray-300 text-gray-500"}`}
+                  className={`cursor-pointer font-semibold w-full mt-1 sm:mt-0 sm:p-2 mb-1 text-sm text-center rounded-3xl ${selfDeclarationChecked ? "bg-[#546ef6] text-yellow-400 " : "bg-gray-300 text-gray-500"}`}
                   disabled={!selfDeclarationChecked}
                 >
                   SUBMIT

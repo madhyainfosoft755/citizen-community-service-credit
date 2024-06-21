@@ -44,13 +44,15 @@ const {
   deleteUser,
   postsForDateRange,
   postsForCategory,
-  getPostsByUser
+  getPostsByUser,
+  reviewpostforuser
 
 } = require("../controllers/LoginController");
 const { upload } = require("../utils/util");
 // Express route 
 router.get("/output", output);  
 router.get('/getPostsByUser/:userId', getPostsByUser);
+router.get('/reviewpostforuser/:userId/:postId', reviewpostforuser);
 router.get("/getUsers",getUsers)
 router.delete("/deleteUser/:id",deleteUser )
 router.put("/updateApprover/:id",updateApprover )

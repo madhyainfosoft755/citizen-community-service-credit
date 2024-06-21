@@ -5,14 +5,12 @@ import { useNavigate } from "react-router-dom";
 import { API_URL } from "Constant";
 import "./style.css";
 import { toast } from "react-toastify";
-import PopupComponent from "components/popup";
 
 const DesktopSevenPage = () => {
   const navigate = useNavigate();
   const notify = (e) => toast(e);
   const [posts, setPosts] = useState([]);
-  const [selectedPost, setSelectedPost] = useState(null);
-  const [isPopupVisible, setIsPopupVisible] = useState(false);
+  
 
   const checkTokenExpiry = async (token) => {
     try {
@@ -113,14 +111,10 @@ const DesktopSevenPage = () => {
 
 
   const handlePostClick = (post) => {
-    setSelectedPost(post);
-    setIsPopupVisible(true);
+    navigate(`/reviewactivity/${post.UserId}/${post.id}`);
+    console.log("ye hai postr",post.UserId, post.id)
   };
 
-  const handleClosePopup = () => {
-    setIsPopupVisible(false);
-    setSelectedPost(null);
-  };
 
   const goback = () => {
     navigate("/admin");
@@ -165,8 +159,8 @@ const DesktopSevenPage = () => {
                 </div>
                 <button className="text-[#546ef6] font-semibold border-2 rounded-md border-gray-300 p-2" onClick={(e) => {
                   e.stopPropagation();
-                  approveHoursRequest(post.id);
-                }}>Approve</button>
+                  handlePostClick(post);
+                }}>Review</button>
 
               </div>
             ))
@@ -181,9 +175,7 @@ const DesktopSevenPage = () => {
           )}
         </div>
       </div>
-      {isPopupVisible && selectedPost && (
-        <PopupComponent className="w-full h-full" post={selectedPost} onClose={handleClosePopup} />
-      )}
+      
     </div>
   );
 };
