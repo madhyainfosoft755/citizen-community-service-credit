@@ -9,9 +9,10 @@ import axios from "axios";
 import PopupComponent from "components/popup";
 import "./style.css"
 import { format } from "date-fns";
+
 const ReviewPosts = () => {
+    const notify = (e) => toast(e);
     const { userId, postId } = useParams();
-    console.log("ye hai user ki id", userId)
     const [userPosts, setUserPosts] = useState([]);
     const [userData, setUserData] = useState(null)
     const navigate = useNavigate();
@@ -24,42 +25,43 @@ const ReviewPosts = () => {
     const [remainingChars, setRemainingChars] = useState(300);
     const [location, setLocation] = useState({ city: "Loading...", state: "Loading..." });
 
-    useEffect(() => {
-        const fetchPost = async () => {
-            console.log("what is the user id", userId)
-            console.log("what is the post id", postId)
-            try {
-                const token = localStorage.getItem("token");
-                if (!token) {
-                    navigate("/login");
-                    return;
-                }
 
-                const response = await fetch(`${API_URL}/activity/reviewpostforuser/${userId}/${postId}`, {
-                    method: "GET",
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                });
-
-                const data = await response.json();
-                console.log("ye hai data", data)
-                if (response.ok) {
-                    setUserPosts(data.posts || []);
-                    setUserData(data.user || {})
-                    if (data.posts && data.posts.length > 0) {
-                        const post = data.posts[0];
-                        console.log("kya aya post mai", post)
-                        fetchLocation(post.latitude, post.longitude);
-                    }
-                } else {
-                    const errorData = await response.json();
-                    toast.error(`Error fetching user posts: ${errorData.message}`);
-                }
-            } catch (error) {
-                toast.error(error);
+    const fetchPost = async () => {
+        try {
+            const token = localStorage.getItem("token");
+            if (!token) {
+                navigate("/login");
+                return;
             }
-        };
+
+            const response = await fetch(`${API_URL}/activity/reviewpostforuser/${userId}/${postId}`, {
+                method: "GET",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            const data = await response.json();
+            // console.log("ye hai data", data)
+            if (response.ok) {
+                setUserPosts(data.posts || []);
+                setUserData(data.user || {})
+                if (data.posts && data.posts.length > 0) {
+                    const post = data.posts[0];
+                    // console.log("kya aya post mai", post)
+                    fetchLocation(post.latitude, post.longitude);
+                }
+            } else {
+                const errorData = await response.json();
+                toast.error(`Error fetching user posts: ${errorData.message}`);
+            }
+        } catch (error) {
+            toast.error(error);
+        }
+    };
+
+
+    useEffect(() => {
 
         fetchPost();
     }, [userId, postId]);
@@ -67,14 +69,12 @@ const ReviewPosts = () => {
 
 
     const fetchLocation = async (latitude, longitude) => {
-
-        console.log("what are latitude and longitude", latitude, longitude)
         try {
             const response = await axios.get(
                 `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${process.env.REACT_APP_GoogleGeocode}`
             );
 
-            console.log("kya aya location data", response)
+            // console.log("kya aya location data", response)
             if (response.data && response.data.results.length > 0) {
                 const { address_components } = response.data.results[0];
                 const cityComponent = address_components.find(component =>
@@ -87,8 +87,8 @@ const ReviewPosts = () => {
                 const city = cityComponent ? cityComponent.long_name : "Unknown City";
                 const state = stateComponent ? stateComponent.long_name : "Unknown State";
 
-                console.log("what is the city name", city)
-                console.log("what is the state name", state)
+                // console.log("what is the city name", city)
+                // console.log("what is the state name", state)
 
                 setLocation({ city, state });
             } else {
@@ -127,12 +127,63 @@ const ReviewPosts = () => {
         }
     };
 
-    const run = () => {
-        console.log("chala")
-    }
+    const openProfilePopup = () => {
+        if (userData) {
+            setPopupData({ photos: userData.photo });
+            setIsPopupOpen(true);
+        }
+    };
 
-    console.log("ye hai user ke post ki location", location)
+    const approveHoursRequest = async (postId) => {
+        try {
+            const token = localStorage.getItem("token");
+            const response = await fetch(`${API_URL}/activity/approveHours/${postId}`, {
+                method: "PUT",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+            });
 
+            if (response.ok) {
+                // Refresh the posts after approval
+                fetchPost();
+                notify("Hours request approved successfully");
+                navigate("/approvehours")
+            } else {
+                notify("Failed to approve hours request");
+            }
+        } catch (error) {
+            notify("Error approving hours request");
+            console.error("Error approving hours request:", error);
+        }
+    };
+
+
+    const rejectHoursRequest = async (postId) => {
+        try {
+            const token = localStorage.getItem("token");
+            const response = await fetch(`${API_URL}/activity/rejectHours/${postId}`, {
+                method: "PUT",
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ rejectionReason: inputValue }),
+            });
+
+            if (response.ok) {
+                fetchPost();
+                notify("Hours request rejected successfully");
+                navigate("/approvehours")
+            } else {
+                notify("Failed to reject hours request");
+            }
+        } catch (error) {
+            notify("Error rejecting hours request");
+            console.error("Error rejecting hours request:", error);
+        }
+    };
     return (
         <div className="w-screen h-screen bg-white-A700 flex items-start justify-center sm:w-screen sm:h-screen md:w-screen md:h-screen p-5 sm:p-0">
             <div className="relative w-4/12 h-full sm:w-full sm:h-full md:w-3/4 md:h-full lg:w-3/4 lg:h-full flex flex-col items-center justify-center border-[1px] rounded-lg sm:rounded-none overflow-hidden">
@@ -142,7 +193,8 @@ const ReviewPosts = () => {
                             <FontAwesomeIcon icon={faAngleLeft} className="text-[#546ef6] text-xl hover:cursor-pointer" />
                         </div>
                         <div className="w-7/12 flex  gap-10 items-center justify-center">
-                            <div className="w-full flex items-center gap-2 justify-between">
+                            <div className="w-full flex items-center gap-2 justify-between"
+                                onClick={openProfilePopup} >
                                 {userData && (
                                     <img
                                         className=" w-14 h-14 sm:w-14 sm:h-14   rounded-full object-cover object-top "
@@ -158,8 +210,8 @@ const ReviewPosts = () => {
                         </div>
                     </div>
 
-                    <div className="bg-orange-500 w-full h-full flex flex-col gap-5 items-center justify-start p-3 overflow-auto scroller">
-                        <div className="w-full h-6/12  rounded-lg  overflow-hidden">
+                    <div className=" w-full h-full flex flex-col gap-5 items-center justify-start p-3 overflow-auto scroller">
+                        <div className="w-full h-5/6  rounded-lg  overflow-hidden border-2">
                             <div className="w-full h-1/2 rounded-tr-lg rounded-tl-lg overflow-hidden">
                                 {userPosts.length > 0 ? (
                                     <img
@@ -177,8 +229,8 @@ const ReviewPosts = () => {
                                     </div>
                                 )}
                             </div>
-                            <div className="w-full h-1/2 bg-red-500 flex gap-2">
-                                <div className="w-full h-full bg-green-200 flex items-center justify-center ">
+                            <div className="w-full h-1/2  flex gap-2">
+                                <div className="w-full h-full  flex items-center justify-center ">
                                     {userPosts.length > 0 ?
                                         <div className="grid grid-cols-3 gap-4 p-2" >
                                             <div className="flex flex-col  items-center justify-center gap-1">
@@ -197,13 +249,18 @@ const ReviewPosts = () => {
                                                 <h1 className="underline">Date</h1>
                                                 <h1>{userPosts[0].Date}</h1>
                                             </div>
-                                            <div className="flex flex-col items-center justify-center gap-1">
-                                                <h1 className="underline">Category</h1>
-                                                <h1>{userPosts[0].category}</h1>
-                                            </div>
                                             <div className="flex flex-col items-center text-center justify-center gap-1">
                                                 <h1 className="underline">Location</h1>
                                                 <h1>{location ? `${location.city}, ${location.state}` : "Loading..."}</h1>
+                                            </div>
+                                            <div className="flex flex-col items-center justify-center gap-1">
+                                                <h1 className="underline">Image</h1>
+                                                <button
+                                                    className="text-blue-600 underline"
+                                                    onClick={() => openPopup(userPosts[0])}
+                                                >
+                                                    View
+                                                </button>
                                             </div>
 
 
@@ -221,9 +278,9 @@ const ReviewPosts = () => {
                                 </div>
                             </div>
                         </div>
-                        <div className="w-full h-1/12 relative ">
-                            <label htmlFor="desc" className={`absolute rounded text-xs left-2 bg-white-A700 transition-all duration-200 ease-in-out ${hasFocus ? '-top-1 left-0' : 'top-[25%] left-[40%]'}`}>Add Comment</label>
-                            <input type="text" name="desc" className="w-full h-full  rounded-lg" onFocus={() => setHasFocus(true)}
+                        <div className="w-full h-1/12 relative border-[1px] rounded-lg">
+                            <label htmlFor="desc" className={`absolute rounded text-xs left-2 bg-white-A700 transition-all duration-200 ease-in-out ${hasFocus ? '-top-2 left-0' : 'top-[25%] left-[40%]'}`}>Add Comment</label>
+                            <input type="text" name="desc" className="w-full h-full border-none rounded-lg" onFocus={() => setHasFocus(true)}
                                 onBlur={(e) => setHasFocus(e.target.value !== '')}
                                 onChange={handleInputChange}
                                 value={inputValue}
@@ -234,69 +291,11 @@ const ReviewPosts = () => {
                         </div>
 
                         <div className=" w-full h-1/12 flex gap-2 items-center justify-center">
-                            <button className={`w-1/2 py-3 rounded-md  font-semibold ${isRejectDisabled ? "bg-gray-500 text-black-900_87 cursor-default" : "hover:bg-red-500 hover:text-white-A700 sm:focus-within:bg-red-400 bg-[#e5e7eb] cursor-pointer"}`} disabled={isRejectDisabled} onClick={run}> Reject</button>
-                            <button className="w-1/2 py-3 rounded-md bg-[#e5e7eb] font-semibold hover:bg-lime-400   hover:text-white-A700"> Approve</button>
+                            <button onClick={() => rejectHoursRequest(userPosts[0].id)} className={`w-1/2 py-3 rounded-md  font-semibold ${isRejectDisabled ? "bg-gray-500 text-black-900_87 cursor-default" : "hover:bg-red-500 hover:text-white-A700 sm:focus-within:bg-red-400 bg-[#e5e7eb] cursor-pointer"}`} disabled={isRejectDisabled}> Reject</button>
+                            <button onClick={() => approveHoursRequest(userPosts[0].id)} className="w-1/2 py-3 rounded-md bg-[#e5e7eb] font-semibold hover:bg-lime-400   hover:text-white-A700"> Approve</button>
                         </div>
 
                     </div>
-
-
-                    {/* <div className="scroller flex flex-col gap-2  sm:gap-3 items-start justify-start p-2 sm:py-5 w-full h-full  overflow-y-auto">
-                        {userPosts.length > 0 ? (
-                            <table className="w-full ">
-                                <thead>
-                                    <tr>
-                                        <th>Category</th>
-                                        <th>Name</th>
-                                        <th>Time</th>
-                                        <th>Location</th>
-                                        <th>Image</th>
-                                        <th>Date</th>
-                                        <th>Approved</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {userPosts.map((post) => (
-                                        <tr key={post.id} className="border-b-2">
-                                            <td className="py-3 px-4">{post.category}</td>
-                                            <td className="py-3 px-8">{userData && userData.name}</td>
-                                            <td className="p-3">{post.totalTime}</td>
-                                            <td className="py-3 px-10">
-                                                {post.latitude && post.longitude ? (
-                                                    <span>{renderCityName(post.id)}</span>
-                                                ) : (
-                                                    "Unknown City"
-                                                )}
-                                            </td>
-                                            <td className="px-5">
-                                                <a
-                                                    href="#"
-                                                    onClick={() => openPopup(post)}
-                                                    className="text-[#546ef6] underline"
-                                                >
-                                                    View
-                                                </a>
-                                            </td>
-                                            <td className="px-2">
-                                            {format(new Date(post.Date), 'dd MMMM yyyy')}
-                                            </td>
-                                                <td className="px-6"> {post.approved?"Yes":"No"}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        ) : (
-                            <div className="w-full h-full flex items-center justify-center">
-                                <Img
-                                    className="w-1/2 h-auto object-cover object-center"
-                                    src="images/nopost.svg"
-                                    alt="No posts available for endorsement"
-                                />
-                            </div>
-                        )}
-                    </div> */}
-
-
                 </div>
             </div>
 

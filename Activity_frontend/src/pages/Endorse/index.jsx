@@ -14,6 +14,8 @@ import { toast } from "react-toastify";
 
 const Endorse = () => {
   const notify = (e) => toast(e);
+  const [isPopUpVisible, setIsPopUpVisible] = useState(false); // State for pop-up visibility
+  const [selectedPost, setSelectedPost] = useState(null); // State for selected post
   const [checkedPosts, setCheckedPosts] = useState([]);
   const [userPosts, setUserPosts] = useState([]);
   const [filteredPosts, setFilteredPosts] = useState([]);
@@ -388,16 +390,25 @@ const Endorse = () => {
     }
   };
 
+  const openProfilePopup = () => {
+    if (userData && userData.userData) {
+      setSelectedPost({ photos: userData.userData.photo });
+      setIsPopUpVisible(true);
+    }
+  };
 
   // console.log("all filtered post", filteredPosts);
   return (
     <>
       {authenticated && (
         <div className=" flex items-center justify-center w-screen h-screen sm:w-screen sm:h-screen md:w-screen md:h-screen p-4 sm:p-0 md:pt-2 md:pb-2">
+        {isPopUpVisible && (
+            <PopupComponent post={selectedPost} onClose={() => setIsPopUpVisible(false)} />
+          )}
           <div className="bg-white-A700 flex flex-col items-start justify-start sm:px-0  border-[1px] rounded-lg sm:rounded-none w-4/12 h-full sm:w-full sm:h-full md:w-7/12 md:h-full">
             <div className="flex flex-col gap-3 items-center justify-start w-full h-full  p-3 sm:p-0 ">
               <div className="bg-gray-50 flex flex-row items-center justify-between p-3  sm:px-5 w-full rounded-md sm:rounded-none ">
-                <div className="flex flex-row gap-4 items-center justify-center ml-[5px]">
+                <div className="flex flex-row gap-4 items-center justify-center ml-[5px]" onClick={openProfilePopup}>
                   {userData && (
                     <Img
                       className=" w-14 h-14 sm:w-14 sm:h-14   rounded-full object-cover object-top "

@@ -9,6 +9,8 @@ const PopupComponent = ({ post, onClose }) => {
   // if (!post || !post.photos || !Array.isArray(post.photos)) {
   //     return <div>Error: Invalid post data</div>;
   //   }
+
+
   return (
     <div className="popup-container overflow-auto absolute top-0 left-0 z-50 w-screen h-screen pt-5 bg-black-900 bg-opacity-80 flex flex-col justify-start items-center sm:gap-3">
       {/* Close button */}

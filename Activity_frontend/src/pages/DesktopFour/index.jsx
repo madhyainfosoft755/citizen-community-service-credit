@@ -21,7 +21,7 @@ const DesktopFourPage = () => {
   const [totalTime, setTotalTime] = useState(null); // Added state for total time
   const [userName, setUserName] = useState("")
 
-  // console.log("userData", userData);
+  console.log("userData", userData);
   useEffect(() => {
     const fetchUserPosts = async () => {
       try {
@@ -187,6 +187,14 @@ const DesktopFourPage = () => {
     return () => clearInterval(interval);
   }, []);
 
+
+  const openProfilePopup = () => {
+    if (userData && userData.userData) {
+      setSelectedPost({ photos: userData.userData.photo });
+      setIsPopUpVisible(true);
+    }
+  };
+
   return (
     <>
       {authenticated && (
@@ -197,7 +205,7 @@ const DesktopFourPage = () => {
           <div className="w-4/12 h-full  flex items-start justify-center  sm:shadow-none  border-[1px]  rounded-lg sm:rounded-none  lg:h-full sm:w-full sm:h-full md:w-full md:h-full">
             <div className="flex flex-col  items-center justify-start w-full h-full md:w-full sm:w-full">
               <div className="bg-gray-50 flex flex-row items-center justify-between p-3 sm:px-5 w-full ">
-                <div className="flex flex-row gap-2 items-center justify-center ml-[5px]">
+                <div className="flex flex-row gap-2 items-center justify-center ml-[5px]" onClick={openProfilePopup}>
                   {userData && (
                     <Img
                       className=" w-14   h-14  rounded-[50%] object-cover object-center "

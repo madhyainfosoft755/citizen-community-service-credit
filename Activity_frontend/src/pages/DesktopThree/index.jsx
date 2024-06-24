@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import { Button, Img, List, Text } from "components";
 import { API_URL } from "Constant";
@@ -12,8 +12,15 @@ import { faLocationDot } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
 import { CirclesWithBar } from 'react-loader-spinner'
 import { differenceInHours, parse, isSameDay } from 'date-fns'; // Importing necessary functions from date-fns
+import PopupComponent from "components/popup";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 const Createpost = () => {
+  const dateInputRef = useRef(null); // Ref for the date input
+  const [showCalendar, setShowCalendar] = useState(false); // State for calendar visibility
+  const [isPopUpVisible, setIsPopUpVisible] = useState(false); // State for pop-up visibility
+  const [selectedPost, setSelectedPost] = useState(null); // State for selected post
   const [selfDeclarationChecked, setSelfDeclarationChecked] = useState(false);
   const [isLoading, setIsLoading] = useState(false); // State for loader
   const notify = (e) => toast(e);
@@ -50,6 +57,29 @@ const Createpost = () => {
   });
   const [error, setError] = useState(null);
   const [description, setDescription] = useState("");
+
+
+  useEffect(() => {
+    // Function to handle clicks outside the date input
+    const handleClickOutside = (event) => {
+      if (dateInputRef.current && !dateInputRef.current.contains(event.target)) {
+        setShowCalendar(false); // Close calendar if clicked outside
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside); // Listen for clicks
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside); // Cleanup on unmount
+    };
+  }, []);
+
+
+  // Function to handle date input click
+  const handleDateInputClick = () => {
+    setShowCalendar(true); // Open calendar when input is clicked
+  };
+
 
   const handleInputChange = (e) => {
     const inputText = e.target.value;
@@ -430,7 +460,16 @@ const Createpost = () => {
   }, []);
   // 
 
+
+
   // console.log("ye hai user data", userData)
+
+  const openProfilePopup = () => {
+    if (userData && userData.userData) {
+      setSelectedPost({ photos: userData.userData.photo });
+      setIsPopUpVisible(true);
+    }
+  };
   return (
     <>
       {authenticated && (
@@ -439,8 +478,11 @@ const Createpost = () => {
             <Location onLocationChange={handleLocationChange} />
           </div>
 
+          {isPopUpVisible && (
+            <PopupComponent post={selectedPost} onClose={() => setIsPopUpVisible(false)} />
+          )}
 
-          <div className="relative w-4/12 h-full sm:w-full sm:h-full md:w-3/4 md:h-full  lg:w-3/4 lg:h-full  flex flex-col items-center  justify-center border-[1px]  rounded-lg sm:rounded-none overflow-hidden">
+          <div className=" scroller relative w-4/12 h-full sm:w-full sm:h-full md:w-3/4 md:h-full  lg:w-3/4 lg:h-full  flex flex-col items-center  justify-center border-[1px]  rounded-lg sm:rounded-none overflow-auto">
             {isLoading && (
               <div className="w-full h-full bg-black-900/30 absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-50">
                 <CirclesWithBar
@@ -462,7 +504,7 @@ const Createpost = () => {
 
               <div className="bg-gray-50 flex flex-row items-center justify-between p-3 sm:p-5  sm:px-5 w-full ">
 
-                <div className="flex flex-row gap-4 items-center justify-center ml-[1px]">
+                <div className="flex flex-row gap-4 items-center justify-center ml-[1px]" onClick={openProfilePopup}>
                   {userData && (
                     <Img
                       className=" sm:w-[58px] sm:h-[52px] md:w-[58px] md:h-[52px] lg:w-[58px] lg:h-[58px]  w-14 h-14 rounded-full object-cover object-top  "
@@ -499,8 +541,8 @@ const Createpost = () => {
 
               <div className="flex flex-col items-start justify-center gap-1 sm:gap-1 w-11/12  sm:w-11/12 mt-1  ">
                 <div className="bg-white-A700 w-full  text-center flex items-start justify-between gap-5">
-                  <h1 className="text-md font-semibold shadow-bs3 shadow-gray-300 py-1  w-1/2 h-full flex items-center justify-center rounded-3xl mb-2">+ Add New Activity</h1>
-                  <button type="button" onClick={Endorse} className="bg-[#546ef6] w-1/2 h-full font-semibold rounded-3xl text-white-A700">Endorse Activities</button>
+                  <h1 className="text-md font-semibold bg-[#546ef6] text-white-A700  py-1  w-1/2 h-full flex items-center justify-center rounded-3xl mb-2">+ Add New Activity</h1>
+                  <button type="button" onClick={Endorse} className={`text-black-900 shadow-bs3 shadow-gray-300 w-1/2 h-full font-semibold rounded-3xl hover:bg-[#546ef6] hover:text-white-A700`}>Endorse Activities</button>
                 </div>
 
                 <div className="w-full flex items-center justify-between">
@@ -569,9 +611,17 @@ const Createpost = () => {
                       name="datepicker"
                       value={currentDate}
                       onChange={handleDateChange}
+                      onClick={handleDateInputClick}
                       max={new Date().toISOString().split('T')[0]} // Restrict to today's date
                       className="w-full h-full px-3 py-2 bg-[#eff2ff] text-sm shadow-sm shadow-black-900/10 rounded-md border-[1px] border-gray-300 focus:outline-none focus:border-blue-500 appearance-none"
                     />
+                    {showCalendar && (
+                      <div className="absolute top-full left-0 mt-1 z-10 bg-white border border-gray-300 shadow-lg rounded-md">
+                        {/* Calendar component */}
+                        {/* Replace this with your calendar component */}
+                        <div>Calendar Component</div>
+                      </div>
+                    )}
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                       <span className={`absolute -top-5 left-0 text-sm ${currentDate ? 'text-gray-700' : 'text-gray-500'}`}>
                         Select Date
@@ -596,7 +646,7 @@ const Createpost = () => {
                       name="fromTime"
                       id="fromTime"
                       value={fromTime}
-
+                      onClick={(e) => e.target.focus()}
                       onChange={handleFromTimeChange}
                       className="rounded-lg border-[1px] border-dashed border-[#546ef6] text-xs h-auto w-full "
                     />{" "}
@@ -620,6 +670,7 @@ const Createpost = () => {
                       onChange={handleToTimeChange}
                       min={fromTime}
                       max={maxToTime}
+                      onClick={(e) => e.target.focus()}
                       className="rounded-lg border-[1px] border-dashed border-[#546ef6] text-xs h-auto w-full "
                     />
                   </div>

@@ -1421,12 +1421,36 @@ const approveHours = async (req, res) => {
   }
 };
 
+const rejectHours = async (req, res) => {
+  const { postId } = req.params;
+  const { rejectionReason } = req.body;
+
+  try {
+    const post = await Posts.findByPk(postId);
+
+    if (!post) {
+      return res.status(404).json({ error: "Post not found." });
+    }
+
+    post.approved = false;
+    post.rejectionReason = rejectionReason;
+    post.rejected = true;
+    await post.save();
+
+    res.status(200).json({ message: "Post rejected successfully." });
+  } catch (error) {
+    console.error("Error rejecting post:", error);
+    res.status(500).json({ error: "Internal server error." });
+  }
+};
+
 const pendingApproval = async (req, res) => {
   try {
     const posts = await Posts.findAll({
       where: {
         endorsementCounter: 3,
         approved: false,
+        rejected:false
       },
       include: [
         {
@@ -1915,6 +1939,7 @@ module.exports = {
   getUsersWithMostPostsInSixMonths,
   getUsersWithMostPostsInMonth,
   approveHours,
+  rejectHours,
   adminAuthMiddleware,
   pendingApproval,
   createCategory,

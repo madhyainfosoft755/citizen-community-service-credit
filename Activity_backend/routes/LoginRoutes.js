@@ -27,6 +27,7 @@ const {
   getUsersWithMostPostsInSixMonths,
   getUsersWithMostPostsInMonth,
   approveHours,
+  rejectHours,
   pendingApproval,
   createCategory,
   getCategories,
@@ -64,6 +65,7 @@ router.get("/getUsersWithMostPostsInYear", getUsersWithMostPostsInYear)
 router.get("/getUsersWithMostPostsInSixMonths", getUsersWithMostPostsInSixMonths)
 router.get("/getUsersWithMostPostsInMonth", getUsersWithMostPostsInMonth)
 router.put("/approveHours/:postId", approveHours)
+router.put("/rejectHours/:postId", rejectHours)
 router.post("/createCategory", createCategory)
 router.get("/getCategories", getCategories)
 router.get("/getCategoriesAdmin", getCategoriesAdmin)

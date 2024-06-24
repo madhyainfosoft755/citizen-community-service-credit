@@ -8,10 +8,10 @@ import "./slider.css";
 import PopupComponent from "components/popup";
 import SplashScreen from "components/Splash Screen/SplashScreen";
 
-const Slider1 = ({ items , isPopUpVisible, setIsPopUpVisible, setSelectedPost, selectedPost }) => {
+const Slider1 = ({ items, isPopUpVisible, setIsPopUpVisible, setSelectedPost, selectedPost }) => {
   const [locationData, setLocationData] = useState([]);
   const [showSplashScreen, setShowSplashScreen] = useState(true); // State to control splash screen visibility
-    // console.log("kya endrose aa rha hai", items)
+  // console.log("kya endrose aa rha hai", items)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -61,6 +61,7 @@ const Slider1 = ({ items , isPopUpVisible, setIsPopUpVisible, setSelectedPost, s
   const handleViewPost = (post) => {
     setSelectedPost(post);
     setIsPopUpVisible(true);
+    console.log("kya hai post", post)
   };
 
   // console.log("location data", locationData)
@@ -77,76 +78,83 @@ const Slider1 = ({ items , isPopUpVisible, setIsPopUpVisible, setSelectedPost, s
   return (
     <div className="w-full h-full border-none outline-none">
 
-      
+
       {showSplashScreen ? (
         <SplashScreen onAnimationEnd={() => setShowSplashScreen(false)} /> // Handle the end of the splash screen animation
       ) : (
-      locationData && locationData.length > 0 && items ? (
-        <Slider {...settings}>
-          {locationData.map((item, index) => (
-            <div key={item.id}>
-              <div className="h-48 sm:h-52 sm:h-50 md:h-full">
-                {item && item.photos && (
-                  <img
-                    className="w-full h-full object-cover object-top"
-                    src={`${API_URL}/image/${item.photos}`}
-                    alt={`Photo ${item.id}`}
-                  />
-                )}
+        locationData && locationData.length > 0 && items ? (
+          <Slider {...settings}>
+            {locationData.map((item, index) => (
+              <div key={item.id}>
+                <div className="h-48 sm:h-52 sm:h-50 md:h-full">
+                  {item && item.photos && (
+                    <img
+                      className="w-full h-full object-cover object-top"
+                      src={`${API_URL}/image/${item.photos}`}
+                      alt={`Photo ${item.id}`}
+                      onClick={() => handleViewPost(item)}
+                    />
+                  )}
+                </div>
+                <div className="w-full h-48 py-2 px-2 sm:p-1 md:p-0 mt-2 sm:mt-1 flex flex-col gap-2 sm:gap-0 items-center justify-between ">
+                  <div className="w-full h-2/5 flex items-center justify-between gap-2 ">
+                    <div className="h-full flex flex-col items-start justify-center ">
+                      <h3 className="text-gray-500 mb-1 font-semibold underline">Activity</h3>
+                      <h3 className="text-left ">{item.category}</h3>
+                    </div>
+
+                    <div className="h-full flex flex-col items-end justify-center">
+                      <h3 className="text-gray-500 font-semibold  mb-1 underline">Location</h3>
+                      <h3 className="flex flex-nowrap text-right ">
+                        {item.city},{item.state}
+                      </h3>
+                    </div>
+                  </div>
+
+                  <div className="w-full h-2/5 flex items-center justify-between gap-2 ">
+                    <div className="flex flex-col items-start justify-center">
+                      <h3 className="text-gray-500 mb-1 font-semibold underline">Total Time</h3>
+                      <h3 className=" ">{item.totalTime}</h3>
+                    </div>
+
+                    <div className=" flex flex-col items-end justify-center">
+                      <h3 className="text-gray-500 mb-1 font-semibold underline">Endorsed</h3>
+                      <h3 className="">{item.endorsementCounter >= 3 ? "YES" : "NO"}</h3>
+                    </div>
+                  </div>
+
+                  <div className="w-full h-2/5 flex items-center justify-between gap-2">
+                    <div className=" flex flex-col items-start justify-center">
+                      <h3 className="text-gray-500 mb-1 font-semibold underline">Approved</h3>
+                      <h3 className="">{item.approved ? "YES" : item.rejected ? "NO" : "Waiting..."}</h3>
+                    </div>
+
+                    <div className="flex flex-col items-end justify-center">
+                      <h3 className="text-gray-500 mb-1 font-semibold underline">Images</h3>
+                      <button onClick={() => handleViewPost(item)} className="text-blue-600 underline">View</button>
+                    </div>
+                  </div>
+                  {item && item.rejectionReason && (
+                    <div className="w-full  " >
+                      <h1 className="text-gray-500 mb-1 font-semibold underline">Comments from Approver</h1>
+                      <h1>{item.rejectionReason}</h1>
+                    </div>
+                  )}
+                </div>
               </div>
-              <div className="w-full h-48 py-2 px-2 sm:p-1 md:p-0 mt-2 sm:mt-1 flex flex-col gap-2 sm:gap-0 items-center justify-between ">
-                <div className="w-full h-2/5 flex items-center justify-between gap-2 ">
-                  <div className="h-full flex flex-col items-start justify-center ">
-                    <h3 className="text-gray-500 mb-1 font-semibold underline">Activity</h3>
-                    <h3 className="text-left ">{item.category}</h3>
-                  </div>
+            ))}
+          </Slider>
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <img
+              className="w-1/2 h-auto object-cover object-center"
+              src="images/nopost.svg"
+              alt="No posts available for endorsement"
+            />
+          </div>
+        )
+      )}
 
-                  <div className="h-full flex flex-col items-end justify-center">
-                    <h3 className="text-gray-500 font-semibold  mb-1 underline">Location</h3>
-                    <h3 className="flex flex-nowrap text-right ">
-                      {item.city},{item.state}
-                    </h3>
-                  </div>
-                </div>
-
-                <div className="w-full h-2/5 flex items-center justify-between gap-2 ">
-                  <div className="flex flex-col items-start justify-center">
-                    <h3 className="text-gray-500 mb-1 font-semibold underline">Total Time</h3>
-                    <h3 className=" ">{item.totalTime}</h3>
-                  </div>
-
-                  <div className=" flex flex-col items-end justify-center">
-                    <h3 className="text-gray-500 mb-1 font-semibold underline">Endorsed</h3>
-                    <h3 className="">{item.endorsementCounter >= 3 ? "YES" : "NO"}</h3>
-                  </div>
-                </div>
-
-                <div className="w-full h-2/5 flex items-center justify-between gap-2">
-                  <div className=" flex flex-col items-start justify-center">
-                    <h3 className="text-gray-500 mb-1 font-semibold underline">Approved</h3>
-                    <h3 className="">{item.approved == true ? "YES" : "NO"}</h3>
-                  </div>
-
-                  <div className="flex flex-col items-end justify-center">
-                    <h3 className="text-gray-500 mb-1 font-semibold underline">Images</h3>
-                    <button onClick={() => handleViewPost(item)} className="text-blue-600 underline">View</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          ))}
-        </Slider>
-      ) : (
-        <div className="w-full h-full flex items-center justify-center">
-          <img
-            className="w-1/2 h-auto object-cover object-center"
-            src="images/nopost.svg"
-            alt="No posts available for endorsement"
-          />
-        </div>
-      )
-    )}
-     
     </div>
   );
 };
