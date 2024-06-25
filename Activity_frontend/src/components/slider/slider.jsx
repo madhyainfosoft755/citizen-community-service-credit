@@ -76,7 +76,7 @@ const Slider1 = ({ items, isPopUpVisible, setIsPopUpVisible, setSelectedPost, se
   };
 
   return (
-    <div className="w-full h-full border-none outline-none">
+    <div className="w-full h-full flex flex-col justify-between border-none outline-none">
 
 
       {showSplashScreen ? (
@@ -85,7 +85,7 @@ const Slider1 = ({ items, isPopUpVisible, setIsPopUpVisible, setSelectedPost, se
         locationData && locationData.length > 0 && items ? (
           <Slider {...settings}>
             {locationData.map((item, index) => (
-              <div key={item.id}>
+              <div className="flex flex-col items-center justify-between" key={item.id}>
                 <div className="h-48 sm:h-52 sm:h-50 md:h-full">
                   {item && item.photos && (
                     <img
@@ -96,11 +96,11 @@ const Slider1 = ({ items, isPopUpVisible, setIsPopUpVisible, setSelectedPost, se
                     />
                   )}
                 </div>
-                <div className="w-full h-48 py-2 px-2 sm:p-1 md:p-0 mt-2 sm:mt-1 flex flex-col gap-2 sm:gap-0 items-center justify-between ">
+                <div className="w-full h-48 py-2 px-2 sm:p-1 md:p-0 mt-2 sm:mt-1 flex flex-col gap-2 sm:gap-0 items-center justify-between overflow-auto scroller">
                   <div className="w-full h-2/5 flex items-center justify-between gap-2 ">
                     <div className="h-full flex flex-col items-start justify-center ">
                       <h3 className="text-gray-500 mb-1 font-semibold underline">Activity</h3>
-                      <h3 className="text-left ">{item.category}</h3>
+                      <h3 className="text-left whitespace-nowrap">{item.category}</h3>
                     </div>
 
                     <div className="h-full flex flex-col items-end justify-center">
@@ -141,6 +141,7 @@ const Slider1 = ({ items, isPopUpVisible, setIsPopUpVisible, setSelectedPost, se
                     </div>
                   )}
                 </div>
+                <div className="absolute boxhov w-full h-32 bg-red-300">hi</div>
               </div>
             ))}
           </Slider>
@@ -154,6 +155,7 @@ const Slider1 = ({ items, isPopUpVisible, setIsPopUpVisible, setSelectedPost, se
           </div>
         )
       )}
+
 
     </div>
   );

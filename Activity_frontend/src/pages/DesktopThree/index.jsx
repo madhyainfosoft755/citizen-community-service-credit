@@ -15,6 +15,9 @@ import { differenceInHours, parse, isSameDay } from 'date-fns'; // Importing nec
 import PopupComponent from "components/popup";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { TimePicker } from "react-ios-time-picker"
+import "./style.css"
+
 
 const Createpost = () => {
   const dateInputRef = useRef(null); // Ref for the date input
@@ -26,16 +29,16 @@ const Createpost = () => {
   const notify = (e) => toast(e);
   const navigate = useNavigate();
   const [currentDate, setCurrentDate] = useState("");
-  const handleDateChange = (e) => {
-    setCurrentDate(e.target.value);
+  const handleDateChange = (value) => {
+    setCurrentDate(value);
   };
   const [categories, setCategories] = useState([]);
   // console.log("these are user categories" , categories)
   const [selectedCategories, setSelectedCategories] = useState([]);
   const { authenticated, setAuthenticated } = useAuth();
   const [userData, setUserData] = useState();
-  const [fromTime, setFromTime] = useState("");
-  const [toTime, setToTime] = useState("");
+  const [fromTime, setFromTime] = useState("00:00");
+  const [toTime, setToTime] = useState("00:00");
   const [maxToTime, setMaxToTime] = useState(""); // Added state for max to time
   const [totalTime, setTotalTime] = useState(""); // Added state for total time
   const [userName, setUserName] = useState(""); // Added state for user name
@@ -110,7 +113,7 @@ const Createpost = () => {
 
             // Check if count is less than 6 and add "Others" category
             if (filterCategories.length < 6) {
-              const othersCategory = { id: "others", name: "Others" };
+              const othersCategory = { id: "other", name: "Other" };
               setCategories(prevCategories => [...prevCategories, othersCategory]);
             }
           } else {
@@ -326,44 +329,44 @@ const Createpost = () => {
     return `${hours}:${minutes}`;
   };
 
-  const handleFromTimeChange = (e) => {
-    const fromTime = e.target.value;
-    setFromTime(fromTime);
+  // const handleFromTimeChange = (e) => {
+  //   const fromTime = e.target.value;
+  //   setFromTime(fromTime);
 
-    const fromTime24 = convertTo24HourFormat(fromTime);
-    const [hours, minutes] = fromTime24.split(':');
-    const fromTimeDate = new Date();
-    fromTimeDate.setHours(parseInt(hours));
-    fromTimeDate.setMinutes(parseInt(minutes));
-    fromTimeDate.setSeconds(0);
+  //   const fromTime24 = convertTo24HourFormat(fromTime);
+  //   const [hours, minutes] = fromTime24.split(':');
+  //   const fromTimeDate = new Date();
+  //   fromTimeDate.setHours(parseInt(hours));
+  //   fromTimeDate.setMinutes(parseInt(minutes));
+  //   fromTimeDate.setSeconds(0);
 
-    const maxToTimeDate = new Date(fromTimeDate.getTime() + 8 * 60 * 60 * 1000);
-    const maxHours = String(maxToTimeDate.getHours()).padStart(2, '0');
-    const maxMinutes = String(maxToTimeDate.getMinutes()).padStart(2, '0');
-    const maxToTime = `${maxHours}:${maxMinutes}`;
+  //   const maxToTimeDate = new Date(fromTimeDate.getTime() + 8 * 60 * 60 * 1000);
+  //   const maxHours = String(maxToTimeDate.getHours()).padStart(2, '0');
+  //   const maxMinutes = String(maxToTimeDate.getMinutes()).padStart(2, '0');
+  //   const maxToTime = `${maxHours}:${maxMinutes}`;
 
-    setMaxToTime(maxToTime);
-  };
+  //   setMaxToTime(maxToTime);
+  // };
 
-  const handleToTimeChange = (e) => {
-    const toTime = e.target.value;
-    const toTimeDate = parse(toTime, 'HH:mm', new Date());
-    const fromTimeDate = parse(fromTime, 'HH:mm', new Date());
+  // const handleToTimeChange = (e) => {
+  //   const toTime = e.target.value;
+  //   const toTimeDate = parse(toTime, 'HH:mm', new Date());
+  //   const fromTimeDate = parse(fromTime, 'HH:mm', new Date());
 
-    if (!isSameDay(toTimeDate, fromTimeDate)) {
-      toast.error('Time must be within the selected date');
-      return;
-    }
+  //   if (!isSameDay(toTimeDate, fromTimeDate)) {
+  //     toast.error('Time must be within the selected date');
+  //     return;
+  //   }
 
 
-    const timeDifference = differenceInHours(toTimeDate, fromTimeDate);
+  //   const timeDifference = differenceInHours(toTimeDate, fromTimeDate);
 
-    if (timeDifference <= 8 && timeDifference >= 0) {
-      setToTime(toTime);
-    } else {
-      toast.error('To time must be within 8 hours of the from time');
-    }
-  };
+  //   if (timeDifference <= 8 && timeDifference >= 0) {
+  //     setToTime(toTime);
+  //   } else {
+  //     toast.error('To time must be within 8 hours of the from time');
+  //   }
+  // };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -470,6 +473,45 @@ const Createpost = () => {
       setIsPopUpVisible(true);
     }
   };
+
+  const onChangeFromTime = (timeValue) => {
+    const fromTime = timeValue;
+    setFromTime(fromTime);
+
+    const fromTime24 = convertTo24HourFormat(fromTime);
+    const [hours, minutes] = fromTime24.split(':');
+    const fromTimeDate = new Date();
+    fromTimeDate.setHours(parseInt(hours));
+    fromTimeDate.setMinutes(parseInt(minutes));
+    fromTimeDate.setSeconds(0);
+
+    const maxToTimeDate = new Date(fromTimeDate.getTime() + 8 * 60 * 60 * 1000);
+    const maxHours = String(maxToTimeDate.getHours()).padStart(2, '0');
+    const maxMinutes = String(maxToTimeDate.getMinutes()).padStart(2, '0');
+    const maxToTime = `${maxHours}:${maxMinutes}`;
+
+    setMaxToTime(maxToTime);
+  }
+
+  const onChangeToTime = (timeValue) => {
+    const toTime = timeValue;
+    const toTimeDate = parse(toTime, 'HH:mm', new Date());
+    const fromTimeDate = parse(fromTime, 'HH:mm', new Date());
+
+    if (!isSameDay(toTimeDate, fromTimeDate)) {
+      toast.error('Time must be within the selected date');
+      return;
+    }
+
+
+    const timeDifference = differenceInHours(toTimeDate, fromTimeDate);
+
+    if (timeDifference <= 8 && timeDifference >= 0) {
+      setToTime(toTime);
+    } else {
+      toast.error('To time must be within 8 hours of the from time');
+    }
+  }
   return (
     <>
       {authenticated && (
@@ -604,8 +646,8 @@ const Createpost = () => {
                     </Button>
                   </div>
 
-                  <div className="relative w-1/2 h-full">
-                    <input
+                  <div className="relative w-1/2 h-full border-[1px] rounded-md bg-[#eff2ff] shadow flex items-center justify-center">
+                    {/* <input
                       type="date"
                       id="datepicker"
                       name="datepicker"
@@ -614,14 +656,15 @@ const Createpost = () => {
                       onClick={handleDateInputClick}
                       max={new Date().toISOString().split('T')[0]} // Restrict to today's date
                       className="w-full h-full px-3 py-2 bg-[#eff2ff] text-sm shadow-sm shadow-black-900/10 rounded-md border-[1px] border-gray-300 focus:outline-none focus:border-blue-500 appearance-none"
+                    /> */}
+                    <DatePicker
+                      selected={currentDate}
+                      onChange={handleDateChange}
+                      maxDate={new Date()} // Restrict to today's date
+                      // showYearDropdown
+                      dateFormat="dd/MM/yyyy"
+                      id="date"
                     />
-                    {showCalendar && (
-                      <div className="absolute top-full left-0 mt-1 z-10 bg-white border border-gray-300 shadow-lg rounded-md">
-                        {/* Calendar component */}
-                        {/* Replace this with your calendar component */}
-                        <div>Calendar Component</div>
-                      </div>
-                    )}
                     <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                       <span className={`absolute -top-5 left-0 text-sm ${currentDate ? 'text-gray-700' : 'text-gray-500'}`}>
                         Select Date
@@ -641,7 +684,7 @@ const Createpost = () => {
                     >
                       From
                     </label>
-                    <input
+                    {/* <input
                       type="time"
                       name="fromTime"
                       id="fromTime"
@@ -649,7 +692,9 @@ const Createpost = () => {
                       onClick={(e) => e.target.focus()}
                       onChange={handleFromTimeChange}
                       className="rounded-lg border-[1px] border-dashed border-[#546ef6] text-xs h-auto w-full "
-                    />{" "}
+                    />{" "} */}
+                    <TimePicker onChange={onChangeFromTime} value={fromTime} id="fromtime" />
+
                   </div>
 
                   <div className="relative flex flex-col items-start justify-center w-1/3 "
@@ -660,7 +705,7 @@ const Createpost = () => {
                     >
                       To
                     </label>
-                    <input
+                    {/* <input
                       type="time"
                       name="toTime"
                       id="toTime"
@@ -672,7 +717,9 @@ const Createpost = () => {
                       max={maxToTime}
                       onClick={(e) => e.target.focus()}
                       className="rounded-lg border-[1px] border-dashed border-[#546ef6] text-xs h-auto w-full "
-                    />
+                    /> */}
+                    <TimePicker onChange={onChangeToTime} value={toTime} id="fromtime" min={fromTime} />
+
                   </div>
                 </div>
                 <List className="flex items-center justify-center w-full gap-3 ">
@@ -684,22 +731,17 @@ const Createpost = () => {
                     </Text>
                     <div className="bg-gray-50_01 border border-dashed border-indigo-500 flex flex-col  items-center justify-end p-1 rounded-[5px] shadow-bs1 w-full">
                       <div className="flex flex-row gap-2.5 items-start justify-center mt-0.5 w-full sm:w-full">
-                        <Text
-                          className="text-[13px] text-indigo-A200"
-                          size="txtInterMedium13"
-                        >
-                          {" "}
-                          <input
-                            className="bg-gray-50_01  flex flex-col items-center justify-end p-1 rounded-[5px] shadow-bs1 w-full"
-                            name="file"
-                            type="file"
-                            id="photo"
-                            accept="image/*"
-                            multiple
-                            onChange={handleFileChange}
-                          />
-                          {/* Upload */}
-                        </Text>
+
+                        <input
+                          className="bg-gray-50_01  flex flex-col items-center justify-end p-1 rounded-[5px] shadow-bs1 w-full text-xs"
+                          name="file"
+                          type="file"
+                          id="photo"
+                          accept="image/*"
+                          multiple
+                          onChange={handleFileChange}
+                        />
+                        {/* Upload */}
                       </div>
                     </div>
                   </div>
@@ -711,26 +753,21 @@ const Createpost = () => {
                     </Text>
                     <div className="bg-gray-50_01 border border-dashed border-indigo-500 flex flex-col items-center justify-end p-1 rounded-[5px] shadow-bs1 w-full">
                       <div className="flex flex-row gap-2.5 items-start justify-center mt-0.5 w-full sm:w-full">
-                        <Text
-                          className="text-[13px] text-indigo-A200"
-                          size="txtInterMedium13"
-                        >
-                          <input
-                            className="bg-gray-50_01  flex flex-col items-center justify-end p-1 rounded-[5px] shadow-bs1 w-full"
-                            type="file"
-                            id="video"
-                            accept="video/*"
-                            multiple
-                            onChange={handleVideoChange}
-                          />
-                          {/* Upload */}
-                        </Text>
+
+                        <input
+                          className="bg-gray-50_01 flex flex-col items-center justify-end p-1 rounded-[5px] shadow-bs1 w-full text-xs"
+                          type="file"
+                          id="video"
+                          accept="video/*"
+                          multiple
+                          onChange={handleVideoChange}
+                        />
                       </div>
                     </div>
                   </div>
                 </List>
 
-                <div className="flex items-start justify-center gap-1">
+                <div className="flex items-start justify-center gap-1 ">
                   <input type="checkbox" checked={selfDeclarationChecked}
                     onChange={(e) => setSelfDeclarationChecked(e.target.checked)}
                     className="border-[2px] !border-gray-500 appearance-none checked:border-gray-500 h-4 w-4"

@@ -133,7 +133,7 @@ const ReviewPosts = () => {
             setIsPopupOpen(true);
         }
     };
-
+   
     const approveHoursRequest = async (postId) => {
         try {
             const token = localStorage.getItem("token");
@@ -212,7 +212,7 @@ const ReviewPosts = () => {
 
                     <div className=" w-full h-full flex flex-col gap-5 items-center justify-start p-3 overflow-auto scroller">
                         <div className="w-full h-5/6  rounded-lg  overflow-hidden border-2">
-                            <div className="w-full h-1/2 rounded-tr-lg rounded-tl-lg overflow-hidden">
+                            <div className="w-full h-1/2 rounded-tr-lg rounded-tl-lg overflow-hidden"  onClick={() => openPopup(userPosts[0])}>
                                 {userPosts.length > 0 ? (
                                     <img
                                         className="w-full h-full object-cover object-center"

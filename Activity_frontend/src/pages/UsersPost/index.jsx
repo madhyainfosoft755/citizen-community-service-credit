@@ -140,14 +140,6 @@ const UsersPosts = () => {
                     </div>
                     <div className="scroller flex flex-col gap-2  sm:gap-3 items-start justify-start p-2 sm:py-5 w-full h-full  overflow-y-auto">
                         {userPosts.length > 0 ? (
-                            <div className="w-full h-full flex items-center justify-center">
-                                <Img
-                                    className="w-1/2 h-auto object-cover object-center"
-                                    src="../images/nopost.svg"
-                                    alt="No posts available for endorsement"
-                                />
-                            </div>
-                        ):(
                             <table className="w-full ">
                                 <thead>
                                     <tr>
@@ -191,7 +183,15 @@ const UsersPosts = () => {
                                     ))}
                                 </tbody>
                             </table>
-                        )  }
+                        ) :(
+                            <div className="w-full h-full flex items-center justify-center">
+                                <Img
+                                    className="w-1/2 h-auto object-cover object-center"
+                                    src="../images/nopost.svg"
+                                    alt="No posts available for endorsement"
+                                />
+                            </div>
+                        ) }
                     </div>
 
                     
