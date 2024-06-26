@@ -21,7 +21,7 @@ const DesktopFourPage = () => {
   const [totalTime, setTotalTime] = useState(null); // Added state for total time
   const [userName, setUserName] = useState("")
 
-  console.log("userData", userData);
+  // console.log("userData", userData);
   useEffect(() => {
     const fetchUserPosts = async () => {
       try {
@@ -203,7 +203,7 @@ const DesktopFourPage = () => {
             <PopupComponent post={selectedPost} onClose={() => setIsPopUpVisible(false)} />
           )}
           <div className="w-4/12 h-full  flex items-start justify-center  sm:shadow-none  border-[1px]  rounded-lg sm:rounded-none  lg:h-full sm:w-full sm:h-full md:w-full md:h-full">
-            <div className="flex flex-col  items-center justify-start w-full h-full md:w-full sm:w-full">
+            <div className="flex flex-col  items-center justify-start w-full h-full md:w-full sm:w-full gap-1">
               <div className="bg-gray-50 flex flex-row items-center justify-between p-3 sm:px-5 w-full ">
                 <div className="flex flex-row gap-2 items-center justify-center ml-[5px]" onClick={openProfilePopup}>
                   {userData && (
@@ -253,16 +253,9 @@ const DesktopFourPage = () => {
                     />
                 </div>
 
-                <div className="flex flex-col -mt-3 gap-1 items-center justify-center w-5/6 sm:w-full">
-                  <Text
-                    className="text-sm sm:text-sm text-gray-900"
-                    size="txtInterSemiBold16Gray900"
-                  >
-                    Activities Waiting for Endorsement
-                  </Text>
-
-                  <Button
-                    className="rounded-full cursor-pointer font-semibold w-full   text-sm text-center"
+                <div className="flex  gap-1 items-center justify-center w-5/6 sm:w-full mb-1">
+                 <Button
+                    className="rounded-full cursor-pointer font-semibold w-4/6 whitespace-nowrap  text-xs text-center"
                     // shape="round"
                     color="indigo_A200"
                     onClick={direct1}
@@ -271,8 +264,7 @@ const DesktopFourPage = () => {
                   </Button>
 
                   <Button
-                    className="cursor-pointer rounded-full font-semibold w-full  mb-2 text-sm text-center"
-                    // shape="round"
+                    className="cursor-pointer rounded-full font-semibold w-4/6 text-xs text-center"
                     color="indigo_A200"
                     onClick={handleLogout} // Add logout functionality
                   >

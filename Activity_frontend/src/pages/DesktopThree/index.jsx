@@ -11,7 +11,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLocationDot } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
 import { CirclesWithBar } from 'react-loader-spinner'
-import { differenceInHours, parse, isSameDay } from 'date-fns'; // Importing necessary functions from date-fns
+import { differenceInHours, parse, isSameDay, format  } from 'date-fns'; // Importing necessary functions from date-fns
 import PopupComponent from "components/popup";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -28,7 +28,7 @@ const Createpost = () => {
   const [isLoading, setIsLoading] = useState(false); // State for loader
   const notify = (e) => toast(e);
   const navigate = useNavigate();
-  const [currentDate, setCurrentDate] = useState("");
+  const [currentDate, setCurrentDate] = useState(new Date());
   const handleDateChange = (value) => {
     setCurrentDate(value);
   };
@@ -37,8 +37,6 @@ const Createpost = () => {
   const [selectedCategories, setSelectedCategories] = useState([]);
   const { authenticated, setAuthenticated } = useAuth();
   const [userData, setUserData] = useState();
-  const [fromTime, setFromTime] = useState("00:00");
-  const [toTime, setToTime] = useState("00:00");
   const [maxToTime, setMaxToTime] = useState(""); // Added state for max to time
   const [totalTime, setTotalTime] = useState(""); // Added state for total time
   const [userName, setUserName] = useState(""); // Added state for user name
@@ -60,6 +58,16 @@ const Createpost = () => {
   });
   const [error, setError] = useState(null);
   const [description, setDescription] = useState("");
+
+
+   // Utility function to get the current time in HH:mm format
+   const getCurrentTime = () => {
+    const now = new Date();
+    return format(now, 'HH:mm');
+  };
+
+  const [fromTime, setFromTime] = useState(getCurrentTime());
+  const [toTime, setToTime] = useState(getCurrentTime());
 
 
   useEffect(() => {
@@ -583,8 +591,8 @@ const Createpost = () => {
 
               <div className="flex flex-col items-start justify-center gap-1 sm:gap-1 w-11/12  sm:w-11/12 mt-1  ">
                 <div className="bg-white-A700 w-full  text-center flex items-start justify-between gap-5">
-                  <h1 className="text-md font-semibold bg-[#546ef6] text-white-A700  py-1  w-1/2 h-full flex items-center justify-center rounded-3xl mb-2">+ Add New Activity</h1>
-                  <button type="button" onClick={Endorse} className={`text-black-900 shadow-bs3 shadow-gray-300 w-1/2 h-full font-semibold rounded-3xl hover:bg-[#546ef6] hover:text-white-A700`}>Endorse Activities</button>
+                  <h1 className="text-sm font-semibold bg-[#546ef6] text-white-A700  py-1  w-1/2 h-full flex items-center justify-center rounded-3xl mb-2">+ Add New Activity</h1>
+                  <button type="button" onClick={Endorse} className={`text-sm text-black-900 shadow-bs3 shadow-gray-300 w-1/2 h-full font-semibold rounded-3xl hover:bg-[#546ef6] hover:text-white-A700`}>Endorse Activities</button>
                 </div>
 
                 <div className="w-full flex items-center justify-between">
@@ -647,18 +655,8 @@ const Createpost = () => {
                   </div>
 
                   <div className="relative w-1/2 h-full border-[1px] rounded-md bg-[#eff2ff] shadow flex items-center justify-center">
-                    {/* <input
-                      type="date"
-                      id="datepicker"
-                      name="datepicker"
-                      value={currentDate}
-                      onChange={handleDateChange}
-                      onClick={handleDateInputClick}
-                      max={new Date().toISOString().split('T')[0]} // Restrict to today's date
-                      className="w-full h-full px-3 py-2 bg-[#eff2ff] text-sm shadow-sm shadow-black-900/10 rounded-md border-[1px] border-gray-300 focus:outline-none focus:border-blue-500 appearance-none"
-                    /> */}
                     <DatePicker
-                      selected={currentDate}
+                      selected={currentDate }
                       onChange={handleDateChange}
                       maxDate={new Date()} // Restrict to today's date
                       // showYearDropdown
@@ -770,16 +768,20 @@ const Createpost = () => {
                 <div className="flex items-start justify-center gap-1 ">
                   <input type="checkbox" checked={selfDeclarationChecked}
                     onChange={(e) => setSelfDeclarationChecked(e.target.checked)}
-                    className="border-[2px] !border-gray-500 appearance-none checked:border-gray-500 h-4 w-4"
+                    className="border-[1px] !border-gray-500 border-solid appearance-none checked:border-gray-500 h-4 w-4"
+                    // style={{border:"1px solid gray" }}
                   />
-                  <h1 className="text-xs italic"><span className="text-xs font-bold">Self Declaration:</span> "I hereby declare that this is a non paid voluntary activity that I have done on my own in the interest of general public and social interest and I have submitted true and authentic information only".</h1>
+                  <h1 className="text-xs italic leading-1"><span className="text-xs font-bold">Self Declaration:</span> "I hereby declare that this is a non paid voluntary activity that I have done on my own in the interest of general public and social interest and I have submitted true and authentic information only".</h1>
                 </div>
+                <div className="flex items-center justify-center w-full">
+
                 <Button
-                  className={`cursor-pointer font-semibold w-full mt-1 sm:mt-0 sm:p-2 mb-1 text-sm text-center rounded-3xl ${selfDeclarationChecked ? "bg-[#546ef6] text-yellow-400 " : "bg-gray-300 text-gray-500"}`}
+                  className={`cursor-pointer font-semibold w-1/2 mt-1 sm:mt-0 sm:p-2 mb-1 text-sm text-center rounded-3xl ${selfDeclarationChecked ? "bg-[#546ef6] text-white-A700 " : "bg-gray-300 text-gray-500"}`}
                   disabled={!selfDeclarationChecked}
                 >
                   SUBMIT
                 </Button>
+                </div>
 
               </div>
             </div>

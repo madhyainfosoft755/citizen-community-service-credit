@@ -910,6 +910,7 @@ const CreateActivity = async (req, res) => {
       { where: { id: userId } }
     );
 
+    console.log("what is the date", date)
     // Save to the database
     await Posts.create({
       category,

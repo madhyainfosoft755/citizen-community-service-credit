@@ -15,7 +15,8 @@ const PopupComponent = ({ post, onClose }) => {
     <div className="popup-container overflow-auto absolute top-0 left-0 z-50 w-screen h-screen pt-5 bg-black-900 bg-opacity-80 flex flex-col justify-start items-center sm:gap-3">
       {/* Close button */}
       <button
-        className="border-2 border-red-400 p-1 text-white-A700 rounded-xl  w-1/2 h-1/12 flex items-center justify-center sm:mt-2"
+      // style={{borderColor:"red"}}
+        className="border-2 border-solid border-red-500 p-1 text-white-A700 rounded-md  w-1/3 h-1/12 flex items-center justify-center sm:mt-2"
         onClick={onClose}
       >
         <FontAwesomeIcon icon={faClose} className="text-xl" />

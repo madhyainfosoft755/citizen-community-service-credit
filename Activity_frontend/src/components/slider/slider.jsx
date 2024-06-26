@@ -7,6 +7,8 @@ import "slick-carousel/slick/slick-theme.css";
 import "./slider.css";
 import PopupComponent from "components/popup";
 import SplashScreen from "components/Splash Screen/SplashScreen";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircleCheck } from "@fortawesome/free-solid-svg-icons";
 
 const Slider1 = ({ items, isPopUpVisible, setIsPopUpVisible, setSelectedPost, selectedPost }) => {
   const [locationData, setLocationData] = useState([]);
@@ -48,17 +50,7 @@ const Slider1 = ({ items, isPopUpVisible, setIsPopUpVisible, setSelectedPost, se
     fetchData();
   }, [items]);
 
-  // useEffect(() => {
-  //   // Hide the splash screen after 2 seconds
-  //   const timer = setTimeout(() => {
-  //     setShowSplashScreen(false);
-  //   }, 2000);
-
-  //   // Cleanup timer
-  //   return () => clearTimeout(timer);
-  // }, []);
-
-  const handleViewPost = (post) => {
+    const handleViewPost = (post) => {
     setSelectedPost(post);
     setIsPopUpVisible(true);
     console.log("kya hai post", post)
@@ -85,18 +77,18 @@ const Slider1 = ({ items, isPopUpVisible, setIsPopUpVisible, setSelectedPost, se
         locationData && locationData.length > 0 && items ? (
           <Slider {...settings}>
             {locationData.map((item, index) => (
-              <div className="flex flex-col items-center justify-between" key={item.id}>
-                <div className="h-48 sm:h-52 sm:h-50 md:h-full">
+              <div className="flex flex-col items-center justify-between gap-4" key={item.id}>
+                <div className="w-full h-[200px] sm:h-52 sm:h-50 md:h-full flex items-center justify-center bg-gray-50 overflow-hidden">
                   {item && item.photos && (
                     <img
-                      className="w-full h-full object-cover object-top"
+                      className="w-8/12 h-auto object-cover object-top"
                       src={`${API_URL}/image/${item.photos}`}
                       alt={`Photo ${item.id}`}
                       onClick={() => handleViewPost(item)}
                     />
                   )}
                 </div>
-                <div className="w-full h-48 py-2 px-2 sm:p-1 md:p-0 mt-2 sm:mt-1 flex flex-col gap-2 sm:gap-0 items-center justify-between overflow-auto scroller">
+                <div className="w-full h-48 py-2 px-2 sm:p-1 md:p-0 mt-2 sm:mt-1 flex flex-col gap-2 sm:gap-2 items-center justify-between overflow-auto scroller"   >
                   <div className="w-full h-2/5 flex items-center justify-between gap-2 ">
                     <div className="h-full flex flex-col items-start justify-center ">
                       <h3 className="text-gray-500 mb-1 font-semibold underline">Activity</h3>
@@ -110,6 +102,19 @@ const Slider1 = ({ items, isPopUpVisible, setIsPopUpVisible, setSelectedPost, se
                       </h3>
                     </div>
                   </div>
+                  <div className="w-full h-2/5 flex items-center justify-between gap-2 ">
+                    <div className="h-full flex flex-col items-start justify-center ">
+                      <h3 className="text-gray-500 mb-1 font-semibold underline">Date</h3>
+                      <h3 className="text-left whitespace-nowrap">{item.Date}</h3>
+                    </div>
+
+                    <div className="h-full flex flex-col items-end justify-center">
+                      <h3 className="text-gray-500 font-semibold  mb-1 underline">Start Time</h3>
+                      <h3 className="flex flex-nowrap text-right ">
+                        {item.fromTime}
+                      </h3>
+                    </div>
+                  </div>
 
                   <div className="w-full h-2/5 flex items-center justify-between gap-2 ">
                     <div className="flex flex-col items-start justify-center">
@@ -119,7 +124,16 @@ const Slider1 = ({ items, isPopUpVisible, setIsPopUpVisible, setSelectedPost, se
 
                     <div className=" flex flex-col items-end justify-center">
                       <h3 className="text-gray-500 mb-1 font-semibold underline">Endorsed</h3>
-                      <h3 className="">{item.endorsementCounter >= 3 ? "YES" : "NO"}</h3>
+                      <div className="flex items-center ">
+
+                      {[...Array(3)].map((_, i) => (
+                          <FontAwesomeIcon
+                            key={i}
+                            icon={faCircleCheck}
+                            className={`mx-1 ${item.endorsementCounter > i ? 'text-green-500 -ml-1' : 'text-red-500 -ml-1'}`}
+                          />
+                        ))}
+                      </div>
                     </div>
                   </div>
 
@@ -135,13 +149,12 @@ const Slider1 = ({ items, isPopUpVisible, setIsPopUpVisible, setSelectedPost, se
                     </div>
                   </div>
                   {item && item.rejectionReason && (
-                    <div className="w-full  " >
+                    <div className="w-full  h-1/6" >
                       <h1 className="text-gray-500 mb-1 font-semibold underline">Comments from Approver</h1>
                       <h1>{item.rejectionReason}</h1>
                     </div>
                   )}
                 </div>
-                <div className="absolute boxhov w-full h-32 bg-red-300">hi</div>
               </div>
             ))}
           </Slider>
