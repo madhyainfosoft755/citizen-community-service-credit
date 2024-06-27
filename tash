@@ -1,0 +1,41 @@
+[33m1e6357b[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mvaibhav[m[33m, [m[1;31morigin/vaibhav[m[33m)[m HEAD@{0}: reset: moving to HEAD
+[33m1e6357b[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mvaibhav[m[33m, [m[1;31morigin/vaibhav[m[33m)[m refs/heads/vaibhav@{0}: pull: Fast-forward
+[33m1e6357b[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mvaibhav[m[33m, [m[1;31morigin/vaibhav[m[33m)[m refs/remotes/origin/vaibhav@{0}: pull: fast-forward
+[33m1e6357b[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mvaibhav[m[33m, [m[1;31morigin/vaibhav[m[33m)[m HEAD@{1}: pull: Fast-forward
+[33m408773d[m refs/remotes/origin/vaibhav@{1}: update by push
+[33m408773d[m refs/heads/vaibhav@{1}: commit: updated the month controller, updated the user post page by adding date to it
+[33m408773d[m HEAD@{2}: commit: updated the month controller, updated the user post page by adding date to it
+[33m87534f4[m refs/remotes/origin/vaibhav@{2}: update by push
+[33m87534f4[m refs/heads/vaibhav@{2}: commit: updated the getPostsByUser controller, updated the admin pannel, created a new page to show the post of a particular
+[33m87534f4[m HEAD@{3}: commit: updated the getPostsByUser controller, updated the admin pannel, created a new page to show the post of a particular
+[33m701c6ed[m refs/remotes/origin/vaibhav@{3}: update by push
+[33m701c6ed[m refs/heads/vaibhav@{3}: commit: handeled errors on the admin pannel
+[33m701c6ed[m HEAD@{4}: commit: handeled errors on the admin pannel
+[33m9a0f894[m refs/remotes/origin/vaibhav@{4}: update by push
+[33m9a0f894[m refs/heads/vaibhav@{4}: commit: handeled errors on manage approver page
+[33m9a0f894[m HEAD@{5}: commit: handeled errors on manage approver page
+[33m266ec78[m refs/remotes/origin/vaibhav@{5}: update by push
+[33m266ec78[m refs/heads/vaibhav@{5}: commit: minor change in manage approver page
+[33m266ec78[m HEAD@{6}: commit: minor change in manage approver page
+[33m8c0a34a[m refs/remotes/origin/vaibhav@{6}: update by push
+[33m8c0a34a[m refs/heads/vaibhav@{6}: commit: added a function that logs out the user as soon as they land on the login page and corrected the manage category errors
+[33m8c0a34a[m HEAD@{7}: commit: added a function that logs out the user as soon as they land on the login page and corrected the manage category errors
+[33m2122103[m refs/remotes/origin/vaibhav@{7}: update by push
+[33m2122103[m refs/heads/vaibhav@{7}: commit: corrected the list of categories on endorse page, added check for closing the popup on manage approvers page, did minor changes on the generate report page
+[33m2122103[m HEAD@{8}: commit: corrected the list of categories on endorse page, added check for closing the popup on manage approvers page, did minor changes on the generate report page
+[33mb9e1b41[m refs/remotes/origin/vaibhav@{8}: update by push
+[33mb9e1b41[m refs/heads/vaibhav@{8}: commit: completely updated the generate report page frontend and also updated the backend controllers including the routes
+[33mb9e1b41[m HEAD@{9}: commit: completely updated the generate report page frontend and also updated the backend controllers including the routes
+[33mc2b785f[m refs/heads/vaibhav@{9}: pull: Fast-forward
+[33mc2b785f[m HEAD@{10}: pull: Fast-forward
+[33mda9d8db[m[33m ([m[1;35mrefs/stash[m[33m)[m refs/stash@{0}: WIP on vaibhav: a2bae39 last day of May
+[33ma2bae39[m HEAD@{11}: reset: moving to HEAD
+[33mc2b785f[m refs/remotes/origin/vaibhav@{9}: pull: fast-forward
+[33ma2bae39[m refs/remotes/origin/vaibhav@{10}: update by push
+[33ma2bae39[m refs/heads/vaibhav@{10}: commit: last day of May
+[33ma2bae39[m HEAD@{12}: commit: last day of May
+[33mec09492[m refs/heads/vaibhav@{11}: branch: Created from refs/remotes/origin/vaibhav
+[33mec09492[m HEAD@{13}: checkout: moving from main to vaibhav
+[33mb98c6ed[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m refs/heads/main@{0}: clone: from https://github.com/madhyainfosoft755/citizen-community-service-credit.git
+[33mb98c6ed[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m refs/remotes/origin/HEAD@{0}: clone: from https://github.com/madhyainfosoft755/citizen-community-service-credit.git
+[33mb98c6ed[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m HEAD@{14}: clone: from https://github.com/madhyainfosoft755/citizen-community-service-credit.git

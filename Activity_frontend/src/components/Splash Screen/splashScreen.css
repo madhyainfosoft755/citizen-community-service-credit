@@ -1,0 +1,25 @@
+.splash-screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.5s ease;
+  }
+  
+  .splash-screen.shrink {
+    transform: scale(0);
+    opacity: 0;
+  }
+  
+  .splash-message {
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+  }
+  
