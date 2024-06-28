@@ -12,7 +12,7 @@ const PopupComponent = ({ post, onClose }) => {
 
 
   return (
-    <div className="popup-container overflow-auto absolute top-0 left-0 z-50 w-screen h-screen pt-5 bg-black-900 bg-opacity-80 flex flex-col justify-start items-center sm:gap-3">
+    <div className="popup-container overflow-auto absolute top-0 left-0 z-50 w-screen h-screen pt-5 bg-white-A700/80 flex flex-col justify-start items-center sm:gap-3">
       {/* Close button */}
       <button
       // style={{borderColor:"red"}}

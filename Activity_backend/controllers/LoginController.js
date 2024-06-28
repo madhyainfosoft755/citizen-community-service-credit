@@ -26,6 +26,7 @@ dotenv.config();
 const { validationResult } = require('express-validator');
 const fs = require('fs');
 const path = require('path');
+const { format } = require('date-fns');
 
 
 
@@ -815,10 +816,10 @@ const CreateActivity = async (req, res) => {
     const userId = getUserIdFromToken(req);
     // console.log("YE HAI USER KI ID", userId)
 
-    if(userId === null || userId === undefined){
+    if (userId === null || userId === undefined) {
       console.log("no user id found");
       logger.error("userid not found while creating activity", errors)
-      return ;
+      return;
     }
 
     const {
@@ -830,9 +831,13 @@ const CreateActivity = async (req, res) => {
       longitude,
     } = req.body;
 
+    // Format the date to yyyy-mm-dd format
+    const formattedDate = format(new Date(date), 'yyyy-MM-dd');
 
 
-    console.log("req data", req.body);
+
+
+    console.log("req data mai date kya aa rhi hai ", formattedDate);
     // Check if files were uploaded
     const photos =
       req.files && req.files.photo
@@ -916,17 +921,17 @@ const CreateActivity = async (req, res) => {
       category,
       photos,
       videos,
-      Date: date,
+      Date: formattedDate,
       totalTime,
       latitude,
       longitude,
+      fromTime,
       // location: JSON.stringify({ latitude, longitude }), // Store as JSON string in the database
       UserId: userId,
     });
 
     res.status(201).json({ message: "Activity created successfully" });
   } catch (error) {
-    console.log("****************4")
 
     logger.error("here is the error", error);
     console.error("Error creating activity:", error);
@@ -1451,7 +1456,7 @@ const pendingApproval = async (req, res) => {
       where: {
         endorsementCounter: 3,
         approved: false,
-        rejected:false
+        rejected: false
       },
       include: [
         {
@@ -1860,7 +1865,7 @@ const getPostsByUser = async (req, res) => {
 
 const reviewpostforuser = async (req, res) => {
   try {
-    const {userId, postId} = req.params;
+    const { userId, postId } = req.params;
 
     // Validate user ID
     if (!userId || !postId) {

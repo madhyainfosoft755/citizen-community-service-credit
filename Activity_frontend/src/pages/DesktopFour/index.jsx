@@ -67,12 +67,12 @@ const DesktopFourPage = () => {
             method: "POST",
             headers: { Authorization: `Bearer ${token}` },
           });
-        
+
           const data = await response.json();
           if (response.ok) {
             setTotalTime(data.totalTimeSum)
           }
-        } 
+        }
       }
       catch (error) {
         console.error("Error fetching user total time", error);
@@ -202,8 +202,8 @@ const DesktopFourPage = () => {
           {isPopUpVisible && (
             <PopupComponent post={selectedPost} onClose={() => setIsPopUpVisible(false)} />
           )}
-          <div className="w-4/12 h-full  flex items-start justify-center  sm:shadow-none  border-[1px]  rounded-lg sm:rounded-none  lg:h-full sm:w-full sm:h-full md:w-full md:h-full">
-            <div className="flex flex-col  items-center justify-start w-full h-full md:w-full sm:w-full gap-1">
+          <div className="w-4/12 h-full  flex items-start justify-center  sm:shadow-none  border-[1px]  rounded-lg sm:rounded-none  lg:h-full sm:w-full sm:h-full md:w-full md:h-full overflow-hidden scroller">
+            <div className="flex flex-col  items-center justify-start w-full h-full md:w-full sm:w-full">
               <div className="bg-gray-50 flex flex-row items-center justify-between p-3 sm:px-5 w-full ">
                 <div className="flex flex-row gap-2 items-center justify-center ml-[5px]" onClick={openProfilePopup}>
                   {userData && (
@@ -237,41 +237,43 @@ const DesktopFourPage = () => {
                   {carouselTexts[textIndex]}
                 </Button>
               </div>
-              <Text
-                className=" text-base text-gray-900"
-                size="txtInterSemiBold16Gray900"
-              >
-                My Activities
-              </Text>
+              <div className="w-full h-full flex items-center justify-start flex-col overflow-hidden">
 
-              <div className="flex sm:flex-col flex-col gap-3.5 items-center justify-between w-5/6 sm:w-11/12 h-full sm:h-full  p-2 ">
-                <div className=" w-full h-full sm:w-full sm:h-full rounded-xl relative   border-[1px] border-gray overflow-hidden">
-                  <Slider1 className="w-full h-full " items={userPosts} isPopUpVisible={isPopUpVisible}
-                    setIsPopUpVisible={setIsPopUpVisible}
-                    setSelectedPost={setSelectedPost} 
-                    selectedPost={selectedPost}
+                <Text
+                  className=" text-base font-semibold text-gray-900"
+                >
+                  My Activities
+                </Text>
+
+                <div className="flex sm:flex-col flex-col gap-1 items-center justify-between w-5/6 h-full sm:w-11/12  sm:h-full  p-2 overflow-hidden">
+                  <div className=" w-full h-5/6 sm:w-full sm:h-5/6 rounded-xl border-[1px] border-gray overflow-hidden scroller">
+                    <Slider1 items={userPosts} isPopUpVisible={isPopUpVisible}
+                      setIsPopUpVisible={setIsPopUpVisible}
+                      setSelectedPost={setSelectedPost}
+                      selectedPost={selectedPost}
                     />
+                  </div>
+
+                  <div className="flex  gap-1 items-center justify-center w-5/6 h-1/6  sm:w-full mb-1">
+                    <Button
+                      className="rounded-full cursor-pointer font-semibold w-4/6 whitespace-nowrap  text-xs text-center"
+                      // shape="round"
+                      color="indigo_A200"
+                      onClick={direct1}
+                    >
+                      ENDORSE ACTIVITY
+                    </Button>
+
+                    <Button
+                      className="cursor-pointer rounded-full font-semibold w-4/6 text-xs text-center"
+                      color="indigo_A200"
+                      onClick={handleLogout} // Add logout functionality
+                    >
+                      LOGOUT
+                    </Button>
+                  </div>
+
                 </div>
-
-                <div className="flex  gap-1 items-center justify-center w-5/6 sm:w-full mb-1">
-                 <Button
-                    className="rounded-full cursor-pointer font-semibold w-4/6 whitespace-nowrap  text-xs text-center"
-                    // shape="round"
-                    color="indigo_A200"
-                    onClick={direct1}
-                  >
-                    ENDORSE ACTIVITY
-                  </Button>
-
-                  <Button
-                    className="cursor-pointer rounded-full font-semibold w-4/6 text-xs text-center"
-                    color="indigo_A200"
-                    onClick={handleLogout} // Add logout functionality
-                  >
-                    LOGOUT
-                  </Button>
-                </div>
-
               </div>
             </div>
           </div>

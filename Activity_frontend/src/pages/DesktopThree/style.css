@@ -1,10 +1,13 @@
 #fromtime{
     width: 100%;
-
+    font-size: small;
+}
+#totime{
+    width: 100%;
+    font-size: small;
 }
 
 #date{
     text-align: center;
     font-size: small;
-    font-weight: 600;
 }

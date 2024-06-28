@@ -11,7 +11,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLocationDot } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
 import { CirclesWithBar } from 'react-loader-spinner'
-import { differenceInHours, parse, isSameDay, format  } from 'date-fns'; // Importing necessary functions from date-fns
+import { differenceInHours, parse, isSameDay, format } from 'date-fns'; // Importing necessary functions from date-fns
 import PopupComponent from "components/popup";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -60,8 +60,8 @@ const Createpost = () => {
   const [description, setDescription] = useState("");
 
 
-   // Utility function to get the current time in HH:mm format
-   const getCurrentTime = () => {
+  // Utility function to get the current time in HH:mm format
+  const getCurrentTime = () => {
     const now = new Date();
     return format(now, 'HH:mm');
   };
@@ -337,45 +337,8 @@ const Createpost = () => {
     return `${hours}:${minutes}`;
   };
 
-  // const handleFromTimeChange = (e) => {
-  //   const fromTime = e.target.value;
-  //   setFromTime(fromTime);
-
-  //   const fromTime24 = convertTo24HourFormat(fromTime);
-  //   const [hours, minutes] = fromTime24.split(':');
-  //   const fromTimeDate = new Date();
-  //   fromTimeDate.setHours(parseInt(hours));
-  //   fromTimeDate.setMinutes(parseInt(minutes));
-  //   fromTimeDate.setSeconds(0);
-
-  //   const maxToTimeDate = new Date(fromTimeDate.getTime() + 8 * 60 * 60 * 1000);
-  //   const maxHours = String(maxToTimeDate.getHours()).padStart(2, '0');
-  //   const maxMinutes = String(maxToTimeDate.getMinutes()).padStart(2, '0');
-  //   const maxToTime = `${maxHours}:${maxMinutes}`;
-
-  //   setMaxToTime(maxToTime);
-  // };
-
-  // const handleToTimeChange = (e) => {
-  //   const toTime = e.target.value;
-  //   const toTimeDate = parse(toTime, 'HH:mm', new Date());
-  //   const fromTimeDate = parse(fromTime, 'HH:mm', new Date());
-
-  //   if (!isSameDay(toTimeDate, fromTimeDate)) {
-  //     toast.error('Time must be within the selected date');
-  //     return;
-  //   }
-
-
-  //   const timeDifference = differenceInHours(toTimeDate, fromTimeDate);
-
-  //   if (timeDifference <= 8 && timeDifference >= 0) {
-  //     setToTime(toTime);
-  //   } else {
-  //     toast.error('To time must be within 8 hours of the from time');
-  //   }
-  // };
-
+  console.log("what is the description", description)
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -392,6 +355,7 @@ const Createpost = () => {
     // Append latitude and longitude to formData
     formsDATA.append("latitude", formsData.latitude);
     formsDATA.append("longitude", formsData.longitude);
+    formsDATA.append("description", description);
 
     // console.log(formsDATA.get("name"));
     // console.log("formData", formsDATA);
@@ -568,20 +532,14 @@ const Createpost = () => {
                         className="text-center text-gray-900 uppercase"
                         size="txtInterSemiBold16Gray900"
                       >
-                        {/* {userData && userData.userData.name} */}
                         {Name}
                       </Text>
-
-                      {/* <Text className="text-center  text-gray-900 uppercase text-sm">
-                        ID: {userData && userData.userData.id}
-                      </Text> */}
                     </div>
                   </div>
                 </div>
                 <Button
                   type="button"
                   className="cursor-pointer font-semibold rounded-3xl w-5/12"
-                  // shape="round"
                   color="indigo_A200"
                   onClick={direct}
                 >
@@ -633,6 +591,7 @@ const Createpost = () => {
                   <small className="font-bold inline">Description:</small>
                   <input
                     type="text"
+                    name="description"
                     placeholder="Add description for the selected category"
                     className="w-full h-8 border-none text-xs text-center"
                     value={description}
@@ -656,7 +615,7 @@ const Createpost = () => {
 
                   <div className="relative w-1/2 h-full border-[1px] rounded-md bg-[#eff2ff] shadow flex items-center justify-center">
                     <DatePicker
-                      selected={currentDate }
+                      selected={currentDate}
                       onChange={handleDateChange}
                       maxDate={new Date()} // Restrict to today's date
                       // showYearDropdown
@@ -671,7 +630,7 @@ const Createpost = () => {
                   </div>
                 </div>
                 <div className="  flex items-center justify-between  gap-2 w-full ">
-                  <h4 className="text-base font-semibold w-fit h-full flex items-center justify-start ">
+                  <h4 className="text-sm font-semibold w-fit h-full flex items-center justify-start ">
                     Add Time:
                   </h4>
 
@@ -703,21 +662,7 @@ const Createpost = () => {
                     >
                       To
                     </label>
-                    {/* <input
-                      type="time"
-                      name="toTime"
-                      id="toTime"
-                      value={toTime}
-                      placeholder="To time"
-                      // onClick={(e) => e.target.focus()} // Trigger focus when clicked
-                      onChange={handleToTimeChange}
-                      min={fromTime}
-                      max={maxToTime}
-                      onClick={(e) => e.target.focus()}
-                      className="rounded-lg border-[1px] border-dashed border-[#546ef6] text-xs h-auto w-full "
-                    /> */}
-                    <TimePicker onChange={onChangeToTime} value={toTime} id="fromtime" min={fromTime} />
-
+                    <TimePicker name="toTime" onChange={onChangeToTime} value={toTime} id="totime" min={fromTime} />
                   </div>
                 </div>
                 <List className="flex items-center justify-center w-full gap-3 ">
@@ -769,18 +714,18 @@ const Createpost = () => {
                   <input type="checkbox" checked={selfDeclarationChecked}
                     onChange={(e) => setSelfDeclarationChecked(e.target.checked)}
                     className="border-[1px] !border-gray-500 border-solid appearance-none checked:border-gray-500 h-4 w-4"
-                    // style={{border:"1px solid gray" }}
+                  // style={{border:"1px solid gray" }}
                   />
                   <h1 className="text-xs italic leading-1"><span className="text-xs font-bold">Self Declaration:</span> "I hereby declare that this is a non paid voluntary activity that I have done on my own in the interest of general public and social interest and I have submitted true and authentic information only".</h1>
                 </div>
                 <div className="flex items-center justify-center w-full">
 
-                <Button
-                  className={`cursor-pointer font-semibold w-1/2 mt-1 sm:mt-0 sm:p-2 mb-1 text-sm text-center rounded-3xl ${selfDeclarationChecked ? "bg-[#546ef6] text-white-A700 " : "bg-gray-300 text-gray-500"}`}
-                  disabled={!selfDeclarationChecked}
-                >
-                  SUBMIT
-                </Button>
+                  <Button
+                    className={`cursor-pointer font-semibold w-1/2 mt-1 sm:mt-0 sm:p-2 mb-1 text-sm text-center rounded-3xl ${selfDeclarationChecked ? "bg-[#546ef6] text-white-A700 " : "bg-gray-300 text-gray-500"}`}
+                    disabled={!selfDeclarationChecked}
+                  >
+                    SUBMIT
+                  </Button>
                 </div>
 
               </div>
