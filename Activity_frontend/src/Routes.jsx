@@ -23,6 +23,8 @@ const DesktopTen = React.lazy(()=>import("pages/DekstopTen"))
 const ManageOrganization= React.lazy(()=>import("pages/ManageOrganization"))
 const UsersPosts = React.lazy(()=>import("pages/UsersPost"))
 const ReviewActivity = React.lazy(()=>import("pages/ReviewActivity"))
+const ProfilePage = React.lazy(()=>import("pages/ProfilePage"))
+const TokenRetrival = React.lazy(()=>import("pages/TokenRetriver"))
 
 const ProjectRoutes = () => { 
   // const { authenticated, setAuthenticated } = useAuth();
@@ -80,6 +82,8 @@ const ProjectRoutes = () => {
       <Router>
         <Routes>
           <Route path="/" element={<DesktopOne />} />
+          <Route path="/token" element={< TokenRetrival/>} />
+          <Route path="/profile" element={<ProfilePage/>} />
           <Route path="/login" element={<DesktopOne />} />
           <Route path="/register" element={<DesktopTwo />} />
           <Route path="/create" element={<DesktopThree />} />

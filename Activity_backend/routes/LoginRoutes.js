@@ -46,12 +46,14 @@ const {
   postsForDateRange,
   postsForCategory,
   getPostsByUser,
-  reviewpostforuser
+  reviewpostforuser,
+  LinkedInLogin
 
 } = require("../controllers/LoginController");
 const { upload } = require("../utils/util");
 // Express route 
 router.get("/output", output);  
+router.post("/LinkedInLogin",LinkedInLogin)
 router.get('/getPostsByUser/:userId', getPostsByUser);
 router.get('/reviewpostforuser/:userId/:postId', reviewpostforuser);
 router.get("/getUsers",getUsers)

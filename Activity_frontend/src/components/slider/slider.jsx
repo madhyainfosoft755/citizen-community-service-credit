@@ -26,6 +26,8 @@ const Slider1 = ({ items, isPopUpVisible, setIsPopUpVisible, setSelectedPost, se
             // console.log("ye hai location ka data",response)
 
             if (response.data && response.data.results.length > 0) {
+
+              console.log("what is the response data", response)
               const { address_components } = response.data.results[0];
               const cityData = address_components.find(component =>
                 component.types.includes("administrative_area_level_3")
@@ -67,8 +69,16 @@ const Slider1 = ({ items, isPopUpVisible, setIsPopUpVisible, setSelectedPost, se
     rtl: true,
   };
 
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    return `${day}-${month}-${year}`;
+  };
+
   return (
-    <div className="w-full h-full flex flex-col justify-between border-none outline-none overflow-clip">
+    <div className="relative w-full h-full flex flex-col justify-between border-none outline-none overflow-hidden">
 
 
       {showSplashScreen ? (
@@ -105,7 +115,7 @@ const Slider1 = ({ items, isPopUpVisible, setIsPopUpVisible, setSelectedPost, se
                   <div className="w-full h-2/5 flex items-center justify-between gap-2 ">
                     <div className="h-full flex flex-col items-start justify-center ">
                       <h3 className="text-gray-500 mb-1 font-semibold underline">Date</h3>
-                      <h3 className="text-left whitespace-nowrap">{item.Date}</h3>
+                      <h3 className="text-left whitespace-nowrap">{formatDate(item.Date)}</h3>
                     </div>
 
                     <div className="h-full flex flex-col items-end justify-center">

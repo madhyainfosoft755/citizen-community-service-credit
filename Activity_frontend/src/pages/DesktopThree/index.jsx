@@ -338,7 +338,7 @@ const Createpost = () => {
   };
 
   console.log("what is the description", description)
-  
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -433,9 +433,6 @@ const Createpost = () => {
 
     return () => clearInterval(interval);
   }, []);
-  // 
-
-
 
   // console.log("ye hai user data", userData)
 
@@ -496,7 +493,7 @@ const Createpost = () => {
             <PopupComponent post={selectedPost} onClose={() => setIsPopUpVisible(false)} />
           )}
 
-          <div className=" scroller relative w-4/12 h-full sm:w-full sm:h-full md:w-3/4 md:h-full  lg:w-3/4 lg:h-full  flex flex-col items-center  justify-center border-[1px]  rounded-lg sm:rounded-none overflow-auto">
+          <div className=" scroller relative w-4/12 h-full sm:w-full sm:h-full md:w-3/4 md:h-full  lg:w-3/4 lg:h-full flex flex-col items-center justify-start gap-2 border-[1px]  rounded-lg sm:rounded-none overflow-auto">
             {isLoading && (
               <div className="w-full h-full bg-black-900/30 absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-50">
                 <CirclesWithBar
@@ -514,40 +511,39 @@ const Createpost = () => {
               </div>
             )}
 
-            <div className=" flex flex-col gap-1 items-center justify-start w-full h-full ">
+            <div className="bg-gray-50 flex flex-row items-center justify-between p-3 sm:p-5  sm:px-5 w-full ">
 
-              <div className="bg-gray-50 flex flex-row items-center justify-between p-3 sm:p-5  sm:px-5 w-full ">
-
-                <div className="flex flex-row gap-4 items-center justify-center ml-[1px]" onClick={openProfilePopup}>
-                  {userData && (
-                    <Img
-                      className=" sm:w-[58px] sm:h-[52px] md:w-[58px] md:h-[52px] lg:w-[58px] lg:h-[58px]  w-14 h-14 rounded-full object-cover object-top  "
-                      src={`${API_URL}/image/${userData.userData.photo}`}
-                      alt="image"
-                    />
-                  )}
-                  <div className="flex flex-col items-center justify-center w-3/5">
-                    <div className="flex flex-col items-start justify-center w-full">
-                      <Text
-                        className="text-center text-gray-900 uppercase"
-                        size="txtInterSemiBold16Gray900"
-                      >
-                        {Name}
-                      </Text>
-                    </div>
+              <div className="flex flex-row gap-4 items-center justify-center ml-[1px]" onClick={openProfilePopup}>
+                {userData && (
+                  <Img
+                    className=" sm:w-[58px] sm:h-[52px] md:w-[58px] md:h-[52px] lg:w-[58px] lg:h-[58px]  w-14 h-14 rounded-full object-cover object-top  "
+                    src={`${API_URL}/image/${userData.userData.photo}`}
+                    alt="image"
+                  />
+                )}
+                <div className="flex flex-col items-center justify-center w-3/5">
+                  <div className="flex flex-col items-start justify-center w-full">
+                    <Text
+                      className="text-center text-gray-900 uppercase"
+                      size="txtInterSemiBold16Gray900"
+                    >
+                      {Name}
+                    </Text>
                   </div>
                 </div>
-                <Button
-                  type="button"
-                  className="cursor-pointer font-semibold rounded-3xl w-5/12"
-                  color="indigo_A200"
-                  onClick={direct}
-                >
-                  {carouselTexts[textIndex]}
-                </Button>
               </div>
+              <Button
+                type="button"
+                className="cursor-pointer font-semibold rounded-3xl w-5/12"
+                color="indigo_A200"
+                onClick={direct}
+              >
+                {carouselTexts[textIndex]}
+              </Button>
+            </div>
 
-              <div className="flex flex-col items-start justify-center gap-1 sm:gap-1 w-11/12  sm:w-11/12 mt-1  ">
+            <div className=" flex flex-col gap-3  items-center justify-start w-full h-full overflow-auto scroller">
+              <div className="flex flex-col items-start justify-center gap-4 sm:gap-1 w-11/12  sm:w-11/12 mt-1  ">
                 <div className="bg-white-A700 w-full  text-center flex items-start justify-between gap-5">
                   <h1 className="text-sm font-semibold bg-[#546ef6] text-white-A700  py-1  w-1/2 h-full flex items-center justify-center rounded-3xl mb-2">+ Add New Activity</h1>
                   <button type="button" onClick={Endorse} className={`text-sm text-black-900 shadow-bs3 shadow-gray-300 w-1/2 h-full font-semibold rounded-3xl hover:bg-[#546ef6] hover:text-white-A700`}>Endorse Activities</button>
@@ -555,13 +551,12 @@ const Createpost = () => {
 
                 <div className="w-full flex items-center justify-between">
                   <Text
-                    className="text-base text-gray-900"
-                    size="txtInterSemiBold16Gray900"
+                    className="text-sm text-gray-900 font-semibold" 
                   >
                     Select Category
                   </Text>
                   {userData && (
-                    <h4 className="text-sm">Organization: <small>{userData.userData.organization ? userData.userData.organization : 'NA'}</small></h4>
+                    <h4 className="text-sm font-semibold">Organization: <small className="font-thin">{userData.userData.organization ? userData.userData.organization : 'NA'}</small></h4>
                   )}
                 </div>
                 <div className="flex flex-wrap items-center justify-between w-full">

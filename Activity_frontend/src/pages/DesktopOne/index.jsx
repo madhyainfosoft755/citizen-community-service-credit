@@ -260,14 +260,14 @@ const DesktopOnePage = () => {
     // console.log("ye rha google ka response", response);
     try {
       const { access_token } = response;
-      console.log("kya humko token mila", access_token)
+      // console.log("kya humko token mila", access_token)
       // await getUserProfile(access_token)
 
       if (!access_token) {
-        console.log("bhaiya token nhi mil rha hai ");
+        console.log("Did not get the token. Please try again");
       }
       const formData = new FormData();
-      console.log("aur ye hai formdata", formData)
+      // console.log("aur ye hai formdata", formData)
       formData.append("token", access_token);
 
       const loginResponse = await fetch(`${API_URL}/activity/GoogleLogin`, {
@@ -279,7 +279,7 @@ const DesktopOnePage = () => {
       });
 
       const data = await loginResponse.json();
-      console.log("google data response", data);
+      // console.log("google data response", data);
 
       if (!loginResponse) {
         setError("Google login failed.");
@@ -329,9 +329,14 @@ const DesktopOnePage = () => {
     }
   };
 
+  const Linklogin = ()=>{
+      window.location.href = `https://www.linkedin.com/uas/oauth2/authorization?response_type=code&client_id=${
+        process.env.REACT_APP_LINKEDIN_CLIENT_ID
+      }&redirect_uri=${process.env.REACT_APP_LINKEDIN_REDIRECT_URL}&scope=${process.env.REACT_APP_LINKEDIN_SCOPE}&state=${process.env.REACT_APP_LINKEDIN_STATE}`;
+  }
+
   return (
     <div className="w-screen h-screen sm:w-screen sm:h-screen flex items-center justify-center pt-5 pb-5 sm:p-0 ">
-      {/* <ToastContainer /> */}
       <form
         onSubmit={handleSubmit}
         className="relative overflow-hidden w-4/12 h-full sm:w-full sm:h-full md:w-2/4 md:h-full  lg:w-3/4 lg:h-3/4 flex flex-col items-center justify-center sm:border-none border-[1px] rounded-lg p-2"
@@ -430,30 +435,42 @@ const DesktopOnePage = () => {
                 />
               </div>
             </div>
-            <div className="bg-blue-A400 [2px]ext-center flex flex-row gap-11 items-center justify-start p-[2px] rounded-[22px] w-full cursor-pointer">
+            <div
+              onClick={Linklogin}
+              className="bg-blue-500 flex items-center  justify-center p-[2px] rounded-full w-full cursor-pointer "
+            >
+              <div className="bg-white-A700 flex flex-col h-6 w-6 items-center justify-center p-[1px] rounded-[16px]  cursor-pointer ">
+                <Img
+                  className="h-full w-full cursor-pointer "
+                  src="images/linkedin.png"
+                  alt="vector"
+                />
+              </div>
+            </div>
+            <div className="bg-gray-400 [2px]ext-center flex flex-row gap-11 items-center justify-start p-[2px] rounded-[22px] w-full cursor-not-allowed">
               <div className="bg-white-A700 flex flex-col h-6 items-center justify-center p-2 rounded-[17px] w-6 ">
                 <Img
-                  className="h-[19px]"
+                  className="h-[19px] filter grayscale"
                   src="images/img_facebook.svg"
                   alt="facebook"
                 />
               </div>
             </div>
 
-            <div className="bg-[#1da1f2] text-center flex items-center justify-center p-[2px] rounded-full w-full cursor-pointer">
+            <div className="bg-gray-400  text-center flex items-center justify-center p-[2px] rounded-full w-full cursor-not-allowed">
               <div className="bg-white-A700 flex flex-col h-6 w-6 items-center justify-center p-[2px] rounded-full ">
                 <Img
-                  className="h-full w-full"
+                  className="h-full w-full filter grayscale"
                   src="images/img_twitter.svg"
                   alt="twitter"
                 />
               </div>
             </div>
-            <div className="flex  items-center justify-between cursor-pointer">
-              <div className="bg-[#cd3e78] text-center flex flex-row gap-11 items-center justify-start p-[2px] rounded-[22px] w-full">
+            <div className="flex  items-center justify-between cursor-not-allowed">
+              <div className="bg-gray-400 text-center flex flex-row gap-11 items-center justify-start p-[2px] rounded-[22px] w-full">
                 <div className="bg-white-A700 flex flex-col h-6 items-center justify-end p-[1px] rounded-[17px] w-6">
                   <Img
-                    className="h-[40px]"
+                    className="h-[40px] filter grayscale"
                     src="images/img_instagram.svg"
                     alt="instagram"
                   />

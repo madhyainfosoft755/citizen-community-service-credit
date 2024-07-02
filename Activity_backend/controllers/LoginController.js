@@ -27,9 +27,75 @@ const { validationResult } = require('express-validator');
 const fs = require('fs');
 const path = require('path');
 const { format } = require('date-fns');
+const LINKEDIN_CLIENT_ID = process.env.LINKEDIN_CLIENT_ID;
+const LINKEDIN_CLIENT_SECRET = process.env.LINKEDIN_CLIENT_SECRET;
+const LINKEDIN_REDIRECT_URI = process.env.LINKEDIN_REDIRECT_URI;
+const JWT_SECRET = process.env.JWT_Secret;
+const qs = require('qs');
 
 
 
+const LinkedInLogin = async (req, res) => {
+  const { code } = req.body;
+  const linkedin_params = new URLSearchParams();
+  linkedin_params.append('grant_type', 'authorization_code');
+  linkedin_params.append('redirect_uri', `${LINKEDIN_REDIRECT_URI}`);
+  linkedin_params.append('client_id', `${LINKEDIN_CLIENT_ID}`);
+  linkedin_params.append('client_secret', `${LINKEDIN_CLIENT_SECRET}`);
+  linkedin_params.append('code', `${code}`);
+
+  try {
+    // Exchange authorization code for access token
+    const tokenResponse = await axios.post('https://www.linkedin.com/oauth/v2/accessToken', linkedin_params, {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    });
+
+    const accessToken = tokenResponse.data.access_token;
+
+    console.log("********************** mila kya access token *******************", tokenResponse)
+
+    // Fetch user profile information from LinkedIn
+    const profileResponse = await axios.get('https://api.linkedin.com/v2/userinfo', {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+      },
+    });
+    console.log("********** kya mila profile ke response mai *************", profileResponse)
+
+    // Create or update user in your database
+    const user = {
+      linkedinId: profileResponse.data.id,
+      name: profileResponse.data.name,
+      email: profileResponse.data.email,
+      picture: profileResponse.data.picture,
+      // Add more fields as needed
+    };
+
+    // Generate JWT token
+    const jwtPayload = {
+      user: {
+        id: profileResponse.data.id, // Using LinkedIn ID as user ID
+        name: profileResponse.data.name,
+        email: profileResponse.data.email,
+        picture: profileResponse.data.picture, // Using LinkedIn profile picture as user picture
+        // Add more fields if needed
+      },
+    };
+
+    const jwtToken = Jwt.sign(jwtPayload, JWT_SECRET, { expiresIn: '1h' }); // Adjust expiresIn as needed
+
+    res.status(200).json({
+      token: jwtToken,
+      user: user,
+    });
+  } catch (error) {
+    logger.error(error)
+    console.error(error);
+    res.status(500).json({ message: 'Internal Server Error' });
+  }
+}
 
 // Helper function to extract user ID from JWT token
 const getUserIdFromToken = (req) => {
@@ -834,9 +900,6 @@ const CreateActivity = async (req, res) => {
     // Format the date to yyyy-mm-dd format
     const formattedDate = format(new Date(date), 'yyyy-MM-dd');
 
-
-
-
     console.log("req data mai date kya aa rhi hai ", formattedDate);
     // Check if files were uploaded
     const photos =
@@ -872,16 +935,7 @@ const CreateActivity = async (req, res) => {
       return res.status(400).json({ error: `Missing required fields: ${missingFields.join(", ")}` });
     }
 
-    // Extract latitude and longitude from location object
-    //  const { latitude, longitude } = location;
-
-
-
-
     const category = selectedCategories;
-
-    // Create a new activity instance
-    // const newActivity = new Posts({ category, photos, videos, Date });
 
     const calculateTotalTime = (fromTime, toTime) => {
       const [fromHour, fromMinute] = fromTime.split(":").map(Number);
@@ -892,11 +946,6 @@ const CreateActivity = async (req, res) => {
       const hours = Math.floor(totalMinutes / 60);
       const minutes = totalMinutes % 60;
       console.log(`${minutes}:${hours}`);
-      // const totalTimeDate = new Date(0);
-      // console.log("this is the total time",totalTimeDate)
-      // totalTimeDate.setUTCHours(hours);
-      // totalTimeDate.setUTCMinutes(minutes);
-
       return `${hours}:${minutes}`;
     };
     // Calculate total time spent
@@ -1965,5 +2014,6 @@ module.exports = {
   postsForDateRange,
   postsForCategory,
   getPostsByUser,
-  reviewpostforuser
+  reviewpostforuser,
+  LinkedInLogin
 };
