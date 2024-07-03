@@ -64,14 +64,23 @@ const LinkedInLogin = async (req, res) => {
     });
     console.log("********** kya mila profile ke response mai *************", profileResponse)
 
+
+    const email = profileResponse.data.email;
+
+    // Check if the user already exists in the database
+    let user = await Users.findOne({ where: { email } });
+
     // Create or update user in your database
-    const user = {
-      linkedinId: profileResponse.data.id,
-      name: profileResponse.data.name,
-      email: profileResponse.data.email,
-      picture: profileResponse.data.picture,
-      // Add more fields as needed
-    };
+    if (!user) {
+
+      user = {
+        linkedinId: profileResponse.data.id,
+        name: profileResponse.data.name,
+        email: profileResponse.data.email,
+        picture: profileResponse.data.picture,
+        // Add more fields as needed
+      };
+    }
 
     // Generate JWT token
     const jwtPayload = {
@@ -84,12 +93,24 @@ const LinkedInLogin = async (req, res) => {
       },
     };
 
-    const jwtToken = Jwt.sign(jwtPayload, JWT_SECRET, { expiresIn: '1h' }); // Adjust expiresIn as needed
+    const jwtToken = Jwt.sign(jwtPayload, { userId: user.id }, JWT_SECRET, { expiresIn: '1h' }); // Adjust expiresIn as needed
 
-    res.status(200).json({
-      token: jwtToken,
-      user: user,
-    });
+    // Check the linklogin flag to determine the redirection
+    if (user) {
+      console.log('Checking linklogin');
+      res.status(200).json({
+        token: jwtToken,
+        user: user,
+        redirect: '/create', // Redirect to /create page
+      });
+    } else {
+      console.log('Error');
+      res.status(200).json({
+        token: jwtToken,
+        user: user,
+      });
+    }
+
   } catch (error) {
     logger.error(error)
     console.error(error);
@@ -174,9 +195,68 @@ const generatedPassword = generateRandomPassword(passwordLength);
 console.log('Generated Password:', generatedPassword);
 
 
+// const GoogleLogin = async (req, res) => {
+//   const { token } = req.body;
+//   console.log("*****token********", token)
+
+//   if (!token) {
+//     return res.status(400).json({ error: 'ID token is missing' });
+//   }
+
+//   try {
+//     const userProfile = await getUserProfile(token);
+//     console.log("ye rha user ka profile data", userProfile)
+
+//     // Check if user exists
+//     let user = await Users.findOne({ where: { email: userProfile.email } });
+
+
+//     if (!user) {
+//       // Download and save profile picture
+//       const pictureUrl = userProfile.picture;
+//       const fileExtension = path.extname(new URL(pictureUrl).pathname);
+//       const fileName = `${userProfile.id}${fileExtension}`;
+//       const filePath = path.join(__dirname, '../uploads/photos', fileName);
+
+//       // Dynamically import node-fetch
+//       const fetch = (await import('node-fetch')).default;
+//       const response = await fetch(pictureUrl);
+//       const buffer = await response.buffer();
+//       fs.writeFileSync(filePath, buffer);
+
+
+//       // Create new user if not found
+//       user = await Users.create({
+//         name: userProfile.name,
+//         email: userProfile.email,
+//         phone: null,
+//         password: generatedPassword, // Add password if needed
+//         photo: fileName, // Assuming you store the profile picture
+//         category: JSON.stringify(['Others']), // Assign "Others" category during user creation
+//         googleId: userProfile.id,
+//         role: "user",
+//         verified: true
+//       });
+
+//     }
+
+//     // Generate JWT token for the user
+//     // const jwtToken = Jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+//     const jwtToken = Jwt.sign({ userId: user.id }, jwtKey, { expiresIn: "1h" });
+
+//     console.log("lo data le lo", user)
+
+//     res.status(200).set('Authorization', `Bearer ${jwtToken}`).json({ token: jwtToken, user: userProfile, redirectTo: '/create' });
+//   } catch (error) {
+//     logger.error("ye hai google ki error", error)
+//     console.error('Google login error:', error);
+//     res.status(500).json({ error: 'Internal server error' });
+//   }
+// };
+
 const GoogleLogin = async (req, res) => {
   const { token } = req.body;
-  console.log("*****token********", token)
+  console.log("*****token********", token);
 
   if (!token) {
     return res.status(400).json({ error: 'ID token is missing' });
@@ -184,50 +264,24 @@ const GoogleLogin = async (req, res) => {
 
   try {
     const userProfile = await getUserProfile(token);
-    console.log("ye rha user ka profile data", userProfile)
+    console.log("ye rha user ka profile data", userProfile);
 
     // Check if user exists
     let user = await Users.findOne({ where: { email: userProfile.email } });
 
-
     if (!user) {
-      // Download and save profile picture
-      const pictureUrl = userProfile.picture;
-      const fileExtension = path.extname(new URL(pictureUrl).pathname);
-      const fileName = `${userProfile.id}${fileExtension}`;
-      const filePath = path.join(__dirname, '../uploads/photos', fileName);
-
-      // Dynamically import node-fetch
-      const fetch = (await import('node-fetch')).default;
-      const response = await fetch(pictureUrl);
-      const buffer = await response.buffer();
-      fs.writeFileSync(filePath, buffer);
-
-
-      // Create new user if not found
-      user = await Users.create({
-        name: userProfile.name,
-        email: userProfile.email,
-        phone: null,
-        password: generatedPassword, // Add password if needed
-        photo: fileName, // Assuming you store the profile picture
-        category: JSON.stringify(['Others']), // Assign "Others" category during user creation
-        googleId: userProfile.id,
-        role: "user",
-        verified: true
-      });
-
+      // Send the profile data to the frontend without creating the user
+      return res.status(200).json({ user: userProfile, redirectTo: '/create' });
     }
 
     // Generate JWT token for the user
-    // const jwtToken = Jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
     const jwtToken = Jwt.sign({ userId: user.id }, jwtKey, { expiresIn: "1h" });
 
-    console.log("lo data le lo", user)
+    console.log("lo data le lo", user);
 
-    res.status(200).set('Authorization', `Bearer ${jwtToken}`).json({ token: jwtToken, user: userProfile, redirectTo: '/create' });
+    res.status(200).set('Authorization', `Bearer ${jwtToken}`).json({ token: jwtToken, user: userProfile });
   } catch (error) {
-    logger.error("ye hai google ki error", error)
+    logger.error("ye hai google ki error", error);
     console.error('Google login error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
@@ -375,6 +429,130 @@ const Register = async (req, res) => {
     return res.status(201).json({
       status: "success",
       message: "Registration successful. Please check your email for verification.",
+    });
+  } catch (error) {
+    logger.error("Registration failed:", error);
+    console.error("Registration failed:", error);
+    return res.status(500).json({
+      status: "error",
+      message: "Registration failed",
+    });
+  }
+};
+
+//linkedin registration
+const RegisterLinkedin = async (req, res) => {
+  try {
+
+    const userData = req.body;
+    console.log("here is he data", userData);
+
+    // Check if any required field is empty
+    if (!userData.name) {
+      return res.status(400).json({ message: "Name is required" });
+    }
+
+    if (!userData.email) {
+      return res.status(400).json({ message: "Email is required" });
+    }
+
+    if (!userData.photo) {
+      return res.status(400).json({ message: "Photo is required" });
+    }
+
+    // Validate photo URL
+    const urlRegex = /(http|https):\/\/(\w+:?\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
+    if (!urlRegex.test(userData.photo)) {
+      return res.status(400).json({ message: "Invalid photo URL format" });
+    }
+
+    // Check if user with the same email already exists
+    const existingUser = await Users.findOne({ where: { email: userData.email } });
+    console.log("this is the existing user", existingUser)
+    if (existingUser) {
+
+      return res.status(400).json({ message: "Email already exists" });
+    }
+
+
+    // Check if user with the same mobile number already exists
+    const existingMobileUser = await Users.findOne({ where: { phone: userData.phone } });
+    if (existingMobileUser) {
+      return res
+        .status(400)
+        .json({ message: "Mobile number already registered" });
+    }
+
+    // Check if user with the same aadhar number already exists
+    const existingAadharUser = await Users.findOne({ where: { aadhar: userData.aadhar } });
+    if (existingAadharUser) {
+      return res
+        .status(400)
+        .json({ message: "Aadhar number already registered" });
+    }
+
+    
+    // Ensure "Others" category is always present
+    let selectedCategories = userData.selectedCategories;
+    console.log("Category selected:", selectedCategories);
+
+    if (typeof selectedCategories === "string") {
+      selectedCategories = JSON.parse(selectedCategories);
+    }
+
+    if (!Array.isArray(selectedCategories)) {
+      selectedCategories = [selectedCategories];
+    }
+
+    if (!selectedCategories.includes("Others")) {
+      selectedCategories.push("Others");
+    }
+
+    console.log("Final categories:", selectedCategories);
+
+
+    // Download and save profile picture
+    const pictureUrl = userData.photo;
+    const fileExtension = path.extname(new URL(pictureUrl).pathname);
+    const fileName = `${userData.email}${fileExtension} photo`;
+    const filePath = path.join(__dirname, '../uploads/photos', fileName);
+
+    // Dynamically import node-fetch
+    const fetch = (await import('node-fetch')).default;
+    const response = await fetch(pictureUrl);
+    const buffer = await response.buffer();
+    fs.writeFileSync(filePath, buffer);
+
+
+    // const Category = selectedCategories;
+
+    // Create a new user instance and save it to the database
+    const newUser = await Users.create({
+      name: userData.name,
+      email: userData.email,
+      password: generatedPassword,
+      phone: userData.phone,
+      photo: fileName,
+      category: JSON.stringify(selectedCategories), // Store as a JSON string
+      aadhar: userData.aadhar,
+      role: "user",
+      organization: userData.organization, // Add the organization field
+      verified: true
+      // Add other fields as needed
+    });
+
+    // You can add more error handling and validation as needed
+    const token = Jwt.sign({ userId: newUser.id }, jwtKey, {expiresIn: "1d",});
+    console.log("this is the token********************-------------------",token)
+
+    
+    return res.status(201).json({
+      status: "success",
+      message: "Registration successful.",
+      data: {
+        userKey: newUser,
+        token
+      }
     });
   } catch (error) {
     logger.error("Registration failed:", error);
@@ -2015,5 +2193,6 @@ module.exports = {
   postsForCategory,
   getPostsByUser,
   reviewpostforuser,
-  LinkedInLogin
+  LinkedInLogin,
+  RegisterLinkedin
 };

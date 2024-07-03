@@ -295,7 +295,7 @@ const DesktopOnePage = () => {
         navigate("/create");
         notify("Login Successful")
       } else {
-        console.log("Response is missing");
+        navigate("/profile", {state:{user}});
       }
     } catch (error) {
       setError("An error occurred while logging in with Google.");
@@ -329,11 +329,11 @@ const DesktopOnePage = () => {
     }
   };
 
-  const Linklogin = ()=>{
-      window.location.href = `https://www.linkedin.com/uas/oauth2/authorization?response_type=code&client_id=${
-        process.env.REACT_APP_LINKEDIN_CLIENT_ID
-      }&redirect_uri=${process.env.REACT_APP_LINKEDIN_REDIRECT_URL}&scope=${process.env.REACT_APP_LINKEDIN_SCOPE}&state=${process.env.REACT_APP_LINKEDIN_STATE}`;
-  }
+  // const Linklogin = ()=>{
+  //     window.location.href = `https://www.linkedin.com/uas/oauth2/authorization?response_type=code&client_id=${
+  //       process.env.REACT_APP_LINKEDIN_CLIENT_ID
+  //     }&redirect_uri=${process.env.REACT_APP_LINKEDIN_REDIRECT_URL}&scope=${process.env.REACT_APP_LINKEDIN_SCOPE}&state=${process.env.REACT_APP_LINKEDIN_STATE}`;
+  // }
 
   return (
     <div className="w-screen h-screen sm:w-screen sm:h-screen flex items-center justify-center pt-5 pb-5 sm:p-0 ">
@@ -436,12 +436,12 @@ const DesktopOnePage = () => {
               </div>
             </div>
             <div
-              onClick={Linklogin}
-              className="bg-blue-500 flex items-center  justify-center p-[2px] rounded-full w-full cursor-pointer "
+              // onClick={Linklogin}
+              className="bg-gray-500 flex items-center  justify-center p-[2px] rounded-full w-full cursor-pointer "
             >
               <div className="bg-white-A700 flex flex-col h-6 w-6 items-center justify-center p-[1px] rounded-[16px]  cursor-pointer ">
                 <Img
-                  className="h-full w-full cursor-pointer "
+                  className="h-full w-full cursor-not-allowed filter grayscale "
                   src="images/linkedin.png"
                   alt="vector"
                 />

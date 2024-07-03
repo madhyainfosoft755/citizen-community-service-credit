@@ -6,7 +6,6 @@ import { toast } from 'react-toastify';
 const LinkedInOAuthHandler = () => {
   const [error, setError] = useState("");
   const [user, setUser] = useState(null); // State to hold user data
-  console.log("abhi ky hai user ki value ", user)
   const navigate = useNavigate();
   const notify = (e) => toast(e);
 
@@ -20,8 +19,8 @@ const LinkedInOAuthHandler = () => {
 
       if (error) {
         setError("LinkedIn login was cancelled or failed.");
-        notify(error);
         navigate('/login');  // Redirect to login page
+        notify(error);
         return;
       }
 
@@ -51,17 +50,29 @@ const LinkedInOAuthHandler = () => {
           return;
         }
 
-        const { token, user } = data;
+        const { token, user, redirect  } = data;
+        console.log("what is redirect", redirect);
+        console.log("what is user", user);
 
         if (token && user) {
           localStorage.setItem("token", token);
           localStorage.setItem("userKey", JSON.stringify(user));
           setUser(user); // Set the user data to state
-          navigate("/profile",{state:{
-            user,
-            fromLoginPage: true,
-          }});  // Redirect to profile page
-        //   notify("Login Successful")
+          if (redirect) {
+            navigate(redirect, {
+              state: {
+                user,
+                fromLoginPage: true,
+              }
+            });  // Redirect based on backend response
+          } else {
+            navigate('/profile', {
+              state: {
+                user,
+                fromLoginPage: true,
+              }
+            });  // Default redirect to profile page
+          }
         } else {
           setError("Login response is missing data.");
           notify("Login response is missing data.");
@@ -79,12 +90,10 @@ const LinkedInOAuthHandler = () => {
   }, [navigate]);
 
 
-  console.log("ab kya ho gai user ki value ", user)
 
   return (
     <div>
       {error && <div className="error-message">{error}</div>}
-      {/* {user && <ProfilePage user={user} />} Pass user data to ProfilePage */}
     </div>
   );
 };

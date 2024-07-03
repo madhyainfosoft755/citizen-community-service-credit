@@ -47,7 +47,8 @@ const {
   postsForCategory,
   getPostsByUser,
   reviewpostforuser,
-  LinkedInLogin
+  LinkedInLogin,
+  RegisterLinkedin
 
 } = require("../controllers/LoginController");
 const { upload } = require("../utils/util");
@@ -98,6 +99,7 @@ router.post("/postsForCategory",postsForCategory);
 router.get("/CreateActivity", upload, CreateActivity);
 router.post("/CreateActivity", upload, CreateActivity);
 router.post("/Register", upload, Register);
+router.post("/RegisterLinkedin", upload, RegisterLinkedin);
 router.post("/fetchPostsInArea", fetchPostsInArea);
 router.post("/endorsePost/:id", endorsePost);
 router.post("/TotalTimeSpent/:id", TotalTimeSpent);

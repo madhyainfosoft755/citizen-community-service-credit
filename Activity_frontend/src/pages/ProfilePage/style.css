@@ -18,3 +18,7 @@
 .sixfont{
     font-weight: 600;
 }
+
+.scroller::-webkit-scrollbar{
+    display: none;
+}

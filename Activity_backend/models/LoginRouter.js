@@ -57,6 +57,11 @@ module.exports = (sequelize, DataTypes) => {
       aadhar:{
         type: DataTypes.STRING,
         allowNull: true,
+      },
+      linklogin:{
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false, // Default value for verified field
       }
 
     },
