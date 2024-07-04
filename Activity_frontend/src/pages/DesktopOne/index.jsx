@@ -295,7 +295,7 @@ const DesktopOnePage = () => {
         navigate("/create");
         notify("Login Successful")
       } else {
-        navigate("/profile", {state:{user}});
+        navigate("/profile", { state: { user } });
       }
     } catch (error) {
       setError("An error occurred while logging in with Google.");
@@ -338,6 +338,7 @@ const DesktopOnePage = () => {
   return (
     <div className="w-screen h-screen sm:w-screen sm:h-screen flex items-center justify-center pt-5 pb-5 sm:p-0 ">
       <form
+        autocomplete="off"
         onSubmit={handleSubmit}
         className="relative overflow-hidden w-4/12 h-full sm:w-full sm:h-full md:w-2/4 md:h-full  lg:w-3/4 lg:h-3/4 flex flex-col items-center justify-center sm:border-none border-[1px] rounded-lg p-2"
       >
@@ -490,6 +491,7 @@ const DesktopOnePage = () => {
           </div>
           <div className="flex flex-col items-center justify-center mt-2 sm:mt-[25px]  w-full">
             <button
+              type="button"
               name="registermessage"
               className="font-semibold leading-[normal] bg-[#546ef6] text-white-A700 w-1/2 h-10 rounded-3xl text-center text-sm "
               onClick={handlebuttonclick}

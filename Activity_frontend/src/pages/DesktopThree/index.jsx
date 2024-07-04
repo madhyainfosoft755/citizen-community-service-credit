@@ -11,7 +11,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLocationDot } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
 import { CirclesWithBar } from 'react-loader-spinner'
-import { differenceInHours, parse, isSameDay, format } from 'date-fns'; // Importing necessary functions from date-fns
+import { differenceInHours, parse, isSameDay, format,isEqual } from 'date-fns'; // Importing necessary functions from date-fns
 import PopupComponent from "components/popup";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -108,21 +108,22 @@ const Createpost = () => {
       try {
         const response = await fetch(`${API_URL}/activity/getCategories`);
         const data = await response.json();
-        // console.log("data", data)
+  
         if (response.ok) {
           if (data.length > 0) {
-
-            const usercategories = userData && userData.userData.category
-            // console.log("this is ", usercategories)
-            const filterCategories = data.filter(cat => usercategories.includes(cat.name))
-            const sortedCategories = filterCategories.sort((a, b) => a.name.localeCompare(b.name));
+            const userCategories = userData?.userData.category || [];
+            const filteredCategories = data.filter(cat => userCategories.includes(cat.name));
+            const sortedCategories = filteredCategories.sort((a, b) => a.name.localeCompare(b.name));
             const limitedCategories = sortedCategories.slice(0, 6);
-            setCategories(limitedCategories);
-
-            // Check if count is less than 6 and add "Others" category
-            if (filterCategories.length < 6) {
+  
+            // Check if "Other" category is already included
+            const hasOtherCategory = filteredCategories.some(cat => cat.name.toLowerCase() === "other");
+  
+            if (limitedCategories.length < 6 && !hasOtherCategory) {
               const othersCategory = { id: "other", name: "Other" };
-              setCategories(prevCategories => [...prevCategories, othersCategory]);
+              setCategories([...limitedCategories, othersCategory]);
+            } else {
+              setCategories(limitedCategories);
             }
           } else {
             console.log(data.message);
@@ -134,7 +135,7 @@ const Createpost = () => {
         console.error("Error fetching categories:", error);
       }
     };
-
+  
     if (userData) {
       fetchCategories();
     }
@@ -437,10 +438,11 @@ const Createpost = () => {
   // console.log("ye hai user data", userData)
 
   const openProfilePopup = () => {
-    if (userData && userData.userData) {
-      setSelectedPost({ photos: userData.userData.photo });
-      setIsPopUpVisible(true);
-    }
+    // if (userData && userData.userData) {
+    //   setSelectedPost({ photos: userData.userData.photo });
+    //   setIsPopUpVisible(true);
+    // }
+    navigate("/userprofile")
   };
 
   const onChangeFromTime = (timeValue) => {
@@ -471,7 +473,10 @@ const Createpost = () => {
       toast.error('Time must be within the selected date');
       return;
     }
-
+    if (isEqual(toTimeDate, fromTimeDate)) {
+      toast.error('Both times cannot be the same. Please select a time later than the from time.');
+      return;
+    }
 
     const timeDifference = differenceInHours(toTimeDate, fromTimeDate);
 
@@ -511,6 +516,7 @@ const Createpost = () => {
               </div>
             )}
 
+            <img src="/images/2.png" className="w-7 h-7 absolute top-1 right-1 rounded-full" alt="" />
             <div className="bg-gray-50 flex flex-row items-center justify-between p-3 sm:p-5  sm:px-5 w-full ">
 
               <div className="flex flex-row gap-4 items-center justify-center ml-[1px]" onClick={openProfilePopup}>
@@ -534,7 +540,7 @@ const Createpost = () => {
               </div>
               <Button
                 type="button"
-                className="cursor-pointer font-semibold rounded-3xl w-5/12"
+                className="cursor-pointer font-semibold rounded-3xl w-5/12 mr-4"
                 color="indigo_A200"
                 onClick={direct}
               >
@@ -543,7 +549,7 @@ const Createpost = () => {
             </div>
 
             <div className=" flex flex-col gap-3  items-center justify-start w-full h-full overflow-auto scroller">
-              <div className="flex flex-col items-start justify-center gap-4 sm:gap-1 w-11/12  sm:w-11/12 mt-1  ">
+              <div className="flex flex-col items-start justify-start md:gap-8 gap-4 sm:gap-6 w-11/12 h-full sm:w-11/12 mt-1  ">
                 <div className="bg-white-A700 w-full  text-center flex items-start justify-between gap-5">
                   <h1 className="text-sm font-semibold bg-[#546ef6] text-white-A700  py-1  w-1/2 h-full flex items-center justify-center rounded-3xl mb-2">+ Add New Activity</h1>
                   <button type="button" onClick={Endorse} className={`text-sm text-black-900 shadow-bs3 shadow-gray-300 w-1/2 h-full font-semibold rounded-3xl hover:bg-[#546ef6] hover:text-white-A700`}>Endorse Activities</button>

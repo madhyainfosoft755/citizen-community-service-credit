@@ -216,8 +216,8 @@ const ProfilePage = () => {
 
     return (
         <div className="w-screen h-screen sm:w-screen sm:h-screen md:w-screen md:h-screen lg:w-screen lg:h-screen flex items-center justify-center pt-5 pb-5 sm:p-0 ">
-            <form onSubmit={handleSubmit} className="bg-red-50 gap-4 p-2 sm:pt-4 sm:pb-4 scroller relative w-4/12 h-full sm:w-full sm:h-full md:w-3/4 md:h-full lg:w-3/4 lg:h-full flex flex-col items-center justify-start md:justify-between md:pt-10 md:pb-10 sm:justify-between border-[1px] rounded-lg sm:rounded-none overflow-auto scroller">
-
+            <form onSubmit={handleSubmit} className="bg-white-A700_33 gap-4 p-2 sm:pt-4 sm:pb-4 scroller relative w-4/12 h-full sm:w-full sm:h-full md:w-3/4 md:h-full lg:w-3/4 lg:h-full flex flex-col items-center justify-start md:justify-between md:pt-10 md:pb-10 sm:justify-between border-[1px] rounded-lg sm:rounded-none overflow-auto scroller">
+            <img src="/images/2.png" className="w-14 h-14 absolute top-0 right-0 rounded-full" alt="" />
                 {isLoading && (
                     <div className="w-full h-full bg-black-900/30 absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-50">
                         <CirclesWithBar
@@ -239,17 +239,17 @@ const ProfilePage = () => {
                     alt="Profile"
                     className="rounded-full"
                 />
-                <div className="relative -mt-2 sm:w-5/6 w-4/6 h-10 bg-white-A700 flex items-center justify-center  p-2 rounded-xl border-[1px] border-white-A700 green-border">
+                <div className="relative -mt-2 sm:w-5/6 w-4/6 h-10 bg-gray-50 flex items-center justify-center  p-2 rounded-xl border-[1px] border-white-A700 green-border">
                     <FontAwesomeIcon icon={faUser} className="text-gray-500" />
                     <input name="name" className="w-full h-full bg-inherit border-none  " type="text" value={user.name} disabled />
                     <h1 className="text-red-500 absolute -left-3 -top-1 text-xl">*</h1>
                 </div>
-                <div className="relative sm:w-5/6 w-4/6 h-10 bg-white-A700 flex items-center justify-center  p-2 rounded-xl border-[1px] border-white-A700 green-border">
+                <div className="relative sm:w-5/6 w-4/6 h-10 bg-gray-50 flex items-center justify-center  p-2 rounded-xl border-[1px] border-white-A700 green-border">
                     <FontAwesomeIcon icon={faEnvelope} className="text-gray-500" />
                     <input name="email" className="w-full h-full bg-inherit border-none " type="email" value={user.email} disabled />
                     <h1 className="text-red-500 absolute -left-3 -top-1 text-xl">*</h1>
                 </div>
-                <div className={`relative sm:w-5/6 w-4/6 h-10 bg-white-A700 flex items-center justify-center  p-2 rounded-xl border-[1px] ${formErrors.aadhar ? 'border-red-500' : 'border-white-A700'}  green-border`}>
+                <div className={`relative sm:w-5/6 w-4/6 h-10 bg-gray-50 flex items-center justify-center  p-2 rounded-xl border-[1px] ${formErrors.aadhar ? 'border-red-500' : 'border-white-A700'}  green-border`}>
                     <FontAwesomeIcon icon={faPhone} className="text-gray-500" />
                     <h1 className="text-red-500 absolute -left-3 -top-1 text-xl">*</h1>
                     <input
@@ -262,7 +262,7 @@ const ProfilePage = () => {
                     />
                     {formErrors.phone && <small className="error absolute left-0 -bottom-4 text-red-500">{formErrors.phone}</small>}
                 </div>
-                <div className="relative sm:w-5/6 w-4/6 h-10 bg-white-A700 flex items-center justify-center  p-2 rounded-xl border-[1px] border-white-A700 green-border">
+                <div className="relative sm:w-5/6 w-4/6 h-10 bg-gray-50 flex items-center justify-center  p-2 rounded-xl border-[1px] border-white-A700 green-border">
                     <FontAwesomeIcon icon={faLocation} className="text-gray-500" />
                     <input
                         name="address"
@@ -275,7 +275,7 @@ const ProfilePage = () => {
                     {/* <h1 className="text-red-500 absolute -left-3 -top-1 text-xl">*</h1> */}
 
                 </div>
-                <div className={`relative sm:w-5/6 w-4/6 h-10 bg-white-A700 flex items-center justify-center  p-2 rounded-xl border-[1px] ${formErrors.aadhar ? 'border-red-500' : 'border-white-A700'}  green-border`}>
+                <div className={`relative sm:w-5/6 w-4/6 h-10 bg-gray-50 flex items-center justify-center  p-2 rounded-xl border-[1px] ${formErrors.aadhar ? 'border-red-500' : 'border-white-A700'}  green-border`}>
                     <div className="w-full h-full flex items-center justify-center">
 
                         <FontAwesomeIcon icon={faIdCard} className="text-gray-500" />
@@ -289,7 +289,7 @@ const ProfilePage = () => {
                         />
                     </div>
                 </div>
-                <div className="form-group sm:w-5/6 w-4/6 h-10  bg-white-A700 green-border flex items-center justify-center  p-2 rounded-xl overflow-hidden">
+                <div className="form-group sm:w-5/6 w-4/6 h-10  bg-gray-50 green-border flex items-center justify-center  p-2 rounded-xl overflow-hidden">
                     <select
                         className="w-full  text-sm  pl-10 border-none bg-inherit"
                         id="organization"
@@ -314,7 +314,7 @@ const ProfilePage = () => {
                             <button
                                 key={index}
                                 type="button"
-                                className={`p-1 rounded text-xs text-center ${buttonStates[index] ? "bg-[#546ef6] text-white" : "bg-gray-200 text-black"
+                                className={`p-1 rounded text-xs text-center ${buttonStates[index] ? "bg-[#546ef6] text-white" : "bg-gray-50 text-black"
                                     }`}
                                 onClick={() => handleButtonClick(index, category.name)}
                             >

@@ -406,8 +406,10 @@ const Endorse = () => {
             <PopupComponent post={selectedPost} onClose={() => setIsPopUpVisible(false)} />
           )}
           <div className="bg-white-A700 flex flex-col items-start justify-start sm:px-0  border-[1px] rounded-lg sm:rounded-none w-4/12 h-full sm:w-full sm:h-full md:w-7/12 md:h-full">
-            <div className="flex flex-col gap-3 items-center justify-start w-full h-full  p-3 sm:p-0 ">
-              <div className="bg-gray-50 flex flex-row items-center justify-between p-3  sm:px-5 w-full rounded-md sm:rounded-none ">
+            <div className="flex flex-col gap-3 items-center justify-start w-full h-full   sm:p-0 ">
+              <div className="relative bg-gray-50 flex flex-row items-center justify-between p-3  sm:px-5 w-full rounded-md sm:rounded-none ">
+          <img src="/images/2.png" className="w-7 h-7 absolute top-1 right-1 rounded-full" alt="" />
+
                 <div className="flex flex-row gap-4 items-center justify-center ml-[5px]" onClick={openProfilePopup}>
                   {userData && (
                     <Img
@@ -432,7 +434,7 @@ const Endorse = () => {
                   </div>
                 </div>
                 <Button
-                  className="rounded-3xl cursor-pointer font-semibold w-5/12 "
+                  className="rounded-3xl cursor-pointer font-semibold w-5/12 mr-4"
                   // shape="round"
                   color="indigo_A200"
                   onClick={direct}
@@ -441,7 +443,7 @@ const Endorse = () => {
                 </Button>
               </div>
 
-              <div className="w-full h-[75vh]  bg-[#f4f6ff]  rounded-md overflow-hidden flex flex-col items-center justify-top gap-5 ">
+              <div className="w-full h-full  bg-[#f4f6ff]  rounded-md overflow-hidden flex flex-col items-center justify-top gap-5 ">
                 <h1 className="text-right text-xs w-fit ml-auto hidden">
                   {" "}
                   <Location onLocationChange={handleLocationChange} />
@@ -520,31 +522,31 @@ const Endorse = () => {
                       />
                     </div>
                   ) : (
-                    <table className="w-52 overflow-hidden ">
+                    <table className="w-52 border-collapse border-2">
                       <thead className="">
-                        <tr >
-                          <th>Category</th>
-                          <th>Name</th>
-                          <th>Time</th>
-                          <th>Location</th>
-                          <th>Image</th>
-                          <th>Endorse</th>
+                        <tr className="border">
+                          <th className="border p-3">Category</th>
+                          <th className="border p-3">Name</th>
+                          <th className="border p-3">Time</th>
+                          <th className="border p-3">Location</th>
+                          <th className="border p-3">Image</th>
+                          <th className="border p-3">Endorse</th>
                         </tr>
                       </thead>
                       <tbody className=" ">
                         {filteredPosts.map((post) => (
-                          <tr key={post.id} className=" border-b-2">
-                            <td className="py-3 px-8" >{post.category}</td>
-                            <td className="py-3 px-10">{post.user ? post.user.name : 'Unknown'}</td>
-                            <td className="p-3">{post.totalTime}</td>
-                            <td className="py-3 px-10">
+                          <tr key={post.id} className=" border">
+                            <td className="border p-3 text-center" >{post.category}</td>
+                            <td  className="border p-3 text-center">{post.user ? post.user.name : 'Unknown'}</td>
+                            <td  className="border p-3 text-center">{post.totalTime}</td>
+                            <td className="border p-3 text-center">
                               {post.latitude && post.longitude ? (
                                 <span>{renderCityName(post.id)}</span>
                               ) : (
                                 'Unknown City'
                               )}
                             </td>
-                            <td className="px-5">
+                            <td  className="border p-3 text-center">
                               <a
                                 href="#"
                                 onClick={() => openPopup(post)}
@@ -553,13 +555,13 @@ const Endorse = () => {
                                 View
                               </a>
                             </td>
-                            <td className="p-3 flex items-center justify-center">
+                            <td  className="w-full h-full items-center justify-center px-8">
                               <input
                                 type="checkbox"
                                 id={`endorsement_${post.id}`}
                                 checked={checkedPosts.includes(post.id)}
                                 // disabled={endorsedPosts.includes(post.id)} // Disable the checkbox if post is already endorsed
-                                className="border-2 border-[#546ef6] p-2 rounded-lg"
+                                className="border-2 border-[#546ef6] border-solid p-2 rounded-lg"
                                 onChange={(e) => handleCheckboxChange(post.id, e.target.checked)}
                               />
                             </td>

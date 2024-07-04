@@ -184,6 +184,16 @@ const ReviewPosts = () => {
             console.error("Error rejecting hours request:", error);
         }
     };
+
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}-${month}-${year}`;
+      };
+
+
     return (
         <div className="w-screen h-screen bg-white-A700 flex items-start justify-center sm:w-screen sm:h-screen md:w-screen md:h-screen p-5 sm:p-0">
             <div className="relative w-4/12 h-full sm:w-full sm:h-full md:w-3/4 md:h-full lg:w-3/4 lg:h-full flex flex-col items-center justify-center border-[1px] rounded-lg sm:rounded-none overflow-hidden">
@@ -247,11 +257,11 @@ const ReviewPosts = () => {
                                             </div>
                                             <div className="flex flex-col items-center justify-center gap-1">
                                                 <h1 className="underline">Date</h1>
-                                                <h1>{userPosts[0].Date}</h1>
+                                                <h1>{formatDate(userPosts[0].Date)}</h1>
                                             </div>
                                             <div className="flex flex-col items-center text-center justify-center gap-1">
                                                 <h1 className="underline">Location</h1>
-                                                <h1>{location ? `${location.city}, ${location.state}` : "Loading..."}</h1>
+                                                <h1 cn>{location ? `${location.city}, ${location.state}` : "Loading..."}</h1>
                                             </div>
                                             <div className="flex flex-col items-center justify-center gap-1">
                                                 <h1 className="underline">Image</h1>

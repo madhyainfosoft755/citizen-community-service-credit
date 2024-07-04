@@ -158,14 +158,7 @@ const Register = () => {
         setMobileError(value.length > 0 ? "Invalid mobile number format" : "");
       }
 
-      // Aadhar number validation
-      if (name === "aadhar" && value.length !== 12) {
-        setAadharError("Aadhar number should be a 12-digit number");
-      } else {
-        setAadharError(value.length > 0 ? "" : "Aadhar number is required");
-      }
-
-
+     
 
       // Email validation
       if (name === "email") {
@@ -193,9 +186,6 @@ const Register = () => {
           case "address":
             // No error state for address field, add code here if needed
             break;
-          case "aadhar":
-            setAadharError("");
-            break;
           case "password":
             setPasswordError(false);
             break;
@@ -217,7 +207,7 @@ const Register = () => {
     }
   };
 
-   const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
 
@@ -249,7 +239,7 @@ const Register = () => {
     formsDATA.append("email", e.target[1].value);
     formsDATA.append("phone", e.target[2].value);
     formsDATA.append("address", e.target[3].value);
-    formsDATA.append("aadhar", e.target[4].value);
+    formsDATA.append("aadhar", e.target[4].value || null);
     formsDATA.append("password", e.target[5].value);
     formsDATA.append("cpassword", e.target[6].value);
     formsDATA.append("selectedCategories", JSON.stringify(selectedCategories));
@@ -358,8 +348,9 @@ const Register = () => {
           </h3>
 
           <form
+            autocomplete="off"
             onSubmit={handleSubmit}
-            className=" w-5/6 h-full sm:w-full sm:h-full md:w-full md:h-full flex flex-col items-center justify-start sm:justify-start gap-y-2.5 sm:gap-y-3 sm:mt-2 px-6  "
+            className=" w-5/6 h-full sm:w-full sm:h-full md:w-full md:h-full flex flex-col items-center justify-between sm:justify-between gap-y-2.5 sm:gap-y-3 sm:mt-2 px-6  "
           >
 
             <div className="w-full h-7 flex flex-col items-center justify-center relative">
@@ -372,6 +363,7 @@ const Register = () => {
                 name="name"
                 required
               />
+              <h1 className="text-red-500 absolute -left-2 -top-1">*</h1>
             </div>
             <div className="w-full h-7 flex flex-col items-center justify-center relative">
               <InputWithIconAndText
@@ -383,6 +375,7 @@ const Register = () => {
                 name="email"
                 type="email"
               />
+              <h1 className="text-red-500 absolute -left-2 -top-1">*</h1>
               {fieldBeingEdited === "email" && error && <div className="error-message">{error}</div>}
             </div>
             <div className="w-full h-7 flex  items-center justify-center relative">
@@ -396,7 +389,7 @@ const Register = () => {
                 value={formsData.phone}
                 type="number"
               />
-
+              <h1 className="text-red-500 absolute -left-2 -top-1">*</h1>
               {/* {isMobileVerified && (
                 <Button type="button" className="bg-blue-400 text-white-A700 rounded-2xl absolute right-0" onClick={handleVerifyMobile}>Verify</Button>
               )} */}
@@ -412,6 +405,7 @@ const Register = () => {
                 onChange={handleInputChange}
                 name="address"
               />
+              <h1 className="text-red-500 absolute -left-2 -top-1">*</h1>
             </div>
             <div className="w-full h-7 flex flex-col items-center justify-center relative">
               <InputWithIconAndText
@@ -437,6 +431,7 @@ const Register = () => {
                 onChange={handleInputChange}
                 name="password"
               />
+              <h1 className="text-red-500 absolute -left-2 -top-1">*</h1>
             </div>
             <div className="w-full h-7 flex flex-col items-center justify-center relative">
               <InputWithIconAndText
@@ -449,6 +444,7 @@ const Register = () => {
                 onChange={handleInputChange}
                 name="confirmPassword"
               />
+              <h1 className="text-red-500 absolute -left-2 -top-1">*</h1>
               {passwordError && (
                 <div className="error-message">Passwords do not match</div>
               )}
@@ -472,7 +468,7 @@ const Register = () => {
             </div>
 
 
-            <div className="w-full h-7 mt-1 flex items-center justify-center">
+            <div className="relative  w-full h-7 mt-1 flex items-center justify-center">
               <h2 className="font-semibold">Profile Picture </h2>
               <InputWithIconAndText
                 type="file"
@@ -481,11 +477,12 @@ const Register = () => {
                 onChange={handleFileChange}
                 placeholder="select a file"
               />
+              <h1 className="text-red-500 absolute -left-2 -top-1">*</h1>
             </div>
 
 
             <div className="w-full h-auto flex flex-col items-center justify-center  relative ">
-              <label className="block font-bold mb-1">Select Categories:</label>
+              <label className="block font-bold mb-1 text-left w-full"><span className="text-red-500">*</span>Select Categories:</label>
               <div className="grid grid-cols-3 gap-1 w-full">
                 {categories.map((category, index) => (
                   <button

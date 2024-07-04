@@ -355,19 +355,7 @@ const Register = async (req, res) => {
         .json({ message: "Mobile number already registered" });
     }
 
-    // Check if user with the same aadhar number already exists
-    const existingAadharUser = await Users.findOne({ where: { aadhar: userData.aadhar } });
-    if (existingAadharUser) {
-      return res
-        .status(400)
-        .json({ message: "Aadhar number already registered" });
-    }
-
-    // Validate Aadhar number length
-    if (userData.aadhar.length !== 12) {
-      return res.status(400).json({ message: "Entered Aadhar number is not valid. It must be 12 digits long." });
-    }
-
+   
     // Validate password strength
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[~`!@#$%^&*()-_=+{}[\]|;:'",.<>?\\/])[A-Za-z\d~`!@#$%^&*()-_=+{}[\]|;:'",.<>?\\/]{8,}$/;
     if (!passwordRegex.test(userData.password)) {

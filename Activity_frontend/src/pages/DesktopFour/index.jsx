@@ -202,7 +202,8 @@ const DesktopFourPage = () => {
           {isPopUpVisible && (
             <PopupComponent post={selectedPost} onClose={() => setIsPopUpVisible(false)} />
           )}
-          <div className="w-4/12 h-full  flex items-start justify-center  sm:shadow-none  border-[1px]  rounded-lg sm:rounded-none  lg:h-full sm:w-full sm:h-full md:w-full md:h-full overflow-hidden scroller">
+          <div className="relative  w-4/12 h-full  flex items-start justify-center  sm:shadow-none  border-[1px]  rounded-lg sm:rounded-none  lg:h-full sm:w-full sm:h-full md:w-full md:h-full overflow-hidden scroller">
+          <img src="/images/2.png" className="w-7 h-7 absolute top-1 right-1 rounded-full" alt="" />
             <div className="flex flex-col  items-center justify-start w-full h-full md:w-full sm:w-full">
               <div className="bg-gray-50 flex flex-row items-center justify-between p-3 sm:px-5 w-full ">
                 <div className="flex flex-row gap-2 items-center justify-center ml-[5px]" onClick={openProfilePopup}>
@@ -222,14 +223,14 @@ const DesktopFourPage = () => {
                         {/* {userData && userData.userData.name} */}
                         {name}
                       </Text>
-                      <Text className="text-center  text-gray-900 uppercase text-sm">
+                      {/* <Text className="text-center  text-gray-900 uppercase text-sm">
                         ID: {userData && userData.userData.id}
-                      </Text>
+                      </Text> */}
                     </div>
                   </div>
                 </div>
                 <Button
-                  className="rounded-3xl w-5/12 cursor-pointer font-semibold "
+                  className="rounded-3xl w-5/12 cursor-pointer font-semibold mr-4"
                   // shape="round"
                   color="indigo_A200"
                   onClick={direct}
