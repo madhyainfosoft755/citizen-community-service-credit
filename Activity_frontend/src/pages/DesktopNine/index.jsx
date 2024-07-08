@@ -219,7 +219,7 @@ const DesktopNinePage = () => {
     }
   };
 
-  
+
   useEffect(() => {
     if (posts.length > 0) {
       // Update chart data when posts change
@@ -269,7 +269,7 @@ const DesktopNinePage = () => {
           <div className="relative w-full h-full flex flex-col items-center justify-start ">
             <div className="bg-white-A700 flex flex-row items-center justify-between p-5 shadow-bs3 w-full">
               <div onClick={() => navigate("/admin")}>
-                <Img className="h-4 cursor-pointer" src="images/img_arrowleft.svg" alt="arrowleft" />
+                <Img className="h-4 cursor-pointer" src="/apps/images/img_arrowleft.svg" alt="arrowleft" />
               </div>
               <Text
                 className=" text-gray-900"
@@ -426,7 +426,7 @@ const DesktopNinePage = () => {
                     }} className="w-full h-full" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center p-2">
-                      <Img className="w-[70%] h-auto object-cover object-center" src="images/nopost.svg" alt="No posts available for endorsement" />
+                      <Img className="w-[70%] h-auto object-cover object-center" src="/apps/images/nopost.svg" alt="No posts available for endorsement" />
                     </div>
                   )}
                 </div>

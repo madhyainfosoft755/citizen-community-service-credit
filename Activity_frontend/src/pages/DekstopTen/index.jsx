@@ -134,7 +134,7 @@ const DesktopTenPage = () => {
         <div className="relative w-full flex flex-col items-center justify-center gap-1 ">
           <div className="bg-white-A700 flex flex-row items-center justify-between p-5 shadow-bs3 w-full">
             <div onClick={() => navigate("/admin")}>
-              <Img className="h-4 cursor-pointer" src="images/img_arrowleft.svg" alt="arrowleft" />
+              <Img className="h-4 cursor-pointer" src="/apps/images/img_arrowleft.svg" alt="arrowleft" />
             </div>
             <Text className="text-gray-900" size="txtInterSemiBold17">
               Manage Users
@@ -160,7 +160,7 @@ const DesktopTenPage = () => {
             ))
           ) : (
             <div className="w-full h-auto flex items-center justify-center p-2">
-              <Img className="w-[80%] h-auto object-cover object-center" src="images/nopost.svg" alt="No users available" />
+              <Img className="w-[80%] h-auto object-cover object-center" src="/apps/images/nopost.svg" alt="No users available" />
             </div>
           )}
         </div>

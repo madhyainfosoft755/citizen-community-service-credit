@@ -10,7 +10,7 @@ const DesktopSevenPage = () => {
   const navigate = useNavigate();
   const notify = (e) => toast(e);
   const [posts, setPosts] = useState([]);
-  
+
 
   const checkTokenExpiry = async (token) => {
     try {
@@ -112,7 +112,7 @@ const DesktopSevenPage = () => {
 
   const handlePostClick = (post) => {
     navigate(`/reviewactivity/${post.UserId}/${post.id}`);
-    console.log("ye hai postr",post.UserId, post.id)
+    console.log("ye hai postr", post.UserId, post.id)
   };
 
 
@@ -137,7 +137,7 @@ const DesktopSevenPage = () => {
           <div onClick={goback}>
             <Img
               className="h-4 cursor-pointer"
-              src="images/img_arrowleft.svg"
+              src="/apps/images/img_arrowleft.svg"
               alt="arrowleft"
             />
           </div>
@@ -175,7 +175,7 @@ const DesktopSevenPage = () => {
           )}
         </div>
       </div>
-      
+
     </div>
   );
 };

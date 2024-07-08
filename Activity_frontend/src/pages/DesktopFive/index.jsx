@@ -246,7 +246,7 @@ const DesktopFivePage = () => {
   };
 
   const fetchUserPosts = async (userId) => {
-    console.log("ye hai user id",userId)
+    console.log("ye hai user id", userId)
     try {
       const token = localStorage.getItem("token");
       const response = await fetch(`${API_URL}/activity/getPostsByUser/${userId}`, {
@@ -276,8 +276,8 @@ const DesktopFivePage = () => {
   };
 
   const handleUserClick = (userId) => {
-      navigate(`/userspost/${userId}`)
-    
+    navigate(`/userspost/${userId}`)
+
     // fetchUserPosts(userId);
     // const selectedUser = usersWithMostPostsInYear.find(user => user.id === userId);
     // console.log("ye hai selected user ka naam", selectedUser)
@@ -432,7 +432,7 @@ const DesktopFivePage = () => {
                   <div className="w-full h-full flex items-center justify-center">
                     <Img
                       className="w-[80%] h-auto object-cover object-center"
-                      src="images/nopost.svg"
+                      src="/apps/images/nopost.svg"
                       alt="No posts available for endorsement"
                     />
                   </div>

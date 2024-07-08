@@ -1669,7 +1669,7 @@ const pendingApproval = async (req, res) => {
   try {
     const posts = await Posts.findAll({
       where: {
-        endorsementCounter: 3,
+        endorsementCounter: 1,// will find all post for approval
         approved: false,
         rejected: false
       },

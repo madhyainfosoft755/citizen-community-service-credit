@@ -133,7 +133,7 @@ const ReviewPosts = () => {
             setIsPopupOpen(true);
         }
     };
-   
+
     const approveHoursRequest = async (postId) => {
         try {
             const token = localStorage.getItem("token");
@@ -191,7 +191,7 @@ const ReviewPosts = () => {
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const year = date.getFullYear();
         return `${day}-${month}-${year}`;
-      };
+    };
 
 
     return (
@@ -222,7 +222,7 @@ const ReviewPosts = () => {
 
                     <div className=" w-full h-full flex flex-col gap-5 items-center justify-start p-3 overflow-auto scroller">
                         <div className="w-full h-5/6  rounded-lg  overflow-hidden border-2">
-                            <div className="w-full h-1/2 rounded-tr-lg rounded-tl-lg overflow-hidden"  onClick={() => openPopup(userPosts[0])}>
+                            <div className="w-full h-1/2 rounded-tr-lg rounded-tl-lg overflow-hidden" onClick={() => openPopup(userPosts[0])}>
                                 {userPosts.length > 0 ? (
                                     <img
                                         className="w-full h-full object-cover object-center"
@@ -233,7 +233,7 @@ const ReviewPosts = () => {
                                     <div className="w-full h-full flex items-center justify-center text-white">
                                         <Img
                                             className="w-1/2 h-auto object-cover object-center"
-                                            src="/images/nopost.svg"
+                                            src="/apps/images/nopost.svg"
                                             alt="No posts available for endorsement"
                                         />
                                     </div>

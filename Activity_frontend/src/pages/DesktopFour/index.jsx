@@ -2,11 +2,12 @@ import React, { useEffect, useState } from "react";
 
 import { Button, Img, Text } from "components";
 import { API_URL } from "Constant";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "components/AuthProvider/AuthProvider";
 import Slider1 from "components/slider/slider";
 import PopupComponent from "components/popup";
 import { toast } from "react-toastify";
+import QuoteModal from "components/quote-modal";
 
 const DesktopFourPage = () => {
   const notify = (e) => toast(e);
@@ -20,7 +21,8 @@ const DesktopFourPage = () => {
   const [locationData, setLocationData] = useState(null);
   const [totalTime, setTotalTime] = useState(null); // Added state for total time
   const [userName, setUserName] = useState("")
-
+  const { state } = useLocation();
+  const [showQuote, setShowQuoteModal] = useState(false);
   // console.log("userData", userData);
   useEffect(() => {
     const fetchUserPosts = async () => {
@@ -202,8 +204,12 @@ const DesktopFourPage = () => {
           {isPopUpVisible && (
             <PopupComponent post={selectedPost} onClose={() => setIsPopUpVisible(false)} />
           )}
+
+          {showQuote && (
+            <QuoteModal onClose={() => setShowQuoteModal(false)} />
+          )}
           <div className="relative  w-4/12 h-full  flex items-start justify-center  sm:shadow-none  border-[1px]  rounded-lg sm:rounded-none  lg:h-full sm:w-full sm:h-full md:w-full md:h-full overflow-hidden scroller">
-          <img src="/images/2.png" className="w-7 h-7 absolute top-1 right-1 rounded-full" alt="" />
+            <img src="/apps/images/2.png" className="w-7 h-7 absolute top-1 right-1 rounded-full" alt="" />
             <div className="flex flex-col  items-center justify-start w-full h-full md:w-full sm:w-full">
               <div className="bg-gray-50 flex flex-row items-center justify-between p-3 sm:px-5 w-full ">
                 <div className="flex flex-row gap-2 items-center justify-center ml-[5px]" onClick={openProfilePopup}>

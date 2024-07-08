@@ -125,7 +125,7 @@ const DesktopOnePage = () => {
     // Check if email or password is empty
     if (!emailValue && !passwordValue) {
       setError("Please fill in both email and password fields.");
-      notify(error)
+      // notify(error)
       return;
     }
 
@@ -160,7 +160,8 @@ const DesktopOnePage = () => {
         console.log(error);
         setValidationErrors({ email: "Invalid credentials", password: "" });
         // notify(validationErrors)
-        notify(data.error)
+        // notify(data.error)
+        setError(data.error);
         return;
       }
 
@@ -181,15 +182,16 @@ const DesktopOnePage = () => {
         } else {
           navigate("/create");
         }
-        notify("Login Successful")
+        // notify("Login Successful")
       } else {
         console.log("Response is missing");
-        notify("response is missing")
+        // notify("response is missing")
+        setError("response is missing");
       }
     } catch (error) {
       setError("An error occurred while logging in. Please try again.");
       console.error("Error:", error);
-      notify(error)
+      // notify(error)
     }
     finally {
       setIsLoading(false); // Stop loader
@@ -218,7 +220,8 @@ const DesktopOnePage = () => {
         setLocationData({ city, state });
       } else {
         console.error("Error fetching location data");
-        notify("Error fetching location data")
+        // notify("Error fetching location data")
+        setError("Error fetching location data");
       }
     } catch (error) {
       console.error("Error fetching location data:", error);
@@ -262,6 +265,7 @@ const DesktopOnePage = () => {
       const { access_token } = response;
       // console.log("kya humko token mila", access_token)
       // await getUserProfile(access_token)
+      setIsLoading(true);
 
       if (!access_token) {
         console.log("Did not get the token. Please try again");
@@ -282,8 +286,10 @@ const DesktopOnePage = () => {
       // console.log("google data response", data);
 
       if (!loginResponse) {
+        setIsLoading(false)
+
         setError("Google login failed.");
-        notify("Google login failed.")
+        // notify("Google login failed.")
         return;
       }
 
@@ -292,8 +298,10 @@ const DesktopOnePage = () => {
       if (token && user) {
         localStorage.setItem("token", token);
         localStorage.setItem("userKey", JSON.stringify(user));
+        setIsLoading(false);
+
         navigate("/create");
-        notify("Login Successful")
+        // notify("Login Successful")
       } else {
         navigate("/profile", { state: { user } });
       }
@@ -319,10 +327,12 @@ const DesktopOnePage = () => {
         body: JSON.stringify({ email: emailvalue }),
       });
       const data = await response.json();
-      notify(data.message); // Show a notification based on the response
+      notify(data.message);
+      // Show a notification based on the response
     } catch (error) {
       console.error("Error resending verification:", error);
-      notify("An error occurred while resending verification.");
+      // notify("An error occurred while resending verification.");
+      setError("An error occurred while resending verification.");
     }
     finally {
       setShowResendButton(false)
@@ -342,6 +352,8 @@ const DesktopOnePage = () => {
         onSubmit={handleSubmit}
         className="relative overflow-hidden w-4/12 h-full sm:w-full sm:h-full md:w-2/4 md:h-full  lg:w-3/4 lg:h-3/4 flex flex-col items-center justify-center sm:border-none border-[1px] rounded-lg p-2"
       >
+        <img src="/apps/images/2.png" className="w-32 h-32 absolute top-1 left-1 rounded-full" alt="" />
+
         {isLoading && (
           <div className="w-full h-full bg-black-900/30 absolute  inset-0 flex items-center justify-center bg-white bg-opacity-75 z-50">
             <CirclesWithBar
@@ -408,7 +420,13 @@ const DesktopOnePage = () => {
             />
             <FontAwesomeIcon icon={eyeIcon} onClick={togglePasswordVisibility} className="text-gray-700" />
           </div>
-
+          {error && <div class="bg-red-50 px-4 text-xs text-red-500 rounded relative my-3 flex w-100" role="alert">
+            {/* <strong class="font-bold">Holy smokes!</strong> */}
+            <span class="block sm:inline py-2 text-xs">{error}</span>
+            <span class="px-2 py-2" onClick={() => setError(null)}>
+              <svg class="fill-current h-3.5 w-3.5 text-red-500 text-xs" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z" /></svg>
+            </span>
+          </div>}
           <Button
             type="submit"
             className="cursor-pointer font-semibold w-1/2 mt-4 text-sm text-center rounded-[22px] bg-[#546ef6] text-white-A700 "
@@ -431,9 +449,10 @@ const DesktopOnePage = () => {
               <div className="bg-white-A700 flex flex-col h-6 w-6 items-center justify-center p-1 rounded-[16px]  cursor-pointer ">
                 <Img
                   className="h-full w-full cursor-pointer "
-                  src="images/img_vector.svg"
+                  src="/apps/images/img_vector.svg"
                   alt="vector"
                 />
+
               </div>
             </div>
             <div
@@ -443,7 +462,7 @@ const DesktopOnePage = () => {
               <div className="bg-white-A700 flex flex-col h-6 w-6 items-center justify-center p-[1px] rounded-[16px]  cursor-pointer ">
                 <Img
                   className="h-full w-full cursor-not-allowed filter grayscale "
-                  src="images/linkedin.png"
+                  src="/apps/images/linkedin.png"
                   alt="vector"
                 />
               </div>
@@ -452,7 +471,7 @@ const DesktopOnePage = () => {
               <div className="bg-white-A700 flex flex-col h-6 items-center justify-center p-2 rounded-[17px] w-6 ">
                 <Img
                   className="h-[19px] filter grayscale"
-                  src="images/img_facebook.svg"
+                  src="/apps/images/img_facebook.svg"
                   alt="facebook"
                 />
               </div>
@@ -462,7 +481,7 @@ const DesktopOnePage = () => {
               <div className="bg-white-A700 flex flex-col h-6 w-6 items-center justify-center p-[2px] rounded-full ">
                 <Img
                   className="h-full w-full filter grayscale"
-                  src="images/img_twitter.svg"
+                  src="/apps/images/img_twitter.svg"
                   alt="twitter"
                 />
               </div>
@@ -472,7 +491,7 @@ const DesktopOnePage = () => {
                 <div className="bg-white-A700 flex flex-col h-6 items-center justify-end p-[1px] rounded-[17px] w-6">
                   <Img
                     className="h-[40px] filter grayscale"
-                    src="images/img_instagram.svg"
+                    src="/apps/images/img_instagram.svg"
                     alt="instagram"
                   />
                 </div>
@@ -504,7 +523,7 @@ const DesktopOnePage = () => {
               className="cursor-pointer flex items-center justify-center min-w-[145px]"
               leftIcon={
                 <div className="mb-[3px] mr-[9px] h-4 w-4 ">
-                  <Img src="images/img_location.svg" alt="location icon" />
+                  <Img src="/apps/images/img_location.svg" alt="location icon" />
                 </div>
               }
               shape="round"
@@ -523,7 +542,7 @@ const DesktopOnePage = () => {
                 <div className="h-4 mb-[3px] mr-2.5 w-4 ">
                   <Img
                     className="h-4"
-                    src="images/img_calendar.svg"
+                    src="/apps/images/img_calendar.svg"
                     alt="calendar"
                   />
                 </div>

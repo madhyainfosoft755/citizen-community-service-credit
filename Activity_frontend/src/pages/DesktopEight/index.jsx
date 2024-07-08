@@ -19,17 +19,17 @@ const DesktopEightPage = () => {
   const popUpRef = useRef(null); // Create a ref for the pop-up
 
 
-  
+
   const goback = () => {
     navigate("/admin")
   }
 
- 
+
 
   const handleClickOutside = (event) => {
-   if (popUpRef.current && !popUpRef.current.contains(event.target) ){
+    if (popUpRef.current && !popUpRef.current.contains(event.target)) {
       setShowInput(false); // Close the pop-up if click is outside it
-      
+
       // console.log("2",event.target)
     }
   };
@@ -229,7 +229,7 @@ const DesktopEightPage = () => {
             <div onClick={goback}>
               <Img
                 className="h-4 cursor-pointer"
-                src="images/img_arrowleft.svg"
+                src="/apps/images/img_arrowleft.svg"
                 alt="arrowleft"
               />
             </div>
@@ -241,13 +241,13 @@ const DesktopEightPage = () => {
             </Text>
             {
               showinput ?
-              
-            <Button className="rounded-xl btn" key={0} onChange={()=>{}}>
-              <FontAwesomeIcon icon={ faCircleXmark} className="text-[#546ef6] text-2xl " />
-            </Button>:
-            <Button className="rounded-xl " key={1} onClick={toggleinput}>
-              <FontAwesomeIcon icon={ faCirclePlus} className="text-[#546ef6] text-2xl " />
-            </Button>
+
+                <Button className="rounded-xl btn" key={0} onChange={() => { }}>
+                  <FontAwesomeIcon icon={faCircleXmark} className="text-[#546ef6] text-2xl " />
+                </Button> :
+                <Button className="rounded-xl " key={1} onClick={toggleinput}>
+                  <FontAwesomeIcon icon={faCirclePlus} className="text-[#546ef6] text-2xl " />
+                </Button>
             }
           </div>
 
@@ -317,7 +317,7 @@ const DesktopEightPage = () => {
             <div className="w-full h-auto flex items-center justify-center p-2">
               <Img
                 className="w-[80%] h-auto object-cover object-center"
-                src="images/nopost.svg"
+                src="/apps/images/nopost.svg"
                 alt="No approvers available"
               />
             </div>

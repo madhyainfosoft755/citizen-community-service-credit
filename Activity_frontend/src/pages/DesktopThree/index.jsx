@@ -11,7 +11,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLocationDot } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
 import { CirclesWithBar } from 'react-loader-spinner'
-import { differenceInHours, parse, isSameDay, format,isEqual } from 'date-fns'; // Importing necessary functions from date-fns
+import { differenceInHours, parse, isSameDay, format, isEqual } from 'date-fns'; // Importing necessary functions from date-fns
 import PopupComponent from "components/popup";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -108,17 +108,17 @@ const Createpost = () => {
       try {
         const response = await fetch(`${API_URL}/activity/getCategories`);
         const data = await response.json();
-  
+
         if (response.ok) {
           if (data.length > 0) {
             const userCategories = userData?.userData.category || [];
             const filteredCategories = data.filter(cat => userCategories.includes(cat.name));
             const sortedCategories = filteredCategories.sort((a, b) => a.name.localeCompare(b.name));
             const limitedCategories = sortedCategories.slice(0, 6);
-  
+
             // Check if "Other" category is already included
             const hasOtherCategory = filteredCategories.some(cat => cat.name.toLowerCase() === "other");
-  
+
             if (limitedCategories.length < 6 && !hasOtherCategory) {
               const othersCategory = { id: "other", name: "Other" };
               setCategories([...limitedCategories, othersCategory]);
@@ -135,7 +135,7 @@ const Createpost = () => {
         console.error("Error fetching categories:", error);
       }
     };
-  
+
     if (userData) {
       fetchCategories();
     }
@@ -388,7 +388,7 @@ const Createpost = () => {
       if (response.ok) {
         // console.log("Success:", data);
         notify(data.message)
-        navigate("/activity");
+        navigate("/activity", { state: true });
       } else {
         console.error("Error:", data.error);
         notify(`${data.error}`)
@@ -516,7 +516,7 @@ const Createpost = () => {
               </div>
             )}
 
-            <img src="/images/2.png" className="w-7 h-7 absolute top-1 right-1 rounded-full" alt="" />
+            <img src="/apps/images/2.png" className="w-7 h-7 absolute top-1 right-1 rounded-full" alt="" />
             <div className="bg-gray-50 flex flex-row items-center justify-between p-3 sm:p-5  sm:px-5 w-full ">
 
               <div className="flex flex-row gap-4 items-center justify-center ml-[1px]" onClick={openProfilePopup}>
@@ -557,7 +557,7 @@ const Createpost = () => {
 
                 <div className="w-full flex items-center justify-between">
                   <Text
-                    className="text-sm text-gray-900 font-semibold" 
+                    className="text-sm text-gray-900 font-semibold"
                   >
                     Select Category
                   </Text>

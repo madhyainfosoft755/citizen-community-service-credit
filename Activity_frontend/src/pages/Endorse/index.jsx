@@ -41,7 +41,7 @@ const Endorse = () => {
   //   { id: 6, label: "Social Activities" },
   // ];
 
-  const [categories, setCategories]= useState([])
+  const [categories, setCategories] = useState([])
   const [cityNames, setCityNames] = useState({}); // Default value can be 'Unknown City'
   const [popupData, setPopupData] = useState(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -168,12 +168,12 @@ const Endorse = () => {
             method: "POST",
             headers: { Authorization: `Bearer ${token}` },
           });
-        
+
           const data = await response.json();
           if (response.ok) {
             setTotalTime(data.totalTimeSum)
           }
-        } 
+        }
       }
       catch (error) {
         console.error("Error fetching user total time", error);
@@ -402,13 +402,13 @@ const Endorse = () => {
     <>
       {authenticated && (
         <div className=" flex items-center justify-center w-screen h-screen sm:w-screen sm:h-screen md:w-screen md:h-screen p-4 sm:p-0 md:pt-2 md:pb-2">
-        {isPopUpVisible && (
+          {isPopUpVisible && (
             <PopupComponent post={selectedPost} onClose={() => setIsPopUpVisible(false)} />
           )}
           <div className="bg-white-A700 flex flex-col items-start justify-start sm:px-0  border-[1px] rounded-lg sm:rounded-none w-4/12 h-full sm:w-full sm:h-full md:w-7/12 md:h-full">
             <div className="flex flex-col gap-3 items-center justify-start w-full h-full   sm:p-0 ">
               <div className="relative bg-gray-50 flex flex-row items-center justify-between p-3  sm:px-5 w-full rounded-md sm:rounded-none ">
-          <img src="/images/2.png" className="w-7 h-7 absolute top-1 right-1 rounded-full" alt="" />
+                <img src="/apps/images/2.png" className="w-7 h-7 absolute top-1 right-1 rounded-full" alt="" />
 
                 <div className="flex flex-row gap-4 items-center justify-center ml-[5px]" onClick={openProfilePopup}>
                   {userData && (
@@ -517,7 +517,7 @@ const Endorse = () => {
                     <div className="w-full h-full flex items-center justify-center">
                       <Img
                         className="w-1/2 h-auto object-cover object-center"
-                        src="images/nopost.svg"
+                        src="/apps/images/nopost.svg"
                         alt="No posts available for endorsement"
                       />
                     </div>
@@ -537,8 +537,8 @@ const Endorse = () => {
                         {filteredPosts.map((post) => (
                           <tr key={post.id} className=" border">
                             <td className="border p-3 text-center" >{post.category}</td>
-                            <td  className="border p-3 text-center">{post.user ? post.user.name : 'Unknown'}</td>
-                            <td  className="border p-3 text-center">{post.totalTime}</td>
+                            <td className="border p-3 text-center">{post.user ? post.user.name : 'Unknown'}</td>
+                            <td className="border p-3 text-center">{post.totalTime}</td>
                             <td className="border p-3 text-center">
                               {post.latitude && post.longitude ? (
                                 <span>{renderCityName(post.id)}</span>
@@ -546,7 +546,7 @@ const Endorse = () => {
                                 'Unknown City'
                               )}
                             </td>
-                            <td  className="border p-3 text-center">
+                            <td className="border p-3 text-center">
                               <a
                                 href="#"
                                 onClick={() => openPopup(post)}
@@ -555,7 +555,7 @@ const Endorse = () => {
                                 View
                               </a>
                             </td>
-                            <td  className="w-full h-full items-center justify-center px-8">
+                            <td className="w-full h-full items-center justify-center px-8">
                               <input
                                 type="checkbox"
                                 id={`endorsement_${post.id}`}

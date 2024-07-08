@@ -158,7 +158,7 @@ const Register = () => {
         setMobileError(value.length > 0 ? "Invalid mobile number format" : "");
       }
 
-     
+
 
       // Email validation
       if (name === "email") {
@@ -407,7 +407,7 @@ const Register = () => {
               />
               <h1 className="text-red-500 absolute -left-2 -top-1">*</h1>
             </div>
-            <div className="w-full h-7 flex flex-col items-center justify-center relative">
+            {/* <div className="w-full h-7 flex flex-col items-center justify-center relative">
               <InputWithIconAndText
                 icon={faIdCard} // Change the icon as needed
                 iconColor={"#ffe93f"}
@@ -418,7 +418,7 @@ const Register = () => {
                 type="number"
               />
             </div>
-            {fieldBeingEdited === "aadhar" && aadharError && <div className="error-message">{aadharError}</div>}
+            {fieldBeingEdited === "aadhar" && aadharError && <div className="error-message">{aadharError}</div>} */}
 
             <div className="w-full h-7 flex flex-col items-center justify-center relative">
               <InputWithIconAndText

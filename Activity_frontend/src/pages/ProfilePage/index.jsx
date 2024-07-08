@@ -100,8 +100,8 @@ const ProfilePage = () => {
             return updatedCategories;
         });
 
-         // Clear the error if a category is selected
-         if (selectedCategories.length > 0) {
+        // Clear the error if a category is selected
+        if (selectedCategories.length > 0) {
             setFormErrors((prevErrors) => {
                 const { categories, ...rest } = prevErrors;
                 return rest;
@@ -120,7 +120,7 @@ const ProfilePage = () => {
             });
         }
 
-       
+
     };
 
     const handleSubmit = async (e) => {
@@ -132,7 +132,7 @@ const ProfilePage = () => {
             errors.phone = "Invalid mobile number format";
         }
 
-        
+
         if (!selectedCategories || selectedCategories.length === 0) {
             errors.categories = "Please select at least one category";
         }
@@ -161,9 +161,9 @@ const ProfilePage = () => {
             });
 
             const data = await response.json();
-            console.log("kya data mila : " , data)
+            console.log("kya data mila : ", data)
 
-            const { token, userKey  } = data.data;
+            const { token, userKey } = data.data;
 
             console.log("user key :", userKey)
             console.log("token:", token)
@@ -178,10 +178,10 @@ const ProfilePage = () => {
                     setAuthenticated(true);
                     notify("Login Successful")
                     navigate("/create");
-                  } else {
+                } else {
                     console.log("Response is missing");
                     notify(data.message);
-                  }
+                }
                 // navigate("/create", { state: { data } });
                 setFormData({
                     name: "",
@@ -217,7 +217,7 @@ const ProfilePage = () => {
     return (
         <div className="w-screen h-screen sm:w-screen sm:h-screen md:w-screen md:h-screen lg:w-screen lg:h-screen flex items-center justify-center pt-5 pb-5 sm:p-0 ">
             <form onSubmit={handleSubmit} className="bg-white-A700_33 gap-4 p-2 sm:pt-4 sm:pb-4 scroller relative w-4/12 h-full sm:w-full sm:h-full md:w-3/4 md:h-full lg:w-3/4 lg:h-full flex flex-col items-center justify-start md:justify-between md:pt-10 md:pb-10 sm:justify-between border-[1px] rounded-lg sm:rounded-none overflow-auto scroller">
-            <img src="/images/2.png" className="w-14 h-14 absolute top-0 right-0 rounded-full" alt="" />
+                <img src="/apps/images/2.png" className="w-14 h-14 absolute top-0 right-0 rounded-full" alt="" />
                 {isLoading && (
                     <div className="w-full h-full bg-black-900/30 absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-50">
                         <CirclesWithBar
@@ -285,7 +285,7 @@ const ProfilePage = () => {
                             type="text"
                             placeholder="Aadhar Number"
                             value={formData.aadhar}
-                            // onChange={handleInputChange}
+                        // onChange={handleInputChange}
                         />
                     </div>
                 </div>

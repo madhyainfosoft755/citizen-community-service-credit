@@ -142,7 +142,7 @@ const OrganizationManagementPage = () => {
         <div className="relative w-full flex flex-col items-center justify-center gap-1 ">
           <div className="bg-white-A700 flex flex-row items-center justify-between p-3  shadow-bs3 w-full">
             <div onClick={goBack}>
-              <img className="h-4 cursor-pointer" src="images/img_arrowleft.svg" alt="arrowleft" />
+              <img className="h-4 cursor-pointer" src="/apps/images/img_arrowleft.svg" alt="arrowleft" />
             </div>
             <Text className="text-gray-900" size="txtInterSemiBold17">
               Manage Organizations
@@ -195,7 +195,7 @@ const OrganizationManagementPage = () => {
             ))
           ) : (
             <div className="w-full h-auto flex items-center justify-center p-2">
-              <img className="w-[80%] h-auto object-cover object-center" src="images/nopost.svg" alt="No organizations available" />
+              <img className="w-[80%] h-auto object-cover object-center" src="/apps/images/nopost.svg" alt="No organizations available" />
             </div>
           )}
         </div>
