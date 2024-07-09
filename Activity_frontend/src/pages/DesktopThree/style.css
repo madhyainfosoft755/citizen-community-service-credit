@@ -15,3 +15,31 @@
 .scroller::-webkit-scrollbar{
     display: none;
 }
+.star_6 {
+    width: 0;
+    height: 0;
+    border-left: 16.67px solid transparent;
+    /* 50px / 3 */
+    border-right: 16.67px solid transparent;
+    /* 50px / 3 */
+    border-bottom: 33.33px solid #546ef6;
+    /* 100px / 3 */
+    position: relative;
+}
+
+.star_6:before {
+    content: "";
+    position: absolute;
+    top: 10px;
+    /* 30px / 3 */
+    left: -16.67px;
+    /* 50px / 3 */
+    width: 0;
+    height: 0;
+    border-left: 16.67px solid transparent;
+    /* 50px / 3 */
+    border-right: 16.67px solid transparent;
+    /* 50px / 3 */
+    border-top: 33.33px solid #546ef6;
+    /* 100px / 3 */
+}

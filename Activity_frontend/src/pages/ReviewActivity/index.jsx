@@ -233,7 +233,7 @@ const ReviewPosts = () => {
                                     <div className="w-full h-full flex items-center justify-center text-white">
                                         <Img
                                             className="w-1/2 h-auto object-cover object-center"
-                                            src="/apps/images/nopost.svg"
+                                            src="/images/nopost.svg"
                                             alt="No posts available for endorsement"
                                         />
                                     </div>

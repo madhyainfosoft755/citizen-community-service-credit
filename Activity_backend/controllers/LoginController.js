@@ -54,7 +54,7 @@ const LinkedInLogin = async (req, res) => {
 
     const accessToken = tokenResponse.data.access_token;
 
-    console.log("********************** mila kya access token *******************", tokenResponse)
+    // console.log("********************** mila kya access token *******************", tokenResponse)
 
     // Fetch user profile information from LinkedIn
     const profileResponse = await axios.get('https://api.linkedin.com/v2/userinfo', {
@@ -62,7 +62,7 @@ const LinkedInLogin = async (req, res) => {
         Authorization: `Bearer ${accessToken}`,
       },
     });
-    console.log("********** kya mila profile ke response mai *************", profileResponse)
+    // console.log("********** kya mila profile ke response mai *************", profileResponse)
 
 
     const email = profileResponse.data.email;
@@ -97,14 +97,14 @@ const LinkedInLogin = async (req, res) => {
 
     // Check the linklogin flag to determine the redirection
     if (user) {
-      console.log('Checking linklogin');
+      // console.log('Checking linklogin');
       res.status(200).json({
         token: jwtToken,
         user: user,
         redirect: '/create', // Redirect to /create page
       });
     } else {
-      console.log('Error');
+      // console.log('Error');
       res.status(200).json({
         token: jwtToken,
         user: user,
@@ -125,7 +125,7 @@ const getUserIdFromToken = (req) => {
     const token = authorizationHeader.split(" ")[1];
     try {
       const decodedToken = Jwt.verify(token, jwtKey);
-      console.log("ye hai user ki id", decodedToken.userId)
+      // console.log("ye hai user ki id", decodedToken.userId)
       return decodedToken.userId;
     } catch (error) {
       console.error("Error decoding token:", error);
@@ -157,7 +157,7 @@ const getUserProfile = async (accessToken) => {
 
     // Extract user profile from response data
     const userProfile = response.data;
-    console.log("this is users profile data", userProfile)
+    // console.log("this is users profile data", userProfile)
     return userProfile;
   } catch (error) {
     console.error('Failed to fetch user profile:', error.response ? error.response.data : error.message);
@@ -190,14 +190,14 @@ const PhoneNumberGenerator = (length) => {
 // Example usage:
 const passwordLength = 10;
 const generatePhoneNumber = PhoneNumberGenerator(10);
-console.log('Generated number:', generatePhoneNumber);
+// console.log('Generated number:', generatePhoneNumber);
 const generatedPassword = generateRandomPassword(passwordLength);
-console.log('Generated Password:', generatedPassword);
+// console.log('Generated Password:', generatedPassword);
 
 
 // const GoogleLogin = async (req, res) => {
 //   const { token } = req.body;
-//   console.log("*****token********", token)
+  // console.log("*****token********", token)
 
 //   if (!token) {
 //     return res.status(400).json({ error: 'ID token is missing' });
@@ -205,7 +205,7 @@ console.log('Generated Password:', generatedPassword);
 
 //   try {
 //     const userProfile = await getUserProfile(token);
-//     console.log("ye rha user ka profile data", userProfile)
+    // console.log("ye rha user ka profile data", userProfile)
 
 //     // Check if user exists
 //     let user = await Users.findOne({ where: { email: userProfile.email } });
@@ -244,19 +244,19 @@ console.log('Generated Password:', generatedPassword);
 //     // const jwtToken = Jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 //     const jwtToken = Jwt.sign({ userId: user.id }, jwtKey, { expiresIn: "1h" });
 
-//     console.log("lo data le lo", user)
+    // console.log("lo data le lo", user)
 
 //     res.status(200).set('Authorization', `Bearer ${jwtToken}`).json({ token: jwtToken, user: userProfile, redirectTo: '/create' });
 //   } catch (error) {
 //     logger.error("ye hai google ki error", error)
-//     console.error('Google login error:', error);
+    // console.error('Google login error:', error);
 //     res.status(500).json({ error: 'Internal server error' });
 //   }
 // };
 
 const GoogleLogin = async (req, res) => {
   const { token } = req.body;
-  console.log("*****token********", token);
+  // console.log("*****token********", token);
 
   if (!token) {
     return res.status(400).json({ error: 'ID token is missing' });
@@ -264,7 +264,7 @@ const GoogleLogin = async (req, res) => {
 
   try {
     const userProfile = await getUserProfile(token);
-    console.log("ye rha user ka profile data", userProfile);
+    // console.log("ye rha user ka profile data", userProfile);
 
     // Check if user exists
     let user = await Users.findOne({ where: { email: userProfile.email } });
@@ -277,7 +277,7 @@ const GoogleLogin = async (req, res) => {
     // Generate JWT token for the user
     const jwtToken = Jwt.sign({ userId: user.id }, jwtKey, { expiresIn: "1h" });
 
-    console.log("lo data le lo", user);
+    // console.log("lo data le lo", user);
 
     res.status(200).set('Authorization', `Bearer ${jwtToken}`).json({ token: jwtToken, user: userProfile });
   } catch (error) {
@@ -309,7 +309,7 @@ const Register = async (req, res) => {
   try {
 
     const userData = req.body;
-    console.log("here is he data", userData);
+    // console.log("here is he data", userData);
 
     // Check if any required field is empty
     if (!userData.name) {
@@ -330,7 +330,7 @@ const Register = async (req, res) => {
 
     // Check if the uploaded file is an image
     const photoFile = req.files.photo;
-    console.log("ye hai photo file", photoFile)
+    // console.log("ye hai photo file", photoFile)
     // Check if the file has an allowed image extension
     const allowedExtensions = ["jpg", "jpeg", "png", "gif"];
     const fileExtension = photoFile[0].filename ? photoFile[0].filename.split(".") : "";
@@ -340,7 +340,7 @@ const Register = async (req, res) => {
 
     // Check if user with the same email already exists
     const existingUser = await Users.findOne({ where: { email: userData.email } });
-    console.log("this is the existing user", existingUser)
+    // console.log("this is the existing user", existingUser)
     if (existingUser) {
 
       return res.status(400).json({ message: "Email already exists" });
@@ -378,7 +378,7 @@ const Register = async (req, res) => {
 
     // Ensure "Others" category is always present
     let selectedCategories = userData.selectedCategories;
-    console.log("Category selected:", selectedCategories);
+    // console.log("Category selected:", selectedCategories);
 
     if (typeof selectedCategories === "string") {
       selectedCategories = JSON.parse(selectedCategories);
@@ -392,7 +392,7 @@ const Register = async (req, res) => {
       selectedCategories.push("Others");
     }
 
-    console.log("Final categories:", selectedCategories);
+    // console.log("Final categories:", selectedCategories);
 
     // const Category = selectedCategories;
 
@@ -433,7 +433,7 @@ const RegisterLinkedin = async (req, res) => {
   try {
 
     const userData = req.body;
-    console.log("here is he data", userData);
+    // console.log("here is he data", userData);
 
     // Check if any required field is empty
     if (!userData.name) {
@@ -456,7 +456,7 @@ const RegisterLinkedin = async (req, res) => {
 
     // Check if user with the same email already exists
     const existingUser = await Users.findOne({ where: { email: userData.email } });
-    console.log("this is the existing user", existingUser)
+    // console.log("this is the existing user", existingUser)
     if (existingUser) {
 
       return res.status(400).json({ message: "Email already exists" });
@@ -482,7 +482,7 @@ const RegisterLinkedin = async (req, res) => {
     
     // Ensure "Others" category is always present
     let selectedCategories = userData.selectedCategories;
-    console.log("Category selected:", selectedCategories);
+    // console.log("Category selected:", selectedCategories);
 
     if (typeof selectedCategories === "string") {
       selectedCategories = JSON.parse(selectedCategories);
@@ -496,7 +496,7 @@ const RegisterLinkedin = async (req, res) => {
       selectedCategories.push("Others");
     }
 
-    console.log("Final categories:", selectedCategories);
+    // console.log("Final categories:", selectedCategories);
 
 
     // Download and save profile picture
@@ -531,7 +531,7 @@ const RegisterLinkedin = async (req, res) => {
 
     // You can add more error handling and validation as needed
     const token = Jwt.sign({ userId: newUser.id }, jwtKey, {expiresIn: "1d",});
-    console.log("this is the token********************-------------------",token)
+    // console.log("this is the token********************-------------------",token)
 
     
     return res.status(201).json({
@@ -556,7 +556,7 @@ const RegisterLinkedin = async (req, res) => {
 const verify = async (req, res) => {
   try {
     const { token } = req.params;
-    console.log("this is token", token)
+    // console.log("this is token", token)
 
     const user = await Users.findOne({ where: { verificationToken: token } });
     // Check if user is already verified
@@ -584,7 +584,7 @@ const verify = async (req, res) => {
 const forgetpassword = async (req, res) => {
 
   const { email } = req.body;
-  // console.log("this is the email",email)
+  console.log("this is the email",email)
 
   // Check if email exists in the database
   const user = await Users.findOne({ where: { email } });
@@ -594,7 +594,7 @@ const forgetpassword = async (req, res) => {
 
   // Generate 6-digit PIN
   const pin = randomstring.generate({ length: 6, charset: 'numeric' });
-  console.log("*-*-this is the generated pin*-*-", pin)
+  // console.log("*-*-this is the generated pin*-*-", pin)
 
   // Update user's resetPin field with the generated PIN
   user.resetPin = pin;
@@ -623,7 +623,7 @@ const forgetpassword = async (req, res) => {
       console.error('Error sending email:', error);
       return res.status(500).json({ message: 'Error sending PIN email' });
     } else {
-      console.log('Email sent:', info.response);
+      // console.log('Email sent:', info.response);
       return res.status(200).json({ message: 'PIN sent to your email' });
     }
   });
@@ -634,11 +634,11 @@ const verifyPin = async (req, res) => {
   try {
     const { email, pin } = req.body;
 
-    console.log("ye hian email aur pin", email, pin)
+    // console.log("ye hian email aur pin", email, pin)
 
     // Find user by email
     const user = await Users.findOne({ where: { email } });
-    console.log("***ye hai user ka data***", user)
+    // console.log("***ye hai user ka data***", user)
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -651,7 +651,7 @@ const verifyPin = async (req, res) => {
     return res.status(200).json({ message: 'PIN verified successfully' });
   } catch (error) {
     logger.error("Here is the error", error);
-    console.error("PIN verification failed:", error);
+    // console.error("PIN verification failed:", error);
     return res.status(500).json({
       status: "error",
       message: "PIN verification failed",
@@ -733,12 +733,12 @@ const updatePassword = async (req, res) => {
 const login = async (req, res) => {
   const { email, password } = req.body;
 
-  console.log("email ", req.body);
+  // console.log("email ", req.body);
 
   try {
     // Find the user based on the provided email
     const user = await Users.findOne({ where: { email } });
-    console.log("**/*/*/* THIS IS USER /*/*/*/*/", user);
+    // console.log("**/*/*/* THIS IS USER /*/*/*/*/", user);
 
 
     // Check if the password matches
@@ -759,8 +759,8 @@ const login = async (req, res) => {
     const token = Jwt.sign({ userId: user.id }, jwtKey, {
       expiresIn: "1d",
     });
-    console.log("token", token);
-    console.log("*** role of the user ***", user.role);
+    // console.log("token", token);
+    // console.log("*** role of the user ***", user.role);
 
     const userKey = {
       id: user.id,
@@ -778,7 +778,7 @@ const login = async (req, res) => {
     // Successful login
   } catch (error) {
     logger.error("here is the error", error);
-    console.log("error or exception", error);
+    // console.log("error or exception", error);
     res.status(500).json({ error: "An error occurred during login." });
   }
 };
@@ -786,7 +786,7 @@ const login = async (req, res) => {
 const resendVerification = async (req, res) => {
   try {
     const { email } = req.body;
-    console.log("this is the email id recieved", email)
+    // console.log("this is the email id recieved", email)
 
     // Check if the user exists with the provided email
     const user = await Users.findOne({ where: { email } });
@@ -823,8 +823,8 @@ const resendVerification = async (req, res) => {
 
 const varifybytiken = async (req, res) => {
   const { userKey, token } = req.body;
-  console.log("userKey", userKey);
-  console.log("token", token);
+  // console.log("userKey", userKey);
+  // console.log("token", token);
 
   try {
     const verifytoken = Jwt.verify(token, jwtKey);
@@ -848,12 +848,12 @@ const varifybytiken = async (req, res) => {
 
 const varifybytoken = async (req, res) => {
   const { accessToken, name, id, clientId, Email, credential } = req.body;
-  console.log("email", Email);
-  console.log("token", credential);
+  // console.log("email", Email);
+  // console.log("token", credential);
 
   try {
     const verifytoken = Jwt.verify(credential, jwtKey);
-    console.log(verifytoken, "veryfi");
+    // console.log(verifytoken, "veryfi");
 
     if (!verifytoken) {
       return res.status(401).json({ error: "Invalid token " });
@@ -895,7 +895,7 @@ const profile = async (req, res) => {
 
   // Extract user ID from JWT token
   const userId = getUserIdFromToken(req);
-  console.log("ye profile se aa rhi hai userID", userId)
+  // console.log("ye profile se aa rhi hai userID", userId)
   if (!userId) {
     return res.status(401).json({ error: "Unauthorized" });
   }
@@ -1046,10 +1046,10 @@ const CreateActivity = async (req, res) => {
 
     // Extract userId from the token
     const userId = getUserIdFromToken(req);
-    // console.log("YE HAI USER KI ID", userId)
+    console.log("YE HAI USER KI ID", userId)
 
     if (userId === null || userId === undefined) {
-      console.log("no user id found");
+      // console.log("no user id found");
       logger.error("userid not found while creating activity", errors)
       return;
     }
@@ -1066,7 +1066,7 @@ const CreateActivity = async (req, res) => {
     // Format the date to yyyy-mm-dd format
     const formattedDate = format(new Date(date), 'yyyy-MM-dd');
 
-    console.log("req data mai date kya aa rhi hai ", formattedDate);
+    // console.log("req data mai date kya aa rhi hai ", formattedDate);
     // Check if files were uploaded
     const photos =
       req.files && req.files.photo
@@ -1076,7 +1076,7 @@ const CreateActivity = async (req, res) => {
         }, [])
         : "";
 
-    // console.log("ye hain photos", photos)
+    console.log("ye hain photos", photos)
     const videos =
       req.files && req.files.video
         ? req.files.video.reduce((acc, file) => {
@@ -1084,7 +1084,7 @@ const CreateActivity = async (req, res) => {
           return acc + file.filename;
         }, [])
         : "";
-    // console.log("ye hain videos", videos)
+    console.log("ye hain videos", videos)
 
     // Check for missing fields and create an array to store missing fields
     const missingFields = [];
@@ -1111,7 +1111,7 @@ const CreateActivity = async (req, res) => {
         toHour * 60 + toMinute - (fromHour * 60 + fromMinute);
       const hours = Math.floor(totalMinutes / 60);
       const minutes = totalMinutes % 60;
-      console.log(`${minutes}:${hours}`);
+      // console.log(`${minutes}:${hours}`);
       return `${hours}:${minutes}`;
     };
     // Calculate total time spent
@@ -1130,7 +1130,7 @@ const CreateActivity = async (req, res) => {
       { where: { id: userId } }
     );
 
-    console.log("what is the date", date)
+    // console.log("what is the date", date)
     // Save to the database
     await Posts.create({
       category,
@@ -1177,7 +1177,7 @@ const AllDetails = async (req, res) => {
     // Convert the total time sum back to HH:mm:ss format
     const formattedTotalTimeSum = convertSecondsToTime(totalTimeSum);
 
-    console.log("Total Time Sum:", formattedTotalTimeSum);
+    // console.log("Total Time Sum:", formattedTotalTimeSum);
 
     // Update totalTime in the users table
     const user = await db.users.findByPk(userId);
@@ -1209,12 +1209,13 @@ const TotalTimeSpent = async (req, res) => {
     let totalTimeSum = 0;
     all_posts.forEach((post) => {
       totalTimeSum += convertTimeToSeconds(post.totalTime);
+      // console.log(totalTimeSum, "time spent")
     });
 
     // Convert the total time sum back to HH:mm:ss format
     const formattedTotalTimeSum = convertSecondsToTime(totalTimeSum);
 
-    console.log("Total Time Sum:", formattedTotalTimeSum);
+    // console.log("Total Time Sum:", formattedTotalTimeSum);
 
     // Update totalTime in the users table
     const user = await db.users.findByPk(req.params.id);
@@ -1325,11 +1326,11 @@ const fetchPostsInArea = async (req, res) => {
     const maxLat = latitude + latDelta * (180 / Math.PI);
     const minLon = longitude - lonDelta * (180 / Math.PI);
     const maxLon = longitude + lonDelta * (180 / Math.PI);
-    console.log("this is minLat", minLat);
-    console.log("this is minLon", minLon);
-    console.log("this is maxLat", maxLat);
-    console.log("this is maxLon", maxLon);
-    console.log(userId);
+    // console.log("this is minLat", minLat);
+    // console.log("this is minLon", minLon);
+    // console.log("this is maxLat", maxLat);
+    // console.log("this is maxLon", maxLon);
+    // console.log(userId);
     // Fetch posts from all other users within the calculated area
     let postsInArea = await db.Posts.findAll({
       where: {
@@ -1346,7 +1347,7 @@ const fetchPostsInArea = async (req, res) => {
         },
       ],
     });
-    console.log("all post from the area", postsInArea);
+    // console.log("all post from the area", postsInArea);
 
     // If a username search query is provided, filter posts by username
     if (username) {
@@ -1488,7 +1489,7 @@ const getUsersWithMostPostsInYear = async (req, res) => {
         return { name: userData.name, id: userData.id, approvedPostCount: user.approvedPostCount };
       })
     );
-    // console.log("ye hain top users", topUserNames)
+    console.log("ye hain top users", topUserNames)
 
 
     res.status(200).json({ topUserNames });
@@ -1716,7 +1717,7 @@ const getCategoriesAdmin = async (req, res) => {
     }
 
     const categories = await Categories.findAll({ where: whereCondition });
-    console.log("ye rhi categorires", categories)
+    // console.log("ye rhi categorires", categories)
     if (categories.length === 0) {
       return res.status(200).json({ message: "No categories found" });
     }
@@ -1778,7 +1779,7 @@ const getOrganizationsAdmin = async (req, res) => {
     }
 
     const organizations = await Organizations.findAll({ where: whereCondition });
-    console.log("ye rhi organizations", organizations)
+    // console.log("ye rhi organizations", organizations)
     if (organizations.length === 0) {
       return res.status(200).json({ message: "No organization found" });
     }
@@ -1823,7 +1824,7 @@ const toggleOrganization = async (req, res) => {
 const addApprover = async (req, res) => {
   try {
     const approverData = req.body;
-    console.log("Received approver data:", approverData);
+    // console.log("Received approver data:", approverData);
 
     // Validation
     if (!approverData.name) {
@@ -1970,7 +1971,7 @@ const postsForDateRange = async (req, res) => {
         },
       },
     });
-    console.log("ye hain selected range of date ke posts", posts)
+    // console.log("ye hain selected range of date ke posts", posts)
 
     if (posts.length === 0) {
       return res.status(404).json({ error: "No posts found for the specified date range." });

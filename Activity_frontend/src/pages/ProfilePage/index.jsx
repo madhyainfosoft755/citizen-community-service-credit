@@ -3,7 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEnvelope, faUser, faPhone, faLocation, faIdCard } from "@fortawesome/free-solid-svg-icons";
 import "./style.css";
-import { API_URL } from "Constant";
+import { API_URL, APP_PATH } from "Constant";
 import { toast } from "react-toastify";
 import { CirclesWithBar } from 'react-loader-spinner';
 import { useAuth } from "components/AuthProvider/AuthProvider";
@@ -217,7 +217,7 @@ const ProfilePage = () => {
     return (
         <div className="w-screen h-screen sm:w-screen sm:h-screen md:w-screen md:h-screen lg:w-screen lg:h-screen flex items-center justify-center pt-5 pb-5 sm:p-0 ">
             <form onSubmit={handleSubmit} className="bg-white-A700_33 gap-4 p-2 sm:pt-4 sm:pb-4 scroller relative w-4/12 h-full sm:w-full sm:h-full md:w-3/4 md:h-full lg:w-3/4 lg:h-full flex flex-col items-center justify-start md:justify-between md:pt-10 md:pb-10 sm:justify-between border-[1px] rounded-lg sm:rounded-none overflow-auto scroller">
-                <img src="/apps/images/2.png" className="w-14 h-14 absolute top-0 right-0 rounded-full" alt="" />
+                <img src={APP_PATH + "images/2.png"} className="w-14 h-14 absolute top-0 right-0 rounded-full" alt="" />
                 {isLoading && (
                     <div className="w-full h-full bg-black-900/30 absolute inset-0 flex items-center justify-center bg-white bg-opacity-75 z-50">
                         <CirclesWithBar

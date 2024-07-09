@@ -1,5 +1,5 @@
 {
-  "name": "Vaibhav's-Application",
+  "name": "cch247",
   "homepage": "apps",
   "version": "0.1.0",
   "private": true,
@@ -17,6 +17,7 @@
     "@testing-library/react": "^11.2.7",
     "@testing-library/user-event": "^12.8.3",
     "axios": "^1.6.8",
+    "browser-image-compression": "^2.0.2",
     "chart.js": "^4.4.3",
     "date-fns": "^3.6.0",
     "prop-types": "^15.8.1",

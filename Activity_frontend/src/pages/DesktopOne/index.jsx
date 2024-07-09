@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Button, Img, Input, Line, Text } from "components";
 // import MyGoogle from 'components/googlelogin/Googlelogin'
 // import Googlelogin from "pages/GoogleLogin/Googlelogin";
-import { API_URL } from "Constant";
+import { API_URL, APP_PATH } from "Constant";
 import { useNavigate } from "react-router-dom";
 import Location from "pages/Location/Location";
 import axios from "axios";
@@ -352,7 +352,7 @@ const DesktopOnePage = () => {
         onSubmit={handleSubmit}
         className="relative overflow-hidden w-4/12 h-full sm:w-full sm:h-full md:w-2/4 md:h-full  lg:w-3/4 lg:h-3/4 flex flex-col items-center justify-center sm:border-none border-[1px] rounded-lg p-2"
       >
-        <img src="/apps/images/2.png" className="w-32 h-32 absolute top-1 left-1 rounded-full" alt="" />
+        <img src={APP_PATH + "images/2.png"} className="w-32 h-32 absolute top-1 left-1 rounded-full" alt="" />
 
         {isLoading && (
           <div className="w-full h-full bg-black-900/30 absolute  inset-0 flex items-center justify-center bg-white bg-opacity-75 z-50">
@@ -449,7 +449,7 @@ const DesktopOnePage = () => {
               <div className="bg-white-A700 flex flex-col h-6 w-6 items-center justify-center p-1 rounded-[16px]  cursor-pointer ">
                 <Img
                   className="h-full w-full cursor-pointer "
-                  src="/apps/images/img_vector.svg"
+                  src={APP_PATH + "images/img_vector.svg"}
                   alt="vector"
                 />
 
@@ -462,7 +462,7 @@ const DesktopOnePage = () => {
               <div className="bg-white-A700 flex flex-col h-6 w-6 items-center justify-center p-[1px] rounded-[16px]  cursor-pointer ">
                 <Img
                   className="h-full w-full cursor-not-allowed filter grayscale "
-                  src="/apps/images/linkedin.png"
+                  src={APP_PATH + "images/linkedin.png"}
                   alt="vector"
                 />
               </div>
@@ -471,7 +471,7 @@ const DesktopOnePage = () => {
               <div className="bg-white-A700 flex flex-col h-6 items-center justify-center p-2 rounded-[17px] w-6 ">
                 <Img
                   className="h-[19px] filter grayscale"
-                  src="/apps/images/img_facebook.svg"
+                  src={APP_PATH + "images/img_facebook.svg"}
                   alt="facebook"
                 />
               </div>
@@ -481,7 +481,7 @@ const DesktopOnePage = () => {
               <div className="bg-white-A700 flex flex-col h-6 w-6 items-center justify-center p-[2px] rounded-full ">
                 <Img
                   className="h-full w-full filter grayscale"
-                  src="/apps/images/img_twitter.svg"
+                  src={APP_PATH + "images/img_twitter.svg"}
                   alt="twitter"
                 />
               </div>
@@ -491,7 +491,7 @@ const DesktopOnePage = () => {
                 <div className="bg-white-A700 flex flex-col h-6 items-center justify-end p-[1px] rounded-[17px] w-6">
                   <Img
                     className="h-[40px] filter grayscale"
-                    src="/apps/images/img_instagram.svg"
+                    src={APP_PATH + "images/img_instagram.svg"}
                     alt="instagram"
                   />
                 </div>
@@ -523,7 +523,7 @@ const DesktopOnePage = () => {
               className="cursor-pointer flex items-center justify-center min-w-[145px]"
               leftIcon={
                 <div className="mb-[3px] mr-[9px] h-4 w-4 ">
-                  <Img src="/apps/images/img_location.svg" alt="location icon" />
+                  <Img src={APP_PATH + "images/img_location.svg"} alt="location icon" />
                 </div>
               }
               shape="round"
@@ -542,7 +542,7 @@ const DesktopOnePage = () => {
                 <div className="h-4 mb-[3px] mr-2.5 w-4 ">
                   <Img
                     className="h-4"
-                    src="/apps/images/img_calendar.svg"
+                    src={APP_PATH + "images/img_calendar.svg"}
                     alt="calendar"
                   />
                 </div>

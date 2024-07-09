@@ -9,4 +9,5 @@ else{
     API_URL = "https://cch247.com/api";
 }
 
-export {API_URL};
+const APP_PATH = '/apps/';
+export {API_URL, APP_PATH};

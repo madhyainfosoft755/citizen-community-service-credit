@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCirclePlus, faCircleXmark, faSquareCheck } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
-import { API_URL } from "Constant";
+import { API_URL, APP_PATH } from "Constant";
 import * as Switch from '@radix-ui/react-switch';
 // import * as ToggleGroup from '@radix-ui/react-toggle-group';
 import "./style.css"
@@ -202,7 +202,7 @@ const DesktopSixPage = () => {
             <div onClick={goback}>
               <Img
                 className="h-4 cursor-pointer"
-                src="/apps/images/img_arrowleft.svg"
+                src={APP_PATH + "images/img_arrowleft.svg"}
                 alt="arrowleft"
               />
             </div>

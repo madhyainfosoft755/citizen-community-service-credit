@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 
 import { Img, List, Text } from "components";
 import { useNavigate } from "react-router-dom";
-import { API_URL } from "Constant";
+import { API_URL, APP_PATH } from "Constant";
 import "./style.css";
 import { toast } from "react-toastify";
 
@@ -137,7 +137,7 @@ const DesktopSevenPage = () => {
           <div onClick={goback}>
             <Img
               className="h-4 cursor-pointer"
-              src="/apps/images/img_arrowleft.svg"
+              src={APP_PATH + "images/img_arrowleft.svg"}
               alt="arrowleft"
             />
           </div>

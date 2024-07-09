@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 
 import { Button, Img, Input, Text } from "components";
-import { API_URL } from "Constant";
+import { API_URL, APP_PATH } from "Constant";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "components/AuthProvider/AuthProvider";
 import "./style.css"
@@ -432,7 +432,7 @@ const DesktopFivePage = () => {
                   <div className="w-full h-full flex items-center justify-center">
                     <Img
                       className="w-[80%] h-auto object-cover object-center"
-                      src="/apps/images/nopost.svg"
+                      src={APP_PATH + "images/nopost.svg"}
                       alt="No posts available for endorsement"
                     />
                   </div>

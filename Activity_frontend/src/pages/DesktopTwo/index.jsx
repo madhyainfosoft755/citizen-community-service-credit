@@ -15,7 +15,7 @@ import "./style.css";
 import { API_URL } from "Constant";
 import { toast } from "react-toastify";
 import { CirclesWithBar } from 'react-loader-spinner';
-
+import imageCompression from 'browser-image-compression';
 
 const Register = () => {
   const notify = (e) => toast(e);
@@ -92,8 +92,9 @@ const Register = () => {
     fetchOrganizations();
   }, []);
 
-  const handleFileChange = (e) => {
+  const handleFileChange = async (e) => {
     const file = e.target.files[0];
+
     if (!file) {
       // No file selected
       return;
@@ -233,6 +234,14 @@ const Register = () => {
       notify("Please select at least one category to register.");
       return;
     }
+    const options = {
+      maxSizeMB: 1,
+      maxWidthOrHeight: 1024,
+      useWebWorker: true,
+    };
+
+    const compressedFile = await imageCompression(selectedFile, options);
+
 
     const formsDATA = new FormData();
     formsDATA.append("name", e.target[0].value);
@@ -243,7 +252,7 @@ const Register = () => {
     formsDATA.append("password", e.target[5].value);
     formsDATA.append("cpassword", e.target[6].value);
     formsDATA.append("selectedCategories", JSON.stringify(selectedCategories));
-    formsDATA.append("photo", selectedFile);
+    formsDATA.append("photo", compressedFile, selectedFile.name);
     formsDATA.append("organization", selectedOrganization);
 
 

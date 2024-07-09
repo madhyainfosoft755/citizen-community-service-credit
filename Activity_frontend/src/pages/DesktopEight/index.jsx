@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCirclePlus, faCircleXmark, faSquareCheck, faUser, faEnvelope, faPhone, faLocationCrosshairs, faIdCard, faKey, faLock, faDeleteLeft, faDumpster, faTrash, faEdit, faCross } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
-import { API_URL } from "Constant";
+import { API_URL, APP_PATH } from "Constant";
 import "./style.css"
 import InputWithIconAndText from "components/inputwithicon/InputWithIconAndText";
 
@@ -229,7 +229,7 @@ const DesktopEightPage = () => {
             <div onClick={goback}>
               <Img
                 className="h-4 cursor-pointer"
-                src="/apps/images/img_arrowleft.svg"
+                src={APP_PATH + "images/img_arrowleft.svg"}
                 alt="arrowleft"
               />
             </div>
@@ -317,7 +317,7 @@ const DesktopEightPage = () => {
             <div className="w-full h-auto flex items-center justify-center p-2">
               <Img
                 className="w-[80%] h-auto object-cover object-center"
-                src="/apps/images/nopost.svg"
+                src={APP_PATH + "images/nopost.svg"}
                 alt="No approvers available"
               />
             </div>

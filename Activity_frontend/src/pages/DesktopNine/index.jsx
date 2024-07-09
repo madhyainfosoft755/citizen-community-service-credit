@@ -3,7 +3,7 @@ import { Button, Img, Text } from "components";
 import { useNavigate } from "react-router-dom";
 import DatePicker from "react-datepicker"; // Import the DatePicker component
 import "react-datepicker/dist/react-datepicker.css"; // Import the DatePicker styles
-import { API_URL } from "Constant";
+import { API_URL, APP_PATH } from "Constant";
 import { Bar } from 'react-chartjs-2';
 import 'chart.js/auto';
 import { toast } from "react-toastify";
@@ -269,7 +269,7 @@ const DesktopNinePage = () => {
           <div className="relative w-full h-full flex flex-col items-center justify-start ">
             <div className="bg-white-A700 flex flex-row items-center justify-between p-5 shadow-bs3 w-full">
               <div onClick={() => navigate("/admin")}>
-                <Img className="h-4 cursor-pointer" src="/apps/images/img_arrowleft.svg" alt="arrowleft" />
+                <Img className="h-4 cursor-pointer" src={APP_PATH + "images/img_arrowleft.svg"} alt="arrowleft" />
               </div>
               <Text
                 className=" text-gray-900"
@@ -426,7 +426,7 @@ const DesktopNinePage = () => {
                     }} className="w-full h-full" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center p-2">
-                      <Img className="w-[70%] h-auto object-cover object-center" src="/apps/images/nopost.svg" alt="No posts available for endorsement" />
+                      <Img className="w-[70%] h-auto object-cover object-center" src={APP_PATH + "images/nopost.svg"} alt="No posts available for endorsement" />
                     </div>
                   )}
                 </div>

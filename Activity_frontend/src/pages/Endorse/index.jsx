@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Button, Img, Text } from "components";
-import { API_URL } from "Constant";
+import { API_URL, APP_PATH } from "Constant";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "components/AuthProvider/AuthProvider";
 import Location from "pages/Location/Location";
@@ -408,7 +408,7 @@ const Endorse = () => {
           <div className="bg-white-A700 flex flex-col items-start justify-start sm:px-0  border-[1px] rounded-lg sm:rounded-none w-4/12 h-full sm:w-full sm:h-full md:w-7/12 md:h-full">
             <div className="flex flex-col gap-3 items-center justify-start w-full h-full   sm:p-0 ">
               <div className="relative bg-gray-50 flex flex-row items-center justify-between p-3  sm:px-5 w-full rounded-md sm:rounded-none ">
-                <img src="/apps/images/2.png" className="w-7 h-7 absolute top-1 right-1 rounded-full" alt="" />
+                <img src={APP_PATH + "images/2.png"} className="w-7 h-7 absolute top-1 right-1 rounded-full" alt="" />
 
                 <div className="flex flex-row gap-4 items-center justify-center ml-[5px]" onClick={openProfilePopup}>
                   {userData && (
@@ -517,7 +517,7 @@ const Endorse = () => {
                     <div className="w-full h-full flex items-center justify-center">
                       <Img
                         className="w-1/2 h-auto object-cover object-center"
-                        src="/apps/images/nopost.svg"
+                        src={APP_PATH + "images/nopost.svg"}
                         alt="No posts available for endorsement"
                       />
                     </div>

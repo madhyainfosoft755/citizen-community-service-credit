@@ -11,3 +11,11 @@ export const handleSectionNavigation = (id) => {
     behavior: "smooth",
   });
 };
+
+
+export function convertToHours(timeStr) {
+  const [hours, minutes] = timeStr.split(':').map(Number);
+  const totalHours = hours + (minutes / 60);
+  
+  return parseFloat(totalHours.toFixed(2));
+}

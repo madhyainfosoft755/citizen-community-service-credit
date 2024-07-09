@@ -102,7 +102,7 @@ const Slider1 = ({ items, isPopUpVisible, setIsPopUpVisible, setSelectedPost, se
                   <div className="w-full h-2/5 flex items-center justify-between gap-2 ">
                     <div className="h-full flex flex-col items-start justify-center ">
                       <h3 className="text-gray-500 mb-1 font-semibold underline">Activity</h3>
-                      <h3 className="text-left whitespace-nowrap">{item.category}</h3>
+                      <h3 className="text-left whitespace-nowrap">{item && item.category}</h3>
                     </div>
 
                     <div className="h-full flex flex-col items-end justify-center">
@@ -115,7 +115,7 @@ const Slider1 = ({ items, isPopUpVisible, setIsPopUpVisible, setSelectedPost, se
                   <div className="w-full h-2/5 flex items-center justify-between gap-2 ">
                     <div className="h-full flex flex-col items-start justify-center ">
                       <h3 className="text-gray-500 mb-1 font-semibold underline">Date</h3>
-                      <h3 className="text-left whitespace-nowrap">{formatDate(item.Date)}</h3>
+                      <h3 className="text-left whitespace-nowrap">{formatDate(item && item.Date)}</h3>
                     </div>
 
                     <div className="h-full flex flex-col items-end justify-center">
@@ -129,7 +129,7 @@ const Slider1 = ({ items, isPopUpVisible, setIsPopUpVisible, setSelectedPost, se
                   <div className="w-full h-2/5 flex items-center justify-between gap-2 ">
                     <div className="flex flex-col items-start justify-center">
                       <h3 className="text-gray-500 mb-1 font-semibold underline">Total Time</h3>
-                      <h3 className=" ">{item.totalTime}</h3>
+                      <h3 className=" ">{item && item.totalTime}</h3>
                     </div>
 
                     <div className=" flex flex-col items-end justify-center">

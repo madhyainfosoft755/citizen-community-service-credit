@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 
 import { Button, Img, List, Text } from "components";
-import { API_URL } from "Constant";
+import { API_URL, APP_PATH } from "Constant";
 // import { Card, Avatar } from "antd";
 import { useNavigate } from "react-router-dom";
 import Location from "pages/Location/Location";
@@ -9,6 +9,7 @@ import { useAuth } from "components/AuthProvider/AuthProvider";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLocationDot } from "@fortawesome/free-solid-svg-icons";
+// import { faLocationDot } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
 import { CirclesWithBar } from 'react-loader-spinner'
 import { differenceInHours, parse, isSameDay, format, isEqual } from 'date-fns'; // Importing necessary functions from date-fns
@@ -17,6 +18,9 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { TimePicker } from "react-ios-time-picker"
 import "./style.css"
+import imageCompression from 'browser-image-compression';
+import { convertToHours } from "utils";
+
 
 
 const Createpost = () => {
@@ -342,13 +346,20 @@ const Createpost = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const options = {
+      maxSizeMB: 1,
+      maxWidthOrHeight: 1024,
+      useWebWorker: true,
+    };
+
+    const compressedFile = await imageCompression(selectedFile, options);
 
     // Create FormData object
     const formsDATA = new FormData();
     // console.log(formsDATA);
     formsDATA.append("selectedCategories", selectedCategories);
     formsDATA.append("date", currentDate);
-    formsDATA.append("photo", selectedFile);
+    formsDATA.append("photo", compressedFile, selectedFile.name);
     formsDATA.append("video", selectedVideo);
     formsDATA.append("fromTime", fromTime); // Add fromTime
     formsDATA.append("toTime", toTime); // Add toTime
@@ -427,13 +438,13 @@ const Createpost = () => {
   const [textIndex, setTextIndex] = useState(0);
   const carouselTexts = [`${totalTime || 0} Hours`, 'My Activity']; // Add your carousel text here
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTextIndex((prevIndex) => (prevIndex + 1) % carouselTexts.length);
-    }, 2000); // Change text every 2 seconds
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     setTextIndex((prevIndex) => (prevIndex + 1) % carouselTexts.length);
+  //   }, 2000); // Change text every 2 seconds
 
-    return () => clearInterval(interval);
-  }, []);
+  //   return () => clearInterval(interval);
+  // }, []);
 
   // console.log("ye hai user data", userData)
 
@@ -516,10 +527,10 @@ const Createpost = () => {
               </div>
             )}
 
-            <img src="/apps/images/2.png" className="w-7 h-7 absolute top-1 right-1 rounded-full" alt="" />
             <div className="bg-gray-50 flex flex-row items-center justify-between p-3 sm:p-5  sm:px-5 w-full ">
 
               <div className="flex flex-row gap-4 items-center justify-center ml-[1px]" onClick={openProfilePopup}>
+
                 {userData && (
                   <Img
                     className=" sm:w-[58px] sm:h-[52px] md:w-[58px] md:h-[52px] lg:w-[58px] lg:h-[58px]  w-14 h-14 rounded-full object-cover object-top  "
@@ -538,14 +549,21 @@ const Createpost = () => {
                   </div>
                 </div>
               </div>
+
+              <div>
+                {/* <p className="text-md font-bold text-blue-500">{totalTime && convertToHours(totalTime) * 20} points </p> */}
+              </div>
               <Button
                 type="button"
-                className="cursor-pointer font-semibold rounded-3xl w-5/12 mr-4"
+                className="cursor-pointer font-semibold rounded-3xl w-1/3 mr-10 text-blue-500 bg-white-A700_33"
                 color="indigo_A200"
                 onClick={direct}
               >
-                {carouselTexts[textIndex]}
+                {`${totalTime || 0} Hrs  ${totalTime && convertToHours(totalTime) * 20} Pts`}
+                {/* <FontAwesomeIcon icon={faLocationDot} className="pr-3 text-blue-600" /> */}
               </Button>
+              <img src={APP_PATH + "images/2.png"} className="w-14 h-14 rounded-full" alt="" />
+
             </div>
 
             <div className=" flex flex-col gap-3  items-center justify-start w-full h-full overflow-auto scroller">
