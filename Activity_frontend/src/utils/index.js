@@ -17,5 +17,5 @@ export function convertToHours(timeStr) {
   const [hours, minutes] = timeStr.split(':').map(Number);
   const totalHours = hours + (minutes / 60);
   
-  return parseFloat(totalHours.toFixed(2));
+  return Number((totalHours*20).toFixed(2));;
 }

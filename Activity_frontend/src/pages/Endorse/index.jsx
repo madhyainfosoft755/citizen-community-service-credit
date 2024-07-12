@@ -11,6 +11,7 @@ import axios from "axios";
 import PopupComponent from "components/popup";
 import "./style.css";
 import { toast } from "react-toastify";
+import { convertToHours } from "utils";
 
 const Endorse = () => {
   const notify = (e) => toast(e);
@@ -338,16 +339,16 @@ const Endorse = () => {
     return cityNames[postId] || "Loading...";
   };
 
-  const [textIndex, setTextIndex] = useState(0);
-  const carouselTexts = [`${totalTime || 0} Hours`, 'Create Activity']; // Add your carousel text here
+  // const [textIndex, setTextIndex] = useState(0);
+  // const carouselTexts = [`${totalTime || 0} Hours`, 'Create Activity']; // Add your carousel text here
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTextIndex((prevIndex) => (prevIndex + 1) % carouselTexts.length);
-    }, 2000); // Change text every 2 seconds
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     setTextIndex((prevIndex) => (prevIndex + 1) % carouselTexts.length);
+  //   }, 2000); // Change text every 2 seconds
 
-    return () => clearInterval(interval);
-  }, []);
+  //   return () => clearInterval(interval);
+  // }, []);
 
 
   const handleCheckboxChange = (postId, isChecked) => {
@@ -408,7 +409,6 @@ const Endorse = () => {
           <div className="bg-white-A700 flex flex-col items-start justify-start sm:px-0  border-[1px] rounded-lg sm:rounded-none w-4/12 h-full sm:w-full sm:h-full md:w-7/12 md:h-full">
             <div className="flex flex-col gap-3 items-center justify-start w-full h-full   sm:p-0 ">
               <div className="relative bg-gray-50 flex flex-row items-center justify-between p-3  sm:px-5 w-full rounded-md sm:rounded-none ">
-                <img src={APP_PATH + "images/2.png"} className="w-7 h-7 absolute top-1 right-1 rounded-full" alt="" />
 
                 <div className="flex flex-row gap-4 items-center justify-center ml-[5px]" onClick={openProfilePopup}>
                   {userData && (
@@ -434,13 +434,16 @@ const Endorse = () => {
                   </div>
                 </div>
                 <Button
-                  className="rounded-3xl cursor-pointer font-semibold w-5/12 mr-4"
-                  // shape="round"
+                  type="button"
+                  className="cursor-pointer font-semibold rounded-3xl w-1/2 mr-10 text-blue-500 bg-white-A700_33 text-xs"
                   color="indigo_A200"
                   onClick={direct}
                 >
-                  {carouselTexts[textIndex]}
+                  {`${totalTime || 0} Hrs  ${totalTime && convertToHours(totalTime)} Pts`}
+                  {/* <FontAwesomeIcon icon={faLocationDot} className="pr-3 text-blue-600" /> */}
                 </Button>
+                <img src={APP_PATH + "images/2.png"} className="w-14 h-14 rounded-full" alt="" />
+
               </div>
 
               <div className="w-full h-full  bg-[#f4f6ff]  rounded-md overflow-hidden flex flex-col items-center justify-top gap-5 ">

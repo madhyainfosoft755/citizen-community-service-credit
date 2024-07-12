@@ -8,6 +8,7 @@ import { Bar } from 'react-chartjs-2';
 import 'chart.js/auto';
 import { toast } from "react-toastify";
 import { format, subDays } from 'date-fns';
+import "./style.css"
 
 const DesktopNinePage = () => {
   const notify = (e) => toast(e);
@@ -267,7 +268,7 @@ const DesktopNinePage = () => {
       <div className="w-screen h-screen bg-white-A700 flex items-start justify-center sm:w-screen sm:h-screen md:w-screen md:h-screen p-5 sm:p-0">
         <div className="relative  w-4/12 h-full sm:w-full sm:h-full md:w-3/4 md:h-full lg:w-3/4 lg:h-full flex flex-col items-center justify-start gap-5 border-[1px] rounded-lg sm:rounded-none overflow-hidden">
           <div className="relative w-full h-full flex flex-col items-center justify-start ">
-            <div className="bg-white-A700 flex flex-row items-center justify-between p-5 shadow-bs3 w-full">
+            <div className="bg- flex flex-row items-center justify-between p-5 shadow-bs3 w-full">
               <div onClick={() => navigate("/admin")}>
                 <Img className="h-4 cursor-pointer" src={APP_PATH + "images/img_arrowleft.svg"} alt="arrowleft" />
               </div>
@@ -283,7 +284,7 @@ const DesktopNinePage = () => {
               <div
                 className=" flex flex-col items-center justify-between p-2 gap-1 w-full h-full "
               >
-                <div className="flex flex-col items-center justify-center w-full md:w-full bg-blue-200 rounded-lg">
+                <div className="flex flex-col items-center justify-center w-full md:w-full bg-[#f0f8ff] rounded-lg">
                   <div className="flex flex-row gap-4 items-center justify-center w-full h-12 flex-wrap ">
 
                     <div className="relative w-full h-full flex gap-2  p-1" ref={datepickerRef}>
@@ -298,7 +299,7 @@ const DesktopNinePage = () => {
                           From Date
                         </label>
                         <Button
-                          className={`w-full h-full text-black-900 cursor-pointer font-medium text-center text-xs ${showStartDatePicker === true || startDate ? 'border-2 border-black-900_87' : 'border-none'}`}
+                          className={`w-full h-full text-black-900 cursor-pointer font-medium text-center text-xs  ${showStartDatePicker === true || startDate ? 'border-0 border-black-900_87' : 'border-none'}`}
                           shape="round"
                           onClick={() => setShowStartDatePicker(!showStartDatePicker)}
                         >
@@ -330,7 +331,7 @@ const DesktopNinePage = () => {
                           To Date
                         </label>
                         <Button
-                          className={`w-full h-full text-black-900 cursor-pointer font-medium text-center text-xs ${showEndDatePicker === true || endDate ? 'border-2 border-black-900_87' : 'border-none'}`}
+                          className={`w-full h-full text-black-900 cursor-pointer font-medium text-center text-xs ${showEndDatePicker === true || endDate ? 'border-0 border-black-900_87' : 'border-none'}`}
                           shape="round"
                           onClick={() => setShowEndDatePicker(!showEndDatePicker)}
                         >
@@ -403,28 +404,47 @@ const DesktopNinePage = () => {
                   </div>
                 </div>
                 <div className="w-full h-full md:w-full flex items-center justify-center bg-white-A700 rounded-md">
+
                   {chartData ? (
-                    <Bar data={processData(posts)} options={{
-                      indexAxis: 'x', // Display bars vertically
-                      scales: {
-                        y: {
-                          beginAtZero: true,
-                          ticks: {
-                            callback: function (value) {
-                              if (Number.isInteger(value)) {
-                                return value;
-                              }
+                    <div className="w-full">
+
+
+                      {/* <div className="horizontal flex justify-center text-sm font-bold">
+
+                          Hours
+                        </div> */}
+                      <Bar data={processData(posts)} options={{
+                        indexAxis: 'x', // Display bars vertically
+                        scales: {
+                          y: {
+                            title: {
+                              display: true,
+                              text: 'Hours',
+                            },
+                            beginAtZero: true,
+                            ticks: {
+                              callback: function (value) {
+                                if (Number.isInteger(value)) {
+                                  return value;
+                                }
+                              },
                             },
                           },
+                          x: {
+                            title: {
+                              display: true,
+                              text: 'Categories',
+                            }
+                          }
                         },
-                      },
-                      plugins: {
-                        legend: {
-                          display: false, // Disable the legend
+                        plugins: {
+                          legend: {
+                            display: false, // Disable the legend
+                          },
                         },
-                      },
-                    }} className="w-full h-full" />
-                  ) : (
+                      }} className="w-full h-full" />
+
+                    </div>) : (
                     <div className="w-full h-full flex items-center justify-center p-2">
                       <Img className="w-[70%] h-auto object-cover object-center" src={APP_PATH + "images/nopost.svg"} alt="No posts available for endorsement" />
                     </div>

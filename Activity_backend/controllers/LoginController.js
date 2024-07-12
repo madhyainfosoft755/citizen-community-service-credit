@@ -472,12 +472,12 @@ const RegisterLinkedin = async (req, res) => {
     }
 
     // Check if user with the same aadhar number already exists
-    const existingAadharUser = await Users.findOne({ where: { aadhar: userData.aadhar } });
-    if (existingAadharUser) {
-      return res
-        .status(400)
-        .json({ message: "Aadhar number already registered" });
-    }
+    // const existingAadharUser = await Users.findOne({ where: { aadhar: userData.aadhar } });
+    // if (existingAadharUser) {
+    //   return res
+    //     .status(400)
+    //     .json({ message: "Aadhar number already registered" });
+    // }
 
     
     // Ensure "Others" category is always present
@@ -1559,7 +1559,64 @@ const getUsersWithMostPostsInSixMonths = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+// Controller to fetch users with the most posts in the last three months
+const getUsersWithMostPostsInQuater = async (req, res) => {
+  try {
+    const currentDate = new Date();
+    const threeMonthsAgo = new Date(currentDate.setMonth(currentDate.getMonth() - 3));
 
+    // Fetch all users excluding admins
+    const allUsers = await db.users.findAll({
+      where: {
+        role: {
+          [Op.ne]: 'admin' // Exclude users with the role of admin
+        }
+      }
+    });
+
+    // Initialize an array to store users with approved posts
+    const usersWithApprovedPosts = [];
+
+    // Iterate through all users to count their approved posts in the past six months
+    for (const user of allUsers) {
+      const userApprovedPosts = await db.Posts.findAll({
+        where: {
+          UserId: user.id,
+          approved: true, // Assuming 'approved' is a boolean column for approved posts
+          Date: {
+            [Op.between]: [threeMonthsAgo.toISOString().split('T')[0], new Date().toISOString().split('T')[0]],
+          },
+        },
+      });
+
+      // Only include users with approved posts in the past six months
+      if (userApprovedPosts.length > 0) {
+        usersWithApprovedPosts.push({
+          userId: user.id,
+          approvedPostCount: userApprovedPosts.length,
+        });
+      }
+    }
+
+    // Sort the usersWithApprovedPosts array by approved post count in descending order
+    const sortedUsersByApprovedPosts = usersWithApprovedPosts.sort(
+      (a, b) => b.approvedPostCount - a.approvedPostCount
+    );
+
+    // Fetch user names based on the sorted user IDs
+    const topUserNames = await Promise.all(
+      sortedUsersByApprovedPosts.map(async (user) => {
+        const userData = await db.users.findByPk(user.userId);
+        return { name: userData.name, id: userData.id, approvedPostCount: user.approvedPostCount };
+      })
+    );
+
+    res.status(200).json({ topUserNames });
+  } catch (error) {
+    logger.error("Error fetching users with most posts in the past six months", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
 // Controller to fetch users with the most posts in the current month
 const getUsersWithMostPostsInMonth = async (req, res) => {
   try {
@@ -1670,7 +1727,9 @@ const pendingApproval = async (req, res) => {
   try {
     const posts = await Posts.findAll({
       where: {
-        endorsementCounter: 1,// will find all post for approval
+        endorsementCounter: {
+      [Op.gt]: 0 // will find all posts with endorsementCounter greater than 1
+      },// will find all post for approval
         approved: false,
         rejected: false
       },
@@ -1960,15 +2019,40 @@ const postsForDateRange = async (req, res) => {
     const { start, end } = req.query;
 
     // Validate the input dates
+
     if (!start || !end) {
       return res.status(400).json({ error: "Both start and end dates are required." });
     }
+    let dateCondition = {};
+    let errorMessage = "No posts found for the specified categories and date range.";
+    if (start && end) {
+      const startDate = new Date(start);
+      const endDate = new Date(end);
+      console.log(startDate, "start date");
+      console.log(endDate, "end date");
+      dateCondition = { [Op.between]: [startDate, endDate] };
+      errorMessage = "No posts found for the specified categories in the selected date range.";
+    } else {
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      dateCondition = { [Op.gte]: thirtyDaysAgo };
+      errorMessage = "No posts found for the specified categories within past 30 days.";
+    }
 
+
+
+    // const posts = await db.Posts.findAll({
+    //   where: {
+    //     Date: {
+    //       [db.Sequelize.Op.between]: [start, end],
+    //     },
+    //     approved : true
+    //   },
+    // });
     const posts = await db.Posts.findAll({
       where: {
-        Date: {
-          [db.Sequelize.Op.between]: [start, end],
-        },
+        Date:dateCondition,
+        approved : true
       },
     });
     // console.log("ye hain selected range of date ke posts", posts)
@@ -2003,6 +2087,7 @@ const postsForCategory = async (req, res) => {
     } else {
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      console.log(thirtyDaysAgo,"thirty days ago")
       dateCondition = { [Op.gte]: thirtyDaysAgo };
       errorMessage = "No posts found for the specified categories within past 30 days.";
     }
@@ -2013,6 +2098,7 @@ const postsForCategory = async (req, res) => {
           [Op.in]: categories,
         },
         Date: dateCondition,
+        approved:true
       },
     });
 
@@ -2133,6 +2219,50 @@ const reviewpostforuser = async (req, res) => {
 };
 
 
+const getLinkToSharePost = async (req, res) => {
+
+  const id = req.params.id;
+  try {
+    const post = await Posts.findOne({
+      where: {
+        id: id
+      }
+    });
+  
+    console.log("show post", post);
+  
+    const htmlContent = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <meta property="og:title" content="${post.name}">
+      <meta property="og:description" content="${post.eventDate} ${post.eventTime} ${post.eventVenue}">
+      <meta property="og:image" content="https://eventzworld.com/api/image/${post.image}">
+      <meta name="twitter:card" content="summary_large_image">
+      <meta name="twitter:image:alt" content="https://eventzworld.com/api/image/${post.image}">
+      <meta name="twitter:title" content="${post.name}">
+      <meta name="twitter:description" content="${post.eventDate} ${post.eventTime} ${post.eventVenue}">
+      <meta name="twitter:image" content="https://eventzworld.com/api/image/${post.image}">
+      <title>${post.name}</title>
+    </head>
+    <body>
+      <h1>Loading.. </h1>
+      <script>
+        window.location.href = "${process.env.URL}/posts/${id}";
+      </script>
+    </body>
+    </html>
+  `;
+
+    // Send the HTML response with meta tags
+    res.send(htmlContent);
+  } catch {
+        logger.error(error)
+
+  }
+};
 
 
 module.exports = {
@@ -2159,6 +2289,7 @@ module.exports = {
   verifyToken,
   getUsersWithMostPostsInYear,
   getUsersWithMostPostsInSixMonths,
+  getUsersWithMostPostsInQuater,
   getUsersWithMostPostsInMonth,
   approveHours,
   rejectHours,

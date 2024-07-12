@@ -36,6 +36,7 @@ const Register = () => {
   const [passwordError, setPasswordError] = useState(false);
   const [mobileError, setMobileError] = useState(""); // State for mobile number error
   const [aadharError, setAadharError] = useState(""); // State for Aadhar number error
+  const [emailError, setEmailError] = useState(""); // State for email error
   const [categories, setCategories] = useState([]);
   // console.log("ye hai selected categories", categories)
   const [selectedCategories, setSelectedCategories] = useState([]); // this function for get selected are
@@ -215,7 +216,7 @@ const Register = () => {
     // Check if passwords match
     if (formsData.password !== formsData.confirmPassword) {
       setPasswordError(true);
-      notify("pasword do not match")
+      // notify("pasword do not match")
       return; // Exit function if passwords don't match
     }
     // Reset password error state if passwords match
@@ -224,7 +225,7 @@ const Register = () => {
     // Validate mobile number format
     if (!validateMobileNumber(formsData.phone)) {
       setMobileError("Invalid mobile number format");
-      notify(mobileError)
+      // notify(mobileError)
       return;
     }
     // Reset mobile number error state if valid
@@ -299,7 +300,10 @@ const Register = () => {
       } else {
         // setError(data.message); // Update error message state
         console.error("Error:", data.error); // Display error message to the user
-        notify(data.message)
+        if (!(data.message == 'Email already exists'))
+          notify(data.message)
+        else
+          setEmailError(data.message)
       }
     } catch (error) {
       console.error("Error:", error);
@@ -383,11 +387,19 @@ const Register = () => {
                 onChange={handleInputChange}
                 name="email"
                 type="email"
+                required
               />
               <h1 className="text-red-500 absolute -left-2 -top-1">*</h1>
               {fieldBeingEdited === "email" && error && <div className="error-message">{error}</div>}
+              {emailError && <div class="bg-red-50 px-4 text-xs text-red-500 rounded relative flex w-100 my-1" role="alert">
+
+                <span class="block sm:inline py-2 text-xs">{emailError}</span>
+                <span class="px-2 py-2" onClick={() => setMobileError(null)}>
+                  <svg class="fill-current h-3.5 w-3.5 text-red-500 text-xs" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z" /></svg>
+                </span>
+              </div>}
             </div>
-            <div className="w-full h-7 flex  items-center justify-center relative">
+            <div className="w-full h-7 relative">
               <InputWithIconAndText
                 icon={faPhone} // Change the icon as needed
                 iconColor={"#419f44"}
@@ -397,14 +409,19 @@ const Register = () => {
                 name="phone"
                 value={formsData.phone}
                 type="number"
+                required
               />
               <h1 className="text-red-500 absolute -left-2 -top-1">*</h1>
-              {/* {isMobileVerified && (
-                <Button type="button" className="bg-blue-400 text-white-A700 rounded-2xl absolute right-0" onClick={handleVerifyMobile}>Verify</Button>
-              )} */}
-            </div>
-            {fieldBeingEdited === "phone" && mobileError && <div className="error-message ">{mobileError}</div>}
 
+            </div>
+
+            {fieldBeingEdited === "phone" && mobileError && <div class="bg-red-50 px-4 text-xs text-red-500 rounded relative flex my-2" role="alert">
+
+              <span class="block sm:inline py-2 text-xs">{mobileError}</span>
+              <span class="px-2 py-2" onClick={() => setMobileError(null)}>
+                <svg class="fill-current h-3.5 w-3.5 text-red-500 text-xs" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z" /></svg>
+              </span>
+            </div>}
             <div className="w-full h-7 flex flex-col items-center justify-center relative">
               <InputWithIconAndText
                 icon={faLocationCrosshairs} // Change the icon as needed
@@ -413,6 +430,7 @@ const Register = () => {
                 className="text-sm w-full h-7 pl-10 border-solid border-[1px]  border-gray-300 bg-inherit rounded-md focus:border-emerald-300 ease-in duration-300"
                 onChange={handleInputChange}
                 name="address"
+                required
               />
               <h1 className="text-red-500 absolute -left-2 -top-1">*</h1>
             </div>
@@ -439,6 +457,7 @@ const Register = () => {
                 // inputClassName="password-input"
                 onChange={handleInputChange}
                 name="password"
+                required
               />
               <h1 className="text-red-500 absolute -left-2 -top-1">*</h1>
             </div>
@@ -452,11 +471,19 @@ const Register = () => {
                 // inputClassName="password-input"
                 onChange={handleInputChange}
                 name="confirmPassword"
+                required
               />
               <h1 className="text-red-500 absolute -left-2 -top-1">*</h1>
-              {passwordError && (
+              {/* {passwordError && (
                 <div className="error-message">Passwords do not match</div>
-              )}
+              )} */}
+              {passwordError && <div class="bg-red-50 px-4 text-xs text-red-500 rounded relative my-3 flex w-100" role="alert">
+
+                <span class="block sm:inline py-2 text-xs">{'Password does not match'}</span>
+                <span class="px-2 py-2" onClick={() => setPasswordError(false)}>
+                  <svg class="fill-current h-3.5 w-3.5 text-red-500 text-xs" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z" /></svg>
+                </span>
+              </div>}
             </div>
             <div className="form-group w-full h-auto">
               {/* <label htmlFor="organization">Select Organization</label> */}
@@ -485,7 +512,7 @@ const Register = () => {
                 className="w-[250px] pt-1 pb-1 pl-1 border-double border-4  rounded-lg focus:border-emerald-300 ease-in duration-300"
                 onChange={handleFileChange}
                 placeholder="select a file"
-              />
+                required />
               <h1 className="text-red-500 absolute -left-2 -top-1">*</h1>
             </div>
 

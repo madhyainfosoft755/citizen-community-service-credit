@@ -342,7 +342,7 @@ const Createpost = () => {
     return `${hours}:${minutes}`;
   };
 
-  console.log("what is the description", description)
+  // console.log("what is the description", description)
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -352,8 +352,18 @@ const Createpost = () => {
       useWebWorker: true,
     };
 
+    if (!selectedFile) {
+      notify("Please upload a photo ");
+      return;
+    }
     const compressedFile = await imageCompression(selectedFile, options);
 
+    // const timeDifference = differenceInHours(toTime, fromTime);
+    // console.log(fromTime, toTime);
+    if (fromTime == toTime) {
+      toast.error("from time and to time can not be same ");
+      return;
+    }
     // Create FormData object
     const formsDATA = new FormData();
     // console.log(formsDATA);
@@ -453,7 +463,7 @@ const Createpost = () => {
     //   setSelectedPost({ photos: userData.userData.photo });
     //   setIsPopUpVisible(true);
     // }
-    navigate("/userprofile")
+    // navigate("/userprofile")
   };
 
   const onChangeFromTime = (timeValue) => {
@@ -555,11 +565,11 @@ const Createpost = () => {
               </div>
               <Button
                 type="button"
-                className="cursor-pointer font-semibold rounded-3xl w-1/3 mr-10 text-blue-500 bg-white-A700_33"
+                className="cursor-pointer font-semibold rounded-3xl w-1/2 mr-10 text-blue-500 bg-white-A700_33 text-xs"
                 color="indigo_A200"
                 onClick={direct}
               >
-                {`${totalTime || 0} Hrs  ${totalTime && convertToHours(totalTime) * 20} Pts`}
+                {`${totalTime || 0} Hrs  ${totalTime && convertToHours(totalTime)} Pts`}
                 {/* <FontAwesomeIcon icon={faLocationDot} className="pr-3 text-blue-600" /> */}
               </Button>
               <img src={APP_PATH + "images/2.png"} className="w-14 h-14 rounded-full" alt="" />
@@ -702,6 +712,7 @@ const Createpost = () => {
                           accept="image/*"
                           multiple
                           onChange={handleFileChange}
+                          required
                         />
                         {/* Upload */}
                       </div>

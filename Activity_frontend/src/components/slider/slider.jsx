@@ -64,8 +64,8 @@ const Slider1 = ({ items, isPopUpVisible, setIsPopUpVisible, setSelectedPost, se
     speed: 500,
     slidesToShow: 1,
     slidesToScroll: 1,
-    // autoplay: true,
-    autoplaySpeed: 5000,
+    autoplay: true,
+    autoplaySpeed: 3000,
     rtl: true,
   };
 
@@ -87,7 +87,7 @@ const Slider1 = ({ items, isPopUpVisible, setIsPopUpVisible, setSelectedPost, se
         locationData && locationData.length > 0 && items ? (
           <Slider {...settings}>
             {locationData.map((item, index) => (
-              <div key={item.id}>
+              <div key={index}>
                 <div className="w-full h-1/2 sm:h-1/2  md:h-1/2 flex items-center justify-center bg-gray-50">
                   {item && item.photos && (
                     <img
@@ -108,7 +108,7 @@ const Slider1 = ({ items, isPopUpVisible, setIsPopUpVisible, setSelectedPost, se
                     <div className="h-full flex flex-col items-end justify-center">
                       <h3 className="text-gray-500 font-semibold  mb-1 underline">Location</h3>
                       <h3 className="flex flex-nowrap text-right ">
-                        {item.city},{item.state}
+                        {item && item.city},{item && item.state}
                       </h3>
                     </div>
                   </div>
@@ -121,7 +121,7 @@ const Slider1 = ({ items, isPopUpVisible, setIsPopUpVisible, setSelectedPost, se
                     <div className="h-full flex flex-col items-end justify-center">
                       <h3 className="text-gray-500 font-semibold  mb-1 underline">Start Time</h3>
                       <h3 className="flex flex-nowrap text-right ">
-                        {item.fromTime}
+                        {item && item.fromTime}
                       </h3>
                     </div>
                   </div>
@@ -136,11 +136,11 @@ const Slider1 = ({ items, isPopUpVisible, setIsPopUpVisible, setSelectedPost, se
                       <h3 className="text-gray-500 mb-1 font-semibold underline">Endorsed</h3>
                       <div className="flex items-center ">
 
-                        {[...Array(3)].map((_, i) => (
+                        {[...Array(1)].map((_, i) => (
                           <FontAwesomeIcon
                             key={i}
                             icon={faCircleCheck}
-                            className={`mx-1 ${item.endorsementCounter > i ? 'text-green-500 -ml-1' : 'text-red-500 -ml-1'}`}
+                            className={`mx-1 ${item && item.endorsementCounter > i ? 'text-green-500 -ml-1' : 'text-red-500 -ml-1'}`}
                           />
                         ))}
                       </div>
@@ -150,7 +150,7 @@ const Slider1 = ({ items, isPopUpVisible, setIsPopUpVisible, setSelectedPost, se
                   <div className="w-full h-2/5 flex items-center justify-between gap-2">
                     <div className=" flex flex-col items-start justify-center">
                       <h3 className="text-gray-500 mb-1 font-semibold underline">Approved</h3>
-                      <h3 className="">{item.approved ? "YES" : item.rejected ? "NO" : "Waiting..."}</h3>
+                      <h3 className="">{item && item.approved ? "YES" : item && item.rejected ? "NO" : "Waiting..."}</h3>
                     </div>
 
                     <div className="flex flex-col items-end justify-center">

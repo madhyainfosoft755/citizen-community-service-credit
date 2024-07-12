@@ -19,6 +19,7 @@ const DesktopFivePage = () => {
   const [usersWithMostPostsInYear, setUsersWithMostPostsInYear] = useState([]);
   const [usersWithMostPostsInSixMonths, setUsersWithMostPostsInSixMonths] = useState([]);
   const [usersWithMostPostsInMonth, setUsersWithMostPostsInMonth] = useState([]);
+  const [usersWithMostPostsInQuter, setUsersWithMostPostsInQuter] = useState([]);
   const [selectedUser, setSelectedUser] = useState(null); // State for selected user
   const [userPosts, setUserPosts] = useState([]); // State for user's posts
   const [isPopupVisible, setIsPopupVisible] = useState(false); // State for popup visibility
@@ -62,6 +63,7 @@ const DesktopFivePage = () => {
       MostPostsInYear(token)
       fetchMostPostsInSixMonths(token);
       fetchMostPostsInMonth(token);
+      fetchMostPostsInQuater(token);
       checkTokenExpiry(token);
     }
 
@@ -196,6 +198,33 @@ const DesktopFivePage = () => {
       if (response.ok) {
         const { topUserNames } = await response.json();
         setUsersWithMostPostsInSixMonths(Array.isArray(topUserNames) ? topUserNames : []);
+      } else {
+        console.error("Error fetching users with most posts in six months:", response.status);
+        setError("An error occurred while fetching users with most posts in six months.");
+      }
+    } catch (error) {
+      console.error("Error fetching users with most posts in six months:", error);
+      setError("An error occurred while fetching users with most posts in six months.");
+    }
+  };
+
+  const fetchMostPostsInQuater = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        navigate("/login");
+        return;
+      }
+      const response = await fetch(`${API_URL}/activity/getUsersWithMostPostsInQuater`, {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.ok) {
+        const { topUserNames } = await response.json();
+        setUsersWithMostPostsInQuter(Array.isArray(topUserNames) ? topUserNames : []);
       } else {
         console.error("Error fetching users with most posts in six months:", response.status);
         setError("An error occurred while fetching users with most posts in six months.");
@@ -356,23 +385,24 @@ const DesktopFivePage = () => {
           </div>
 
           <div className="w-full h-1/2 p-1">
-            <h1 className="text-xl font-semibold w-full pl-3">Top Five Stars</h1>
+            <h1 className="text-xl font-semibold w-full pl-3 py-3">Top Five Stars</h1>
             <div className="h-[90%] scroller overflow-x-auto p-3">
               <div className="flex h-full space-x-2">
                 {[
-                  { timeframe: 'Month', users: usersWithMostPostsInMonth },
-                  { timeframe: 'Six Months', users: usersWithMostPostsInSixMonths },
-                  { timeframe: 'Year', users: usersWithMostPostsInYear },
+                  { timeframe: 'Monthly', users: usersWithMostPostsInMonth },
+                  { timeframe: 'Quaterly', users: usersWithMostPostsInQuter },
+                  { timeframe: 'Half Yearly', users: usersWithMostPostsInSixMonths },
+                  { timeframe: 'Yearly', users: usersWithMostPostsInYear },
                 ].map(({ timeframe, users }, index) => (
                   <div
                     key={index}
-                    className="rounded-lg shadow-bs shadow-black-900 w-40 h-full border-[1px] flex-shrink-0 flex flex-col items-center justify-center pt-4 text-xl font-medium"
+                    className="rounded-lg shadow-bs shadow-black-100 w-40 h-full border-[1px] flex-shrink-0 flex flex-col items-start justify-center pt-4 text-xl font-medium px-3"
                   >
                     <h1 className="text-[#546ef6] font-bold">{timeframe}</h1>
-                    <div className="w-full h-full flex flex-col gap-1 pt-2 overflow-auto scroller">
+                    <div className="w-full h-full flex flex-col gap-1 pt-2 overflow-auto scroller justify-start items-start">
                       {users.length > 0 ? (
                         users.map((user, userIndex) => (
-                          <div key={userIndex} className="flex-shrink-0 flex items-center justify-center text-sm font-medium">
+                          <div key={userIndex} className="flex-shrink-0 flex items-center justify-center text-xs font-medium p-[2px]">
                             <h1
                               className="hover:underline hover:text-blue-300 hover:cursor-pointer"
                               onClick={() => handleUserClick(user.id)}
@@ -397,11 +427,11 @@ const DesktopFivePage = () => {
 
           <div className=" w-full h-full  pt-3 ">
             <div className=" w-full h-3/5 flex flex-wrap items-center justify-between pl-4 pr-4 pt-1 pb-1">
-              <div className="w-[48%] rounded-lg bg-[#e9ecfe] border-[1px] border-[#546ef6] text-[#546ef6] h-1/5 flex  items-center justify-center font-semibold cursor-pointer text-center" onClick={apphour}><h1>Approve Hours</h1></div>
-              <div className="w-[48%] rounded-lg bg-[#e9ecfe] border-[1px] border-[#546ef6] text-[#546ef6] h-1/5 flex flex-shrink-2 items-center justify-center font-semibold cursor-pointer text-center" onClick={magcate}><h1>Manage Category</h1></div>
-              <div className="w-[48%] rounded-lg bg-[#e9ecfe] border-[1px] border-[#546ef6] text-[#546ef6] h-1/5 flex flex-shrink-2 items-center justify-center font-semibold cursor-pointer text-center" onClick={mngapp}><h1>Manage Approvers</h1></div>
-              <div className="w-[48%] rounded-lg bg-[#e9ecfe] border-[1px] border-[#546ef6] text-[#546ef6] h-1/5 flex flex-shrink-2 items-center justify-center font-semibold cursor-pointer text-center" onClick={mnguser}><h1>Manage Users</h1></div>
-              <div className="w-full rounded-lg bg-[#e9ecfe] border-[1px] border-[#546ef6] text-[#546ef6] h-1/5 flex flex-shrink-2 items-center justify-center font-semibold cursor-pointer text-center" onClick={mngorg}><h1>Manage Organisation</h1></div>
+              <div className="w-[48%] rounded-lg bg-[#f0f2fb80] border-[1px]  text-[#546ef6] h-1/5 flex  items-center justify-center font-semibold cursor-pointer text-center" onClick={apphour}><h1>Approve Hours</h1></div>
+              <div className="w-[48%] rounded-lg bg-[#f0f2fb80] border-[1px]  text-[#546ef6] h-1/5 flex flex-shrink-2 items-center justify-center font-semibold cursor-pointer text-center" onClick={magcate}><h1>Manage Category</h1></div>
+              <div className="w-[48%] rounded-lg bg-[#f0f2fb80] border-[1px]  text-[#546ef6] h-1/5 flex flex-shrink-2 items-center justify-center font-semibold cursor-pointer text-center" onClick={mngapp}><h1>Manage Approvers</h1></div>
+              <div className="w-[48%] rounded-lg bg-[#f0f2fb80] border-[1px]  text-[#546ef6] h-1/5 flex flex-shrink-2 items-center justify-center font-semibold cursor-pointer text-center" onClick={mnguser}><h1>Manage Users</h1></div>
+              <div className="w-full rounded-lg bg-[#f0f2fb80] border-[1px]  text-[#546ef6] h-1/5 flex flex-shrink-2 items-center justify-center font-semibold cursor-pointer text-center" onClick={mngorg}><h1>Manage Organisation</h1></div>
 
             </div>
 
