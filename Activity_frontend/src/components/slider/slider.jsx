@@ -9,15 +9,16 @@ import PopupComponent from "components/popup";
 import SplashScreen from "components/Splash Screen/SplashScreen";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleCheck } from "@fortawesome/free-solid-svg-icons";
+import Share from "components/shareComponent";
 
 const Slider1 = ({ items, isPopUpVisible, setIsPopUpVisible, setSelectedPost, selectedPost }) => {
   const [locationData, setLocationData] = useState([]);
   const [showSplashScreen, setShowSplashScreen] = useState(true); // State to control splash screen visibility
-  // console.log("kya endrose aa rha hai", items)
+  console.log("kya endrose aa rha hai", items)
 
   useEffect(() => {
     const fetchData = async () => {
-      const updatedItems = await Promise.all(
+      const updatedItems = await Promise.all(items &&
         items.map(async (item) => {
           try {
             const response = await axios.get(
@@ -87,7 +88,7 @@ const Slider1 = ({ items, isPopUpVisible, setIsPopUpVisible, setSelectedPost, se
         locationData && locationData.length > 0 && items ? (
           <Slider {...settings}>
             {locationData.map((item, index) => (
-              <div key={index}>
+              <div key={index} className="relative">
                 <div className="w-full h-1/2 sm:h-1/2  md:h-1/2 flex items-center justify-center bg-gray-50">
                   {item && item.photos && (
                     <img
@@ -98,6 +99,11 @@ const Slider1 = ({ items, isPopUpVisible, setIsPopUpVisible, setSelectedPost, se
                     />
                   )}
                 </div>
+                <div className="flex justify-center items-center absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 px-3 py-5">
+                  <Share postId={item && item.id} />
+
+                </div>
+
                 <div className="w-full h-1/2 py-2 px-2 sm:p-1 md:p-0 mt-2 sm:mt-1 flex flex-col gap-2 sm:gap-0 items-center justify-between overflow-auto scroller">
                   <div className="w-full h-2/5 flex items-center justify-between gap-2 ">
                     <div className="h-full flex flex-col items-start justify-center ">
@@ -168,6 +174,7 @@ const Slider1 = ({ items, isPopUpVisible, setIsPopUpVisible, setSelectedPost, se
                     )}
                   </div>
                 </div>
+
               </div>
             ))}
           </Slider>
@@ -181,7 +188,6 @@ const Slider1 = ({ items, isPopUpVisible, setIsPopUpVisible, setSelectedPost, se
           </div>
         )
       )}
-
 
     </div>
   );

@@ -6,6 +6,8 @@ import PageNavigation from "pages/PageNavigation/PageNavigate";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "components/AuthProvider/AuthProvider";
 import ProtectedRoute from "components/ProtectedComponent/ProtectedRoute";
+import OpenActivity from "pages/OpenActivity";
+import Certificate from "pages/Certficate";
 
 const DesktopTwo = React.lazy(() => import("pages/DesktopTwo"));
 const DesktopSeven = React.lazy(() => import("pages/DesktopSeven"));
@@ -93,6 +95,8 @@ const ProjectRoutes = () => {
           <Route path="/verify/:token" element={<Verify />} />
           <Route path="/forget" element={<Forget />} />
           <Route path="/endorse" element={<Endorse />} />
+          <Route path="/posts/:postId" element={<OpenActivity />} />
+          <Route path="/certificate/:id" element={<Certificate />} />
           <Route path="/admin" element={<ProtectedRoute element={DesktopFive} adminOnly />} />
           <Route path="/managecategories" element={<ProtectedRoute element={DesktopSix} adminOnly />} />
           <Route path="/approvehours" element={<ProtectedRoute element={DesktopSeven} adminOnly />} />

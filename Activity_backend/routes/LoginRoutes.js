@@ -49,7 +49,9 @@ const {
   reviewpostforuser,
   LinkedInLogin,
   RegisterLinkedin,
-  getUsersWithMostPostsInQuater
+  getUsersWithMostPostsInQuater,
+  getPost,
+  getLinkToSharePost
 
 } = require("../controllers/LoginController");
 const { upload } = require("../utils/util");
@@ -105,5 +107,9 @@ router.post("/RegisterLinkedin", upload, RegisterLinkedin);
 router.post("/fetchPostsInArea", fetchPostsInArea);
 router.post("/endorsePost/:id", endorsePost);
 router.post("/TotalTimeSpent/:id", TotalTimeSpent);
+router.get("/getPost/:id", getPost);
+router.get("/posts/:id", getLinkToSharePost);
+
+
 
 module.exports = router;

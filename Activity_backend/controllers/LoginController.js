@@ -2165,6 +2165,44 @@ const getPostsByUser = async (req, res) => {
   }
 };
 
+const getPost = async (req, res) => {
+  try {
+    const postId = req.params.id;
+
+    // Validate user ID
+    if (!postId) {
+      return res.status(400).json({ error: "No Id Provided " });
+    }
+
+    // Fetch the user's profile data
+    const UserPost = await Posts.findAll({
+      where: { id: postId },
+       // Include desired profile attributes
+    });
+
+    if (!UserPost) {
+      return res.status(404).json({ error: "No Post Found" });
+    }
+
+
+    // Check if posts exist
+    if (UserPost.length === 0) {
+      return res.status(200).json({
+        message: "No posts found for this user"
+      });
+    }
+    // Combine user profile data with posts
+    const response = {
+      posts: UserPost,
+    };
+
+    res.status(200).json(response);
+  } catch (error) {
+    console.error("Error fetching posts by user:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
+
 const reviewpostforuser = async (req, res) => {
   try {
     const { userId, postId } = req.params;
@@ -2237,15 +2275,15 @@ const getLinkToSharePost = async (req, res) => {
     <head>
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <meta property="og:title" content="${post.name}">
-      <meta property="og:description" content="${post.eventDate} ${post.eventTime} ${post.eventVenue}">
-      <meta property="og:image" content="https://eventzworld.com/api/image/${post.image}">
+      <meta property="og:title" content="${post.category}">
+      <meta property="og:description" content="${post.Date}">
+      <meta property="og:image" content="https://cch247.com/api/image/${post.photos}">
       <meta name="twitter:card" content="summary_large_image">
-      <meta name="twitter:image:alt" content="https://eventzworld.com/api/image/${post.image}">
-      <meta name="twitter:title" content="${post.name}">
-      <meta name="twitter:description" content="${post.eventDate} ${post.eventTime} ${post.eventVenue}">
-      <meta name="twitter:image" content="https://eventzworld.com/api/image/${post.image}">
-      <title>${post.name}</title>
+      <meta name="twitter:image:alt" content="https://cch247.com/api/image/${post.photos}">
+      <meta name="twitter:title" content="${post.category}">
+      <meta name="twitter:description" content="${post.Date}">
+      <meta name="twitter:image" content="https://cch247.com/api/image/${post.photos}">
+      <title>${post.category}</title>
     </head>
     <body>
       <h1>Loading.. </h1>
@@ -2314,5 +2352,7 @@ module.exports = {
   getPostsByUser,
   reviewpostforuser,
   LinkedInLogin,
-  RegisterLinkedin
+  RegisterLinkedin,
+  getPost,
+  getLinkToSharePost
 };

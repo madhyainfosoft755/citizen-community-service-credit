@@ -9,10 +9,7 @@ import PopupComponent from "components/popup";
 import { toast } from "react-toastify";
 import QuoteModal from "components/quote-modal";
 import { convertToHours } from "utils";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircleCheck } from "@fortawesome/free-solid-svg-icons";
-import { ShareButton } from "components/instaShare";
-import Share from "components/shareComponent";
+
 
 const DesktopFourPage = () => {
   const notify = (e) => toast(e);
@@ -273,7 +270,6 @@ const DesktopFourPage = () => {
                       icon={faCircleCheck}
                       className={'mx-1 text-red-500 -ml-1'}
                     /> */}
-                    <Share />
                   </div>
                   <div className="flex  gap-1 items-center justify-center w-5/6 h-1/6  sm:w-full mb-1">
                     <Button
