@@ -219,6 +219,8 @@ const DesktopFourPage = () => {
                       className=" w-14   h-14  rounded-[50%] object-cover object-center "
                       src={`${API_URL}/image/${userData.userData.photo}`}
                       alt="userimage"
+                      onClick={() => { navigate("/users-profile") }}
+
                     />
                   )}
                   <div className="flex flex-col items-center justify-center w-3/5 ">

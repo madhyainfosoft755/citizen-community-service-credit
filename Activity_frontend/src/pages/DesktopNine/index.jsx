@@ -195,7 +195,7 @@ const DesktopNinePage = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ categories }),
+        body: JSON.stringify({ categories, start: formattedStartDate, end: formattedEndDate }),
       });
       if (!response.ok) {
         console.log("Failed to fetch posts for the selected categories.");

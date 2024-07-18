@@ -19,3 +19,10 @@ export function convertToHours(timeStr) {
   
   return Number((totalHours*20).toFixed(2));;
 }
+
+export function convertToHoursWithoutPoints(timeStr) {
+  const [hours, minutes] = timeStr.split(':').map(Number);
+  const totalHours = hours + (minutes / 60);
+  
+  return Number((totalHours).toFixed(2));;
+}

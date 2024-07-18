@@ -416,6 +416,8 @@ const Endorse = () => {
                       className=" w-14 h-14 sm:w-14 sm:h-14   rounded-full object-cover object-top "
                       src={`${API_URL}/image/${userData.userData.photo}`}
                       alt="userimage"
+                      onClick={() => { navigate("/users-profile") }}
+
                     />
                   )}
                   <div className="flex flex-col items-center justify-center w-3/5">

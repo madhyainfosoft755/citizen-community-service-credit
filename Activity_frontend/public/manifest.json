@@ -1,12 +1,9 @@
 {
-  "short_name": "CCH247",
-  "name": "Community Care Hours",
+  "short_name": "CC247",
+  "name": "Community Care 247",
+  "description": "सेवा परमो धर्मः  - सेवा ही परम धर्म है I",
+
   "icons": [
-    {
-      "src": "favicon.ico",
-      "sizes": "64x64 32x32 24x24 16x16",
-      "type": "image/x-icon"
-    },
     {
       "src": "./images/2.png",
       "type": "image/png",

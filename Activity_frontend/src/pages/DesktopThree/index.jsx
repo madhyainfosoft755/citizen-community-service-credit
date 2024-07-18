@@ -546,6 +546,7 @@ const Createpost = () => {
                     className=" sm:w-[58px] sm:h-[52px] md:w-[58px] md:h-[52px] lg:w-[58px] lg:h-[58px]  w-14 h-14 rounded-full object-cover object-top  "
                     src={`${API_URL}/image/${userData.userData.photo}`}
                     alt="image"
+                    onClick={() => { navigate("/users-profile") }}
                   />
                 )}
                 <div className="flex flex-col items-center justify-center w-3/5">

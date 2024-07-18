@@ -1231,6 +1231,35 @@ const TotalTimeSpent = async (req, res) => {
   }
 }
 
+
+const getAllPostedCategories  = async (req, res) => {
+
+  const userId = req.params.id;
+  try {
+    const all_posts = await db.Posts.findAll({
+      attributes: [
+        "UserId",
+        "Category"
+      ],
+      where: { UserId: userId, approved: true },
+    });
+
+    // Calculate the sum of totalTime
+    let categoriesArray = all_posts.map((post)=>post.dataValues.Category);
+
+    // all_posts.forEach((post) => {
+    //   categoriesArray.push(post.Category);
+    //   console.log(post.Category, "list of categoreis")
+    // });
+    // console.log(categoriesArray);
+  
+    res.status(200).json({ categoriesArray });
+  } catch (error) {
+    console.error("Here is the error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+}
+
 // Helper function to convert HH:mm:ss time format to seconds
 const convertTimeToSeconds = (time) => {
   const [hours, minutes, seconds] = time.split(":").map(Number);
@@ -2026,11 +2055,11 @@ const postsForDateRange = async (req, res) => {
     let dateCondition = {};
     let errorMessage = "No posts found for the specified categories and date range.";
     if (start && end) {
-      const startDate = new Date(start);
-      const endDate = new Date(end);
-      console.log(startDate, "start date");
-      console.log(endDate, "end date");
-      dateCondition = { [Op.between]: [startDate, endDate] };
+      // const startDate = new Date(start);
+      // const endDate = new Date(end);
+      // console.log(startDate, "start date");
+      // console.log(endDate, "end date");
+      dateCondition = { [Op.between]: [start, end] };
       errorMessage = "No posts found for the specified categories in the selected date range.";
     } else {
       const thirtyDaysAgo = new Date();
@@ -2064,7 +2093,7 @@ const postsForDateRange = async (req, res) => {
     res.json(posts);
   } catch (error) {
     logger.error("Error fetching posts for date range", error);
-    console.error(error);
+    // console.error(error);
     res.status(500).json({ error: "An error occurred while fetching posts." });
   }
 };
@@ -2087,7 +2116,7 @@ const postsForCategory = async (req, res) => {
     } else {
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-      console.log(thirtyDaysAgo,"thirty days ago")
+      // console.log(thirtyDaysAgo, "thirty days ago");
       dateCondition = { [Op.gte]: thirtyDaysAgo };
       errorMessage = "No posts found for the specified categories within past 30 days.";
     }
@@ -2108,7 +2137,7 @@ const postsForCategory = async (req, res) => {
 
     res.json(posts);
   } catch (error) {
-    console.error("Error fetching posts for categories and date range", error);
+    // console.error("Error fetching posts for categories and date range", error);
     res.status(500).json({ error: "An error occurred while fetching posts." });
   }
 };
@@ -2354,5 +2383,6 @@ module.exports = {
   LinkedInLogin,
   RegisterLinkedin,
   getPost,
-  getLinkToSharePost
+  getLinkToSharePost,
+  getAllPostedCategories
 };

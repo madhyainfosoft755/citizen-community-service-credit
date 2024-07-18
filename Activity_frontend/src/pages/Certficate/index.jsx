@@ -1,22 +1,24 @@
 import html2canvas from "html2canvas";
 import jsPDF from "jspdf";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import "./style.css";
 import { useNavigate } from "react-router-dom";
 import { API_URL, APP_PATH } from "Constant";
 import { toast } from "react-toastify";
-import { convertToHours } from "utils";
-const Certficate = ({ totalHours, categoriesList }) => {
+import { convertToHours, convertToHoursWithoutPoints } from "utils";
+import { Button } from "components";
+const Certficate = ({ setIsPopupVisible }) => {
 
     const [numPages, setNumPages] = useState(null);
     const [pageNumber, setPageNumber] = useState(1);
+    const pdfRef = useRef();
 
     function onDocumentLoadSuccess({ numPages }) {
         setNumPages(numPages);
     }
 
     const printDocument = () => {
-        const input = document.getElementById("divToPrint");
+        const input = "data";
         html2canvas(input).then((canvas) => {
             const imgData = canvas.toDataURL("image/png");
             const pdf = new jsPDF();
@@ -25,10 +27,39 @@ const Certficate = ({ totalHours, categoriesList }) => {
             pdf.save("Certificate.pdf");
         });
     };
+    const generatePDF = async () => {
+        const element = pdfRef.current;
+        element.style.display = 'block';
+        const canvas = await html2canvas(element, {
+            scale: 2, // Increase the scale for better quality
+            useCORS: true, // Enable cross-origin resource sharing if you have images from other domains
+            scrollX: 0,
+            scrollY: 0,
+            windowWidth: element.scrollWidth, // Set window width to the element's scroll width
+            windowHeight: element.scrollHeight, // Set window height to the element's scroll height
+        });
+
+        const imgData = canvas.toDataURL('image/png');
+        const pdf = new jsPDF({
+            orientation: 'portrait',
+            unit: 'px',
+            format: [canvas.width, canvas.height], // Set format to match canvas dimensions
+        });
+
+        const imgProps = pdf.getImageProperties(imgData);
+        const pdfWidth = pdf.internal.pageSize.getWidth();
+        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+
+        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+        pdf.save('sample.pdf');
+        element.style.display = 'none';
+
+    };
 
     const [userData, setUserData] = useState(null);
     const [userName, setUserName] = useState();
     const [totalTime, setTotalTime] = useState();
+    const [categoryList, setCategoryList] = useState();
     const [error, setError] = useState();
     const [formattedDate, setFormattedDate] = useState();
     const navigate = useNavigate();
@@ -148,102 +179,155 @@ const Certficate = ({ totalHours, categoriesList }) => {
         totalTimeSpent()
     }, [userData])
 
+
+    useEffect(() => {
+        const getAllPostedCategories = async (userId) => {
+            try {
+                if (userData && userData.userData) {
+                    const token = localStorage.getItem("token");
+                    const response = await fetch(`${API_URL}/activity/getAllPostedCategories/${userData.userData.id}`, {
+                        method: "POST",
+                        headers: { Authorization: `Bearer ${token}` },
+                    });
+
+                    const data = await response.json();
+                    if (response.ok) {
+                        setCategoryList([...new Set(data.categoriesArray)])
+                    }
+                }
+            }
+            catch (error) {
+                console.error("Error fetching user total time", error);
+                setError("An error occurred while fetching users Time.");
+            }
+        }
+        getAllPostedCategories()
+    }, [userData])
+
     return (
-        <div className="App">
+        <div className="opacity-1 " style={{ background: "#ffffff" }}>
             <div>
-                <div className="mb5">
-                    <button onClick={printDocument}>Print</button>
+                <div className="mb-5 flex justify-center">
+                    <Button
+                        className="cursor-pointer font-semibold rounded-md"
+                        // shape="round"
+                        color="indigo_A200"
+                        onClick={generatePDF}>
+                        Print
+                    </Button>
+                    &nbsp;
+                    &nbsp;
+
+                    &nbsp;
+
+                    {/* <button className=" rounded-sm bg-blue-600" onClick={printDocument}>Print</button> */}
+                    {setIsPopupVisible && <Button
+                        className="cursor-pointer font-semibold rounded-md "
+                        // shape="round"
+                        color="indigo_A200"
+                        onClick={() => setIsPopupVisible(false)}>
+                        Close
+                    </Button>}
                 </div>
-                <div className="opacity-">
-                    <div id="divToPrint" className="ml-5 py-3">
+                <div className="flex w-full flex-col items-center justify-start " style={{ background: "#ffffff" }}>
+                    {/* //CCH Management and Administration */}
 
-                        {/* 
-                    <div class="certificate-container text-center bg-white-A700_33">
-                        <div class="certificate-header">
-                            <h1 class="text-4xl font-bold mb-4">Certificate of Achievement</h1>
-                            <p class="text-xl">This is to certify that</p>
-                        </div>
-                        <div class="certificate-body my-8">
-                            <h2 class="text-3xl font-bold underline">[Recipient's Name]</h2>
-                            <p class="text-lg my-4">has successfully completed the</p>
-                            <h3 class="text-2xl font-semibold">[Course/Training/Program Title]</h3>
-                            <p class="text-lg my-4">on</p>
-                            <p class="text-lg font-semibold">[Date]</p>
-                        </div>
-                        <div class="certificate-footer mt-8">
-                            <p class="text-lg">Presented by</p>
-                            <h4 class="text-xl font-bold mt-2">[Issuer's Name]</h4>
-                        </div>
-                    </div> */}
+                    <div className="w-full min-h-screen flex  justify-center  bg-white">
+                        <div
 
-
-                        {/* <div class="certificate-container text-center">
-                            <div class="certificate-header">
-                                <h1 class="text-4xl font-bold mb-4">Certificate of Participation</h1>
-                                <p class="text-xl">This is to certify that</p>
+                            className="bg-white border border-gray-300 p-6 shadow-lg relative"
+                            style={{
+                                width: '80%', // Adjust width as needed
+                                maxWidth: '800px', // Limit maximum width for larger screens
+                                padding: '5%', // Adjust padding for inner content
+                                boxSizing: 'border-box',
+                                marginBottom: "2rem"
+                            }}
+                        >
+                            <div className="text-center mb-4 mt-28">
+                                <h1 className="text-3xl font-bold text-blue-400">Certificate of Achievement</h1>
+                                <p className="text-lg text-gray-800 mt-2">This is to certify that</p>
                             </div>
-                            <div class="certificate-body my-8">
-                                <h2 class="text-3xl font-bold underline">{userData && userData.userData.name}</h2>
-                                <p class="text-lg my-4">has actively participated in the following activities:</p>
-                                {userData && JSON.parse(userData.userData.category).map((value) => {
-                                    return <p class="text-md"><strong>{value}</strong> </p>
-                                })}
-
-                                <p class="text-md"><strong>Planting</strong></p>
-                                <p class="text-md"><strong>Cleaning</strong> </p>
-
-                                <p class="text-lg my-4">for a total duration of {totalTime && totalTime}.</p>
-                                <p class="text-lg my-4">The activities were conducted with enthusiasm and dedication.</p>
-                                <p class="text-lg my-4">on</p>
-                                <p class="text-lg font-semibold">{formattedDate}</p>
-                            </div>
-                            <div class="certificate-footer mt-8">
-                                <p class="text-lg">Presented by</p>
-                                <h4 class="text-xl font-bold mt-2">Community Care 247</h4>
-                            </div>
-                        </div> */}
-                        <div className="max-w-sm mx-auto border border-gray-300 p-4 shadow-lg relative" style={{ fontStyle: 'italic' }}>
-                            <div className="text-center mb-4">
-                                <h1 className="text-xl font-bold text-blue-400">Certificate of Achievement</h1>
-                                <p className="text-sm text-gray-800">This is to certify that</p>
-                            </div>
-                            <div className="text-center mb-6">
-                                <h2 className="text-md text-blue-400">Mr / Mrs {userData && userData.userData.name}</h2>
-                                <p className="text-sm text-gray-800">has successfully completed</p>
-                            </div>
-                            <div className="text-center mb-6">
-                                <p className="text-sm text-gray-800">
-                                    We certify that the individual has participated in the following activities.
+                            <div className="mb-6">
+                                <p className="text-lg text-gray-800 mt-2">
+                                    <strong>Mr / Ms Your Name Here </strong> has successfully spent <strong>10 hours</strong> in the activities.
                                 </p>
-                                <p className="text-sm">{userData && JSON.parse(userData.userData.category).map((value) => {
-                                    if (!(value == 'Others'))
-                                        return <strong> {value}, </strong>;
-                                })}</p>
-                                <p className="text-sm text-gray-800 mt-2">for a total of <strong>{totalTime && convertToHours(totalTime)} hours.</strong> </p>
                             </div>
-                            <div className="flex justify-center items-center absolute top-0 right-1 mt-1">
-                                <div className="text-center">
-                                    {/* <p className="text-xs text-gray-600">Date</p> */}
-                                    <p style={{ fontSize: "8px" }} className="text-xs text-gray-300">Date printed on :{formattedDate}</p>
+                            <div>
+                                <p className="text-lg">
+                                    We sincerely thank him/her for his/her time and contribution to the Community service-related activities and wish him/her all the success and happiness in his/her personal and professional life.
+                                </p>
+                            </div>
+                            <div className="flex justify-center items-center absolute top-1 left-1">
+                                <img src={`${APP_PATH}images/2.png`} className="w-36 h-36 rounded-full" alt="Logo" />
+                            </div>
+                            <div className="text-center absolute top-1 right-1">
+                                <p style={{ fontSize: '12px' }} className="text-gray-300">Date printed on: {formattedDate}</p>
+                            </div>
+                            <div className="flex justify-end items-center mt-8">
+                                <div className="text-center flex justify-center items-center flex-col">
+                                    <p className="text-sm text-gray-800 mt-2 font-semibold">Kind Regards,</p>
+                                    <img src={`${APP_PATH}images/signature.png`} className="w-24 rounded-full" alt="Signature" />
+                                    <p className="text-sm text-gray-800 font-semibold">Signature</p>
+                                    <p className="text-sm text-gray-800 mt-2 font-semibold">CC247 Management </p>
                                 </div>
                             </div>
-                            <div className="flex justify-center absolute top-0 left-1">
-                                <img src={APP_PATH + "images/2.png"} className="w-14 h-14 rounded-full" alt="" />
+                        </div>
+                    </div>
 
+                    <div ref={pdfRef} className="w-full  min-h-screen flex justify-start bg-white" style={{ background: "#ffffff", display: 'none' }}>
+                        <div className="bg-white border border-gray-300 p-6 shadow-lg relative" style={{ width: '210mm', height: '297mm', padding: '20mm', boxSizing: 'border-box', background: "#ffffff" }}>
+                            <div className="text-center mb-4 mt-5">
+                                <h1 className="text-3xl font-bold text-blue-400">Certificate of Achievement</h1>
+                                <p className="text-lg text-gray-800 mt-2">This is to certify that</p>
+                            </div>
+                            <div className="mb-6">
+                                <p className="text-lg text-gray-800 mt-2">
+                                    <strong>Mr / Ms {userData && userData.userData.name} </strong> has successfully spent <strong>{totalTime && convertToHoursWithoutPoints(totalTime)} hours</strong> in the
+                                    &nbsp;
+                                    {categoryList &&
+                                        categoryList.map((value, index) => {
+
+                                            return (
+                                                <strong key={index}>
+                                                    {value}
+                                                    {index < categoryList.length - 1 ? ', ' : ' '}
+                                                </strong>
+                                            );
+
+                                        })}
+                                    etc. activities.
+                                </p>
+                            </div>
+                            <div>
+                                <p className="text-lg">
+                                    We sincerely thank him/her for his/her time and contribution to the Community service-related activities and wish him/her all the success and happiness in his/her  personal and professional life.
+                                </p>
 
                             </div>
-                            <div className="flex justify-center items-center">
-                                <div className="text-center">
-                                    <img src={APP_PATH + "images/signature.png"} className="w-12 h-12 rounded-full" alt="" />
-                                    <p className="text-xs text-gray-800">Signature</p>
 
+                            <div className="flex justify-center items-center absolute top-1 left-1">
+                                <img src={`${APP_PATH}images/2.png`} className="w-36 h-36 rounded-full" alt="Logo" />
+                            </div>
+                            <div className="text-center absolute top-1 right-1">
+                                <p style={{ fontSize: '12px' }} className="text-gray-300">Date printed on: {formattedDate}</p>
+                            </div>
+
+                            <div className="flex justify-end items-center mt-8">
+                                <div className="text-center flex justify-center items-center flex-col">
+                                    <p className="text-sm text-gray-800 mt-2 font-semibold">Kind Regards,</p>
+
+                                    <img src={`${APP_PATH}images/signature.png`} className="w-24 rounded-full" alt="Signature" />
+                                    <p className="text-sm text-gray-800 font-semibold">Signature</p>
+                                    <p className="text-sm text-gray-800 mt-2 font-semibold">CC247 Management </p>
+                                    {/* <p className="text-sm text-gray-800 mt-2 font-semibold">and Administration</p> */}
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     );
 }
 

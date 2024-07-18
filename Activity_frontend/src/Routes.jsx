@@ -8,6 +8,7 @@ import { useAuth } from "components/AuthProvider/AuthProvider";
 import ProtectedRoute from "components/ProtectedComponent/ProtectedRoute";
 import OpenActivity from "pages/OpenActivity";
 import Certificate from "pages/Certficate";
+import ProfileForUser from "pages/User_Profile";
 
 const DesktopTwo = React.lazy(() => import("pages/DesktopTwo"));
 const DesktopSeven = React.lazy(() => import("pages/DesktopSeven"));
@@ -97,6 +98,7 @@ const ProjectRoutes = () => {
           <Route path="/endorse" element={<Endorse />} />
           <Route path="/posts/:postId" element={<OpenActivity />} />
           <Route path="/certificate/:id" element={<Certificate />} />
+          <Route path="/users-profile" element={<ProfileForUser />} />
           <Route path="/admin" element={<ProtectedRoute element={DesktopFive} adminOnly />} />
           <Route path="/managecategories" element={<ProtectedRoute element={DesktopSix} adminOnly />} />
           <Route path="/approvehours" element={<ProtectedRoute element={DesktopSeven} adminOnly />} />
