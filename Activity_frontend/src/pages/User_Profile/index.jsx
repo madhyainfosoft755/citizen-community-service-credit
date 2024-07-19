@@ -12,6 +12,7 @@ import { convertToHours } from "utils";
 import { faDownload, faUser, faFileAlt } from '@fortawesome/free-solid-svg-icons';
 import useWindowsize from "./useWindowsize";
 import CertficatePopup from "components/certificate_modal";
+import EditProfile from "components/editProfile/editProfile";
 const ProfileForUser = () => {
     const notify = (e) => toast(e);
     const [error, setError] = useState(null);
@@ -27,6 +28,7 @@ const ProfileForUser = () => {
     const [selectedUser, setSelectedUser] = useState(null); // State for selected user
     const [userPosts, setUserPosts] = useState([]); // State for user's posts
     const [isPopupVisible, setIsPopupVisible] = useState(false); // State for popup visibility
+    const [isEditModal, setIsEditModal] = useState(false); // State for popup visibility
     const [formattedDate, setFormattedDate] = useState();
 
     const size = useWindowsize();
@@ -320,6 +322,9 @@ const ProfileForUser = () => {
             {isPopupVisible && (
                 <CertficatePopup setIsPopupVisible={setIsPopupVisible} />
             )}
+            {isEditModal && (
+                <EditProfile setIsEditModalOpen={setIsEditModal} />
+            )}
             <div className="w-screen h-screen  bg-white-A700 flex items-start justify-center sm:w-screen sm:h-screen md:w-screen md:h-screen p-5 sm:p-0">
                 <div className=" relative w-4/12 h-full sm:w-full sm:h-full md:w-3/4 md:h-full  lg:w-3/4 lg:h-full  flex flex-col items-center  justify-center border-[1px]  rounded-lg sm:rounded-none overflow-hidden">
                     <div className=" flex flex-col  items-center justify-center w-full h-full ">
@@ -385,7 +390,7 @@ const ProfileForUser = () => {
 
                         <div className=" w-full h-full  pt-3 ">
                             <div className=" w-full h-3/5 flex  flex-col items-center justify-between pl-4 pr-4 pt-1 pb-1">
-                                <div className="w-[48%] rounded-lg bg-[#f0f2fb80] border-[1px]  text-[#546ef6] h-1/5 flex  items-center justify-center font-semibold cursor-pointer text-center" onClick={() => { }}><h1>Edit Profile <FontAwesomeIcon icon={faUser} /></h1></div>
+                                <div className="w-[48%] rounded-lg bg-[#f0f2fb80] border-[1px]  text-[#546ef6] h-1/5 flex  items-center justify-center font-semibold cursor-pointer text-center" onClick={() => { setIsEditModal(false) }}><h1>Edit Profile <FontAwesomeIcon icon={faUser} /></h1></div>
                                 <div className="w-[48%] rounded-lg bg-[#f0f2fb80] border-[1px]  text-[#546ef6] h-1/5 flex flex-shrink-2 items-center justify-center font-semibold cursor-pointer text-center" onClick={() => { setIsPopupVisible(true) }}><h1>Certificate  <FontAwesomeIcon icon={faDownload} /></h1></div>
                                 <div className="w-[48%] rounded-lg bg-[#f0f2fb80] border-[1px]  text-[#546ef6] h-1/5 flex flex-shrink-2 items-center justify-center font-semibold cursor-pointer text-center" onClick={() => { }}><h1>Genrate Reports <FontAwesomeIcon icon={faFileAlt} /></h1></div>
 

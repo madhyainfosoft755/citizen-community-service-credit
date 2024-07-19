@@ -235,18 +235,18 @@ const ProfilePage = () => {
                     </div>
                 )}
                 <img
-                    src={user.picture}
+                    src={user && user.picture}
                     alt="Profile"
                     className="rounded-full"
                 />
                 <div className="relative -mt-2 sm:w-5/6 w-4/6 h-10 bg-gray-50 flex items-center justify-center  p-2 rounded-xl border-[1px] border-white-A700 green-border">
                     <FontAwesomeIcon icon={faUser} className="text-gray-500" />
-                    <input name="name" className="w-full h-full bg-inherit border-none  " type="text" value={user.name} disabled />
+                    <input name="name" className="w-full h-full bg-inherit border-none  " type="text" value={user && user.name} disabled />
                     <h1 className="text-red-500 absolute -left-3 -top-1 text-xl">*</h1>
                 </div>
                 <div className="relative sm:w-5/6 w-4/6 h-10 bg-gray-50 flex items-center justify-center  p-2 rounded-xl border-[1px] border-white-A700 green-border">
                     <FontAwesomeIcon icon={faEnvelope} className="text-gray-500" />
-                    <input name="email" className="w-full h-full bg-inherit border-none " type="email" value={user.email} disabled />
+                    <input name="email" className="w-full h-full bg-inherit border-none " type="email" value={user && user.email} disabled />
                     <h1 className="text-red-500 absolute -left-3 -top-1 text-xl">*</h1>
                 </div>
                 <div className={`relative sm:w-5/6 w-4/6 h-10 bg-gray-50 flex items-center justify-center  p-2 rounded-xl border-[1px] ${formErrors.aadhar ? 'border-red-500' : 'border-white-A700'}  green-border`}>

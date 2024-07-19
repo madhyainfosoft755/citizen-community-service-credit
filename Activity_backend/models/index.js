@@ -29,6 +29,8 @@ db.Posts = require('./CreatePost')(sequelize, DataTypes);
 db.Endorsement = require('./endorse')(sequelize, DataTypes);
 db.Categories  = require('./Category')(sequelize, DataTypes);
 db.Organisations = require('./organization')(sequelize, DataTypes);
+db.loginlog = require('./LoginLog')(sequelize, DataTypes);
+db.visitorlogs = require('./VisitorLogs')(sequelize, DataTypes);
 db.Approvers = require('./Approver')(sequelize, DataTypes); // Add Approver model
 
 

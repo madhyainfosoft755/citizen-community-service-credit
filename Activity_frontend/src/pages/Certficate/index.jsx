@@ -250,7 +250,20 @@ const Certficate = ({ setIsPopupVisible }) => {
                             </div>
                             <div className="mb-6">
                                 <p className="text-lg text-gray-800 mt-2">
-                                    <strong>Mr / Ms Your Name Here </strong> has successfully spent <strong>10 hours</strong> in the activities.
+                                    <strong>Mr / Ms {userData && userData.userData.name} </strong> has successfully spent <strong>{totalTime && convertToHoursWithoutPoints(totalTime)} hours</strong> in the
+                                    &nbsp;
+                                    {categoryList &&
+                                        categoryList.map((value, index) => {
+
+                                            return (
+                                                <strong key={index}>
+                                                    {value}
+                                                    {index < categoryList.length - 1 ? ', ' : ' '}
+                                                </strong>
+                                            );
+
+                                        })}
+                                    etc. activities.
                                 </p>
                             </div>
                             <div>

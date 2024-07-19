@@ -345,6 +345,15 @@ const DesktopOnePage = () => {
   //     }&redirect_uri=${process.env.REACT_APP_LINKEDIN_REDIRECT_URL}&scope=${process.env.REACT_APP_LINKEDIN_SCOPE}&state=${process.env.REACT_APP_LINKEDIN_STATE}`;
   // }
 
+  useEffect(() => {
+
+    async function VisitorRegistered() {
+      const response = await fetch(`${API_URL}/activity/visitor-count/apps`);
+      const data = await response.json();
+    }
+    VisitorRegistered();
+  }, []);
+
   return (
     <div className="w-screen h-screen sm:w-screen sm:h-screen flex items-center justify-center pt-5 pb-5 sm:p-0 ">
       <form
@@ -556,6 +565,8 @@ const DesktopOnePage = () => {
             </Button>
           </div>
         </div>
+        <p className="text-sm text-orange-500 mb-3">{"सेवा परमो धर्मः  - सेवा ही परम धर्म है I"}</p>
+
       </form>
     </div>
   );

@@ -1,11 +1,16 @@
 import { API_URL } from "Constant";
 import { FacebookShareButton, WhatsappShareButton, LinkedinShareButton, LinkedinIcon } from "react-share";
 import { FacebookIcon, WhatsappIcon, TwitterIcon } from "react-share";
-
+function encodeUnicode(str) {
+    return btoa(encodeURIComponent(str));
+}
 const Share = ({ postId }) => {
+
+    const id = encodeUnicode(postId)
+
     return <>
         <FacebookShareButton
-            url={`${API_URL}/activity/posts/${postId}`}
+            url={`${API_URL}/activity/posts/${id}`}
 
             title={`Community Care 247`}
             style={{ width: "24px" }}
@@ -15,7 +20,7 @@ const Share = ({ postId }) => {
         </FacebookShareButton>
         &nbsp;
         <WhatsappShareButton
-            url={`${API_URL}/activity/posts/${postId}`}
+            url={`${API_URL}/activity/posts/${id}`}
 
             title={`Community Care 247`}
             style={{ width: "24px" }}
@@ -24,7 +29,7 @@ const Share = ({ postId }) => {
         </WhatsappShareButton>
         &nbsp;
         <LinkedinShareButton
-            url={`${API_URL}/activity/posts/${postId}`}
+            url={`${API_URL}/activity/posts/${id}`}
 
             title={`Community Care 247`}
             style={{ width: "24px" }}

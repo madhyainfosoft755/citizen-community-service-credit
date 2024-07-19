@@ -13,6 +13,8 @@ const Endorsement = db.Endorsement;
 const Categories = db.Categories;
 const Organizations = db.Organisations;
 const Approver = db.Approvers;
+const LoginLog = db.loginlog;
+const VisitorLogs = db.visitorlogs;
 const Jwt = require("jsonwebtoken");
 const { logger } = require("../utils/util");
 const { CLIENT_ID, CLIENT_SECRET, CALLBACK_URL } = require('../config/constant');
@@ -32,8 +34,12 @@ const LINKEDIN_CLIENT_SECRET = process.env.LINKEDIN_CLIENT_SECRET;
 const LINKEDIN_REDIRECT_URI = process.env.LINKEDIN_REDIRECT_URI;
 const JWT_SECRET = process.env.JWT_Secret;
 const qs = require('qs');
+const { count } = require("console");
 
-
+// Function to decode the post ID
+function decodePostID(encodedID) {
+  return Buffer.from(encodedID, 'base64').toString('ascii');
+}
 
 const LinkedInLogin = async (req, res) => {
   const { code } = req.body;
@@ -269,10 +275,13 @@ const GoogleLogin = async (req, res) => {
     // Check if user exists
     let user = await Users.findOne({ where: { email: userProfile.email } });
 
+
+
     if (!user) {
       // Send the profile data to the frontend without creating the user
       return res.status(200).json({ user: userProfile, redirectTo: '/create' });
     }
+    let log = await LoginLog.create({userId:user.id});
 
     // Generate JWT token for the user
     const jwtToken = Jwt.sign({ userId: user.id }, jwtKey, { expiresIn: "1h" });
@@ -740,9 +749,10 @@ const login = async (req, res) => {
     const user = await Users.findOne({ where: { email } });
     // console.log("**/*/*/* THIS IS USER /*/*/*/*/", user);
 
+    let log = await LoginLog.create({userId:user.id});
 
     // Check if the password matches
-    if (!user) {
+    if (!user && !log) {
       return res.status(401).json({ error: "Email not found." });
     }
 
@@ -2288,11 +2298,16 @@ const reviewpostforuser = async (req, res) => {
 
 const getLinkToSharePost = async (req, res) => {
 
-  const id = req.params.id;
+  const encodedID = req.params.id;
+  // console.log(encodedID, "encoded id");
+  const postID = decodePostID(encodedID);
+  // console.log(postID, "post id");
+
   try {
     const post = await Posts.findOne({
       where: {
-        id: id
+        id: postID,
+        approved : true
       }
     });
   
@@ -2317,7 +2332,7 @@ const getLinkToSharePost = async (req, res) => {
     <body>
       <h1>Loading.. </h1>
       <script>
-        window.location.href = "${process.env.URL}/posts/${id}";
+        window.location.href = "${process.env.URL}/posts/${postID}";
       </script>
     </body>
     </html>
@@ -2325,12 +2340,29 @@ const getLinkToSharePost = async (req, res) => {
 
     // Send the HTML response with meta tags
     res.send(htmlContent);
-  } catch {
-        logger.error(error)
+  } catch(error) {
+    logger.error(error);
+    console.log(error)
 
   }
 };
 
+
+const visitorCount = async (req, res) => {
+  const { page } = req.params;
+  try {
+
+    const log = await VisitorLogs.findOne({ where: { page: page } });
+    if (log) {
+      await log.update({ count: log.count + 1 });
+    }
+
+    res.status(200).json({message:"visitor registered"});
+  
+  } catch (error) {
+    logger.error(error);
+  }
+}
 
 module.exports = {
   output,
@@ -2384,5 +2416,6 @@ module.exports = {
   RegisterLinkedin,
   getPost,
   getLinkToSharePost,
-  getAllPostedCategories
+  getAllPostedCategories,
+  visitorCount
 };

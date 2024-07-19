@@ -1,3 +1,17 @@
-{"code":"ERR_INVALID_ARG_TYPE","level":"error","message":"Registration failed: The \"path\" argument must be of type string. Received an instance of URL","stack":"TypeError [ERR_INVALID_ARG_TYPE]: The \"path\" argument must be of type string. Received an instance of URL\n    at Object.extname (node:path:841:5)\n    at RegisterLinkedin (C:\\Users\\vaibhav\\Desktop\\citizen-community-service-credit\\Activity_backend\\controllers\\LoginController.js:520:33)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)"}
-{"level":"error","message":"Registration failed: user is not defined","stack":"ReferenceError: user is not defined\n    at RegisterLinkedin (C:\\Users\\vaibhav\\Desktop\\citizen-community-service-credit\\Activity_backend\\controllers\\LoginController.js:549:38)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)"}
-{"level":"error","message":"Registration failed: secret must be a string or bufferor a KeyObject","stack":"TypeError: secret must be a string or bufferor a KeyObject\n    at typeError (C:\\Users\\vaibhav\\Desktop\\citizen-community-service-credit\\Activity_backend\\node_modules\\jwa\\index.js:115:10)\n    at checkIsSecretKey (C:\\Users\\vaibhav\\Desktop\\citizen-community-service-credit\\Activity_backend\\node_modules\\jwa\\index.js:82:11)\n    at Object.sign (C:\\Users\\vaibhav\\Desktop\\citizen-community-service-credit\\Activity_backend\\node_modules\\jwa\\index.js:130:5)\n    at Object.jwsSign [as sign] (C:\\Users\\vaibhav\\Desktop\\citizen-community-service-credit\\Activity_backend\\node_modules\\jws\\lib\\sign-stream.js:32:24)\n    at module.exports [as sign] (C:\\Users\\vaibhav\\Desktop\\citizen-community-service-credit\\Activity_backend\\node_modules\\jsonwebtoken\\sign.js:204:16)\n    at RegisterLinkedin (C:\\Users\\vaibhav\\Desktop\\citizen-community-service-credit\\Activity_backend\\controllers\\LoginController.js:549:23)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)"}
+{"level":"error"}
+{"level":"error"}
+{"level":"error"}
+{"level":"error"}
+{"level":"error"}
+{"level":"error"}
+{"level":"error"}
+{"level":"error"}
+{"level":"error"}
+{"level":"error"}
+{"level":"error"}
+{"level":"error"}
+{"level":"error"}
+{"level":"error","message":"ye hai google ki error Cannot read properties of null (reading 'id')","stack":"TypeError: Cannot read properties of null (reading 'id')\n    at GoogleLogin (D:\\vaibhav\\communiy-care-hours\\citizen-community-service-credit\\Activity_backend\\controllers\\LoginController.js:277:50)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)"}
+{"level":"error","message":"ye hai google ki error Cannot read properties of null (reading 'id')","stack":"TypeError: Cannot read properties of null (reading 'id')\n    at GoogleLogin (D:\\vaibhav\\communiy-care-hours\\citizen-community-service-credit\\Activity_backend\\controllers\\LoginController.js:277:50)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)"}
+{"level":"error","message":"ye hai google ki error Cannot read properties of null (reading 'id')","stack":"TypeError: Cannot read properties of null (reading 'id')\n    at GoogleLogin (D:\\vaibhav\\communiy-care-hours\\citizen-community-service-credit\\Activity_backend\\controllers\\LoginController.js:277:50)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)"}
+{"level":"error","message":"ye hai google ki error Cannot read properties of null (reading 'id')","stack":"TypeError: Cannot read properties of null (reading 'id')\n    at GoogleLogin (D:\\vaibhav\\communiy-care-hours\\citizen-community-service-credit\\Activity_backend\\controllers\\LoginController.js:277:50)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)"}
