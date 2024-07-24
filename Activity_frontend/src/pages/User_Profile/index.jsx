@@ -329,10 +329,9 @@ const ProfileForUser = () => {
                 <div className=" relative w-4/12 h-full sm:w-full sm:h-full md:w-3/4 md:h-full  lg:w-3/4 lg:h-full  flex flex-col items-center  justify-center border-[1px]  rounded-lg sm:rounded-none overflow-hidden">
                     <div className=" flex flex-col  items-center justify-center w-full h-full ">
 
-                        <div className="bg-gray-50 flex flex-row items-center justify-between p-2 sm:p-2  sm:px-3 w-full ">
+                        <div className="bg-gray-50 flex flex-row items-center justify-between p-2 sm:px-2   w-full ">
 
-                            <div className="bg-gray-50 flex flex-row items-center justify-between p-2 sm:px-3 w-full ">
-                                <div className="flex flex-row gap-2 items-center justify-center " >
+                                <div className="flex  gap-2 items-center justify-center " >
                                     {userData && (
                                         <Img
                                             className=" w-14   h-14  rounded-[50%] object-cover object-center "
@@ -349,17 +348,13 @@ const ProfileForUser = () => {
                                                 {/* {userData && userData.userData.name} */}
                                                 {userName && userName.split(" ")[0]}
                                             </Text>
-                                            {/* <Text className="text-center  text-gray-900 uppercase text-sm">
-                        ID: {userData && userData.userData.id}
-                      </Text> */}
-                                        </div>
+                                           </div>
                                     </div>
                                 </div>
-                                <p onClick={direct} className="text-blue-500 text-xs cursor-pointer">{`${totalTime || 0} Hrs  ${totalTime && convertToHours(totalTime)} Pts`}</p>
+                                <Button onClick={direct} className="text-blue-500 bg-white-A700 px-3 py-2 rounded-full text-xs font-semibold cursor-pointer">{`${totalTime || 0} Hrs | ${totalTime && convertToHours(totalTime)} Pts`}</Button>
 
                                 <img src={APP_PATH + "images/2.png"} className="w-14 h-14 rounded-full" alt="" />
 
-                            </div>
                         </div>
 
                         <div className="w-full h-1/2 p-1">

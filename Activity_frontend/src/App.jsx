@@ -1,12 +1,12 @@
 import React from "react";
 import Routes from "./Routes";
-import { ToastContainer } from "react-toastify";
+import { Slide, ToastContainer, Zoom } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import "./app.css"
 function App() {
   return(
 <>
-<ToastContainer/>
+<ToastContainer transition={Zoom} position="top-center" autoClose={2000} />
 <Routes />
 </>
   ) 

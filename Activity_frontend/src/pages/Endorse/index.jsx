@@ -408,12 +408,12 @@ const Endorse = () => {
           )}
           <div className="bg-white-A700 flex flex-col items-start justify-start sm:px-0  border-[1px] rounded-lg sm:rounded-none w-4/12 h-full sm:w-full sm:h-full md:w-7/12 md:h-full">
             <div className="flex flex-col gap-3 items-center justify-start w-full h-full   sm:p-0 ">
-              <div className="relative bg-gray-50 flex flex-row items-center justify-between p-3  sm:px-5 w-full rounded-md sm:rounded-none ">
+              <div className="relative bg-gray-50 flex flex-row items-center justify-between p-3  sm:px-2 w-full rounded-md sm:rounded-none ">
 
-                <div className="flex flex-row gap-4 items-center justify-center ml-[5px]" onClick={openProfilePopup}>
+                <div className="flex  items-center justify-between " onClick={openProfilePopup}>
                   {userData && (
                     <Img
-                      className=" w-14 h-14 sm:w-14 sm:h-14   rounded-full object-cover object-top "
+                      className=" w-14 h-14 sm:w-14 sm:h-14 mr-2  rounded-full object-cover object-top "
                       src={`${API_URL}/image/${userData.userData.photo}`}
                       alt="userimage"
                       onClick={() => { navigate("/users-profile") }}
@@ -437,11 +437,10 @@ const Endorse = () => {
                 </div>
                 <Button
                   type="button"
-                  className="cursor-pointer font-semibold rounded-3xl w-1/2 mr-10 text-blue-500 bg-white-A700_33 text-xs"
-                  color="indigo_A200"
+                  className="cursor-pointer font-semibold rounded-3xl  text-blue-500 bg-white-A700 text-xs"
                   onClick={direct}
                 >
-                  {`${totalTime || 0} Hrs  ${totalTime && convertToHours(totalTime)} Pts`}
+                  {`${totalTime || 0} Hrs | ${totalTime && convertToHours(totalTime)} Pts`}
                   {/* <FontAwesomeIcon icon={faLocationDot} className="pr-3 text-blue-600" /> */}
                 </Button>
                 <img src={APP_PATH + "images/2.png"} className="w-14 h-14 rounded-full" alt="" />

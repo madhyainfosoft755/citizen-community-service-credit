@@ -114,7 +114,7 @@ const DesktopNinePage = () => {
       setIsAllCategoriesSelected(updatedCategories.length === categories.length);
     }
     setSelectedCategories(updatedCategories);
-    fetchPostsForSelectedCategories(updatedCategories);
+    // fetchPostsForSelectedCategories(updatedCategories);
   };
 
 
@@ -263,6 +263,48 @@ const DesktopNinePage = () => {
     };
   };
 
+
+
+  const handleSubmit = async () => {
+    try {
+      let formattedStartDate = '';
+      let formattedEndDate = '';
+
+      if (startDate) {
+        formattedStartDate = format(startDate, 'yyyy-MM-dd');
+      }
+      if (endDate) {
+        formattedEndDate = format(endDate, 'yyyy-MM-dd');
+      }
+
+      const response = await fetch(`${API_URL}/activity/postsForCategory`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ categories: selectedCategories, start: formattedStartDate, end: formattedEndDate }),
+      });
+      if (!response.ok) {
+        console.log("Failed to fetch posts for the selected categories.");
+        const errorData = await response.json();
+        notify(errorData.error);
+        setPosts([]);
+        setDateRange("");
+        return;
+      }
+      const data = await response.json();
+      setPosts(data);
+      setError(null);
+      setDateRange(`${formattedStartDate} to ${formattedEndDate}`);
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+      setError("An error occurred while fetching posts.");
+      setPosts([]);
+      setDateRange("");
+    }
+  };
+
+
   return (
     <>
       <div className="w-screen h-screen bg-white-A700 flex items-start justify-center sm:w-screen sm:h-screen md:w-screen md:h-screen p-5 sm:p-0">
@@ -353,55 +395,39 @@ const DesktopNinePage = () => {
                         </div>
                       )}
 
-                      <div className="relative w-1/2 h-full overflow-X-hidden ">
-                        <label
-                          className={`absolute left-2 transition-all duration-200 text-center text-xs bg-white-A700 rounded ${selectedCategories.length > 0 || showCategoryDropdown
-                            ? '-top-1 text-xs text-center text-gray-700'
-                            : 'top-1/2 transform -translate-y-1/2 translate-x-4 sm:translate-x-1 text-gray-500'
-                            }`}
-                          onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
-                        >
+                      <div className="relative w-1/2 h-full overflow-X-hidden">
+                        <label className={`absolute left-2 transition-all duration-200 text-center text-xs bg-white-A700 rounded ${selectedCategories.length > 0 || showCategoryDropdown ? '-top-1 text-xs text-center text-gray-700' : 'top-1/2 transform -translate-y-1/2 translate-x-4 sm:translate-x-1 text-gray-500'}`} onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}>
                           Select Category
                         </label>
-                        <Button
-                          className={`!text-black-900 cursor-pointer font-medium w-full h-full text-center text-xs overflow-hidden flex  ${selectedCategories.length > 0 || showCategoryDropdown
-                            ? 'border-2 border-black-900_87' : 'border-none'}`}
-                          shape="round"
-                          onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}
-                        >
+                        <Button className={`!text-black-900 cursor-pointer font-medium w-full h-full text-center text-xs overflow-hidden flex ${selectedCategories.length > 0 || showCategoryDropdown ? 'border-2 border-black-900_87' : 'border-none'}`} shape="round" onClick={() => setShowCategoryDropdown(!showCategoryDropdown)}>
                           {selectedCategories.length > 0 ? selectedCategories.join(", ") : ""}
                         </Button>
                       </div>
                       {showCategoryDropdown && (
-                        <div className="absolute top-full left-0 w-full bg-white-A700 shadow rounded z-50" ref={dropdownRef}>
+                        <div className="absolute top-full right-[0%] w-3/6 bg-white-A700 shadow rounded z-50" ref={dropdownRef}>
                           <div className="p-2 cursor-pointer hover:bg-blue-200 flex items-center">
-                            <input
-                              type="checkbox"
-                              checked={isAllCategoriesSelected}
-                              onChange={() => handleCategorySelection("All Categories")}
-                              className="mr-2"
-                            />
+                            <input type="checkbox" checked={isAllCategoriesSelected} onChange={() => handleCategorySelection("All Categories")} className="mr-2" />
                             All Categories
                           </div>
                           {categories.map((category) => (
-                            <div
-                              key={category.id}
-                              className="p-2 cursor-pointer hover:bg-blue-200"
-                              onClick={() => handleCategorySelection(category.name)}
-                            >
-                              <input
-                                type="checkbox"
-                                checked={selectedCategories.includes(category.name)}
-                                onChange={() => handleCategorySelection(category.name)}
-                                className="mr-2"
-                              />
+                            <div key={category.id} className="p-2 cursor-pointer hover:bg-blue-200" onClick={() => handleCategorySelection(category.name)}>
+                              <input type="checkbox" checked={selectedCategories.includes(category.name)} onChange={() => handleCategorySelection(category.name)} className="mr-2" />
                               {category.name}
                             </div>
                           ))}
+                          {selectedCategories.length > 0 && (
+                            <div className="p-2 border-t border-gray-300">
+                              <Button className="w-full bg-indigo-500 text-white p-2 rounded" onClick={handleSubmit}>
+                                Submit
+                              </Button>
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
                   </div>
+
+                  
                 </div>
                 <div className="w-full h-full md:w-full flex items-center justify-center bg-white-A700 rounded-md">
 

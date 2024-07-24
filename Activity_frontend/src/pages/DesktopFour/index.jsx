@@ -212,8 +212,8 @@ const DesktopFourPage = () => {
           )}
           <div className="relative  w-4/12 h-full  flex items-start justify-center  sm:shadow-none  border-[1px]  rounded-lg sm:rounded-none  lg:h-full sm:w-full sm:h-full md:w-full md:h-full overflow-hidden scroller">
             <div className="flex flex-col  items-center justify-start w-full h-full md:w-full sm:w-full">
-              <div className="bg-gray-50 flex flex-row items-center justify-between p-3 sm:px-5 w-full ">
-                <div className="flex flex-row gap-2 items-center justify-center ml-[5px]" onClick={openProfilePopup}>
+              <div className="bg-gray-50 flex flex-row items-center justify-between p-3 sm:px-2 w-full ">
+                <div className="flex flex-row gap-1 items-center justify-center ml-[5px]" onClick={openProfilePopup}>
                   {userData && (
                     <Img
                       className=" w-14   h-14  rounded-[50%] object-cover object-center "
@@ -239,13 +239,12 @@ const DesktopFourPage = () => {
                   </div>
                 </div>
                 <Button
-                  className="cursor-pointer font-semibold rounded-3xl w-1/2 mr-10 text-blue-500 bg-white-A700_33 text-xs"
+                  className="cursor-pointer font-semibold rounded-3xl   text-blue-500 bg-white-A700 text-xs"
 
                   // shape="round"
-                  color="indigo_A200"
                   onClick={direct}
                 >
-                  {`${totalTime || 0} Hrs  ${totalTime && convertToHours(totalTime)} Pts`}
+                  {`${totalTime || 0} Hrs | ${totalTime && convertToHours(totalTime)} Pts`}
                 </Button>
                 <img src={APP_PATH + "images/2.png"} className="w-14 h-14 rounded-full" alt="" />
 

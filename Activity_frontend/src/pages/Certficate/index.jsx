@@ -272,7 +272,7 @@ const Certficate = ({ setIsPopupVisible }) => {
                                 </p>
                             </div>
                             <div className="flex justify-center items-center absolute top-1 left-1">
-                                <img src={`${APP_PATH}images/2.png`} className="w-36 h-36 rounded-full" alt="Logo" />
+                                <img src={`${APP_PATH}images/2.png`} className="w-36 h-36 sm:w-28 sm:h-28 rounded-full" alt="Logo" />
                             </div>
                             <div className="text-center absolute top-1 right-1">
                                 <p style={{ fontSize: '12px' }} className="text-gray-300">Date printed on: {formattedDate}</p>

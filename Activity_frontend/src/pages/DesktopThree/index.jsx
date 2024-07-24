@@ -537,13 +537,13 @@ const Createpost = () => {
               </div>
             )}
 
-            <div className="bg-gray-50 flex flex-row items-center justify-between p-3 sm:p-5  sm:px-5 w-full ">
+            <div className="bg-gray-50 flex flex-row items-center justify-between p-3   sm:px-2 w-full ">
 
-              <div className="flex flex-row gap-4 items-center justify-center ml-[1px]" onClick={openProfilePopup}>
+              <div className="flex gap-1 items-center justify-center " onClick={openProfilePopup}>
 
                 {userData && (
                   <Img
-                    className=" sm:w-[58px] sm:h-[52px] md:w-[58px] md:h-[52px] lg:w-[58px] lg:h-[58px]  w-14 h-14 rounded-full object-cover object-top  "
+                    className="   w-14 h-14 rounded-full object-cover object-top  "
                     src={`${API_URL}/image/${userData.userData.photo}`}
                     alt="image"
                     onClick={() => { navigate("/users-profile") }}
@@ -561,16 +561,14 @@ const Createpost = () => {
                 </div>
               </div>
 
-              <div>
-                {/* <p className="text-md font-bold text-blue-500">{totalTime && convertToHours(totalTime) * 20} points </p> */}
-              </div>
+              
               <Button
                 type="button"
-                className="cursor-pointer font-semibold rounded-3xl w-1/2 mr-10 text-blue-500 bg-white-A700_33 text-xs"
-                color="indigo_A200"
+                className="cursor-pointer font-semibold rounded-3xl  text-blue-500 bg-white-A700 text-xs"
+                // color="indigo_A200"
                 onClick={direct}
               >
-                {`${totalTime || 0} Hrs  ${totalTime && convertToHours(totalTime)} Pts`}
+                {`${totalTime || 0} Hrs | ${totalTime && convertToHours(totalTime)} Pts`}
                 {/* <FontAwesomeIcon icon={faLocationDot} className="pr-3 text-blue-600" /> */}
               </Button>
               <img src={APP_PATH + "images/2.png"} className="w-14 h-14 rounded-full" alt="" />
