@@ -6,7 +6,7 @@ import "./app.css"
 function App() {
   return(
 <>
-<ToastContainer transition={Zoom} position="top-center" autoClose={2000} />
+<ToastContainer transition={Zoom} position="top-center" autoClose={2000}  />
 <Routes />
 </>
   ) 

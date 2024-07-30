@@ -31,10 +31,10 @@ const Certficate = ({ setIsPopupVisible }) => {
         const element = pdfRef.current;
         element.style.display = 'block';
         const canvas = await html2canvas(element, {
-            scale: 2, // Increase the scale for better quality
+            scale: 1.5, // Increase the scale for better quality
             useCORS: true, // Enable cross-origin resource sharing if you have images from other domains
-            scrollX: 0,
-            scrollY: 0,
+            scrollX: 1,
+            scrollY: 1,
             windowWidth: element.scrollWidth, // Set window width to the element's scroll width
             windowHeight: element.scrollHeight, // Set window height to the element's scroll height
         });
@@ -232,10 +232,10 @@ const Certficate = ({ setIsPopupVisible }) => {
                 <div className="flex w-full flex-col items-center justify-start " style={{ background: "#ffffff" }}>
                     {/* //CCH Management and Administration */}
 
-                    <div className="w-full min-h-screen flex  justify-center  bg-white">
+                    <div className="w-screen h-full flex  justify-center  bg-white ">
                         <div
 
-                            className="bg-white border border-gray-300 p-6 shadow-lg relative"
+                            className="bg-white border border-gray-300 p-6 shadow-lg relative rounded-md"
                             style={{
                                 width: '80%', // Adjust width as needed
                                 maxWidth: '800px', // Limit maximum width for larger screens
@@ -245,7 +245,7 @@ const Certficate = ({ setIsPopupVisible }) => {
                             }}
                         >
                             <div className="text-center mb-4 mt-28">
-                                <h1 className="text-3xl font-bold text-blue-400">Certificate of Achievement</h1>
+                                <h1 className="text-3xl font-bold text-blue-600">Certificate of Achievement</h1>
                                 <p className="text-lg text-gray-800 mt-2">This is to certify that</p>
                             </div>
                             <div className="mb-6">
@@ -279,10 +279,10 @@ const Certficate = ({ setIsPopupVisible }) => {
                             </div>
                             <div className="flex justify-end items-center mt-8">
                                 <div className="text-center flex justify-center items-center flex-col">
-                                    <p className="text-sm text-gray-800 mt-2 font-semibold">Kind Regards,</p>
+                                    <p className="text-sm text-blue-600 mt-2 font-semibold">Kind Regards,</p>
                                     <img src={`${APP_PATH}images/signature.png`} className="w-24 rounded-full" alt="Signature" />
-                                    <p className="text-sm text-gray-800 font-semibold">Signature</p>
-                                    <p className="text-sm text-gray-800 mt-2 font-semibold">CC247 Management </p>
+                                    <p className="text-sm text-blue-600 font-semibold">Signature</p>
+                                    <p className="text-sm text-blue-600 mt-2 font-semibold">CC247 Management </p>
                                 </div>
                             </div>
                         </div>
@@ -328,7 +328,7 @@ const Certficate = ({ setIsPopupVisible }) => {
 
                             <div className="flex justify-end items-center mt-8">
                                 <div className="text-center flex justify-center items-center flex-col">
-                                    <p className="text-sm text-gray-800 mt-2 font-semibold">Kind Regards,</p>
+                                    <p className="text-sm text-blue-300 mt-2 font-semibold ">Kind Regards,</p>
 
                                     <img src={`${APP_PATH}images/signature.png`} className="w-24 rounded-full" alt="Signature" />
                                     <p className="text-sm text-gray-800 font-semibold">Signature</p>

@@ -17,6 +17,8 @@ const DesktopNinePage = () => {
   const [posts, setPosts] = useState([]);
   const [error, setError] = useState(null);
   const [selectedCategories, setSelectedCategories] = useState([]);
+
+  console.log("ye hain selected categoriews", selectedCategories)
   const [showCategoryDropdown, setShowCategoryDropdown] = useState(false);
   const [categories, setCategories] = useState([]);
   const [isAllCategoriesSelected, setIsAllCategoriesSelected] = useState(true);
@@ -92,12 +94,13 @@ const DesktopNinePage = () => {
   useEffect(() => {
     // Fetch categories when component mounts
     fetchCategories();
+    fetchPostsForDateRange(startDate, endDate);
+
   }, []);
 
-  useEffect(() => {
-    // Fetch posts when component mounts with default dates and all categories selected
-    fetchPostsForDateRange(startDate, endDate);
-  }, [startDate, endDate, categories]);
+  // useEffect(() => {
+  //   // Fetch posts when component mounts with default dates and all categories selected
+  // }, [startDate, endDate, categories]);
 
   const handleCategorySelection = (category) => {
     let updatedCategories = [];
@@ -159,7 +162,7 @@ const DesktopNinePage = () => {
       const response = await fetch(`${API_URL}/activity/postsForDateRange?start=${formattedStartDate}&end=${formattedEndDate}`);
       if (!response.ok) {
         const error = await response.json();
-        notify(error.error);
+        toast.error(error.error);
         console.log("Failed to fetch posts for the selected date range.");
         setPosts([]);
         setDateRange("");
@@ -200,7 +203,7 @@ const DesktopNinePage = () => {
       if (!response.ok) {
         console.log("Failed to fetch posts for the selected categories.");
         const errorData = await response.json();
-        notify(errorData.error);
+        toast.error(errorData.error);
         setPosts([]);
         setDateRange("");
         return;
@@ -211,6 +214,8 @@ const DesktopNinePage = () => {
       console.log("startDate:", startDate);
       console.log("endDate:", endDate);
       setDateRange(`${formattedStartDate} to ${formattedEndDate}`);
+      setChartData(processData(data));  // Use filtered data to update chart
+
       // setReportGenerated(true);
     } catch (error) {
       console.error("Error fetching posts:", error);
@@ -221,6 +226,55 @@ const DesktopNinePage = () => {
   };
 
 
+
+  const handleSubmit = async () => {
+    try {
+      let formattedStartDate = '';
+      let formattedEndDate = '';
+
+      if (startDate) {
+        formattedStartDate = format(startDate, 'yyyy-MM-dd');
+      }
+      if (endDate) {
+        formattedEndDate = format(endDate, 'yyyy-MM-dd');
+      }
+
+      const response = await fetch(`${API_URL}/activity/postsForCategory`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ categories: selectedCategories, start: formattedStartDate, end: formattedEndDate }),
+      });
+      if (!response.ok) {
+        console.log("Failed to fetch posts for the selected categories.");
+        const errorData = await response.json();
+        toast.error(errorData.error);
+        setPosts([]);
+        setDateRange("");
+        return;
+      }
+      const data = await response.json();
+      console.log("what is the data", data)
+      setPosts(data);
+      setError(null);
+      setDateRange(`${formattedStartDate} to ${formattedEndDate}`);
+      // Update chart data with filtered posts
+      const updatedChartData = processData(data);  // Process the filtered data
+      console.log("Updated chart data:", updatedChartData);  // Debugging: Log updated chart data
+      setChartData(updatedChartData);  // Update chart data
+    } catch (error) {
+      console.error("Error fetching posts:", error);
+      setError("An error occurred while fetching posts.");
+      setPosts([]);
+      setDateRange("");
+    }
+  };
+
+
+
+
+
   useEffect(() => {
     if (posts.length > 0) {
       // Update chart data when posts change
@@ -228,6 +282,8 @@ const DesktopNinePage = () => {
     }
   }, [posts]);
 
+
+  console.log("================================", selectedCategories)
   // console.log("postsdata se pehele ka  console", posts)
   const processData = (posts) => {
     const categories = Array.from(new Set(posts.map(post => post.category))).filter(category => category); // Get unique categories
@@ -265,44 +321,9 @@ const DesktopNinePage = () => {
 
 
 
-  const handleSubmit = async () => {
-    try {
-      let formattedStartDate = '';
-      let formattedEndDate = '';
 
-      if (startDate) {
-        formattedStartDate = format(startDate, 'yyyy-MM-dd');
-      }
-      if (endDate) {
-        formattedEndDate = format(endDate, 'yyyy-MM-dd');
-      }
 
-      const response = await fetch(`${API_URL}/activity/postsForCategory`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ categories: selectedCategories, start: formattedStartDate, end: formattedEndDate }),
-      });
-      if (!response.ok) {
-        console.log("Failed to fetch posts for the selected categories.");
-        const errorData = await response.json();
-        notify(errorData.error);
-        setPosts([]);
-        setDateRange("");
-        return;
-      }
-      const data = await response.json();
-      setPosts(data);
-      setError(null);
-      setDateRange(`${formattedStartDate} to ${formattedEndDate}`);
-    } catch (error) {
-      console.error("Error fetching posts:", error);
-      setError("An error occurred while fetching posts.");
-      setPosts([]);
-      setDateRange("");
-    }
-  };
+
 
 
   return (
@@ -404,30 +425,34 @@ const DesktopNinePage = () => {
                         </Button>
                       </div>
                       {showCategoryDropdown && (
-                        <div className="absolute top-full right-[0%] w-3/6 bg-white-A700 shadow rounded z-50" ref={dropdownRef}>
-                          <div className="p-2 cursor-pointer hover:bg-blue-200 flex items-center">
-                            <input type="checkbox" checked={isAllCategoriesSelected} onChange={() => handleCategorySelection("All Categories")} className="mr-2" />
-                            All Categories
-                          </div>
-                          {categories.map((category) => (
-                            <div key={category.id} className="p-2 cursor-pointer hover:bg-blue-200" onClick={() => handleCategorySelection(category.name)}>
-                              <input type="checkbox" checked={selectedCategories.includes(category.name)} onChange={() => handleCategorySelection(category.name)} className="mr-2" />
-                              {category.name}
+
+                          <div className="absolute top-14 right-[0%] w-3/6 h-[300px] overflow-auto bg-white-A700 shadow rounded z-50 scroller" ref={dropdownRef}>
+                            <div className="p-2 cursor-pointer hover:bg-blue-200 flex items-center">
+                              <input type="checkbox" checked={isAllCategoriesSelected} onChange={() => handleCategorySelection("All Categories")} className="mr-2" />
+                              All Categories
                             </div>
-                          ))}
+                            {categories.map((category) => (
+                              <div key={category.id} className="p-2 cursor-pointer hover:bg-blue-200" onClick={() => handleCategorySelection(category.name)}>
+                                <input type="checkbox" checked={selectedCategories.includes(category.name)} onChange={() => handleCategorySelection(category.name)} className="mr-2" />
+                                {category.name}
+                              </div>
+                            ))}
+
                           {selectedCategories.length > 0 && (
-                            <div className="p-2 border-t border-gray-300">
-                              <Button className="w-full bg-indigo-500 text-white p-2 rounded" onClick={handleSubmit}>
+                            <div className=" bg-white-A700  w-full p-2 border-t border-gray-300">
+                              <Button className="w-full bg-indigo-500 text-white p-2 rounded text-white-A700" onClick={handleSubmit}>
                                 Submit
                               </Button>
                             </div>
+
                           )}
-                        </div>
+                          </div>
+
                       )}
                     </div>
                   </div>
 
-                  
+
                 </div>
                 <div className="w-full h-full md:w-full flex items-center justify-center bg-white-A700 rounded-md">
 

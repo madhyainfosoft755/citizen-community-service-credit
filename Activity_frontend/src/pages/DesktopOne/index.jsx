@@ -387,11 +387,14 @@ const DesktopOnePage = () => {
           className="relative w-full h-full flex flex-col justify-center items-center pt-2 sm:pt-10 sm:w-screen sm:h-screen overflow-hidden  bg-cover bg-center "
         // style={{ backgroundImage: 'url("./images/img_helping.jpg")' }}
         >
-          <Text className="text-2xl text-black-900 -mt-3 font-extrabold">
+          <Text className=" cursor-default text-2xl text-blue-500  font-extrabold">
             Welcome
           </Text>
-          <Text className="mt-1 mb-3 font-semibold text-black-900  ">
-            Login to your account
+          <Text className=" cursor-default text-md text-black-900  font-extrabold">
+            to
+          </Text>
+          <Text className=" cursor-default text-xl text-blue-500  font-extrabold">
+            Community Care Hours 247
           </Text>
 
           <div className="bg-white-A700 px-2 border-[1px] rounded-3xl w-3/4 relative flex items-center">
@@ -402,7 +405,7 @@ const DesktopOnePage = () => {
               type="email"
               name="email"
               placeholder="Email"
-              className="outline-none text-sm border-0 ml-3 w-11/12 "
+              className="outline-none text-sm border-0 ml-3 w-11/12  cursor-text"
               required
             />
 
@@ -424,10 +427,10 @@ const DesktopOnePage = () => {
               type={showPassword ? "text" : "password"}
               name="password"
               placeholder="Password"
-              className="outline-none text-sm border-0 ml-3 w-11/12 "
+              className="outline-none text-sm border-0 ml-3 w-11/12 cursor-text"
               required
             />
-            <FontAwesomeIcon icon={eyeIcon} onClick={togglePasswordVisibility} className="text-gray-700" />
+            <FontAwesomeIcon icon={eyeIcon} onClick={togglePasswordVisibility} className="text-gray-700 cursor-pointer" />
           </div>
           {error && <div class="bg-red-50 px-4 text-xs text-red-500 rounded relative my-3 flex w-100" role="alert">
             {/* <strong class="font-bold">Holy smokes!</strong> */}
@@ -507,7 +510,7 @@ const DesktopOnePage = () => {
               </div>
             </div>
           </div>
-          <div className="flex flex-row gap-3.5 items-start justify-between mt-1 sm:mt-[25px] w-full">
+          <div className=" cursor-default flex flex-row gap-3.5 items-start justify-between mt-1 sm:mt-[25px] w-full">
             <Line className="bg-black-900 h-px my-2 w-2/5" />
             <Text
               className="text-[15px] text-black-900"
@@ -529,7 +532,7 @@ const DesktopOnePage = () => {
           </div>
           <div className="flex justify-between items-center gap-5 mt-4 sm:mt-10">
             <Button
-              className="cursor-pointer flex items-center justify-center min-w-[145px]"
+              className="cursor-default flex items-center justify-center min-w-[145px]"
               leftIcon={
                 <div className="mb-[3px] mr-[9px] h-4 w-4 ">
                   <Img src={APP_PATH + "images/img_location.svg"} alt="location icon" />
@@ -546,7 +549,7 @@ const DesktopOnePage = () => {
 
             <Button
               type="button"
-              className="cursor-pointer flex items-center justify-center min-w-[170px]"
+              className="cursor-default flex items-center justify-center min-w-[170px]"
               leftIcon={
                 <div className="h-4 mb-[3px] mr-2.5 w-4 ">
                   <Img
@@ -564,8 +567,8 @@ const DesktopOnePage = () => {
               </div>
             </Button>
           </div>
+        <p className=" cursor-default text-md sm:text-xl font-semibold text-orange-500 pt-5 mb-3">{"सेवा परमो धर्मः  - सेवा ही परम धर्म है I"}</p>
         </div>
-        <p className="text-md sm:text-xl font-semibold text-orange-500 mb-3">{"सेवा परमो धर्मः  - सेवा ही परम धर्म है I"}</p>
 
       </form>
     </div>
