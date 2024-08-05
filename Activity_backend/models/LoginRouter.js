@@ -28,11 +28,11 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false,
       },
-      googleId:{
+      googleId: {
         type: DataTypes.STRING,
-        unique: true 
+        unique: true,
       },
-      verificationToken :{
+      verificationToken: {
         type: DataTypes.STRING,
         allowNull: true,
       },
@@ -41,32 +41,30 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         defaultValue: false, // Default value for verified field
       },
-      resetPin: { 
-        type: DataTypes.STRING,
-        allowNull:true,
-        
-       },
-       role:{
-        type:DataTypes.STRING,
-        allowNull:false
-       },
-       organization: {
-        type: DataTypes.STRING, // Adjust the type based on your requirements
-        allowNull: true,        // Set to false if it's mandatory
-      },
-      aadhar:{
+      resetPin: {
         type: DataTypes.STRING,
         allowNull: true,
       },
-      linklogin:{
+      role: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      organization: {
+        type: DataTypes.STRING, // Adjust the type based on your requirements
+        allowNull: true, // Set to false if it's mandatory
+      },
+      aadhar: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      linklogin: {
         type: DataTypes.BOOLEAN,
         allowNull: false,
         defaultValue: false, // Default value for verified field
-      }
-
+      },
     },
     {
-      timestamps: false,
+      timestamps: true,
     }
   );
   return User;

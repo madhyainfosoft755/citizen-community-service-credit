@@ -1,6 +1,8 @@
 // models/organization.js
 module.exports = (sequelize, DataTypes) => {
-    const Organization = sequelize.define("organization", {
+  const Organization = sequelize.define(
+    "organization",
+    {
       id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
@@ -15,11 +17,31 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         defaultValue: true,
       },
-      
-    },{
-        timestamps: true, // This enables the createdAt and updatedAt fields
-    });
-  
-    return Organization;
-  };
-  
+      email: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      phone: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      address: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      registration_number: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+      password: {
+        type: DataTypes.STRING,
+        allowNull: false,
+      },
+    },
+    {
+      timestamps: true, // This enables the createdAt and updatedAt fields
+    }
+  );
+
+  return Organization;
+};

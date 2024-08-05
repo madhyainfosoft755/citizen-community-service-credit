@@ -1,5 +1,7 @@
 module.exports = (sequelize, DataTypes) => {
-    const Approver = sequelize.define('approver', {
+  const Approver = sequelize.define(
+    "approver",
+    {
       name: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -21,11 +23,14 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      isEnabled: {
+        type: DataTypes.BOOLEAN,
+        defaultValue: true, // Default value is true (enabled)
+      },
     },
     {
-        timestamps: true,
-   }
-);
-    return Approver;
-  };
-  
+      timestamps: true,
+    }
+  );
+  return Approver;
+};

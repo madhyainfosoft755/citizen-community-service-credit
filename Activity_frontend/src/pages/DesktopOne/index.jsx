@@ -178,7 +178,8 @@ const DesktopOnePage = () => {
         if (role === "admin") {
           setIsAdmin(true);
 
-          navigate(redirectTo);
+          // navigate(redirectTo);
+          window.location.href = "https://cch247.com/admin/";
         } else {
           navigate("/create");
         }
