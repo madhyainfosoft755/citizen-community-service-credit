@@ -37,6 +37,7 @@ const Register = () => {
   const [mobileError, setMobileError] = useState(""); // State for mobile number error
   const [aadharError, setAadharError] = useState(""); // State for Aadhar number error
   const [emailError, setEmailError] = useState(""); // State for email error
+  const [fileError, setFileError] = useState(false); // State for email error
   const [categories, setCategories] = useState([]);
   // console.log("ye hai selected categories", categories)
   const [selectedCategories, setSelectedCategories] = useState([]); // this function for get selected are
@@ -105,12 +106,14 @@ const Register = () => {
     const fileExtension = file.name.split(".").pop().toLowerCase();
 
     // Allowed image extensions
-    const allowedExtensions = ["jpg", "jpeg", "png", "gif"];
+    const allowedExtensions = ["jpg", "jpeg", "png", "gif", 'jfif'];
 
     // Check if the selected file is an image
     if (allowedExtensions.includes(fileExtension) && file.type.startsWith("image/")) {
+      setFileError(false)
       setSelectedFile(file);
     } else {
+      setFileError(true)
       // Handle error or notify the user that only image files are allowed
       notify("Please select an image file.");
     }
@@ -371,7 +374,7 @@ const Register = () => {
                 icon={faUser} // Change the icon as needed
                 iconColor={"#578be5"}
                 placeholder="Name"
-                className="text-sm w-full h-7 pl-10 border-solid border-[1px]  border-gray-300 bg-inherit rounded-md focus:border-emerald-300 ease-in duration-300"
+                className="text-sm w-full h-7 pl-10 border-solid border-[1px]  border-gray-300 bg-inherit rounded-md focus:border-emerald-300 ease-in duration-300 py-1"
                 onChange={handleInputChange}
                 name="name"
                 required
@@ -383,7 +386,7 @@ const Register = () => {
                 icon={faEnvelope} // Change the icon as needed
                 iconColor={"#645a9f"}
                 placeholder="Email"
-                className="text-sm w-full h-7 pl-10 border-solid border-[1px]  border-gray-300 bg-inherit rounded-md focus:border-emerald-300 ease-in duration-300"
+                className="text-sm w-full h-7 pl-10 border-solid border-[1px]  border-gray-300 bg-inherit rounded-md focus:border-emerald-300 ease-in duration-300 py-1"
                 onChange={handleInputChange}
                 name="email"
                 type="email"
@@ -404,7 +407,7 @@ const Register = () => {
                 icon={faPhone} // Change the icon as needed
                 iconColor={"#419f44"}
                 placeholder="Phone"
-                className="text-sm w-full h-7 pl-10 border-solid border-[1px]  border-gray-300 bg-inherit rounded-md focus:border-emerald-300 ease-in duration-300"
+                className="text-sm w-full h-7 pl-10 border-solid border-[1px]  border-gray-300 bg-inherit rounded-md focus:border-emerald-300 ease-in duration-300 py-1"
                 onChange={handleInputChange}
                 name="phone"
                 value={formsData.phone}
@@ -427,7 +430,7 @@ const Register = () => {
                 icon={faLocationCrosshairs} // Change the icon as needed
                 iconColor={"#d67500"}
                 placeholder="Address"
-                className="text-sm w-full h-7 pl-10 border-solid border-[1px]  border-gray-300 bg-inherit rounded-md focus:border-emerald-300 ease-in duration-300"
+                className="text-sm w-full h-7 pl-10 border-solid border-[1px]  border-gray-300 bg-inherit rounded-md focus:border-emerald-300 ease-in duration-300 py-1"
                 onChange={handleInputChange}
                 name="address"
                 required
@@ -453,7 +456,7 @@ const Register = () => {
                 iconColor={"#f4b8c0"}
                 placeholder="Password"
                 type="password"
-                className="w-full h-7 text-sm  pl-10 border-solid border-[1px]  border-gray-300 bg-inherit rounded-md focus:border-emerald-300 ease-in duration-300"
+                className="w-full h-7 text-sm  pl-10 border-solid border-[1px]  border-gray-300 bg-inherit rounded-md focus:border-emerald-300 ease-in duration-300 py-1"
                 // inputClassName="password-input"
                 onChange={handleInputChange}
                 name="password"
@@ -467,7 +470,7 @@ const Register = () => {
                 iconColor={"#f5191c"}
                 placeholder="Confirm Password"
                 type="password"
-                className="w-full h-7 text-sm  pl-10 border-solid border-[1px]  border-gray-300 bg-inherit rounded-md focus:border-emerald-300 ease-in duration-300"
+                className="w-full h-7 text-sm  pl-10 border-solid border-[1px]  border-gray-300 bg-inherit rounded-md focus:border-emerald-300 ease-in duration-300 py-1"
                 // inputClassName="password-input"
                 onChange={handleInputChange}
                 name="confirmPassword"
@@ -485,10 +488,10 @@ const Register = () => {
                 </span>
               </div>}
             </div>
-            <div className="form-group w-full h-auto">
+            <div className="form-group w-full h-auto cursor-pointer">
               {/* <label htmlFor="organization">Select Organization</label> */}
               <select
-                className="w-full  text-sm  pl-10 border-solid border-[1px]  border-gray-300 bg-inherit rounded-md focus:border-emerald-300 ease-in duration-300"
+                className="w-full  text-sm  pl-10 border-solid border-[1px]  border-gray-300 bg-inherit rounded-md focus:border-emerald-300 ease-in duration-300 cursor-pointer"
                 id="organization"
                 value={selectedOrganization}
                 onChange={(e) => setSelectedOrganization(e.target.value)}
@@ -503,28 +506,48 @@ const Register = () => {
               </select>
             </div>
 
-
-            <div className="relative  w-full h-7 mt-1 flex items-center justify-center">
-              <h2 className="font-semibold">Profile Picture </h2>
-              <InputWithIconAndText
+            <div className="relative w-full">
+              <label htmlFor="file-upload" className="flex items-center justify-center cursor-pointer border py-1 rounded-lg">
+                <span className="mr-2">
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                  </svg>
+                </span>
+                <span className="text-sm">Upload Profile Picture</span>
+              </label>
+              <input
+                id="file-upload"
                 type="file"
                 accept="image/*"
-                className="w-[250px] pt-1 pb-1 pl-1 border-double border-4  rounded-lg focus:border-emerald-300 ease-in duration-300"
+                className="hidden"
                 onChange={handleFileChange}
                 placeholder="select a file"
-                required />
-              <h1 className="text-red-500 absolute -left-2 -top-1">*</h1>
+                required
+              />
+              <span className="absolute left-0 top-0 text-red-500">*</span>
+
+              {selectedFile ? (
+                <p className="mt-2 text-sm text-emerald-600">Selected: {selectedFile.name}</p>
+              ) : (
+                <p className="mt-2 text-sm text-gray-500">No file selected</p>
+              )}
             </div>
 
+            {fileError && <div class="bg-red-50 px-4 text-xs text-red-500 rounded relative my-3 flex w-100" role="alert">
 
+              <span class="block sm:inline py-2 text-xs">{'Select one of these jpg , png, jpeg, jfif'}</span>
+              <span class="px-2 py-2" onClick={() => setFileError(false)}>
+                <svg class="fill-current h-3.5 w-3.5 text-red-500 text-xs" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z" /></svg>
+              </span>
+            </div>}
             <div className="w-full h-auto flex flex-col items-center justify-center  relative ">
-              <label className="block font-bold mb-1 text-left w-full"><span className="text-red-500">*</span>Select Categories:</label>
+              <label className="block font-semibold mb-1 text-left w-full"><span className="text-red-500">*</span>Select Categories:</label>
               <div className="grid grid-cols-3 gap-1 w-full">
                 {categories.map((category, index) => (
                   <button
                     key={index}
                     type="button"
-                    className={`p-1 rounded text-xs text-center ${buttonStates[index] ? "bg-[#546ef6] text-white" : "bg-gray-200 text-black"
+                    className={`p-1 rounded text-xs text-center ${buttonStates[index] ? "bg-[#546ef6] text-[#fff]" : "bg-gray-200 text-black"
                       }`}
                     onClick={() => handleButtonClick(index, category.name)}
                   >
@@ -536,10 +559,10 @@ const Register = () => {
 
 
 
-            <Button className="bg-[#546ef6] text-white-A700 text-lg w-full p-0 sm:w-5/6 rounded-md mt-[-5px]">
+            <Button className="bg-[#546ef6] text-white-A700 text-lg w-full p-1 sm:w-5/6 rounded-md mt-[-5px]">
               Create Account
             </Button>
-            <h3 className="sm:-mt-2 mb-2">
+            <h3 className="mb-2">
               Already have an account?{" "}
               <span
                 className="text-indigo-700 font-bold underline cursor-pointer

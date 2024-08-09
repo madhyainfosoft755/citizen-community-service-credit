@@ -52,7 +52,7 @@ const EditUserModal = ({ userData, isOpen, onClose, onSave }) => {
 
   return (
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 ">
-      <div className="relative top-5 mx-auto p-5 py-6 border w-96 px-5 shadow-lg rounded-lg bg-[#ffffff]">
+      <div className="relative top-5 mx-auto p-5 pt-5 pb-8 border w-96 px-5 shadow-lg rounded-lg bg-[#ffffff]">
         <form onSubmit={handleSubmit}>
           <div className="text-center text-xl font-bold mb-4">
             Edit User Details

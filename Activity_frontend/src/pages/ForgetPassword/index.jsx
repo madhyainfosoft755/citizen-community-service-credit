@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import axios from "axios";
-import { API_URL } from "Constant";
+import { API_URL, APP_PATH } from "Constant";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -122,6 +122,8 @@ const Forget = () => {
     <div className="w-screen h-screen sm:w-screen sm:h-screen md:w-screen md:h-screen flex items-start justify-center p-4  sm:p-0">
 
       <div className="relative overflow-hidden w-4/12 h-full sm:w-full md:w-7/12 flex items-center justify-center  border-[1px] rounded-lg">
+        <img src={APP_PATH + "images/2.png"} className="w-32 h-32 absolute top-1 left-1 rounded-full" alt="" />
+
         <div className="w-64 h-64 absolute rounded-full -top-10 -right-20 bg-blue-200/20"></div>
         <div className="w-64 h-64 absolute rounded-full -bottom-10 -left-20 bg-blue-200/20"></div>
         <div className="relative p-8 flex flex-col items-center justify-center  w-full h-full sm:w-full sm:h-full ">

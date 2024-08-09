@@ -122,7 +122,7 @@ const ReviewPosts = () => {
             setInputValue(inputText);
             setRemainingChars(300 - inputText.length);
             const words = inputText.trim().split(/\s+/);
-            setIsRejectDisabled(words.length < 8);
+            setIsRejectDisabled(words.length < 2);
 
         }
     };
@@ -289,7 +289,7 @@ const ReviewPosts = () => {
                             </div>
                         </div>
                         <div className="w-full h-1/12 relative border-[1px] rounded-lg">
-                            <label htmlFor="desc" className={`absolute rounded text-xs left-2 bg-white-A700 transition-all duration-200 ease-in-out ${hasFocus ? '-top-2 left-0' : 'top-[25%] left-[40%]'}`}>Add Comment</label>
+                            <label htmlFor="desc" className={`absolute rounded text-xs left-2 bg-white-A700 transition-all duration-200 ease-in-out ${hasFocus ? '-top-2 left-0' : 'top-[25%] left-[2%]'}`}>Add Comment</label>
                             <input type="text" name="desc" className="w-full h-full border-none rounded-lg" onFocus={() => setHasFocus(true)}
                                 onBlur={(e) => setHasFocus(e.target.value !== '')}
                                 onChange={handleInputChange}

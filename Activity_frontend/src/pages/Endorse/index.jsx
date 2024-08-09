@@ -12,7 +12,7 @@ import PopupComponent from "components/popup";
 import "./style.css";
 import { toast } from "react-toastify";
 import { convertToHours } from "utils";
-
+import { format } from "date-fns";
 const Endorse = () => {
   const notify = (e) => toast(e);
   const [isPopUpVisible, setIsPopUpVisible] = useState(false); // State for pop-up visibility
@@ -398,6 +398,11 @@ const Endorse = () => {
     }
   };
 
+  const createpage = () => {
+    console.log("clicked");
+    navigate("/create");
+  }
+
   // console.log("all filtered post", filteredPosts);
   return (
     <>
@@ -408,12 +413,12 @@ const Endorse = () => {
           )}
           <div className="bg-white-A700 flex flex-col items-start justify-start sm:px-0  border-[1px] rounded-lg sm:rounded-none w-4/12 h-full sm:w-full sm:h-full md:w-7/12 md:h-full">
             <div className="flex flex-col gap-3 items-center justify-start w-full h-full   sm:p-0 ">
-              <div className="relative bg-gray-50 flex flex-row items-center justify-between p-3  sm:px-5 w-full rounded-md sm:rounded-none ">
+              <div className="relative bg-gray-50 flex flex-row items-center justify-between p-3  sm:px-2 w-full rounded-md sm:rounded-none ">
 
-                <div className="flex flex-row gap-4 items-center justify-center ml-[5px]" onClick={openProfilePopup}>
+                <div className="flex  items-center justify-between " onClick={openProfilePopup}>
                   {userData && (
                     <Img
-                      className=" w-14 h-14 sm:w-14 sm:h-14   rounded-full object-cover object-top "
+                      className="cursor-pointer w-14 h-14 sm:w-14 sm:h-14 mr-2  rounded-full object-cover object-top "
                       src={`${API_URL}/image/${userData.userData.photo}`}
                       alt="userimage"
                       onClick={() => { navigate("/users-profile") }}
@@ -421,7 +426,7 @@ const Endorse = () => {
                     />
                   )}
                   <div className="flex flex-col items-center justify-center w-3/5">
-                    <div className="flex flex-col items-start justify-center w-full">
+                    <div className="cursor-default flex flex-col items-start justify-center w-full">
                       <Text
                         className="text-center text-gray-900 uppercase"
                         size="txtInterSemiBold16Gray900"
@@ -437,14 +442,13 @@ const Endorse = () => {
                 </div>
                 <Button
                   type="button"
-                  className="cursor-pointer font-semibold rounded-3xl w-1/2 mr-10 text-blue-500 bg-white-A700_33 text-xs"
-                  color="indigo_A200"
+                  className="cursor-pointer font-semibold rounded-3xl  text-blue-500 bg-white-A700 text-xs"
                   onClick={direct}
                 >
-                  {`${totalTime || 0} Hrs  ${totalTime && convertToHours(totalTime)} Pts`}
+                  {`${totalTime || 0} Hrs | ${totalTime && convertToHours(totalTime)} Pts`}
                   {/* <FontAwesomeIcon icon={faLocationDot} className="pr-3 text-blue-600" /> */}
                 </Button>
-                <img src={APP_PATH + "images/2.png"} className="w-14 h-14 rounded-full" alt="" />
+                <img  onClick={createpage} src={APP_PATH + "images/2.png"} className="cursor-pointer w-14 h-14 rounded-full" alt="" />
 
               </div>
 
@@ -532,6 +536,7 @@ const Endorse = () => {
                         <tr className="border">
                           <th className="border p-3">Category</th>
                           <th className="border p-3">Name</th>
+                          <th className="border px-8">Date</th>
                           <th className="border p-3">Time</th>
                           <th className="border p-3">Location</th>
                           <th className="border p-3">Image</th>
@@ -543,6 +548,9 @@ const Endorse = () => {
                           <tr key={post.id} className=" border">
                             <td className="border p-3 text-center" >{post.category}</td>
                             <td className="border p-3 text-center">{post.user ? post.user.name : 'Unknown'}</td>
+                            <td className="border p-1 text-center ">
+                              {format(post.Date, "dd-MM-yyy")}
+                            </td>
                             <td className="border p-3 text-center">{post.totalTime}</td>
                             <td className="border p-3 text-center">
                               {post.latitude && post.longitude ? (
@@ -560,6 +568,7 @@ const Endorse = () => {
                                 View
                               </a>
                             </td>
+                           
                             <td className="w-full h-full items-center justify-center px-8">
                               <input
                                 type="checkbox"
