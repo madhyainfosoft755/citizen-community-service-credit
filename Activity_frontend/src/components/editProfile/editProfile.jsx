@@ -1,6 +1,38 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 
-const EditProfile = ({ user, setIsEditModalOpen }) => {
+const EditProfile = ({ userData, setIsEditModalOpen }) => {
+
+    const [formData, setFormData] = useState({
+        name: '',
+        phone: '',
+        email: '',
+        address: '',
+        organisation: '',
+    });
+
+    useEffect(() => {
+        if (userData) {
+            setFormData({
+                name: userData.name || '',
+                phone: userData.phone || '',
+                email: userData.email || '',
+                address: userData.address || '',
+                organisation: userData.organisation || '',
+            });
+        }
+    }, [userData]);
+
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setFormData({ ...formData, [name]: value });
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        // Call onSubmit with formData
+        // onSubmit(formData);
+    };
+
     return (
         <div className="popup-container overflow-auto absolute top-0 left-0 z-50 w-screen h-screen pt-6 pb-6 bg-white-A700/50 flex justify-start items-start sm:gap-3">
             <div className="bg-white p-6 rounded-md shadow-md w-full max-w-3xl mx-auto mt-4" style={{ background: "#ffffff" }}>
@@ -16,70 +48,55 @@ const EditProfile = ({ user, setIsEditModalOpen }) => {
                     <h1 className="text-2xl font-semibold mb-4">Edit Profile</h1>
 
                     <div className="flex flex-col items-start w-full space-y-4">
-                        {/* Name Input */}
-                        <div className="flex flex-col md:flex-row items-center w-full space-y-2 md:space-y-0 md:space-x-4">
-                            <input
-                                type="text"
-                                name="name"
-                                placeholder="Enter your name"
-                                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
-                            <button className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition">
-                                Update Name
-                            </button>
-                        </div>
+                        <form onSubmit={handleSubmit}>
+                            <div>
+                                <label>Name:</label>
+                                <input
+                                    type="text"
+                                    name="name"
+                                    value={formData.name}
+                                    onChange={handleChange}
+                                />
+                            </div>
+                            <div>
+                                <label>Phone:</label>
+                                <input
+                                    type="text"
+                                    name="phone"
+                                    value={formData.phone}
+                                    onChange={handleChange}
+                                />
+                            </div>
+                            <div>
+                                <label>Email:</label>
+                                <input
+                                    type="email"
+                                    name="email"
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                />
+                            </div>
+                            <div>
+                                <label>Address:</label>
+                                <input
+                                    type="text"
+                                    name="address"
+                                    value={formData.address}
+                                    onChange={handleChange}
+                                />
+                            </div>
+                            <div>
+                                <label>Organisation:</label>
+                                <input
+                                    type="text"
+                                    name="organisation"
+                                    value={formData.organisation}
+                                    onChange={handleChange}
+                                />
+                            </div>
+                            <button type="submit">Save Changes</button>
+                        </form>
 
-                        {/* Profile Picture Input */}
-                        <div className="flex flex-col md:flex-row items-center w-full space-y-2 md:space-y-0 md:space-x-4">
-                            <input
-                                type="file"
-                                accept="image/jpeg, image/png"
-                                name="profile_pic"
-                                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
-                            <button className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition">
-                                Update Profile Picture
-                            </button>
-                        </div>
-
-                        {/* Telephone Input */}
-                        <div className="flex flex-col md:flex-row items-center w-full space-y-2 md:space-y-0 md:space-x-4">
-                            <input
-                                type="text"
-                                name="telephone"
-                                placeholder="Enter your telephone number"
-                                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
-                            <button className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition">
-                                Update Telephone
-                            </button>
-                        </div>
-
-                        {/* Email Input */}
-                        <div className="flex flex-col md:flex-row items-center w-full space-y-2 md:space-y-0 md:space-x-4">
-                            <input
-                                type="email"
-                                name="email"
-                                placeholder="Enter your email"
-                                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
-                            <button className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition">
-                                Update Email
-                            </button>
-                        </div>
-
-                        {/* Additional Input */}
-                        <div className="flex flex-col md:flex-row items-center w-full space-y-2 md:space-y-0 md:space-x-4">
-                            <input
-                                type="text"
-                                name="additionalField"
-                                placeholder="Additional Information"
-                                className="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
-                            <button className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 transition">
-                                Update Additional Info
-                            </button>
-                        </div>
                     </div>
                 </div>
             </div>

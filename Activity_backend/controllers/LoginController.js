@@ -353,14 +353,14 @@ const Register = async (req, res) => {
     const photoFile = req.files.photo;
     // console.log("ye hai photo file", photoFile)
     // Check if the file has an allowed image extension
-    const allowedExtensions = ["jpg", "jpeg", "png", "gif"];
+    const allowedExtensions = ["jpg", "jpeg", "png", "gif","jfif"];
     const fileExtension = photoFile[0].filename
       ? photoFile[0].filename.split(".")
       : "";
     if (!allowedExtensions.includes(fileExtension[1])) {
       return res
         .status(400)
-        .json({ message: "Allowed image formats are JPG, JPEG, PNG, GIF" });
+        .json({ message: "Allowed image formats are JPG, JPEG, PNG, GIF, JFIF" });
     }
 
     // Check if user with the same email already exists
@@ -1352,7 +1352,7 @@ const fetchPostsInArea = async (req, res) => {
 
     // Calculate the coordinates of the area's boundaries (50 kilometers around the given coordinates)
     const earthRadiusKm = 6371;
-    const distanceKm = 50;
+    const distanceKm = 500;
 
     const latRadians = latitude * (Math.PI / 180);
     // const lonRadians = longitude * (Math.PI / 180);

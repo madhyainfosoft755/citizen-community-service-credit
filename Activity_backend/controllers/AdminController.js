@@ -218,7 +218,10 @@ const getAllUsers = async (req, res) => {
     if (!ifAdmin) {
       return res.json({ message: "not an admin" });
     }
-    const usersList = await Users.findAll({ where: { role: "user" } });
+    const usersList = await Users.findAll({
+      where: { role: "user" },
+      order: [["id", "DESC"]],
+    });
     res.json({ users: usersList });
   } catch (error) {
     logger.error(error);
@@ -233,7 +236,9 @@ const getAllCategories = async (req, res) => {
     if (!ifAdmin) {
       return res.json({ message: "not an admin" });
     }
-    const CategoryList = await Categories.findAll();
+    const CategoryList = await Categories.findAll({
+      order: [["id", "DESC"]],
+    });
     res.json({ categories: CategoryList });
   } catch (error) {
     logger.error(error);
@@ -251,6 +256,7 @@ const getAllCategoriesByStatus = async (req, res) => {
     const status = req.params.status;
     const CategoryList = await Categories.findAll({
       where: { isEnabled: status },
+      order: [["id", "DESC"]],
     });
     res.json({ categories: CategoryList });
   } catch (error) {
@@ -266,7 +272,9 @@ const getAllOrganization = async (req, res) => {
     if (!ifAdmin) {
       return res.json({ message: "not an admin" });
     }
-    const OrganizationList = await Organisations.findAll();
+    const OrganizationList = await Organisations.findAll({
+      order: [["id", "DESC"]],
+    });
     res.json({ organizations: OrganizationList });
   } catch (error) {
     logger.error(error);
@@ -285,6 +293,7 @@ const getAllOrganizationByStatus = async (req, res) => {
 
     const OrganizationList = await Organisations.findAll({
       where: { isEnabled: status },
+      order: [["id", "DESC"]],
     });
     res.json({ organizations: OrganizationList });
   } catch (error) {
@@ -300,7 +309,9 @@ const getAllApprovers = async (req, res) => {
     if (!ifAdmin) {
       return res.json({ message: "not an admin" });
     }
-    const OrganizationList = await Approvers.findAll();
+    const OrganizationList = await Approvers.findAll({
+      order: [["id", "DESC"]],
+    });
     res.json({ approvers: OrganizationList });
   } catch (error) {
     logger.error(error);
@@ -319,6 +330,7 @@ const getAllApproversByStatus = async (req, res) => {
 
     const OrganizationList = await Approvers.findAll({
       where: { isEnabled: status },
+      order: [["id", "DESC"]],
     });
     res.json({ approvers: OrganizationList });
   } catch (error) {
@@ -333,7 +345,9 @@ const getAllActivities = async (req, res) => {
     if (!ifAdmin) {
       return res.json({ message: "not an admin" });
     }
-    const AcitvityList = await Posts.findAll();
+    const AcitvityList = await Posts.findAll({
+      order: [["id", "DESC"]],
+    });
     res.json({ activities: AcitvityList });
   } catch (error) {
     logger.error(error);
@@ -375,6 +389,7 @@ const getAllActivitiesBy = async (req, res) => {
       }
       AcitvityList = await Posts.findAll({
         where: where,
+        order: [["id", "DESC"]],
       });
     } else {
       if (!end && !start) {
@@ -399,6 +414,7 @@ const getAllActivitiesBy = async (req, res) => {
           }
           AcitvityList = await Posts.findAll({
             where: where,
+            order: [["id", "DESC"]],
           });
         }
         if (end) {
@@ -411,6 +427,7 @@ const getAllActivitiesBy = async (req, res) => {
           }
           AcitvityList = await Posts.findAll({
             where: where,
+            order: [["id", "DESC"]],
           });
         }
       }
@@ -438,7 +455,16 @@ const getAllActivityById = async (req, res) => {
     }
     const id = req.params.id;
     console.log(id, "id");
-    const AcitvityList = await Posts.findAll({ where: { id: id } });
+    const AcitvityList = await Posts.findAll({
+      where: { id: id },
+      order: [["id", "DESC"]],
+      include: [
+        {
+          model: Users,
+          attributes: ["name", "email"], // Include the fields you need from the Users table
+        },
+      ],
+    });
     res.json({ activities: AcitvityList });
   } catch (error) {
     console.log(error, "activity by id");
@@ -480,6 +506,46 @@ const rejectActivity = async (req, res) => {
     );
     res.json({ activities: AcitvityList });
     logger.error(error);
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
+const verifyUser = async (req, res) => {
+  try {
+    const ifAdmin = await verifyIfAdmin(req.token);
+    // console.log("not an admin", ifAdmin);
+
+    if (!ifAdmin) {
+      return res.json({ message: "not an admin" });
+    }
+    id = req.params.id;
+    console.log(id, "id exist ");
+    const verifiedUser = await Users.update(
+      { verified: true },
+      { where: { id: id } }
+    );
+    res.json({ user: verifiedUser });
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
+const unVerifyUser = async (req, res) => {
+  try {
+    const ifAdmin = await verifyIfAdmin(req.token);
+    // console.log("not an admin", ifAdmin);
+
+    if (!ifAdmin) {
+      return res.json({ message: "not an admin" });
+    }
+    id = req.params.id;
+    console.log(id, "id exist ");
+    const verifiedUser = await Users.update(
+      { verified: false },
+      { where: { id: id } }
+    );
+    res.json({ user: verifiedUser });
   } catch (error) {
     logger.error(error);
   }
@@ -888,6 +954,31 @@ const addCategory = async (req, res) => {
   }
 };
 
+const editCategory = async (req, res) => {
+  try {
+    const ifAdmin = await verifyIfAdmin(req.token);
+    // console.log("not an admin", ifAdmin);
+
+    if (!ifAdmin) {
+      return res.json({ message: "not an admin" });
+    }
+    const user_id = getUserIdFromToken(req.token);
+    const id = req.body.category_id;
+    const category = req.body.category;
+    const categoryList = await Categories.update(
+      {
+        name: category,
+      },
+      { where: { id: id } }
+    );
+    res.json({ category: categoryList, message: "success" });
+  } catch (error) {
+    logger.error(error);
+
+    console.log(error, "error in add category");
+  }
+};
+
 const addOrganization = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
@@ -914,6 +1005,335 @@ const addOrganization = async (req, res) => {
     logger.error(error);
 
     console.log(error, "error in add category");
+  }
+};
+
+const editOrganization = async (req, res) => {
+  try {
+    const ifAdmin = await verifyIfAdmin(req.token);
+    // console.log("not an admin", ifAdmin);
+
+    if (!ifAdmin) {
+      return res.json({ message: "not an admin" });
+    }
+    const user_id = getUserIdFromToken(req.token);
+
+    const { name, email, phone, address, registration_number, password, id } =
+      req.body;
+    const orgList = await Organisations.update(
+      {
+        name,
+        email,
+        phone,
+        address,
+        registration_number,
+        password,
+      },
+      {
+        where: {
+          id: id,
+        },
+      }
+    );
+    res.json({ organization: orgList, message: "success" });
+  } catch (error) {
+    logger.error(error);
+
+    console.log(error, "error in add category");
+  }
+};
+
+const addApprover = async (req, res) => {
+  try {
+    const ifAdmin = await verifyIfAdmin(req.token);
+    // console.log("not an admin", ifAdmin);
+
+    if (!ifAdmin) {
+      return res.json({ message: "not an admin" });
+    }
+    const user_id = getUserIdFromToken(req.token);
+
+    const { name, email, phone, address } = req.body;
+    const orgList = await Approvers.create({
+      isEnabled: true,
+      name,
+      email,
+      phone,
+      address,
+    });
+    res.json({ organization: orgList, message: "success" });
+  } catch (error) {
+    logger.error(error);
+
+    console.log(error, "error in add category");
+  }
+};
+
+const editApprover = async (req, res) => {
+  try {
+    const ifAdmin = await verifyIfAdmin(req.token);
+    // console.log("not an admin", ifAdmin);
+
+    if (!ifAdmin) {
+      return res.json({ message: "not an admin" });
+    }
+    const user_id = getUserIdFromToken(req.token);
+
+    const { name, email, phone, address, id } = req.body;
+    const orgList = await Approvers.update(
+      {
+        name,
+        email,
+        phone,
+        address,
+      },
+      {
+        where: {
+          id: id,
+        },
+      }
+    );
+    res.json({ organization: orgList, message: "success" });
+  } catch (error) {
+    logger.error(error);
+
+    console.log(error, "error in add category");
+  }
+};
+
+const getAllActivitiesByCategories = async (req, res) => {
+  try {
+    const ifAdmin = await verifyIfAdmin(req.token);
+
+    if (!ifAdmin) {
+      return res.json({ message: "not an admin" });
+    }
+
+    const { categories, startDate, endDate } = req.body;
+
+    // Validate categories input
+    if (!Array.isArray(categories) || categories.length === 0) {
+      return res.status(400).json({ message: "Invalid categories provided" });
+    }
+
+    // Initialize date filter
+    const dateFilter = {};
+
+    // Validate and add startDate and endDate to dateFilter if provided
+    if (startDate) {
+      const start = new Date(startDate);
+      if (isNaN(start.getTime())) {
+        return res.status(400).json({ message: "Invalid start date format" });
+      }
+      dateFilter[Op.gte] = start.toISOString().slice(0, 19).replace("T", " "); // Convert to MySQL format
+      console.log("Start Date:", dateFilter[Op.gte]); // Debug log
+    }
+
+    if (endDate) {
+      const end = new Date(endDate);
+      if (isNaN(end.getTime())) {
+        return res.status(400).json({ message: "Invalid end date format" });
+      }
+      // Set end date to the end of the specified day
+      end.setHours(23, 59, 59, 999);
+      dateFilter[Op.lte] = end.toISOString().slice(0, 19).replace("T", " "); // Convert to MySQL format
+      console.log("End Date:", dateFilter[Op.lte]); // Debug log
+    }
+
+    // Debug log the dateFilter
+    console.log("Date Filter:", dateFilter);
+    console.log(
+      "Date full in where:",
+      Object.getOwnPropertySymbols(dateFilter).length
+    );
+
+    // Group and count activities by category
+    const activitiesByCategories = await Posts.findAll({
+      attributes: [
+        "category",
+        [Sequelize.fn("COUNT", Sequelize.col("id")), "count"],
+      ],
+      where: {
+        ...(Object.getOwnPropertySymbols(dateFilter).length
+          ? { createdAt: dateFilter }
+          : {}),
+        category: {
+          [Op.in]: categories,
+        },
+      },
+      group: ["category"],
+    });
+
+    // Prepare result object
+    const result = {};
+
+    // Populate result object with category counts
+    activitiesByCategories.forEach((item) => {
+      const category = item.get("category");
+      const count = item.get("count");
+      result[category] = count;
+    });
+
+    res.json(result);
+  } catch (error) {
+    console.error(error); // Debug log
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const getRejectedActivitiesByCategories = async (req, res) => {
+  try {
+    const ifAdmin = await verifyIfAdmin(req.token);
+    // console.log("not an admin", ifAdmin);
+
+    if (!ifAdmin) {
+      return res.json({ message: "not an admin" });
+    }
+
+    const { categories, startDate, endDate } = req.body;
+
+    // Validate categories input
+    if (!Array.isArray(categories) || categories.length === 0) {
+      return res.status(400).json({ message: "Invalid categories provided" });
+    }
+
+    // Initialize date filter
+    const dateFilter = {};
+
+    // Validate and add startDate and endDate to dateFilter if provided
+    if (startDate) {
+      const start = new Date(startDate);
+      if (isNaN(start.getTime())) {
+        return res.status(400).json({ message: "Invalid start date format" });
+      }
+      dateFilter[Sequelize.Op.gte] = start
+        .toISOString()
+        .slice(0, 19)
+        .replace("T", " ");
+    }
+
+    if (endDate) {
+      const end = new Date(endDate);
+      if (isNaN(end.getTime())) {
+        return res.status(400).json({ message: "Invalid end date format" });
+      }
+      dateFilter[Sequelize.Op.lt] = end
+        .toISOString()
+        .slice(0, 19)
+        .replace("T", " ");
+    }
+
+    // Group and count activities by category
+    const activitiesByCategories = await Posts.findAll({
+      attributes: [
+        "category",
+        [Sequelize.fn("COUNT", Sequelize.col("id")), "count"],
+      ],
+      where: {
+        ...(Object.getOwnPropertySymbols(dateFilter).length
+          ? { createdAt: dateFilter }
+          : {}),
+        rejected: true,
+        category: {
+          [Sequelize.Op.in]: categories,
+        },
+      },
+      group: ["category"],
+    });
+
+    // Prepare result object
+    const result = {};
+
+    // Populate result object with category counts
+    activitiesByCategories.forEach((item) => {
+      const category = item.get("category");
+      const count = item.get("count");
+      result[category] = count;
+    });
+
+    res.json(result);
+  } catch (error) {
+    logger.error(error);
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const getApprovedActivitiesByCategories = async (req, res) => {
+  try {
+    const ifAdmin = await verifyIfAdmin(req.token);
+    // console.log("not an admin", ifAdmin);
+
+    if (!ifAdmin) {
+      return res.json({ message: "not an admin" });
+    }
+
+    const { categories, startDate, endDate } = req.body;
+
+    // Validate categories input
+    if (!Array.isArray(categories) || categories.length === 0) {
+      return res.status(400).json({ message: "Invalid categories provided" });
+    }
+
+    // Initialize date filter
+    const dateFilter = {};
+
+    // Validate and add startDate and endDate to dateFilter if provided
+    if (startDate) {
+      const start = new Date(startDate);
+      if (isNaN(start.getTime())) {
+        return res.status(400).json({ message: "Invalid start date format" });
+      }
+      dateFilter[Sequelize.Op.gte] = start
+        .toISOString()
+        .slice(0, 19)
+        .replace("T", " ");
+    }
+
+    if (endDate) {
+      const end = new Date(endDate);
+      if (isNaN(end.getTime())) {
+        return res.status(400).json({ message: "Invalid end date format" });
+      }
+      dateFilter[Sequelize.Op.lt] = end
+        .toISOString()
+        .slice(0, 19)
+        .replace("T", " ");
+    }
+
+    // Group and count activities by category
+    const activitiesByCategories = await Posts.findAll({
+      attributes: [
+        "category",
+        [Sequelize.fn("COUNT", Sequelize.col("id")), "count"],
+      ],
+      where: {
+        ...(Object.getOwnPropertySymbols(dateFilter).length
+          ? { createdAt: dateFilter }
+          : {}),
+        approved: true,
+        category: {
+          [Sequelize.Op.in]: categories,
+        },
+      },
+      group: ["category"],
+    });
+
+    // Prepare result object
+    const result = {};
+
+    // Populate result object with category counts
+    activitiesByCategories.forEach((item) => {
+      const category = item.get("category");
+      const count = item.get("count");
+      result[category] = count;
+    });
+
+    res.json(result);
+  } catch (error) {
+    logger.error(error);
+    console.error(error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
@@ -966,4 +1386,13 @@ module.exports = {
   disableApprover,
   addCategory,
   addOrganization,
+  editCategory,
+  editOrganization,
+  addApprover,
+  editApprover,
+  getAllActivitiesByCategories,
+  getRejectedActivitiesByCategories,
+  getApprovedActivitiesByCategories,
+  verifyUser,
+  unVerifyUser,
 };

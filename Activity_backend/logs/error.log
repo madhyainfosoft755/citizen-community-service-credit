@@ -19,3 +19,56 @@
 {"level":"error","message":"here is the error Cannot read properties of null (reading 'id')","stack":"TypeError: Cannot read properties of null (reading 'id')\n    at login (D:\\vaibhav\\communiy-care-hours\\citizen-community-service-credit\\Activity_backend\\controllers\\LoginController.js:752:50)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)"}
 {"level":"error","message":"here is the error Cannot read properties of null (reading 'id')","stack":"TypeError: Cannot read properties of null (reading 'id')\n    at login (D:\\vaibhav\\communiy-care-hours\\citizen-community-service-credit\\Activity_backend\\controllers\\LoginController.js:752:50)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)"}
 {"level":"error","message":"here is the error Cannot read properties of null (reading 'id')","stack":"TypeError: Cannot read properties of null (reading 'id')\n    at login (D:\\vaibhav\\communiy-care-hours\\citizen-community-service-credit\\Activity_backend\\controllers\\LoginController.js:752:50)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)"}
+{"expiredAt":"2024-08-03T08:56:18.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-03T08:56:18.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-03T08:56:18.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-03T08:56:18.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-03T08:56:18.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-03T08:56:18.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-03T08:56:18.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-03T08:56:18.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-03T08:56:18.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-03T08:56:18.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-03T08:56:18.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-03T08:56:18.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-03T08:56:18.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-03T08:56:18.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-03T08:56:18.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-03T08:56:18.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-03T08:56:18.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-03T08:56:18.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-03T08:56:18.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-03T08:56:18.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-03T08:56:18.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-03T08:56:18.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-03T08:56:18.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-03T08:56:18.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-03T08:56:18.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-03T08:56:18.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-03T08:56:18.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-03T08:56:18.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-03T08:56:18.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-03T08:56:18.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-03T08:56:18.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-03T08:56:18.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-03T08:56:18.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-03T08:56:18.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"level":"error"}
+{"level":"error"}
+{"level":"error"}
+{"level":"error"}
+{"level":"error"}
+{"expiredAt":"2024-08-07T06:08:55.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-07T06:08:55.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-07T06:08:55.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-07T06:08:55.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-07T06:08:55.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-07T06:08:55.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-07T06:08:55.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-07T06:08:55.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-07T06:08:55.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-07T06:08:55.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-07T06:08:55.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-07T06:08:55.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-07T06:08:55.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-07T06:08:55.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}

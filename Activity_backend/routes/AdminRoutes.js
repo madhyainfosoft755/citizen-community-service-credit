@@ -33,6 +33,15 @@ const {
   disableApprover,
   addCategory,
   addOrganization,
+  editCategory,
+  editOrganization,
+  editApprover,
+  addApprover,
+  getAllActivitiesByCategories,
+  getRejectedActivitiesByCategories,
+  getApprovedActivitiesByCategories,
+  verifyUser,
+  unVerifyUser,
 } = require("../controllers/AdminController");
 const extractToken = require("../Middlewere/Authentication");
 const router = express.Router();
@@ -88,12 +97,34 @@ router.get("/enable-organization/:id", extractToken, enableOrganisation);
 router.get("/disable-organization/:id", extractToken, disableOrganisation);
 router.get("/enable-approvers/:id", extractToken, enableApprover);
 router.get("/disable-approvers/:id", extractToken, disableApprover);
-
+router.get("/unverify-user/:id", extractToken, unVerifyUser);
+router.get("/verify-user/:id", extractToken, verifyUser);
 router.post("/getAllActivitiesBy", extractToken, getAllActivitiesBy);
 router.get("/getActivityById/:id", extractToken, getAllActivityById);
+router.post(
+  "/getAllActivitiesByCategories",
+  extractToken,
+  getAllActivitiesByCategories
+);
+
+router.post(
+  "/getApprovedActivitiesByCategories",
+  extractToken,
+  getApprovedActivitiesByCategories
+);
+
+router.post(
+  "/getRejectedActivitiesByCategories",
+  extractToken,
+  getRejectedActivitiesByCategories
+);
 
 router.post("/addCategory", extractToken, addCategory);
+router.post("/editCategory", extractToken, editCategory);
 router.post("/addOrganization", extractToken, addOrganization);
+router.post("/editOrganization", extractToken, editOrganization);
+router.post("/addApprover", extractToken, addApprover);
+router.post("/editApprover", extractToken, editApprover);
 addOrganization;
 
 module.exports = router;

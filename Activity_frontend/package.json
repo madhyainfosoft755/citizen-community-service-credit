@@ -36,6 +36,7 @@
     "react-pdf-html": "^2.0.4",
     "react-router-dom": "^6.24.0",
     "react-router-hash-link": "^2.4.3",
+    "react-select": "^5.8.0",
     "react-share": "^5.1.0",
     "react-slick": "^0.30.2",
     "react-toastify": "^9.1.3",
