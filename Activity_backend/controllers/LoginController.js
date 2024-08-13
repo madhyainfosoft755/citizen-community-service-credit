@@ -7,7 +7,7 @@ const jwtKey = "g.comm";
 const multer = require("multer");
 const GoogleData = db.users;
 const Users = db.users;
-const axios = require('axios')
+const axios = require("axios");
 const Posts = db.Posts;
 const Endorsement = db.Endorsement;
 const Categories = db.Categories;
@@ -17,59 +17,69 @@ const LoginLog = db.loginlog;
 const VisitorLogs = db.visitorlogs;
 const Jwt = require("jsonwebtoken");
 const { logger } = require("../utils/util");
-const { CLIENT_ID, CLIENT_SECRET, CALLBACK_URL } = require('../config/constant');
-const { OAuth2Client } = require('google-auth-library');
+const {
+  CLIENT_ID,
+  CLIENT_SECRET,
+  CALLBACK_URL,
+} = require("../config/constant");
+const { OAuth2Client } = require("google-auth-library");
 const client = new OAuth2Client(CLIENT_ID);
 const nodemailer = require("nodemailer");
-const randomstring = require('randomstring');
-const crypto = require('crypto'); // For generating a random token
+const randomstring = require("randomstring");
+const crypto = require("crypto"); // For generating a random token
 const dotenv = require("dotenv");
 dotenv.config();
-const { validationResult } = require('express-validator');
-const fs = require('fs');
-const path = require('path');
-const { format } = require('date-fns');
+const { validationResult } = require("express-validator");
+const fs = require("fs");
+const path = require("path");
+const { format } = require("date-fns");
 const LINKEDIN_CLIENT_ID = process.env.LINKEDIN_CLIENT_ID;
 const LINKEDIN_CLIENT_SECRET = process.env.LINKEDIN_CLIENT_SECRET;
 const LINKEDIN_REDIRECT_URI = process.env.LINKEDIN_REDIRECT_URI;
 const JWT_SECRET = process.env.JWT_Secret;
-const qs = require('qs');
+const qs = require("qs");
 const { count } = require("console");
 
 // Function to decode the post ID
 function decodePostID(encodedID) {
-  return Buffer.from(encodedID, 'base64').toString('ascii');
+  return Buffer.from(encodedID, "base64").toString("ascii");
 }
 
 const LinkedInLogin = async (req, res) => {
   const { code } = req.body;
   const linkedin_params = new URLSearchParams();
-  linkedin_params.append('grant_type', 'authorization_code');
-  linkedin_params.append('redirect_uri', `${LINKEDIN_REDIRECT_URI}`);
-  linkedin_params.append('client_id', `${LINKEDIN_CLIENT_ID}`);
-  linkedin_params.append('client_secret', `${LINKEDIN_CLIENT_SECRET}`);
-  linkedin_params.append('code', `${code}`);
+  linkedin_params.append("grant_type", "authorization_code");
+  linkedin_params.append("redirect_uri", `${LINKEDIN_REDIRECT_URI}`);
+  linkedin_params.append("client_id", `${LINKEDIN_CLIENT_ID}`);
+  linkedin_params.append("client_secret", `${LINKEDIN_CLIENT_SECRET}`);
+  linkedin_params.append("code", `${code}`);
 
   try {
     // Exchange authorization code for access token
-    const tokenResponse = await axios.post('https://www.linkedin.com/oauth/v2/accessToken', linkedin_params, {
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-    });
+    const tokenResponse = await axios.post(
+      "https://www.linkedin.com/oauth/v2/accessToken",
+      linkedin_params,
+      {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      }
+    );
 
     const accessToken = tokenResponse.data.access_token;
 
     // console.log("********************** mila kya access token *******************", tokenResponse)
 
     // Fetch user profile information from LinkedIn
-    const profileResponse = await axios.get('https://api.linkedin.com/v2/userinfo', {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-      },
-    });
+    const profileResponse = await axios.get(
+      "https://api.linkedin.com/v2/userinfo",
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
     // console.log("********** kya mila profile ke response mai *************", profileResponse)
-
 
     const email = profileResponse.data.email;
 
@@ -78,7 +88,6 @@ const LinkedInLogin = async (req, res) => {
 
     // Create or update user in your database
     if (!user) {
-
       user = {
         linkedinId: profileResponse.data.id,
         name: profileResponse.data.name,
@@ -99,7 +108,9 @@ const LinkedInLogin = async (req, res) => {
       },
     };
 
-    const jwtToken = Jwt.sign(jwtPayload, { userId: user.id }, JWT_SECRET, { expiresIn: '1h' }); // Adjust expiresIn as needed
+    const jwtToken = Jwt.sign(jwtPayload, { userId: user.id }, JWT_SECRET, {
+      expiresIn: "1h",
+    }); // Adjust expiresIn as needed
 
     // Check the linklogin flag to determine the redirection
     if (user) {
@@ -107,7 +118,7 @@ const LinkedInLogin = async (req, res) => {
       res.status(200).json({
         token: jwtToken,
         user: user,
-        redirect: '/create', // Redirect to /create page
+        redirect: "/create", // Redirect to /create page
       });
     } else {
       // console.log('Error');
@@ -116,13 +127,12 @@ const LinkedInLogin = async (req, res) => {
         user: user,
       });
     }
-
   } catch (error) {
-    logger.error(error)
+    logger.error(error);
     console.error(error);
-    res.status(500).json({ message: 'Internal Server Error' });
+    res.status(500).json({ message: "Internal Server Error" });
   }
-}
+};
 
 // Helper function to extract user ID from JWT token
 const getUserIdFromToken = (req) => {
@@ -140,41 +150,47 @@ const getUserIdFromToken = (req) => {
   return null; // Return null if token extraction fails
 };
 
-
 // function to check the server is running or not by making a request to this api
 const output = async (req, res) => {
   try {
     return res.json("abcd");
   } catch (error) {
     logger.error("here is the error from output", error);
-    console.error('Failed to fetch user profile:', error);
+    console.error("Failed to fetch user profile:", error);
     throw error;
   }
-}
+};
 
 // function to get the google user details
 const getUserProfile = async (accessToken) => {
   try {
-    const response = await axios.get('https://www.googleapis.com/userinfo/v2/me', {
-      headers: {
-        Authorization: `Bearer ${accessToken}`
+    const response = await axios.get(
+      "https://www.googleapis.com/userinfo/v2/me",
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
       }
-    });
+    );
 
     // Extract user profile from response data
     const userProfile = response.data;
     // console.log("this is users profile data", userProfile)
     return userProfile;
   } catch (error) {
-    console.error('Failed to fetch user profile:', error.response ? error.response.data : error.message);
+    console.error(
+      "Failed to fetch user profile:",
+      error.response ? error.response.data : error.message
+    );
     throw error;
   }
-}
+};
 
 // Function to generate a random alphanumeric password of a specified length
 const generateRandomPassword = (length) => {
-  const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_-';
-  let password = '';
+  const charset =
+    "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_-";
+  let password = "";
 
   for (let i = 0; i < length; i++) {
     const randomIndex = Math.floor(Math.random() * charset.length);
@@ -191,7 +207,7 @@ const PhoneNumberGenerator = (length) => {
     PhoneNumber += randomDigit.toString();
   }
   return PhoneNumber;
-}
+};
 
 // Example usage:
 const passwordLength = 10;
@@ -200,10 +216,9 @@ const generatePhoneNumber = PhoneNumberGenerator(10);
 const generatedPassword = generateRandomPassword(passwordLength);
 // console.log('Generated Password:', generatedPassword);
 
-
 // const GoogleLogin = async (req, res) => {
 //   const { token } = req.body;
-  // console.log("*****token********", token)
+// console.log("*****token********", token)
 
 //   if (!token) {
 //     return res.status(400).json({ error: 'ID token is missing' });
@@ -211,11 +226,10 @@ const generatedPassword = generateRandomPassword(passwordLength);
 
 //   try {
 //     const userProfile = await getUserProfile(token);
-    // console.log("ye rha user ka profile data", userProfile)
+// console.log("ye rha user ka profile data", userProfile)
 
 //     // Check if user exists
 //     let user = await Users.findOne({ where: { email: userProfile.email } });
-
 
 //     if (!user) {
 //       // Download and save profile picture
@@ -229,7 +243,6 @@ const generatedPassword = generateRandomPassword(passwordLength);
 //       const response = await fetch(pictureUrl);
 //       const buffer = await response.buffer();
 //       fs.writeFileSync(filePath, buffer);
-
 
 //       // Create new user if not found
 //       user = await Users.create({
@@ -250,12 +263,12 @@ const generatedPassword = generateRandomPassword(passwordLength);
 //     // const jwtToken = Jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 //     const jwtToken = Jwt.sign({ userId: user.id }, jwtKey, { expiresIn: "1h" });
 
-    // console.log("lo data le lo", user)
+// console.log("lo data le lo", user)
 
 //     res.status(200).set('Authorization', `Bearer ${jwtToken}`).json({ token: jwtToken, user: userProfile, redirectTo: '/create' });
 //   } catch (error) {
 //     logger.error("ye hai google ki error", error)
-    // console.error('Google login error:', error);
+// console.error('Google login error:', error);
 //     res.status(500).json({ error: 'Internal server error' });
 //   }
 // };
@@ -265,7 +278,7 @@ const GoogleLogin = async (req, res) => {
   // console.log("*****token********", token);
 
   if (!token) {
-    return res.status(400).json({ error: 'ID token is missing' });
+    return res.status(400).json({ error: "ID token is missing" });
   }
 
   try {
@@ -275,24 +288,25 @@ const GoogleLogin = async (req, res) => {
     // Check if user exists
     let user = await Users.findOne({ where: { email: userProfile.email } });
 
-
-
     if (!user) {
       // Send the profile data to the frontend without creating the user
-      return res.status(200).json({ user: userProfile, redirectTo: '/create' });
+      return res.status(200).json({ user: userProfile, redirectTo: "/create" });
     }
-    let log = await LoginLog.create({userId:user.id});
+    let log = await LoginLog.create({ userId: user.id });
 
     // Generate JWT token for the user
     const jwtToken = Jwt.sign({ userId: user.id }, jwtKey, { expiresIn: "1h" });
 
     // console.log("lo data le lo", user);
 
-    res.status(200).set('Authorization', `Bearer ${jwtToken}`).json({ token: jwtToken, user: userProfile });
+    res
+      .status(200)
+      .set("Authorization", `Bearer ${jwtToken}`)
+      .json({ token: jwtToken, user: userProfile });
   } catch (error) {
     logger.error("ye hai google ki error", error);
-    console.error('Google login error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error("Google login error:", error);
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
@@ -301,7 +315,6 @@ const sequelize = new Sequelize(config.DB, config.USER_DB, config.PASSWORD_DB, {
   dialect: "mysql",
   pool: { min: 0, max: 10, idle: 10000 },
 });
-
 
 const transporter = nodemailer.createTransport({
   service: process.env.service,
@@ -316,7 +329,6 @@ const transporter = nodemailer.createTransport({
 // this is Register Api
 const Register = async (req, res) => {
   try {
-
     const userData = req.body;
     // console.log("here is he data", userData);
 
@@ -341,49 +353,55 @@ const Register = async (req, res) => {
     const photoFile = req.files.photo;
     // console.log("ye hai photo file", photoFile)
     // Check if the file has an allowed image extension
-    const allowedExtensions = ["jpg", "jpeg", "png", "gif"];
-    const fileExtension = photoFile[0].filename ? photoFile[0].filename.split(".") : "";
+    const allowedExtensions = ["jpg", "jpeg", "png", "gif","jfif"];
+    const fileExtension = photoFile[0].filename
+      ? photoFile[0].filename.split(".")
+      : "";
     if (!allowedExtensions.includes(fileExtension[1])) {
-      return res.status(400).json({ message: "Allowed image formats are JPG, JPEG, PNG, GIF" });
+      return res
+        .status(400)
+        .json({ message: "Allowed image formats are JPG, JPEG, PNG, GIF, JFIF" });
     }
 
     // Check if user with the same email already exists
-    const existingUser = await Users.findOne({ where: { email: userData.email } });
+    const existingUser = await Users.findOne({
+      where: { email: userData.email },
+    });
     // console.log("this is the existing user", existingUser)
     if (existingUser) {
-
       return res.status(400).json({ message: "Email already exists" });
     }
 
-
     // Check if user with the same mobile number already exists
-    const existingMobileUser = await Users.findOne({ where: { phone: userData.phone } });
+    const existingMobileUser = await Users.findOne({
+      where: { phone: userData.phone },
+    });
     if (existingMobileUser) {
       return res
         .status(400)
         .json({ message: "Mobile number already registered" });
     }
 
-   
     // Validate password strength
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[~`!@#$%^&*()-_=+{}[\]|;:'",.<>?\\/])[A-Za-z\d~`!@#$%^&*()-_=+{}[\]|;:'",.<>?\\/]{8,}$/;
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[~`!@#$%^&*()-_=+{}[\]|;:'",.<>?\\/])[A-Za-z\d~`!@#$%^&*()-_=+{}[\]|;:'",.<>?\\/]{8,}$/;
     if (!passwordRegex.test(userData.password)) {
       return res.status(400).json({
-        message: "Password must be at least 8 characters long and include at least one letter, one number, and one special character."
+        message:
+          "Password must be at least 8 characters long and include at least one letter, one number, and one special character.",
       });
     }
 
     // Generate a unique verification token
-    const verificationToken = crypto.randomBytes(20).toString('hex');
+    const verificationToken = crypto.randomBytes(20).toString("hex");
 
     // Send verification email
     await transporter.sendMail({
       from: process.env.userMail,
       to: userData.email,
-      subject: 'Verify your email',
+      subject: "Verify your email",
       html: `<p>Please click <a href="${process.env.URL}/verify/${verificationToken}">here</a> to verify your email address.</p>`,
     });
-
 
     // Ensure "Others" category is always present
     let selectedCategories = userData.selectedCategories;
@@ -416,7 +434,7 @@ const Register = async (req, res) => {
       verificationToken: verificationToken, // Store verification token in the database
       aadhar: userData.aadhar,
       role: "user",
-      organization: userData.organization // Add the organization field
+      organization: userData.organization, // Add the organization field
 
       // Add other fields as needed
     });
@@ -425,7 +443,8 @@ const Register = async (req, res) => {
 
     return res.status(201).json({
       status: "success",
-      message: "Registration successful. Please check your email for verification.",
+      message:
+        "Registration successful. Please check your email for verification.",
     });
   } catch (error) {
     logger.error("Registration failed:", error);
@@ -440,7 +459,6 @@ const Register = async (req, res) => {
 //linkedin registration
 const RegisterLinkedin = async (req, res) => {
   try {
-
     const userData = req.body;
     // console.log("here is he data", userData);
 
@@ -458,22 +476,25 @@ const RegisterLinkedin = async (req, res) => {
     }
 
     // Validate photo URL
-    const urlRegex = /(http|https):\/\/(\w+:?\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
+    const urlRegex =
+      /(http|https):\/\/(\w+:?\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
     if (!urlRegex.test(userData.photo)) {
       return res.status(400).json({ message: "Invalid photo URL format" });
     }
 
     // Check if user with the same email already exists
-    const existingUser = await Users.findOne({ where: { email: userData.email } });
+    const existingUser = await Users.findOne({
+      where: { email: userData.email },
+    });
     // console.log("this is the existing user", existingUser)
     if (existingUser) {
-
       return res.status(400).json({ message: "Email already exists" });
     }
 
-
     // Check if user with the same mobile number already exists
-    const existingMobileUser = await Users.findOne({ where: { phone: userData.phone } });
+    const existingMobileUser = await Users.findOne({
+      where: { phone: userData.phone },
+    });
     if (existingMobileUser) {
       return res
         .status(400)
@@ -488,7 +509,6 @@ const RegisterLinkedin = async (req, res) => {
     //     .json({ message: "Aadhar number already registered" });
     // }
 
-    
     // Ensure "Others" category is always present
     let selectedCategories = userData.selectedCategories;
     // console.log("Category selected:", selectedCategories);
@@ -507,19 +527,17 @@ const RegisterLinkedin = async (req, res) => {
 
     // console.log("Final categories:", selectedCategories);
 
-
     // Download and save profile picture
     const pictureUrl = userData.photo;
     const fileExtension = path.extname(new URL(pictureUrl).pathname);
     const fileName = `${userData.email}${fileExtension} photo`;
-    const filePath = path.join(__dirname, '../uploads/photos', fileName);
+    const filePath = path.join(__dirname, "../uploads/photos", fileName);
 
     // Dynamically import node-fetch
-    const fetch = (await import('node-fetch')).default;
+    const fetch = (await import("node-fetch")).default;
     const response = await fetch(pictureUrl);
     const buffer = await response.buffer();
     fs.writeFileSync(filePath, buffer);
-
 
     // const Category = selectedCategories;
 
@@ -534,22 +552,21 @@ const RegisterLinkedin = async (req, res) => {
       aadhar: userData.aadhar,
       role: "user",
       organization: userData.organization, // Add the organization field
-      verified: true
+      verified: true,
       // Add other fields as needed
     });
 
     // You can add more error handling and validation as needed
-    const token = Jwt.sign({ userId: newUser.id }, jwtKey, {expiresIn: "1d",});
+    const token = Jwt.sign({ userId: newUser.id }, jwtKey, { expiresIn: "1d" });
     // console.log("this is the token********************-------------------",token)
 
-    
     return res.status(201).json({
       status: "success",
       message: "Registration successful.",
       data: {
         userKey: newUser,
-        token
-      }
+        token,
+      },
     });
   } catch (error) {
     logger.error("Registration failed:", error);
@@ -591,24 +608,22 @@ const verify = async (req, res) => {
 
 //Forget Password API
 const forgetpassword = async (req, res) => {
-
   const { email } = req.body;
-  console.log("this is the email",email)
+  console.log("this is the email", email);
 
   // Check if email exists in the database
   const user = await Users.findOne({ where: { email } });
   if (!user) {
-    return res.status(404).json({ message: 'Email not found' });
+    return res.status(404).json({ message: "Email not found" });
   }
 
   // Generate 6-digit PIN
-  const pin = randomstring.generate({ length: 6, charset: 'numeric' });
+  const pin = randomstring.generate({ length: 6, charset: "numeric" });
   // console.log("*-*-this is the generated pin*-*-", pin)
 
   // Update user's resetPin field with the generated PIN
   user.resetPin = pin;
   await user.save();
-
 
   // // Send PIN to the user's email
   // const transporter = nodemailer.createTransport({
@@ -622,21 +637,21 @@ const forgetpassword = async (req, res) => {
   const mailOptions = {
     from: process.env.userMail,
     to: email,
-    subject: 'Reset Password PIN',
-    text: `Your PIN for resetting the password is: ${pin}`
+    subject: "Reset Password PIN",
+    text: `Your PIN for resetting the password is: ${pin}`,
   };
 
   transporter.sendMail(mailOptions, (error, info) => {
     if (error) {
-      logger.error("error sending mail", error)
-      console.error('Error sending email:', error);
-      return res.status(500).json({ message: 'Error sending PIN email' });
+      logger.error("error sending mail", error);
+      console.error("Error sending email:", error);
+      return res.status(500).json({ message: "Error sending PIN email" });
     } else {
       // console.log('Email sent:', info.response);
-      return res.status(200).json({ message: 'PIN sent to your email' });
+      return res.status(200).json({ message: "PIN sent to your email" });
     }
   });
-}
+};
 
 //Verify Pin API
 const verifyPin = async (req, res) => {
@@ -649,15 +664,15 @@ const verifyPin = async (req, res) => {
     const user = await Users.findOne({ where: { email } });
     // console.log("***ye hai user ka data***", user)
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
 
     // Check if the entered PIN matches the stored PIN
     if (pin !== user.resetPin) {
-      return res.status(400).json({ message: 'Invalid PIN' });
+      return res.status(400).json({ message: "Invalid PIN" });
     }
     user.resetPin = null;
-    return res.status(200).json({ message: 'PIN verified successfully' });
+    return res.status(200).json({ message: "PIN verified successfully" });
   } catch (error) {
     logger.error("Here is the error", error);
     // console.error("PIN verification failed:", error);
@@ -675,7 +690,9 @@ const UpdatePhoneNumber = async (req, res) => {
 
     // Check if userId and newPhoneNumber are provided
     if (!userId || !phone) {
-      return res.status(400).json({ message: 'User ID and new phone number are required' });
+      return res
+        .status(400)
+        .json({ message: "User ID and new phone number are required" });
     }
 
     // Find the user by userId
@@ -683,7 +700,7 @@ const UpdatePhoneNumber = async (req, res) => {
 
     // Check if user exists
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
 
     // Update the phone number for the user
@@ -691,10 +708,12 @@ const UpdatePhoneNumber = async (req, res) => {
     user.confirm = true;
     await user.save();
 
-    return res.status(200).json({ message: 'Phone number updated successfully', user });
+    return res
+      .status(200)
+      .json({ message: "Phone number updated successfully", user });
   } catch (error) {
-    console.error('Error updating phone number:', error);
-    return res.status(500).json({ message: 'Error updating phone number' });
+    console.error("Error updating phone number:", error);
+    return res.status(500).json({ message: "Error updating phone number" });
   }
 };
 
@@ -706,21 +725,23 @@ const updatePassword = async (req, res) => {
     // Find user by email
     const user = await Users.findOne({ where: { email } });
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message: "User not found" });
     }
 
     // Validate password strength
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[~`!@#$%^&*()-_=+{}[\]|;:'",.<>?\\/])[A-Za-z\d~`!@#$%^&*()-_=+{}[\]|;:'",.<>?\\/]{8,}$/;
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[~`!@#$%^&*()-_=+{}[\]|;:'",.<>?\\/])[A-Za-z\d~`!@#$%^&*()-_=+{}[\]|;:'",.<>?\\/]{8,}$/;
     if (!passwordRegex.test(newPassword)) {
       return res.status(400).json({
-        message: "Password must include at least one small letter, one capital letter, one number and one special character."
+        message:
+          "Password must include at least one small letter, one capital letter, one number and one special character.",
       });
     }
 
     // Check if the new password is the same as the old password
     if (newPassword === user.password) {
       return res.status(400).json({
-        message: "New password must be different from the old password."
+        message: "New password must be different from the old password.",
       });
     }
 
@@ -729,15 +750,12 @@ const updatePassword = async (req, res) => {
     // user.resetPin = null; // Clear the resetPin after successful password reset
     await user.save();
 
-
-    return res.status(200).json({ message: 'Password updated successfully' });
+    return res.status(200).json({ message: "Password updated successfully" });
   } catch (error) {
-    console.error('Update password error:', error);
-    return res.status(500).json({ message: 'Internal server error' });
+    console.error("Update password error:", error);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
-
-
 
 const login = async (req, res) => {
   const { email, password } = req.body;
@@ -749,7 +767,7 @@ const login = async (req, res) => {
     const user = await Users.findOne({ where: { email } });
     // console.log("**/*/*/* THIS IS USER /*/*/*/*/", user);
 
-    let log = await LoginLog.create({userId:user.id});
+    let log = await LoginLog.create({ userId: user.id });
 
     // Check if the password matches
     if (!user && !log) {
@@ -763,7 +781,9 @@ const login = async (req, res) => {
 
     // Check if the user is verified
     if (!user.verified) {
-      return res.status(401).json({ error: "Email is not verified. Please verify your email." });
+      return res
+        .status(401)
+        .json({ error: "Email is not verified. Please verify your email." });
     }
 
     const token = Jwt.sign({ userId: user.id }, jwtKey, {
@@ -783,7 +803,7 @@ const login = async (req, res) => {
       token,
       userKey: userKey, // Assuming userKey is the user's ID
       role: user.role, // Assuming user's role is stored in the 'role' field of the User model
-      redirectTo: user.role === 'admin' ? '/admin' : '/create', // Define redirection URL based on role
+      redirectTo: user.role === "admin" ? "/admin" : "/create", // Define redirection URL based on role
     });
     // Successful login
   } catch (error) {
@@ -829,7 +849,7 @@ const resendVerification = async (req, res) => {
       message: "An error occurred while sending verification email.",
     });
   }
-}
+};
 
 const varifybytiken = async (req, res) => {
   const { userKey, token } = req.body;
@@ -847,14 +867,13 @@ const varifybytiken = async (req, res) => {
     const { isAdmin } = verifytoken;
     res.json({
       status: "success",
-      isAdmin
+      isAdmin,
     });
   } catch (error) {
     logger.error("Error verifying token:", error);
     res.status(500).json({ error: "An error occurred while verifying token." });
   }
 };
-
 
 const varifybytoken = async (req, res) => {
   const { accessToken, name, id, clientId, Email, credential } = req.body;
@@ -902,7 +921,6 @@ const verifyToken = (req, res, next) => {
 };
 
 const profile = async (req, res) => {
-
   // Extract user ID from JWT token
   const userId = getUserIdFromToken(req);
   // console.log("ye profile se aa rhi hai userID", userId)
@@ -964,7 +982,7 @@ const profile = async (req, res) => {
             message: "Token has expired",
           });
         } else {
-          logger.error("this is the error from token", error)
+          logger.error("this is the error from token", error);
           console.error("Error decoding token:", error);
           res.status(401).send("Invalid token");
         }
@@ -1056,45 +1074,39 @@ const CreateActivity = async (req, res) => {
 
     // Extract userId from the token
     const userId = getUserIdFromToken(req);
-    console.log("YE HAI USER KI ID", userId)
+    console.log("YE HAI USER KI ID", userId);
 
     if (userId === null || userId === undefined) {
       // console.log("no user id found");
-      logger.error("userid not found while creating activity", errors)
+      logger.error("userid not found while creating activity", errors);
       return;
     }
 
-    const {
-      selectedCategories,
-      date,
-      fromTime,
-      toTime,
-      latitude,
-      longitude,
-    } = req.body;
+    const { selectedCategories, date, fromTime, toTime, latitude, longitude } =
+      req.body;
 
     // Format the date to yyyy-mm-dd format
-    const formattedDate = format(new Date(date), 'yyyy-MM-dd');
+    const formattedDate = format(new Date(date), "yyyy-MM-dd");
 
     // console.log("req data mai date kya aa rhi hai ", formattedDate);
     // Check if files were uploaded
     const photos =
       req.files && req.files.photo
         ? req.files.photo.reduce((acc, file) => {
-          // acc.push(file.filename);
-          return acc + file.filename;
-        }, [])
+            // acc.push(file.filename);
+            return acc + file.filename;
+          }, [])
         : "";
 
-    console.log("ye hain photos", photos)
+    console.log("ye hain photos", photos);
     const videos =
       req.files && req.files.video
         ? req.files.video.reduce((acc, file) => {
-          // acc.push(file.filename);
-          return acc + file.filename;
-        }, [])
+            // acc.push(file.filename);
+            return acc + file.filename;
+          }, [])
         : "";
-    console.log("ye hain videos", videos)
+    console.log("ye hain videos", videos);
 
     // Check for missing fields and create an array to store missing fields
     const missingFields = [];
@@ -1108,7 +1120,9 @@ const CreateActivity = async (req, res) => {
 
     // If there are missing fields, return an error with the list of missing fields
     if (missingFields.length > 0) {
-      return res.status(400).json({ error: `Missing required fields: ${missingFields.join(", ")}` });
+      return res.status(400).json({
+        error: `Missing required fields: ${missingFields.join(", ")}`,
+      });
     }
 
     const category = selectedCategories;
@@ -1157,7 +1171,6 @@ const CreateActivity = async (req, res) => {
 
     res.status(201).json({ message: "Activity created successfully" });
   } catch (error) {
-
     logger.error("here is the error", error);
     console.error("Error creating activity:", error);
     res.status(500).json({ error: "Internal Server Error" });
@@ -1170,11 +1183,7 @@ const AllDetails = async (req, res) => {
     const userId = req.user.id;
 
     const all_posts = await db.Posts.findAll({
-      attributes: [
-        "UserId",
-        "Category",
-        "totalTime",
-      ],
+      attributes: ["UserId", "Category", "totalTime"],
       where: { UserId: userId },
     });
 
@@ -1204,14 +1213,9 @@ const AllDetails = async (req, res) => {
 };
 
 const TotalTimeSpent = async (req, res) => {
-
   try {
     const all_posts = await db.Posts.findAll({
-      attributes: [
-        "UserId",
-        "Category",
-        "totalTime",
-      ],
+      attributes: ["UserId", "Category", "totalTime"],
       where: { UserId: req.params.id, approved: true },
     });
 
@@ -1239,36 +1243,31 @@ const TotalTimeSpent = async (req, res) => {
     console.error("Here is the error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
-}
+};
 
-
-const getAllPostedCategories  = async (req, res) => {
-
+const getAllPostedCategories = async (req, res) => {
   const userId = req.params.id;
   try {
     const all_posts = await db.Posts.findAll({
-      attributes: [
-        "UserId",
-        "Category"
-      ],
+      attributes: ["UserId", "Category"],
       where: { UserId: userId, approved: true },
     });
 
     // Calculate the sum of totalTime
-    let categoriesArray = all_posts.map((post)=>post.dataValues.Category);
+    let categoriesArray = all_posts.map((post) => post.dataValues.Category);
 
     // all_posts.forEach((post) => {
     //   categoriesArray.push(post.Category);
     //   console.log(post.Category, "list of categoreis")
     // });
     // console.log(categoriesArray);
-  
+
     res.status(200).json({ categoriesArray });
   } catch (error) {
     console.error("Here is the error:", error);
     res.status(500).json({ error: "Internal server error" });
   }
-}
+};
 
 // Helper function to convert HH:mm:ss time format to seconds
 const convertTimeToSeconds = (time) => {
@@ -1281,9 +1280,10 @@ const convertSecondsToTime = (seconds) => {
   const hours = Math.floor(seconds / 3600);
   const minutes = Math.floor((seconds % 3600) / 60);
   const remainingSeconds = seconds % 60;
-  return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+  return `${hours.toString().padStart(2, "0")}:${minutes
+    .toString()
+    .padStart(2, "0")}`;
 };
-
 
 const postsdata = async (req, res) => {
   try {
@@ -1299,7 +1299,6 @@ const postsdata = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
-
 
 const endorsePost = async (req, res) => {
   const postId = req.params.id;
@@ -1353,7 +1352,7 @@ const fetchPostsInArea = async (req, res) => {
 
     // Calculate the coordinates of the area's boundaries (50 kilometers around the given coordinates)
     const earthRadiusKm = 6371;
-    const distanceKm = 50;
+    const distanceKm = 500;
 
     const latRadians = latitude * (Math.PI / 180);
     // const lonRadians = longitude * (Math.PI / 180);
@@ -1376,7 +1375,9 @@ const fetchPostsInArea = async (req, res) => {
         UserId: { [Op.ne]: userId }, // Exclude posts from the logged-in user
         latitude: { [Op.between]: [minLat, maxLat] },
         longitude: { [Op.between]: [minLon, maxLon] },
-        endorsementCounter: { [Op.lt]: 3 },
+        endorsementCounter: { [Op.lt]: 1 },
+        approved: 0,
+        rejected: 0,
       },
 
       include: [
@@ -1398,10 +1399,14 @@ const fetchPostsInArea = async (req, res) => {
     // Exclude posts that have been endorsed by the current user
     const endorsedPosts = await db.Endorsement.findAll({
       where: { userId: userId },
-      attributes: ['postId'],
+      attributes: ["postId"],
     });
-    const endorsedPostIds = endorsedPosts.map((endorsement) => endorsement.postId);
-    postsInArea = postsInArea.filter((post) => !endorsedPostIds.includes(post.id));
+    const endorsedPostIds = endorsedPosts.map(
+      (endorsement) => endorsement.postId
+    );
+    postsInArea = postsInArea.filter(
+      (post) => !endorsedPostIds.includes(post.id)
+    );
 
     res.json(postsInArea);
   } catch (error) {
@@ -1424,21 +1429,15 @@ const getCategories = async (req, res) => {
   }
 };
 
-
-
-
-
 //ADMINISTRATOR CONTROLLERS
-
-
 
 // adminAuthMiddleware.js
 const adminAuthMiddleware = (req, res, next) => {
   // Assuming you have the user's role stored in req.user.role after authentication
-  if (req.user && req.user.role === 'admin') {
+  if (req.user && req.user.role === "admin") {
     next(); // User is admin, continue to the next middleware or route handler
   } else {
-    return res.status(403).json({ error: 'Unauthorized access' });
+    return res.status(403).json({ error: "Unauthorized access" });
   }
 };
 
@@ -1452,17 +1451,21 @@ const isAdmin = (req, res, next) => {
       const userId = decodedToken.userId;
 
       // Assuming you have a User model with a 'role' field
-      Users.findByPk(userId).then((user) => {
-        if (user && user.role === 'admin') {
-          // User is an admin, allow access
-          next();
-        } else {
-          res.status(403).json({ error: "Unauthorized. Only admin users can access this resource." });
-        }
-      }).catch((err) => {
-        console.error("Error checking user role:", err);
-        res.status(500).json({ error: "Internal Server Error" });
-      });
+      Users.findByPk(userId)
+        .then((user) => {
+          if (user && user.role === "admin") {
+            // User is an admin, allow access
+            next();
+          } else {
+            res.status(403).json({
+              error: "Unauthorized. Only admin users can access this resource.",
+            });
+          }
+        })
+        .catch((err) => {
+          console.error("Error checking user role:", err);
+          res.status(500).json({ error: "Internal Server Error" });
+        });
     } catch (error) {
       console.error("Error decoding token:", error);
       res.status(401).json({ error: "Invalid token" });
@@ -1487,9 +1490,9 @@ const getUsersWithMostPostsInYear = async (req, res) => {
     const allUsers = await db.users.findAll({
       where: {
         role: {
-          [Op.ne]: 'admin' // Exclude users with the role of admin
-        }
-      }
+          [Op.ne]: "admin", // Exclude users with the role of admin
+        },
+      },
     });
 
     // Initialize an array to store users with approved posts
@@ -1521,38 +1524,44 @@ const getUsersWithMostPostsInYear = async (req, res) => {
       (a, b) => b.approvedPostCount - a.approvedPostCount
     );
 
+    const topThreeUsers = sortedUsersByApprovedPosts.slice(0, 3);
+
     // Fetch user names based on the sorted user IDs
     const topUserNames = await Promise.all(
-      sortedUsersByApprovedPosts.map(async (user) => {
+      topThreeUsers.map(async (user) => {
         const userData = await db.users.findByPk(user.userId);
-        return { name: userData.name, id: userData.id, approvedPostCount: user.approvedPostCount };
+        return {
+          name: userData.name,
+          id: userData.id,
+          approvedPostCount: user.approvedPostCount,
+        };
       })
     );
-    console.log("ye hain top users", topUserNames)
-
+    console.log("ye hain top users", topUserNames);
 
     res.status(200).json({ topUserNames });
   } catch (error) {
-    logger.error("error from fetching maximum number of post by users", error)
+    logger.error("error from fetching maximum number of post by users", error);
     console.error("Error fetching users with most posts in the year:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
 
-
 // Controller to fetch users with the most posts in the last six months
 const getUsersWithMostPostsInSixMonths = async (req, res) => {
   try {
     const currentDate = new Date();
-    const sixMonthsAgo = new Date(currentDate.setMonth(currentDate.getMonth() - 6));
+    const sixMonthsAgo = new Date(
+      currentDate.setMonth(currentDate.getMonth() - 6)
+    );
 
     // Fetch all users excluding admins
     const allUsers = await db.users.findAll({
       where: {
         role: {
-          [Op.ne]: 'admin' // Exclude users with the role of admin
-        }
-      }
+          [Op.ne]: "admin", // Exclude users with the role of admin
+        },
+      },
     });
 
     // Initialize an array to store users with approved posts
@@ -1565,7 +1574,10 @@ const getUsersWithMostPostsInSixMonths = async (req, res) => {
           UserId: user.id,
           approved: true, // Assuming 'approved' is a boolean column for approved posts
           Date: {
-            [Op.between]: [sixMonthsAgo.toISOString().split('T')[0], new Date().toISOString().split('T')[0]],
+            [Op.between]: [
+              sixMonthsAgo.toISOString().split("T")[0],
+              new Date().toISOString().split("T")[0],
+            ],
           },
         },
       });
@@ -1584,17 +1596,26 @@ const getUsersWithMostPostsInSixMonths = async (req, res) => {
       (a, b) => b.approvedPostCount - a.approvedPostCount
     );
 
+    // Limit to top 3 users
+    const topThreeUsers = sortedUsersByApprovedPosts.slice(0, 3);
     // Fetch user names based on the sorted user IDs
     const topUserNames = await Promise.all(
-      sortedUsersByApprovedPosts.map(async (user) => {
+      topThreeUsers.map(async (user) => {
         const userData = await db.users.findByPk(user.userId);
-        return { name: userData.name, id: userData.id, approvedPostCount: user.approvedPostCount };
+        return {
+          name: userData.name,
+          id: userData.id,
+          approvedPostCount: user.approvedPostCount,
+        };
       })
     );
 
     res.status(200).json({ topUserNames });
   } catch (error) {
-    logger.error("Error fetching users with most posts in the past six months", error);
+    logger.error(
+      "Error fetching users with most posts in the past six months",
+      error
+    );
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
@@ -1602,15 +1623,17 @@ const getUsersWithMostPostsInSixMonths = async (req, res) => {
 const getUsersWithMostPostsInQuater = async (req, res) => {
   try {
     const currentDate = new Date();
-    const threeMonthsAgo = new Date(currentDate.setMonth(currentDate.getMonth() - 3));
+    const threeMonthsAgo = new Date(
+      currentDate.setMonth(currentDate.getMonth() - 3)
+    );
 
     // Fetch all users excluding admins
     const allUsers = await db.users.findAll({
       where: {
         role: {
-          [Op.ne]: 'admin' // Exclude users with the role of admin
-        }
-      }
+          [Op.ne]: "admin", // Exclude users with the role of admin
+        },
+      },
     });
 
     // Initialize an array to store users with approved posts
@@ -1623,7 +1646,10 @@ const getUsersWithMostPostsInQuater = async (req, res) => {
           UserId: user.id,
           approved: true, // Assuming 'approved' is a boolean column for approved posts
           Date: {
-            [Op.between]: [threeMonthsAgo.toISOString().split('T')[0], new Date().toISOString().split('T')[0]],
+            [Op.between]: [
+              threeMonthsAgo.toISOString().split("T")[0],
+              new Date().toISOString().split("T")[0],
+            ],
           },
         },
       });
@@ -1641,18 +1667,26 @@ const getUsersWithMostPostsInQuater = async (req, res) => {
     const sortedUsersByApprovedPosts = usersWithApprovedPosts.sort(
       (a, b) => b.approvedPostCount - a.approvedPostCount
     );
-
+    // Limit to top 3 users
+    const topThreeUsers = sortedUsersByApprovedPosts.slice(0, 3);
     // Fetch user names based on the sorted user IDs
     const topUserNames = await Promise.all(
-      sortedUsersByApprovedPosts.map(async (user) => {
+      topThreeUsers.map(async (user) => {
         const userData = await db.users.findByPk(user.userId);
-        return { name: userData.name, id: userData.id, approvedPostCount: user.approvedPostCount };
+        return {
+          name: userData.name,
+          id: userData.id,
+          approvedPostCount: user.approvedPostCount,
+        };
       })
     );
 
     res.status(200).json({ topUserNames });
   } catch (error) {
-    logger.error("Error fetching users with most posts in the past six months", error);
+    logger.error(
+      "Error fetching users with most posts in the past six months",
+      error
+    );
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
@@ -1660,16 +1694,24 @@ const getUsersWithMostPostsInQuater = async (req, res) => {
 const getUsersWithMostPostsInMonth = async (req, res) => {
   try {
     const currentDate = new Date();
-    const startOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-    const endOfMonth = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 0);
+    const startOfMonth = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth(),
+      1
+    );
+    const endOfMonth = new Date(
+      currentDate.getFullYear(),
+      currentDate.getMonth() + 1,
+      0
+    );
 
     // Fetch all users excluding admins
     const allUsers = await db.users.findAll({
       where: {
         role: {
-          [Op.ne]: 'admin' // Exclude users with the role of admin
-        }
-      }
+          [Op.ne]: "admin", // Exclude users with the role of admin
+        },
+      },
     });
 
     // Initialize an object to store user IDs and their approved post counts for the current month
@@ -1682,7 +1724,10 @@ const getUsersWithMostPostsInMonth = async (req, res) => {
           UserId: user.id,
           approved: true, // Only include approved posts
           Date: {
-            [Op.between]: [startOfMonth.toISOString().split('T')[0], endOfMonth.toISOString().split('T')[0]],
+            [Op.between]: [
+              startOfMonth.toISOString().split("T")[0],
+              endOfMonth.toISOString().split("T")[0],
+            ],
           },
         },
       });
@@ -1693,31 +1738,39 @@ const getUsersWithMostPostsInMonth = async (req, res) => {
     }
 
     // Sort the userApprovedPostCounts object by approved post count in descending order
-    const sortedUserApprovedPostCounts = Object.entries(userApprovedPostCounts).sort(
-      (a, b) => b[1] - a[1]
-    );
+    const sortedUserApprovedPostCounts = Object.entries(
+      userApprovedPostCounts
+    ).sort((a, b) => b[1] - a[1]);
 
     // Extract the top 5 users with the most approved posts in the current month
-    const topUsers = sortedUserApprovedPostCounts.slice(0, 5).map(([userId, postCount]) => ({
-      userId,
-      postCount,
-    }));
+    const topUsers = sortedUserApprovedPostCounts
+      .slice(0, 3)
+      .map(([userId, postCount]) => ({
+        userId,
+        postCount,
+      }));
 
     // Fetch user names based on the top user IDs
     const topUserNames = await Promise.all(
       topUsers.map(async (user) => {
         const userData = await db.users.findByPk(user.userId);
-        return { name: userData.name, id: userData.id, postCount: user.postCount };
+        return {
+          name: userData.name,
+          id: userData.id,
+          postCount: user.postCount,
+        };
       })
     );
 
     res.status(200).json({ topUserNames });
   } catch (error) {
-    logger.error("Error fetching users with most posts in the current month", error);
+    logger.error(
+      "Error fetching users with most posts in the current month",
+      error
+    );
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
-
 
 const approveHours = async (req, res) => {
   const { postId } = req.params;
@@ -1767,26 +1820,28 @@ const pendingApproval = async (req, res) => {
     const posts = await Posts.findAll({
       where: {
         endorsementCounter: {
-      [Op.gt]: 0 // will find all posts with endorsementCounter greater than 1
-      },// will find all post for approval
+          [Op.gt]: 0, // will find all posts with endorsementCounter greater than 1
+        }, // will find all post for approval
         approved: false,
-        rejected: false
+        rejected: false,
       },
       include: [
         {
           model: Users,
-          attributes: ['name'], // Include only the name attribute from the Users table
+          attributes: ["name"], // Include only the name attribute from the Users table
         },
       ],
     });
     if (posts.length === 0) {
-      return res.status(404).json({ message: 'No posts pending for approval.' });
+      return res
+        .status(404)
+        .json({ message: "No posts pending for approval." });
     }
     res.json(posts);
   } catch (error) {
     res.status(500).send(error.message);
   }
-}
+};
 
 const createCategory = async (req, res) => {
   try {
@@ -1800,7 +1855,9 @@ const createCategory = async (req, res) => {
       return res.status(400).json({ message: "Category already exists" });
     }
     const category = await Categories.create({ name, isEnabled });
-    res.status(201).json({ message: "Category created successfully", category });
+    res
+      .status(201)
+      .json({ message: "Category created successfully", category });
   } catch (error) {
     res.status(500).json({ message: "Failed to create category", error });
   }
@@ -1841,7 +1898,9 @@ const toggleCategory = async (req, res) => {
     category.isEnabled = isEnabled;
     await category.save();
 
-    res.status(200).json({ message: "Category status updated successfully", category });
+    res
+      .status(200)
+      .json({ message: "Category status updated successfully", category });
   } catch (error) {
     console.error("Error toggling category:", error);
     res.status(500).json({ message: "Failed to toggle category", error });
@@ -1856,13 +1915,17 @@ const createOrganization = async (req, res) => {
     }
 
     // Check if the organization already exists
-    const existingOrganization = await Organizations.findOne({ where: { name } });
+    const existingOrganization = await Organizations.findOne({
+      where: { name },
+    });
     if (existingOrganization) {
       return res.status(400).json({ message: "Organization already exists" });
     }
 
     const organization = await Organizations.create({ name });
-    res.status(201).json({ message: "Organization created successfully", organization });
+    res
+      .status(201)
+      .json({ message: "Organization created successfully", organization });
   } catch (error) {
     res.status(500).json({ message: "Failed to create organization", error });
   }
@@ -1876,7 +1939,9 @@ const getOrganizationsAdmin = async (req, res) => {
       whereCondition.isEnabled = isEnabled === "true"; // Convert string to boolean
     }
 
-    const organizations = await Organizations.findAll({ where: whereCondition });
+    const organizations = await Organizations.findAll({
+      where: whereCondition,
+    });
     // console.log("ye rhi organizations", organizations)
     if (organizations.length === 0) {
       return res.status(200).json({ message: "No organization found" });
@@ -1889,7 +1954,9 @@ const getOrganizationsAdmin = async (req, res) => {
 
 const getOrganizations = async (req, res) => {
   try {
-    const organizations = await Organizations.findAll({ where: { isEnabled: true } });
+    const organizations = await Organizations.findAll({
+      where: { isEnabled: true },
+    });
 
     if (organizations.length === 0) {
       return res.status(200).json({ message: "No organizations found" });
@@ -1913,7 +1980,9 @@ const toggleOrganization = async (req, res) => {
     organization.isEnabled = !organization.isEnabled;
     await organization.save();
 
-    res.status(200).json({ message: "Organization toggled successfully", organization });
+    res
+      .status(200)
+      .json({ message: "Organization toggled successfully", organization });
   } catch (error) {
     res.status(500).json({ message: "Failed to toggle organization", error });
   }
@@ -1936,15 +2005,24 @@ const addApprover = async (req, res) => {
     }
 
     // Check if approver with the same email already exists
-    const existingApprover = await Approver.findOne({ where: { email: approverData.email } });
+    const existingApprover = await Approver.findOne({
+      where: { email: approverData.email },
+    });
     if (existingApprover) {
-      return res.status(400).json({ message: "Email already exists in approvers" });
+      return res
+        .status(400)
+        .json({ message: "Email already exists in approvers" });
     }
 
     // Check if the email exists in the users table
-    const existingUser = await Users.findOne({ where: { email: approverData.email } });
+    const existingUser = await Users.findOne({
+      where: { email: approverData.email },
+    });
     if (existingUser) {
-      return res.status(400).json({ message: "Email already exists in users. Cannot make this user an approver." });
+      return res.status(400).json({
+        message:
+          "Email already exists in users. Cannot make this user an approver.",
+      });
     }
 
     // Create a new approver instance and save it to the database
@@ -2021,12 +2099,12 @@ const deleteApprover = async (req, res) => {
 const getUsers = async (req, res) => {
   try {
     const users = await Users.findAll({
-      attributes: ['id', 'name'],// Fetch only id and name
+      attributes: ["id", "name"], // Fetch only id and name
       where: {
         role: {
-          [Op.ne]: 'admin' // Exclude users with the role of admin
-        }
-      }
+          [Op.ne]: "admin", // Exclude users with the role of admin
+        },
+      },
     });
     return res.status(200).json(users);
   } catch (error) {
@@ -2060,25 +2138,28 @@ const postsForDateRange = async (req, res) => {
     // Validate the input dates
 
     if (!start || !end) {
-      return res.status(400).json({ error: "Both start and end dates are required." });
+      return res
+        .status(400)
+        .json({ error: "Both start and end dates are required." });
     }
     let dateCondition = {};
-    let errorMessage = "No posts found for the specified categories and date range.";
+    let errorMessage =
+      "No posts found for the specified categories and date range.";
     if (start && end) {
       // const startDate = new Date(start);
       // const endDate = new Date(end);
       // console.log(startDate, "start date");
       // console.log(endDate, "end date");
       dateCondition = { [Op.between]: [start, end] };
-      errorMessage = "No posts found for the specified categories in the selected date range.";
+      errorMessage =
+        "No posts found for the specified categories in the selected date range.";
     } else {
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
       dateCondition = { [Op.gte]: thirtyDaysAgo };
-      errorMessage = "No posts found for the specified categories within past 30 days.";
+      errorMessage =
+        "No posts found for the specified categories within past 30 days.";
     }
-
-
 
     // const posts = await db.Posts.findAll({
     //   where: {
@@ -2090,14 +2171,16 @@ const postsForDateRange = async (req, res) => {
     // });
     const posts = await db.Posts.findAll({
       where: {
-        Date:dateCondition,
-        approved : true
+        Date: dateCondition,
+        approved: true,
       },
     });
     // console.log("ye hain selected range of date ke posts", posts)
 
     if (posts.length === 0) {
-      return res.status(404).json({ error: "No posts found for the specified date range." });
+      return res
+        .status(404)
+        .json({ error: "No posts found for the specified date range." });
     }
 
     res.json(posts);
@@ -2119,16 +2202,19 @@ const postsForCategory = async (req, res) => {
     }
 
     let dateCondition = {};
-    let errorMessage = "No posts found for the specified categories and date range.";
+    let errorMessage =
+      "No posts found for the specified categories and date range.";
     if (start && end) {
       dateCondition = { [Op.between]: [start, end] };
-      errorMessage = "No posts found for the specified categories in the selected date range.";
+      errorMessage =
+        "No posts found for the specified categories in the selected date range.";
     } else {
       const thirtyDaysAgo = new Date();
       thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
       // console.log(thirtyDaysAgo, "thirty days ago");
       dateCondition = { [Op.gte]: thirtyDaysAgo };
-      errorMessage = "No posts found for the specified categories within past 30 days.";
+      errorMessage =
+        "No posts found for the specified categories within past 30 days.";
     }
 
     const posts = await db.Posts.findAll({
@@ -2137,7 +2223,7 @@ const postsForCategory = async (req, res) => {
           [Op.in]: categories,
         },
         Date: dateCondition,
-        approved:true
+        approved: true,
       },
     });
 
@@ -2164,7 +2250,7 @@ const getPostsByUser = async (req, res) => {
     // Fetch the user's profile data
     const userProfile = await db.users.findOne({
       where: { id: userId },
-      attributes: ['name', 'photo', 'email', 'organization', 'category'] // Include desired profile attributes
+      attributes: ["name", "photo", "email", "organization", "category"], // Include desired profile attributes
     });
 
     if (!userProfile) {
@@ -2175,11 +2261,11 @@ const getPostsByUser = async (req, res) => {
       where: {
         UserId: userId,
       },
-      order: [['Date', 'DESC']], // Order posts by date in descending order
+      order: [["Date", "DESC"]], // Order posts by date in descending order
       include: [
         {
           model: Users,
-          attributes: ['name', 'photo'], // Include only the name attribute from the Users table
+          attributes: ["name", "photo"], // Include only the name attribute from the Users table
         },
       ],
     });
@@ -2188,7 +2274,7 @@ const getPostsByUser = async (req, res) => {
     if (userPosts.length === 0) {
       return res.status(200).json({
         user: userProfile,
-        message: "No posts found for this user"
+        message: "No posts found for this user",
       });
     }
     // Combine user profile data with posts
@@ -2216,18 +2302,17 @@ const getPost = async (req, res) => {
     // Fetch the user's profile data
     const UserPost = await Posts.findAll({
       where: { id: postId },
-       // Include desired profile attributes
+      // Include desired profile attributes
     });
 
     if (!UserPost) {
       return res.status(404).json({ error: "No Post Found" });
     }
 
-
     // Check if posts exist
     if (UserPost.length === 0) {
       return res.status(200).json({
-        message: "No posts found for this user"
+        message: "No posts found for this user",
       });
     }
     // Combine user profile data with posts
@@ -2248,13 +2333,15 @@ const reviewpostforuser = async (req, res) => {
 
     // Validate user ID
     if (!userId || !postId) {
-      return res.status(400).json({ error: "User ID and Post ID are required" });
+      return res
+        .status(400)
+        .json({ error: "User ID and Post ID are required" });
     }
 
     // Fetch the user's profile data
     const userProfile = await db.users.findOne({
       where: { id: userId },
-      attributes: ['name', 'photo', 'email', 'organization', 'category'] // Include desired profile attributes
+      attributes: ["name", "photo", "email", "organization", "category"], // Include desired profile attributes
     });
 
     if (!userProfile) {
@@ -2266,11 +2353,11 @@ const reviewpostforuser = async (req, res) => {
         UserId: userId,
         id: postId,
       },
-      order: [['Date', 'DESC']], // Order posts by date in descending order
+      order: [["Date", "DESC"]], // Order posts by date in descending order
       include: [
         {
           model: Users,
-          attributes: ['name', 'photo'], // Include only the name attribute from the Users table
+          attributes: ["name", "photo"], // Include only the name attribute from the Users table
         },
       ],
     });
@@ -2279,7 +2366,7 @@ const reviewpostforuser = async (req, res) => {
     if (userPosts.length === 0) {
       return res.status(200).json({
         user: userProfile,
-        message: "No posts found for this user"
+        message: "No posts found for this user",
       });
     }
     // Combine user profile data with posts
@@ -2295,9 +2382,7 @@ const reviewpostforuser = async (req, res) => {
   }
 };
 
-
 const getLinkToSharePost = async (req, res) => {
-
   const encodedID = req.params.id;
   // console.log(encodedID, "encoded id");
   const postID = decodePostID(encodedID);
@@ -2307,27 +2392,27 @@ const getLinkToSharePost = async (req, res) => {
     const post = await Posts.findOne({
       where: {
         id: postID,
-        approved : true
-      }
+        approved: true,
+      },
     });
-  
+
     console.log("show post", post);
-  
+
     const htmlContent = `
     <!DOCTYPE html>
     <html lang="en">
     <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <meta property="og:title" content="${post.category}">
-      <meta property="og:description" content="${post.Date}">
-      <meta property="og:image" content="https://cch247.com/api/image/${post.photos}">
-      <meta name="twitter:card" content="summary_large_image">
-      <meta name="twitter:image:alt" content="https://cch247.com/api/image/${post.photos}">
-      <meta name="twitter:title" content="${post.category}">
-      <meta name="twitter:description" content="${post.Date}">
-      <meta name="twitter:image" content="https://cch247.com/api/image/${post.photos}">
-      <title>${post.category}</title>
+        <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Page Title</title>
+  <!-- Open Graph meta tags -->
+  <meta property="og:title" content="Community Care 247" />
+  <meta property="og:description" content="Your app for recording your community service hours" />
+  <meta property="og:image" content="https://cch247.com/api/image/${post.photos}" />
+  <meta property="og:url" content="https://cch247.com/api/posts/${encodedID}" />
+  <meta property="og:type" content="website"/>
+  <meta property="og:site_name" content="CC247" />
+  <meta property="article:section" content="${post.category}" />
     </head>
     <body>
       <h1>Loading.. </h1>
@@ -2340,29 +2425,74 @@ const getLinkToSharePost = async (req, res) => {
 
     // Send the HTML response with meta tags
     res.send(htmlContent);
-  } catch(error) {
+  } catch (error) {
     logger.error(error);
-    console.log(error)
-
+    console.log(error);
   }
 };
 
+const shareTestLink = async (req, res) => {
+  const encodedID = req.params.id;
+  // console.log(encodedID, "encoded id");
+  const postID = decodePostID(encodedID);
+  // console.log(postID, "post id");
+
+  try {
+    const post = await Posts.findOne({
+      where: {
+        id: postID,
+        approved: true,
+      },
+    });
+
+    console.log("show post", post);
+
+    const htmlContent = `
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Your Page Title</title>
+  <!-- Open Graph meta tags -->
+  <meta property="og:title" content="Community Care 247" />
+  <meta property="og:description" content="Your app for recording your community service hours" />
+  <meta property="og:image" content="https://cch247.com/api/image/${post.photos}" />
+  <meta property="og:url" content="https://cch247.com/api/posts/${encodedID}" />
+  <meta property="og:type" content="website"/>
+  <meta property="og:site_name" content="CC247" />
+  <meta property="article:section" content="${post.category}" />
+    </head>
+    <body>
+      <h1>Loading.. </h1>
+      <script>
+        window.location.href = "${process.env.URL}/posts/${postID}";
+      </script>
+    </body>
+    </html>
+  `;
+
+    // Send the HTML response with meta tags
+    res.send(htmlContent);
+  } catch (error) {
+    logger.error(error);
+    console.log(error);
+  }
+};
 
 const visitorCount = async (req, res) => {
   const { page } = req.params;
   try {
-
     const log = await VisitorLogs.findOne({ where: { page: page } });
     if (log) {
       await log.update({ count: log.count + 1 });
     }
 
-    res.status(200).json({message:"visitor registered"});
-  
+    res.status(200).json({ message: "visitor registered" });
   } catch (error) {
     logger.error(error);
   }
-}
+};
 
 module.exports = {
   output,
@@ -2417,5 +2547,6 @@ module.exports = {
   getPost,
   getLinkToSharePost,
   getAllPostedCategories,
-  visitorCount
+  visitorCount,
+  shareTestLink,
 };

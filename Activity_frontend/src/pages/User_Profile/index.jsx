@@ -13,6 +13,7 @@ import { faDownload, faUser, faFileAlt } from '@fortawesome/free-solid-svg-icons
 import useWindowsize from "./useWindowsize";
 import CertficatePopup from "components/certificate_modal";
 import EditProfile from "components/editProfile/editProfile";
+import EditUserModal from "components/editmodel/editmodel";
 const ProfileForUser = () => {
     const notify = (e) => toast(e);
     const [error, setError] = useState(null);
@@ -34,6 +35,26 @@ const ProfileForUser = () => {
     const size = useWindowsize();
 
     const [isMobile, setIsMobile] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [user, setUser] = useState({
+        name: 'John Doe',
+        email: 'john@example.com',
+        phone: '123-456-7890'
+    });
+
+    const handleOpenModal = () => {
+        setIsModalOpen(true);
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+    };
+
+    const handleSave = (updatedUser) => {
+        setUser(updatedUser);
+        setIsModalOpen(false);
+    };
+
 
     useEffect(() => {
         setIsMobile(size.width <= 768); // Adjust the width threshold as needed for your design
@@ -322,9 +343,15 @@ const ProfileForUser = () => {
             {isPopupVisible && (
                 <CertficatePopup setIsPopupVisible={setIsPopupVisible} />
             )}
-            {isEditModal && (
-                <EditProfile setIsEditModalOpen={setIsEditModal} />
+            {userData && userData.userData && isEditModal && (
+                <EditProfile userData={userData && userData.userData} setIsEditModalOpen={setIsEditModal} />
             )}
+            {userData && userData.userData && <EditUserModal
+                userData={userData.userData}
+                isOpen={isModalOpen}
+                onClose={handleCloseModal}
+                onSave={handleSave}
+            />}
             <div className="w-screen h-screen  bg-white-A700 flex items-start justify-center sm:w-screen sm:h-screen md:w-screen md:h-screen p-5 sm:p-0">
                 <div className=" relative w-4/12 h-full sm:w-full sm:h-full md:w-3/4 md:h-full  lg:w-3/4 lg:h-full  flex flex-col items-center  justify-center border-[1px]  rounded-lg sm:rounded-none overflow-hidden">
                     <div className=" flex flex-col  items-center justify-center w-full h-full ">
@@ -334,13 +361,13 @@ const ProfileForUser = () => {
                                 <div className="flex  gap-2 items-center justify-center " >
                                     {userData && (
                                         <Img
-                                            className=" w-14   h-14  rounded-[50%] object-cover object-center "
+                                            className="w-14 h-14 rounded-[50%] object-cover object-center"
                                             src={`${API_URL}/image/${userData.userData.photo}`}
                                             alt="userimage"
                                         />
                                     )}
                                     <div className="flex flex-col items-center justify-center w-3/5 ">
-                                        <div className="flex flex-col items-start justify-center w-full ">
+                                        <div className="flex flex-col items-start justify-center w-full">
                                             <Text
                                                 className="text-center text-gray-900 uppercase"
                                                 size="txtInterSemiBold16Gray900"
@@ -357,15 +384,17 @@ const ProfileForUser = () => {
 
                         </div>
 
+
+                        {/* 
                         <div className="w-full h-1/2 p-1">
-                            {/* <h1 className="text-xl font-semibold w-full pl-3 py-3">Top Five Stars</h1> */}
-                            <div className="h-[90%] scroller overflow-x-auto p-3">
+                           <h1 className="text-xl font-semibold w-full pl-3 py-3">Top Five Stars</h1>
+                            <div className="p-3">
                                 <div className="flex h-full space-x-2">
                                     {[
                                         { timeframe: 'Activities', users: usersWithMostPostsInMonth, nav: "/activity" },
                                         { timeframe: 'Categories', users: usersWithMostPostsInQuter, nav: "/create" },
                                         { timeframe: 'Endorsed', users: usersWithMostPostsInSixMonths, nav: "/endorse" },
-                                        // { timeframe: 'Approved', users: usersWithMostPostsInYear },
+                                        { timeframe: 'Approved', users: usersWithMostPostsInYear },
                                     ].map(({ timeframe, users, nav }, index) => (
                                         <div
                                             key={index}
@@ -374,20 +403,24 @@ const ProfileForUser = () => {
                                             <h3 className="text-[#546ef6] font-bold cursor-pointer text-sm text-center" onClick={() => { navigate(nav) }}>{timeframe}  <FontAwesomeIcon icon={faArrowRight} /></h3>
                                             {/* <div className="w-full h-full flex flex-col gap-1 pt-2 overflow-auto scroller justify-start items-start">
 
-                                        </div> */}
+                                        </div> 
                                         </div>
                                     ))}
-                                    {/* <div className="w-[1px] h-full flex-shrink-0"></div> */}
+                                    <div className="w-[1px] h-full flex-shrink-0"></div> 
                                 </div>
                             </div>
-                        </div>
+                        </div> 
+                        */}
 
 
                         <div className=" w-full h-full  pt-3 ">
-                            <div className=" w-full h-3/5 flex  flex-col items-center justify-between pl-4 pr-4 pt-1 pb-1">
-                                <div className="w-[48%] rounded-lg bg-[#f0f2fb80] border-[1px]  text-[#546ef6] h-1/5 flex  items-center justify-center font-semibold cursor-pointer text-center" onClick={() => { setIsEditModal(false) }}><h1>Edit Profile <FontAwesomeIcon icon={faUser} /></h1></div>
-                                <div className="w-[48%] rounded-lg bg-[#f0f2fb80] border-[1px]  text-[#546ef6] h-1/5 flex flex-shrink-2 items-center justify-center font-semibold cursor-pointer text-center" onClick={() => { setIsPopupVisible(true) }}><h1>Certificate  <FontAwesomeIcon icon={faDownload} /></h1></div>
-                                <div className="w-[48%] rounded-lg bg-[#f0f2fb80] border-[1px]  text-[#546ef6] h-1/5 flex flex-shrink-2 items-center justify-center font-semibold cursor-pointer text-center" onClick={() => { }}><h1>Genrate Reports <FontAwesomeIcon icon={faFileAlt} /></h1></div>
+                            <div className=" w-full h-3/5 flex flex-wrap items-center justify-between pl-4 pr-4 pt-1 pb-1">
+                                <div className="w-[48%] rounded-lg bg-[#ffffff] border-[1px]  text-[#6b84ff] h-1/5 flex  items-center justify-center font-semibold cursor-pointer text-center" onClick={() => { navigate("../create") }}><h1>Creaet Activity <FontAwesomeIcon icon={faUser} /></h1></div>
+                                <div className="w-[48%] rounded-lg bg-[#ffffff] border-[1px]  text-[#6b84ff] h-1/5 flex  items-center justify-center font-semibold cursor-pointer text-center" onClick={() => { navigate("../endorse") }}><h1>Endorse <FontAwesomeIcon icon={faUser} /></h1></div>
+                                <div className="w-[48%] rounded-lg bg-[#ffffff] border-[1px]  text-[#6b84ff] h-1/5 flex  items-center justify-center font-semibold cursor-pointer text-center" onClick={() => { navigate("../activity") }}><h1>Activities <FontAwesomeIcon icon={faUser} /></h1></div>
+                                <div className="w-[48%] rounded-lg bg-[#ffffff] border-[1px]  text-[#6b84ff] h-1/5 flex  items-center justify-center font-semibold cursor-pointer text-center" onClick={() => { setIsModalOpen(true) }}><h1>Edit Profile <FontAwesomeIcon icon={faUser} /></h1></div>
+                                <div className="w-[48%] rounded-lg bg-[#ffffff] border-[1px]  text-[#6b84ff] h-1/5 flex flex-shrink-2 items-center justify-center font-semibold cursor-pointer text-center" onClick={() => { setIsPopupVisible(true) }}><h1>Certificate  <FontAwesomeIcon icon={faDownload} /></h1></div>
+                                <div className="w-[48%] rounded-lg bg-[#ffffff] border-[1px]  text-[#9fa3a980] h-1/5 flex flex-shrink-2 items-center justify-center font-semibold cursor-pointer text-center" onClick={() => { }}><h1>Genrate Reports <FontAwesomeIcon icon={faFileAlt} /></h1></div>
 
                             </div>
 

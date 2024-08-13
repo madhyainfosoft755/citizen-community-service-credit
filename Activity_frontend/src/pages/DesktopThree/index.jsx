@@ -507,6 +507,15 @@ const Createpost = () => {
       toast.error('To time must be within 8 hours of the from time');
     }
   }
+
+
+  const handleLogout = () => {
+    // Clear authentication status, remove token and user key, and redirect to the login page
+    setAuthenticated(false);
+    localStorage.removeItem("token");
+    localStorage.removeItem("userKey");
+    navigate("/login");
+  };
   return (
     <>
       {authenticated && (
@@ -543,14 +552,14 @@ const Createpost = () => {
 
                 {userData && (
                   <Img
-                    className="   w-14 h-14 rounded-full object-cover object-top  "
+                    className="cursor-pointer   w-14 h-14 rounded-full object-cover object-top  "
                     src={`${API_URL}/image/${userData.userData.photo}`}
                     alt="image"
                     onClick={() => { navigate("/users-profile") }}
                   />
                 )}
                 <div className="flex flex-col items-center justify-center w-3/5">
-                  <div className="flex flex-col items-start justify-center w-full">
+                  <div className=" cursor-default flex flex-col items-start justify-center w-full">
                     <Text
                       className="text-center text-gray-900 uppercase"
                       size="txtInterSemiBold16Gray900"
@@ -561,7 +570,7 @@ const Createpost = () => {
                 </div>
               </div>
 
-              
+
               <Button
                 type="button"
                 className="cursor-pointer font-semibold rounded-3xl  text-blue-500 bg-white-A700 text-xs"
@@ -571,12 +580,12 @@ const Createpost = () => {
                 {`${totalTime || 0} Hrs | ${totalTime && convertToHours(totalTime)} Pts`}
                 {/* <FontAwesomeIcon icon={faLocationDot} className="pr-3 text-blue-600" /> */}
               </Button>
-              <img src={APP_PATH + "images/2.png"} className="w-14 h-14 rounded-full" alt="" />
+              <img  src={APP_PATH + "images/2.png"} className=" w-14 h-14 rounded-full" alt="" />
 
             </div>
 
             <div className=" flex flex-col gap-3  items-center justify-start w-full h-full overflow-auto scroller">
-              <div className="flex flex-col items-start justify-start md:gap-8 gap-4 sm:gap-6 w-11/12 h-full sm:w-11/12 mt-1  ">
+              <div className="flex flex-col items-center justify-start md:gap-8 gap-4 sm:gap-6 w-11/12 h-full sm:w-11/12 mt-1  ">
                 <div className="bg-white-A700 w-full  text-center flex items-start justify-between gap-5">
                   <h1 className="text-sm font-semibold bg-[#546ef6] text-white-A700  py-1  w-1/2 h-full flex items-center justify-center rounded-3xl mb-2">+ Add New Activity</h1>
                   <button type="button" onClick={Endorse} className={`text-sm text-black-900 shadow-bs3 shadow-gray-300 w-1/2 h-full font-semibold rounded-3xl hover:bg-[#546ef6] hover:text-white-A700`}>Endorse Activities</button>
@@ -633,7 +642,7 @@ const Createpost = () => {
                     <h1 className="absolute  -top-5 left-0  text-sm">Location</h1>
                     <Button
                       type="button"
-                      className="flex items-center justify-center bg-[#eff2ff] border-[1px] leading-[normal] text-[12px] font-semibold text-left w-full h-full rounded-md"
+                      className=" cursor-default flex items-center justify-center bg-[#eff2ff] border-[1px] leading-[normal] text-[12px] font-semibold text-left w-full h-full rounded-md"
                     // onClick={handleLocationClick}
                     >
                       <FontAwesomeIcon icon={faLocationDot} className="pr-3 text-blue-600" />
@@ -747,14 +756,18 @@ const Createpost = () => {
                   />
                   <h1 className="text-xs italic leading-1"><span className="text-xs font-bold">Self Declaration:</span> "I hereby declare that this is a non paid voluntary activity that I have done on my own in the interest of general public and social interest and I have submitted true and authentic information only".</h1>
                 </div>
-                <div className="flex items-center justify-center w-full">
+                <div className="flex flex-col gap-3 items-center justify-center w-full ">
 
                   <Button
-                    className={`cursor-pointer font-semibold w-1/2 mt-1 sm:mt-0 sm:p-2 mb-1 text-sm text-center rounded-3xl ${selfDeclarationChecked ? "bg-[#546ef6] text-white-A700 " : "bg-gray-300 text-gray-500"}`}
+                    className={`cursor-pointer font-semibold w-1/2 mt-1 sm:mt-0 sm:p-2  text-sm text-center rounded-3xl tracking-widest ${selfDeclarationChecked ? "bg-[#546ef6] text-white-A700 " : "bg-gray-300 text-gray-500"}`}
                     disabled={!selfDeclarationChecked}
                   >
                     SUBMIT
                   </Button>
+
+                <button onClick={handleLogout} className=" bg-[#546ef6] text-sm tracking-widest font-semibold text-white-A700 w-1/2 py-3  mb-2 rounded-full">
+                  LOGOUT
+                </button>
                 </div>
 
               </div>

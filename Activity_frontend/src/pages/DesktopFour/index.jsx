@@ -130,13 +130,13 @@ const DesktopFourPage = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Empty dependency array ensures that this effect runs only once on mount
 
-  const handleLogout = () => {
-    // Clear authentication status, remove token and user key, and redirect to the login page
-    setAuthenticated(false);
-    localStorage.removeItem("token");
-    localStorage.removeItem("userKey");
-    navigate("/login");
-  };
+  // const handleLogout = () => {
+  //   // Clear authentication status, remove token and user key, and redirect to the login page
+  //   setAuthenticated(false);
+  //   localStorage.removeItem("token");
+  //   localStorage.removeItem("userKey");
+  //   navigate("/login");
+  // };
 
   const fetchUserData = async (token) => {
     try {
@@ -199,6 +199,11 @@ const DesktopFourPage = () => {
     }
   };
 
+  const createpage = () => {
+    console.log("clicked");
+    navigate("/create");
+  }
+
   return (
     <>
       {authenticated && (
@@ -216,7 +221,7 @@ const DesktopFourPage = () => {
                 <div className="flex flex-row gap-1 items-center justify-center ml-[5px]" onClick={openProfilePopup}>
                   {userData && (
                     <Img
-                      className=" w-14   h-14  rounded-[50%] object-cover object-center "
+                      className=" cursor-pointer w-14   h-14  rounded-[50%] object-cover object-center "
                       src={`${API_URL}/image/${userData.userData.photo}`}
                       alt="userimage"
                       onClick={() => { navigate("/users-profile") }}
@@ -224,7 +229,7 @@ const DesktopFourPage = () => {
                     />
                   )}
                   <div className="flex flex-col items-center justify-center w-3/5 ">
-                    <div className="flex flex-col items-start justify-center w-full ">
+                    <div className=" cursor-default flex flex-col items-start justify-center w-full ">
                       <Text
                         className="text-center text-gray-900 uppercase"
                         size="txtInterSemiBold16Gray900"
@@ -246,7 +251,7 @@ const DesktopFourPage = () => {
                 >
                   {`${totalTime || 0} Hrs | ${totalTime && convertToHours(totalTime)} Pts`}
                 </Button>
-                <img src={APP_PATH + "images/2.png"} className="w-14 h-14 rounded-full" alt="" />
+                <img onClick={createpage} src={APP_PATH + "images/2.png"} className="cursor-pointer w-14 h-14 rounded-full" alt="" />
 
               </div>
               <div className="w-full h-full flex items-center justify-start flex-col overflow-hidden">
@@ -282,13 +287,13 @@ const DesktopFourPage = () => {
                       ENDORSE ACTIVITY
                     </Button>
 
-                    <Button
+                    {/* <Button
                       className="cursor-pointer rounded-full font-semibold w-4/6 text-xs text-center"
                       color="indigo_A200"
                       onClick={handleLogout} // Add logout functionality
                     >
                       LOGOUT
-                    </Button>
+                    </Button> */}
                   </div>
 
                 </div>
