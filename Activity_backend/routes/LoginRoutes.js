@@ -55,10 +55,12 @@ const {
   getAllPostedCategories,
   visitorCount,
   shareTestLink,
+  fetchUnendorsedPosts
 } = require("../controllers/LoginController");
 const { upload } = require("../utils/util");
 // Express route
 router.get("/output", output);
+router.get("/fetchUnendorsedPosts", fetchUnendorsedPosts)
 router.post("/LinkedInLogin", LinkedInLogin);
 router.get("/getPostsByUser/:userId", getPostsByUser);
 router.get("/reviewpostforuser/:userId/:postId", reviewpostforuser);

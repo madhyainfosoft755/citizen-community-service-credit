@@ -29,6 +29,7 @@ const ReviewActivity = React.lazy(() => import("pages/ReviewActivity"))
 const ProfilePage = React.lazy(() => import("pages/ProfilePage"))
 const TokenRetrival = React.lazy(() => import("pages/TokenRetriver"))
 const Profile = React.lazy(() => import("pages/Profile"))
+const Imgmodel = React.lazy(() => import("pages/imageModel"))
 
 const ProjectRoutes = () => {
   // const { authenticated, setAuthenticated } = useAuth();
@@ -100,6 +101,7 @@ const ProjectRoutes = () => {
           <Route path="/certificate/:id" element={<Certificate />} />
           <Route path="/users-profile" element={<ProfileForUser />} />
           <Route path="/admin" element={<ProtectedRoute element={DesktopFive} adminOnly />} />
+          <Route path="/imgmod" element={<ProtectedRoute element={Imgmodel} adminOnly />} />
           <Route path="/managecategories" element={<ProtectedRoute element={DesktopSix} adminOnly />} />
           <Route path="/approvehours" element={<ProtectedRoute element={DesktopSeven} adminOnly />} />
           <Route path="/approvers" element={<ProtectedRoute element={DesktopEight} adminOnly />} />

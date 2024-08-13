@@ -42,6 +42,7 @@ const {
   getApprovedActivitiesByCategories,
   verifyUser,
   unVerifyUser,
+  
 } = require("../controllers/AdminController");
 const extractToken = require("../Middlewere/Authentication");
 const router = express.Router();
