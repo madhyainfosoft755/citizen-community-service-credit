@@ -177,13 +177,13 @@ const ProfileForUser = () => {
     }, [userData])
 
 
-    const handleLogout = () => {
-        // Clear authentication status, remove token and user key, and redirect to the login page
-        setAuthenticated(false);
-        localStorage.removeItem("token");
-        localStorage.removeItem("userKey");
-        navigate("/login");
-    };
+    // const handleLogout = () => {
+    //     // Clear authentication status, remove token and user key, and redirect to the login page
+    //     setAuthenticated(false);
+    //     localStorage.removeItem("token");
+    //     localStorage.removeItem("userKey");
+    //     navigate("/login");
+    // };
 
     const Name = userName.split(" ")[0];
 
@@ -367,7 +367,7 @@ const ProfileForUser = () => {
                                         />
                                     )}
                                     <div className="flex flex-col items-center justify-center w-3/5 ">
-                                        <div className="flex flex-col items-start justify-center w-full">
+                                        <div className="cursor-default flex flex-col items-start justify-center w-full ">
                                             <Text
                                                 className="text-center text-gray-900 uppercase"
                                                 size="txtInterSemiBold16Gray900"
@@ -380,7 +380,7 @@ const ProfileForUser = () => {
                                 </div>
                                 <Button onClick={direct} className="text-blue-500 bg-white-A700 px-3 py-2 rounded-full text-xs font-semibold cursor-pointer">{`${totalTime || 0} Hrs | ${totalTime && convertToHours(totalTime)} Pts`}</Button>
 
-                                <img src={APP_PATH + "images/2.png"} className="w-14 h-14 rounded-full" alt="" />
+                                <img onClick={()=>navigate("/create")} src={APP_PATH + "images/2.png"} className="cursor-pointer w-14 h-14 rounded-full" alt="" />
 
                         </div>
 
@@ -424,8 +424,8 @@ const ProfileForUser = () => {
 
                             </div>
 
-                            <div className="flex flex-col items-center justify-center gap-1  w-full h-2/5  " >
-                                {/* <button onClick={generatereport} className="w-4/5 p-2 rounded-full bg-[#546ef6] text-white-A700 text-base font-semibold">Generate Report</button> */}
+                            {/* <div className="flex flex-col items-center justify-center gap-1  w-full h-2/5  " >
+                             
                                 <Button
                                     className="cursor-pointer font-semibold rounded-3xl w-5/12"
                                     // shape="round"
@@ -433,9 +433,9 @@ const ProfileForUser = () => {
                                     onClick={handleLogout}
                                 >
                                     LOGOUT
-                                    {/* {carouselTexts[textIndex]} */}
+                                  
                                 </Button>
-                            </div>
+                            </div> */}
                         </div>
                     </div>
 

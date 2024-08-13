@@ -548,7 +548,7 @@ const Createpost = () => {
 
             <div className="bg-gray-50 flex flex-row items-center justify-between p-3   sm:px-2 w-full ">
 
-              <div className="flex gap-1 items-center justify-center " onClick={openProfilePopup}>
+              <div className="  flex gap-1 items-center justify-center " onClick={openProfilePopup}>
 
                 {userData && (
                   <Img

@@ -1352,7 +1352,7 @@ const fetchPostsInArea = async (req, res) => {
 
     // Calculate the coordinates of the area's boundaries (50 kilometers around the given coordinates)
     const earthRadiusKm = 6371;
-    const distanceKm = 500;
+    const distanceKm = 5000;
 
     const latRadians = latitude * (Math.PI / 180);
     // const lonRadians = longitude * (Math.PI / 180);

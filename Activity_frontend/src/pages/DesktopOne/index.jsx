@@ -565,9 +565,8 @@ const DesktopOnePage = () => {
               </div>
             </Button>
           </div>
-          <p className="cursor-default text-md sm:text-xl font-semibold text-orange-500 pt-5 mb-3">{"सेवा परमो धर्मः  - सेवा ही परम धर्म है I"}</p>
+        <p className=" cursor-default text-md sm:text-xl font-semibold text-orange-500 pt-5 mb-3">{"सेवा परमो धर्मः  - सेवा ही परम धर्म है I"}</p>
         </div>
-        <p className="text-md sm:text-xl font-semibold text-orange-500 mb-3">{"सेवा परमो धर्मः  - सेवा ही परम धर्म है I"}</p>
 
       </form>
     </div>
