@@ -50,12 +50,13 @@ const ImageModel = () => {
             // Fetch user data when component mounts
             fetchUserData(token);
             checkTokenExpiry(token);
+            fetchUnendorsedPosts(token);
         }
 
         // You may also want to check the validity of the token here if needed
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []); //
+    }, [navigate]); //
     const fetchUserData = async (token) => {
         try {
             const response = await fetch(`${API_URL}/activity/profile`, {
@@ -86,6 +87,30 @@ const ImageModel = () => {
             console.error("Error fetching user data:", error);
         }
     };
+
+
+    const fetchUnendorsedPosts = async (token) => {
+        try {
+          const response = await fetch(`${API_URL}/activity/fetchUnendorsedPosts`, {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+    
+          if (response.ok) {
+            const posts = await response.json();
+        console.log("what are the posts", posts);
+        
+            setFilteredPosts(posts);
+          } else {
+            console.error('Error fetching posts:', response.status);
+          }
+        } catch (error) {
+          console.error('Error fetching posts:', error);
+        }
+      };
+      
     return (
         <div className="w-screen h-screen  bg-white-A700 flex items-start justify-center sm:w-screen sm:h-screen md:w-screen md:h-screen p-5 sm:p-0">
             <div className=" relative w-4/12 h-full sm:w-full sm:h-full md:w-3/4 md:h-full  lg:w-3/4 lg:h-full  flex flex-col items-center  justify-center border-[1px]  rounded-lg sm:rounded-none overflow-hidden">
@@ -149,15 +174,15 @@ const ImageModel = () => {
                                                 <td className="border p-3 text-center" >{post.category}</td>
                                                 <td className="border p-3 text-center">{post.user ? post.user.name : 'Unknown'}</td>
                                                 <td className="border p-1 text-center ">
-                                                    {format(post.Date, "dd-MM-yyy")}
+                                                    {/* {format(post.Date, "dd-MM-yyy")} */}
                                                 </td>
                                                 <td className="border p-3 text-center">{post.totalTime}</td>
                                                 <td className="border p-3 text-center">
-                                                    {post.latitude && post.longitude ? (
-                                                        {/* <span>{renderCityName(post.id)}</span> */}
+                                                    {/* {post.latitude && post.longitude ? (
+                                                        <span>{renderCityName(post.id)}</span>
                                                     ) : (
                                                         'Unknown City'
-                                                    )}
+                                                    )} */}
                                                 </td>
                                                 <td className="border p-3 text-center">
                                                     <a
