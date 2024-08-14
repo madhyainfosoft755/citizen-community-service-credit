@@ -16,7 +16,7 @@ import { API_URL } from "Constant";
 import { toast } from "react-toastify";
 import { CirclesWithBar } from 'react-loader-spinner';
 import imageCompression from 'browser-image-compression';
-
+import Select from "react-select";
 const Register = () => {
   const notify = (e) => toast(e);
   const navigate = useNavigate();
@@ -59,10 +59,12 @@ const Register = () => {
         if (response.ok) {
           if (data.length > 0) {
 
-            const sortedCategories = data.sort((a, b) => a.name.localeCompare(b.name));
-            const limitedCategories = sortedCategories.slice(0, 6);
-            setCategories(limitedCategories);
-            setButtonStates(Array(limitedCategories.length).fill(false)); // Adjust button states based on categories length
+            // const sortedCategories = data.sort((a, b) => a.name.localeCompare(b.name));
+            // const limitedCategories = sortedCategories.slice(0, 6);
+            setCategories(data.map((value) => {
+              return { value: value.name, label: value.name };
+            }));
+            // setButtonStates(Array(limitedCategories.length).fill(false)); // Adjust button states based on categories length
           }
           else {
             // notify(data.message)
@@ -146,6 +148,14 @@ const Register = () => {
       }
       return updatedCategories;
     });
+  };
+  const handleCategoryChange = (selectedOptions) => {
+    if (selectedOptions.length > 6) {
+      return;
+    }
+    setSelectedCategories(selectedOptions.map((value) => value.value));
+    console.log('Selected Categories:', selectedOptions);
+    // You can perform other actions with selectedOptions here
   };
 
   const handleInputChange = (e) => {
@@ -324,6 +334,14 @@ const Register = () => {
   };
   const direct = () => {
     navigate("/login");
+  };
+
+  const customStyles = {
+    menu: (provided) => ({
+      ...provided,
+      maxHeight: 100, // Set the max height of the dropdown list
+      overflowY: 'auto', // Enable vertical scrolling
+    }),
   };
   return (
     <div className=" w-screen h-screen sm:w-screen sm:h-screen md:w-screen md:h-screen flex items-center justify-center pt-5 pb-5 sm:p-0">
@@ -540,7 +558,32 @@ const Register = () => {
                 <svg class="fill-current h-3.5 w-3.5 text-red-500 text-xs" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z" /></svg>
               </span>
             </div>}
-            <div className="w-full h-auto flex flex-col items-center justify-center  relative ">
+
+            <div className="w-full h-auto flex flex-col items-center justify-center relative">
+              <label className="block font-semibold mb-1 text-left w-full">
+                <span className="text-red-500">*</span>Select Categories:
+              </label>
+
+              <div className="w-full">
+                {categories && (
+                  <Select
+                    isMulti
+                    name="options"
+                    options={categories}
+                    className="basic-multi-select"
+                    classNamePrefix="select"
+                    id="category"
+                    onChange={handleCategoryChange}
+                    styles={customStyles}
+                  />
+                )}
+                <div className="text-blue-500 mt-2">
+                  You can only select up to {'6'} categories.
+                </div>
+              </div>
+            </div>
+
+            {/* <div className="w-full h-auto flex flex-col items-center justify-center  relative ">
               <label className="block font-semibold mb-1 text-left w-full"><span className="text-red-500">*</span>Select Categories:</label>
               <div className="grid grid-cols-3 gap-1 w-full">
                 {categories.map((category, index) => (
@@ -555,7 +598,7 @@ const Register = () => {
                   </button>
                 ))}
               </div>
-            </div>
+            </div> */}
 
 
 

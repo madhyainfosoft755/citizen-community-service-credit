@@ -25,7 +25,7 @@ const DesktopFourPage = () => {
   const [userName, setUserName] = useState("")
   const { state } = useLocation();
   const [showQuote, setShowQuoteModal] = useState(false);
-  // console.log("userData", userData);
+  console.log("state create activity", state);
   useEffect(() => {
     const fetchUserPosts = async () => {
       try {
@@ -204,6 +204,13 @@ const DesktopFourPage = () => {
     navigate("/create");
   }
 
+  useEffect(() => {
+    // This effect will run whenever the location changes
+    if (state) {
+      setShowQuoteModal(true);
+    }
+  }, []);
+
   return (
     <>
       {authenticated && (
@@ -213,7 +220,7 @@ const DesktopFourPage = () => {
           )}
 
           {showQuote && (
-            <QuoteModal onClose={() => setShowQuoteModal(false)} />
+            <QuoteModal onClose={() => setShowQuoteModal(false)} timeSpent={state} />
           )}
           <div className="relative  w-4/12 h-full  flex items-start justify-center  sm:shadow-none  border-[1px]  rounded-lg sm:rounded-none  lg:h-full sm:w-full sm:h-full md:w-full md:h-full overflow-hidden scroller">
             <div className="flex flex-col  items-center justify-start w-full h-full md:w-full sm:w-full">

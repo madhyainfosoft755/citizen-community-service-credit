@@ -9,6 +9,8 @@ import ProtectedRoute from "components/ProtectedComponent/ProtectedRoute";
 import OpenActivity from "pages/OpenActivity";
 import Certificate from "pages/Certficate";
 import ProfileForUser from "pages/User_Profile";
+import UserReport from "pages/Reports/reports";
+import UserReportsTable from "pages/Reports/report-table";
 
 const DesktopTwo = React.lazy(() => import("pages/DesktopTwo"));
 const DesktopSeven = React.lazy(() => import("pages/DesktopSeven"));
@@ -99,6 +101,9 @@ const ProjectRoutes = () => {
           <Route path="/posts/:postId" element={<OpenActivity />} />
           <Route path="/certificate/:id" element={<Certificate />} />
           <Route path="/users-profile" element={<ProfileForUser />} />
+          <Route path="/user-report" element={<UserReport />} />
+          <Route path="/user-report-table" element={<UserReportsTable />} />
+
           <Route path="/admin" element={<ProtectedRoute element={DesktopFive} adminOnly />} />
           <Route path="/managecategories" element={<ProtectedRoute element={DesktopSix} adminOnly />} />
           <Route path="/approvehours" element={<ProtectedRoute element={DesktopSeven} adminOnly />} />

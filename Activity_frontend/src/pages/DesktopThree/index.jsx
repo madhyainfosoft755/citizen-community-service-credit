@@ -342,6 +342,32 @@ const Createpost = () => {
     return `${hours}:${minutes}`;
   };
 
+  /**
+ * Function to calculate the time difference between two times
+ * @param {string} startTime - The start time in "HH:MM:SS" format
+ * @param {string} endTime - The end time in "HH:MM:SS" format
+ * @returns {object} An object containing the difference in hours, minutes, and seconds
+ */
+  function getTimeDifference(startTime, endTime) {
+    // Convert time strings to Date objects
+    const start = new Date(`1970-01-01T${startTime}Z`);
+    const end = new Date(`1970-01-01T${endTime}Z`);
+
+    // Calculate the difference in milliseconds
+    let differenceInMs = end - start;
+
+    // If the end time is before the start time, add 24 hours to the end time
+    if (differenceInMs < 0) {
+      differenceInMs += 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+    }
+
+    // Calculate hours, minutes, and seconds from the difference
+    const hours = Math.floor(differenceInMs / (1000 * 60 * 60));
+    const minutes = Math.floor((differenceInMs % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((differenceInMs % (1000 * 60)) / 1000);
+
+    return { hours, minutes, seconds };
+  }
   // console.log("what is the description", description)
 
   const handleSubmit = async (e) => {
@@ -408,8 +434,9 @@ const Createpost = () => {
       const data = await response.json();
       if (response.ok) {
         // console.log("Success:", data);
+        const timeSpent = getTimeDifference(fromTime, toTime)
         notify(data.message)
-        navigate("/activity", { state: true });
+        navigate("/activity", { state: timeSpent });
       } else {
         console.error("Error:", data.error);
         notify(`${data.error}`)
@@ -580,7 +607,7 @@ const Createpost = () => {
                 {`${totalTime || 0} Hrs | ${totalTime && convertToHours(totalTime)} Pts`}
                 {/* <FontAwesomeIcon icon={faLocationDot} className="pr-3 text-blue-600" /> */}
               </Button>
-              <img  src={APP_PATH + "images/2.png"} className=" w-14 h-14 rounded-full" alt="" />
+              <img src={APP_PATH + "images/2.png"} className=" w-14 h-14 rounded-full" alt="" />
 
             </div>
 
@@ -765,9 +792,9 @@ const Createpost = () => {
                     SUBMIT
                   </Button>
 
-                <button onClick={handleLogout} className=" bg-[#546ef6] text-sm tracking-widest font-semibold text-white-A700 w-1/2 py-3  mb-2 rounded-full">
-                  LOGOUT
-                </button>
+                  <button onClick={handleLogout} className=" bg-[#546ef6] text-sm tracking-widest font-semibold text-white-A700 w-1/2 py-3  mb-2 rounded-full">
+                    LOGOUT
+                  </button>
                 </div>
 
               </div>

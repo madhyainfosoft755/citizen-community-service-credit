@@ -62,6 +62,10 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         defaultValue: false, // Default value for verified field
       },
+      address: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
     },
     {
       timestamps: true,

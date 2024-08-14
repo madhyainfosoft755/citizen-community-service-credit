@@ -55,8 +55,14 @@ const {
   getAllPostedCategories,
   visitorCount,
   shareTestLink,
+  updateUser,
+  getAllActivitiesByCategoriesUser,
+  postsForDateRangeUser,
+  postsForCategoryUser,
 } = require("../controllers/LoginController");
 const { upload } = require("../utils/util");
+const uploadMiddleWare = require("../Middlewere/uploadMiddleware");
+
 // Express route
 router.get("/output", output);
 router.post("/LinkedInLogin", LinkedInLogin);
@@ -74,6 +80,7 @@ router.get(
   "/getUsersWithMostPostsInSixMonths",
   getUsersWithMostPostsInSixMonths
 );
+
 router.get("/getUsersWithMostPostsInQuater", getUsersWithMostPostsInQuater);
 router.get("/getUsersWithMostPostsInMonth", getUsersWithMostPostsInMonth);
 router.put("/approveHours/:postId", approveHours);
@@ -117,5 +124,8 @@ router.post("/getAllPostedCategories/:id", getAllPostedCategories);
 router.get("/getPost/:id", getPost);
 router.get("/posts/:id", getLinkToSharePost);
 router.get("/test-posts/:id", shareTestLink);
+router.post("/get-user-report", getAllActivitiesByCategoriesUser);
+router.get("/get-user-report-date", postsForDateRangeUser);
+router.post("/update-user", uploadMiddleWare.single("photo"), updateUser);
 
 module.exports = router;

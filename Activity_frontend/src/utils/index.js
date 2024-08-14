@@ -12,17 +12,29 @@ export const handleSectionNavigation = (id) => {
   });
 };
 
-
 export function convertToHours(timeStr) {
-  const [hours, minutes] = timeStr.split(':').map(Number);
-  const totalHours = hours + (minutes / 60);
-  
-  return Number((totalHours*20).toFixed(2));;
+  const [hours, minutes] = timeStr.split(":").map(Number);
+  const totalHours = hours + minutes / 60;
+
+  return Number((totalHours * 10).toFixed(2));
 }
 
 export function convertToHoursWithoutPoints(timeStr) {
-  const [hours, minutes] = timeStr.split(':').map(Number);
-  const totalHours = hours + (minutes / 60);
-  
-  return Number((totalHours).toFixed(2));;
+  const [hours, minutes] = timeStr.split(":").map(Number);
+  const totalHours = hours + minutes / 60;
+
+  return Number(totalHours.toFixed(2));
+}
+
+export function formatDate(timestamp) {
+  if (!timestamp) {
+    return null;
+  }
+  const date = new Date(timestamp);
+
+  const year = date.getFullYear().toString().slice(); // Get last two digits of the year
+  const month = String(date.getMonth() + 1).padStart(2, "0"); // Month is 0-indexed, so add 1
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
 }
