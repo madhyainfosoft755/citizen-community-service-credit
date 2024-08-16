@@ -388,10 +388,10 @@ const DesktopOnePage = () => {
           className="relative w-full h-full flex flex-col justify-center items-center pt-2 sm:pt-10 sm:w-screen sm:h-screen overflow-hidden  bg-cover bg-center "
         // style={{ backgroundImage: 'url("./images/img_helping.jpg")' }}
         >
-          <Text className=" cursor-default text-lg text-blue-400  font-extrabold">
+          <Text className=" cursor-default text-lg text-center text-blue-400  font-extrabold">
             Welcome to CCH247 (Community Care 247)
           </Text>
-          <Text className="cursor-default text-sm text-orange-300 mt-2 mb-5 font-extrabold italic">
+          <Text className="cursor-default text-sm text-center text-orange-300 mt-2 mb-5 font-extrabold italic">
             Add, Track and Share your Volunteer Activities
           </Text>
 

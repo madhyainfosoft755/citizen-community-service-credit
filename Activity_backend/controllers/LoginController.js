@@ -1430,26 +1430,7 @@ const getCategories = async (req, res) => {
 };
 
 
-const fetchUnendorsedPosts = async (req, res) => {
-  try {
-    const unendorsedPosts = await Posts.findAll({
-      where: {
-        endorsementCounter: 0,
-      },
-      include: [
-        {
-          model: Users, // Assuming there is an association with the Users model
-          attributes: ['name'], // Select only the 'name' attribute from Users
-        },
-      ],
-    });
 
-    res.status(200).json(unendorsedPosts);
-  } catch (error) {
-    console.error('Error fetching unendorsed posts:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-};
 
 //ADMINISTRATOR CONTROLLERS
 
@@ -2571,5 +2552,4 @@ module.exports = {
   getAllPostedCategories,
   visitorCount,
   shareTestLink,
-  fetchUnendorsedPosts
 };

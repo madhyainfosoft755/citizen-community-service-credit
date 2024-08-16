@@ -42,12 +42,17 @@ const {
   getApprovedActivitiesByCategories,
   verifyUser,
   unVerifyUser,
+  processUnendorsedPosts,
+  fetchUnendorsedPosts,
+
   
 } = require("../controllers/AdminController");
 const extractToken = require("../Middlewere/Authentication");
 const router = express.Router();
 
 router.get("/test", extractToken, TestContoller);
+router.post("/processUnendorsedPosts",processUnendorsedPosts);
+router.get("/fetchUnendorsedPosts", fetchUnendorsedPosts);
 router.get("/getTotalUser", extractToken, getTotalUsers);
 router.get("/verifyToken", extractToken, verifyToken);
 router.get("/getTotalCategories", extractToken, getTotalCategories);

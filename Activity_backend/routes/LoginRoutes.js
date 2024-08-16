@@ -55,12 +55,10 @@ const {
   getAllPostedCategories,
   visitorCount,
   shareTestLink,
-  fetchUnendorsedPosts
 } = require("../controllers/LoginController");
 const { upload } = require("../utils/util");
 // Express route
 router.get("/output", output);
-router.get("/fetchUnendorsedPosts", fetchUnendorsedPosts)
 router.post("/LinkedInLogin", LinkedInLogin);
 router.get("/getPostsByUser/:userId", getPostsByUser);
 router.get("/reviewpostforuser/:userId/:postId", reviewpostforuser);
@@ -72,10 +70,7 @@ router.get("/fetchApprovers", fetchApprovers);
 router.post("/addApprover", addApprover);
 router.get("/pendingApproval", pendingApproval);
 router.get("/getUsersWithMostPostsInYear", getUsersWithMostPostsInYear);
-router.get(
-  "/getUsersWithMostPostsInSixMonths",
-  getUsersWithMostPostsInSixMonths
-);
+router.get(  "/getUsersWithMostPostsInSixMonths",  getUsersWithMostPostsInSixMonths);
 router.get("/getUsersWithMostPostsInQuater", getUsersWithMostPostsInQuater);
 router.get("/getUsersWithMostPostsInMonth", getUsersWithMostPostsInMonth);
 router.put("/approveHours/:postId", approveHours);

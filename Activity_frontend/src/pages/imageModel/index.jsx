@@ -57,6 +57,8 @@ const ImageModel = () => {
 
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [navigate]); //
+
+
     const fetchUserData = async (token) => {
         try {
             const response = await fetch(`${API_URL}/activity/profile`, {
@@ -91,26 +93,60 @@ const ImageModel = () => {
 
     const fetchUnendorsedPosts = async (token) => {
         try {
-          const response = await fetch(`${API_URL}/activity/fetchUnendorsedPosts`, {
-            method: 'GET',
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-    
-          if (response.ok) {
-            const posts = await response.json();
-        console.log("what are the posts", posts);
-        
-            setFilteredPosts(posts);
-          } else {
-            console.error('Error fetching posts:', response.status);
-          }
+            const response = await fetch(`${API_URL}/admin/fetchUnendorsedPosts`, {
+                method: 'GET',
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            });
+
+            if (response.ok) {
+                const posts = await response.json();
+                console.log("what are the posts", posts);
+
+                setFilteredPosts(posts);
+            } else {
+                console.error('Error fetching posts:', response.status);
+            }
         } catch (error) {
-          console.error('Error fetching posts:', error);
+            console.error('Error fetching posts:', error);
         }
-      };
-      
+    };
+
+
+    const sendUnendorsedPosts = async () => {
+
+
+        const postsToSend = filteredPosts.slice(0, 100).map(post => ({
+            id: post.id,
+            category: post.category,
+            image: post.photos, // Assuming `post.image` contains the image URL or data
+            username: post.user ? post.user.name : 'Unknown',
+        }));
+
+        console.log("kya posts ja rhe hain", postsToSend);
+
+        try {
+            const response = await fetch(`${API_URL}/admin/processUnendorsedPosts`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(postsToSend),
+            });
+
+            if (response.ok) {
+                notify("Posts sent successfully!");
+            } else {
+                notify("Failed to send posts");
+                console.error('Error sending posts:', response.status);
+            }
+        } catch (error) {
+            notify("An error occurred");
+            console.error('Error sending posts:', error);
+        }
+    }
+
     return (
         <div className="w-screen h-screen  bg-white-A700 flex items-start justify-center sm:w-screen sm:h-screen md:w-screen md:h-screen p-5 sm:p-0">
             <div className=" relative w-4/12 h-full sm:w-full sm:h-full md:w-3/4 md:h-full  lg:w-3/4 lg:h-full  flex flex-col items-center  justify-center border-[1px]  rounded-lg sm:rounded-none overflow-hidden">
@@ -210,7 +246,9 @@ const ImageModel = () => {
                                 </table>
 
                             )}
+
                         </div>
+                            <button onClick={sendUnendorsedPosts} className=' p-4 font-semibold bg-green-300 rounded-lg'>Auto Endorse</button>
                     </div>
                 </div>
             </div>
