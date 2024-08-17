@@ -1377,12 +1377,12 @@ const fetchUnendorsedPosts = async (req, res) => {
 const processUnendorsedPosts =  async (req, res) => {
   try {
       const postsToSend = req.body;
-      // console.log("what are the posts to send", postsToSend);
+      console.log("what are the posts to send", postsToSend);
       
 
-      logger.info('Processing unendorsed', postsToSend);
+      // logger.info('Processing unendorsed', postsToSend);
 
-      const response = await axios.post('http://localhost:5000/api/bulk-posts', postsToSend, {
+      const response = await axios.post('http://localhost:5000/api/bulk-posts', {postsToSend}, {
           headers: {
               'Content-Type': 'application/json',
           },
