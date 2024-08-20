@@ -179,10 +179,10 @@ const ImageModel = () => {
 
 
                     </div>
-                    <div className='w-full h-full bg-orange-300 flex flex-col items-center justify-start p-3'>
+                    <div className='w-full h-full bg-orange-300 flex flex-col items-center justify-between p-3'>
                         <h1 className='font-semibold text-xl'>List of all the posts that are not endorsed</h1>
 
-                        <div className={`scroller relative mt-5 w-full h-full bg-blue-300  post-container ${filteredPosts.length === 0 ? "overflow-hidden" : "overflow-auto"}`}>
+                        <div className={`scroller relative mt-5 w-full h-96 bg-blue-300  post-container ${filteredPosts.length === 0 ? "overflow-hidden" : "overflow-auto"}`}>
                             {filteredPosts.length === 0 ? (
                                 <div className="w-full h-full flex items-center justify-center">
                                     <Img
