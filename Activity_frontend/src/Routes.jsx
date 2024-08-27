@@ -30,6 +30,7 @@ const ProfilePage = React.lazy(() => import("pages/ProfilePage"))
 const TokenRetrival = React.lazy(() => import("pages/TokenRetriver"))
 const Profile = React.lazy(() => import("pages/Profile"))
 const Imgmodel = React.lazy(() => import("pages/imageModel"))
+// const AIapproval = React.lazy(() => import("pages/
 
 const ProjectRoutes = () => {
   // const { authenticated, setAuthenticated } = useAuth();

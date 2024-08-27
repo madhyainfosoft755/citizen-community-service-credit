@@ -340,6 +340,9 @@ const DesktopFivePage = () => {
   const imgmod = () => {
     navigate("/imgmod")
   }
+  const AIapprove = ()=>{
+    navigate("/aiapprove")
+  }
   const generatereport = () => {
     navigate("/generatereport")
   }
@@ -438,6 +441,7 @@ const DesktopFivePage = () => {
               <div className="w-[48%] rounded-lg bg-[#f0f2fb80] border-[1px]  text-[#546ef6] h-1/5 flex flex-shrink-2 items-center justify-center font-semibold cursor-pointer text-center" onClick={mnguser}><h1>Manage Users</h1></div>
               <div className="w-[48%] rounded-lg bg-[#f0f2fb80] border-[1px]  text-[#546ef6] h-1/5 flex flex-shrink-2 items-center justify-center font-semibold cursor-pointer text-center" onClick={mngorg}><h1>Manage Organisation</h1></div>
               <div className="w-[48%] rounded-lg bg-[#f0f2fb80] border-[1px]  text-[#546ef6] h-1/5 flex flex-shrink-2 items-center justify-center font-semibold cursor-pointer text-center" onClick={imgmod}><h1>Send images to model</h1></div>
+              <div className="w-full rounded-lg bg-[#f0f2fb80] border-[1px]  text-[#546ef6] h-1/6 flex  items-center justify-center font-semibold cursor-pointer text-center" onClick={AIapprove}><h1>Send for Auto Approval</h1></div>
 
             </div>
 
