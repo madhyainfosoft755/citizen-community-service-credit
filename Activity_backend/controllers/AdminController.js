@@ -1426,7 +1426,29 @@ const updateEndorsedPosts = async (req, res) => {
   }
 };
 
+const fetchEndorsedPosts = async (req, res) => {
+  try {
+    const unendorsedPosts = await Posts.findAll({
+      where: {
+        endorsementCounter: {
+          [Op.gte]: 1, // Fetch posts with endorsementCounter >= 1
+        },
+        approved:false //
+      },
+      include: [
+        {
+          model: Users, // Assuming there is an association with the Users model
+          attributes: ['name', 'photo'], // Select only the 'name' attribute from Users
+        },
+      ],
+    });
 
+    res.status(200).json(unendorsedPosts);
+  } catch (error) {
+    console.error('Error fetching unendorsed posts:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
 const processUnapprovedPosts = async (req, res) => {
   try {
     const postsToSend = req.body;
@@ -1435,7 +1457,7 @@ const processUnapprovedPosts = async (req, res) => {
    
     // logger.info('Processing unendorsed', postsToSend);
 
-    const response = await axios.post('http://localhost:5000/api/bulk-posts', { postsToSend }, {
+    const response = await axios.post('http://localhost:5000/api/bulk-approval', { postsToSend }, {
       headers: {
         'Content-Type': 'application/json',
       },
@@ -1500,6 +1522,8 @@ module.exports = {
   unVerifyUser,
   fetchUnendorsedPosts,
   processUnendorsedPosts,
-  updateEndorsedPosts
+  fetchEndorsedPosts,
+  updateEndorsedPosts,
+  processUnapprovedPosts
 
 };

@@ -341,7 +341,7 @@ const DesktopFivePage = () => {
     navigate("/imgmod")
   }
   const AIapprove = ()=>{
-    navigate("/aiapprove")
+    navigate("/aiapproval")
   }
   const generatereport = () => {
     navigate("/generatereport")

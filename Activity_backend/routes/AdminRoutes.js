@@ -44,14 +44,19 @@ const {
   unVerifyUser,
   processUnendorsedPosts,
   fetchUnendorsedPosts,
-  updateEndorsedPosts
+  fetchEndorsedPosts,
+  updateEndorsedPosts,
+  processUnapprovedPosts
+
   
 } = require("../controllers/AdminController");
 const extractToken = require("../Middlewere/Authentication");
 const router = express.Router();
 
 router.get("/test", extractToken, TestContoller);
+router.get("/fetchEndorsedPosts", fetchEndorsedPosts);
 router.post("/updateEndorsedPosts", updateEndorsedPosts)
+router.post("/processUnapprovedPosts",  processUnapprovedPosts);
 router.post("/processUnendorsedPosts",processUnendorsedPosts);
 router.get("/fetchUnendorsedPosts", fetchUnendorsedPosts);
 router.get("/getTotalUser", extractToken, getTotalUsers);

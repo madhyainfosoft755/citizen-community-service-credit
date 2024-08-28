@@ -5,10 +5,11 @@ import { useNavigate } from 'react-router-dom'
 import { toast } from "react-toastify";
 import { format } from 'date-fns';
 
+
 const ImageModel = () => {
     const notify = (e) => toast(e);
     const navigate = useNavigate(); // Use useNavigate hook for programmatic navigation
-    const [userName, setUserName] = useState(""); // Added state for user name
+    const [userName, setUserName] = useState(""); // Added state for user name-
     const [userData, setUserData] = useState(null);
     const [filteredPosts, setFilteredPosts] = useState([]); // State to store posts
 
@@ -147,6 +148,9 @@ const ImageModel = () => {
         }
     }
 
+    const goback = () => {
+        window.history.back();
+    }
     return (
         <div className="w-screen h-screen  bg-white-A700 flex items-start justify-center sm:w-screen sm:h-screen md:w-screen md:h-screen p-5 sm:p-0">
             <div className=" relative w-4/12 h-full sm:w-full sm:h-full md:w-3/4 md:h-full  lg:w-3/4 lg:h-full  flex flex-col items-center  justify-center border-[1px]  rounded-lg sm:rounded-none overflow-hidden">
@@ -154,6 +158,13 @@ const ImageModel = () => {
                     <div className="bg-gray-50 flex flex-row items-center justify-between p-3 sm:p-5  sm:px-5 w-full ">
 
                         <div className="flex flex-row gap-4 items-center justify-center ml-[1px]">
+                            <div onClick={goback}>
+                                <Img
+                                    className="h-7 cursor-pointer"
+                                    src={APP_PATH + "images/img_arrowleft.svg"}
+                                    alt="arrowleft"
+                                />
+                            </div>
                             {userData && (
                                 <Img
                                     className=" sm:w-[58px] sm:h-[52px] md:w-[58px] md:h-[52px] lg:w-[58px] lg:h-[58px]  w-14 h-12 rounded-full object-cover object-top  "
@@ -210,7 +221,7 @@ const ImageModel = () => {
                                                 <td className="border p-3 text-center" >{post.category}</td>
                                                 <td className="border p-3 text-center">{post.user ? post.user.name : 'Unknown'}</td>
                                                 <td className="border p-1 text-center ">
-                                                    {/* {format(post.Date, "dd-MM-yyy")} */}
+                                                    {format(post.Date, "dd-MM-yyy")}
                                                 </td>
                                                 <td className="border p-3 text-center">{post.totalTime}</td>
                                                 <td className="border p-3 text-center">
@@ -221,13 +232,7 @@ const ImageModel = () => {
                                                     )} */}
                                                 </td>
                                                 <td className="border p-3 text-center">
-                                                    <a
-                                                        href="#"
-                                                        // onClick={() => openPopup(post)}3
-                                                        className="text-[#546ef6] underline"
-                                                    >
-                                                        View
-                                                    </a>
+                                                    <img className='rounded' src={`${API_URL}/image/${post.photos}`} alt="post image" />
                                                 </td>
 
                                                 {/* <td className="w-full h-full items-center justify-center px-8">
@@ -248,7 +253,7 @@ const ImageModel = () => {
                             )}
 
                         </div>
-                            <button onClick={sendUnendorsedPosts} className=' p-4 font-semibold bg-green-300 rounded-lg'>Auto Endorse</button>
+                        <button onClick={sendUnendorsedPosts} className=' p-4 font-semibold bg-green-300 rounded-lg'>Auto Endorse</button>
                     </div>
                 </div>
             </div>
