@@ -9,17 +9,15 @@ import { GoogleOAuthProvider } from '@react-oauth/google';
 import { AuthProvider } from "components/AuthProvider/AuthProvider";
 import { ToastContainer } from "react-toastify";
 import 'react-toastify/dist/ReactToastify.css';
+import { createRoot } from 'react-dom/client';
 
-ReactDOM.render(
+const root = createRoot(document.getElementById('root'));
+root.render(
   <React.StrictMode>
-
     <AuthProvider>
-     <GoogleOAuthProvider clientId= {process.env.REACT_APP_GOOGLE_CLIENT_ID}>
-    {/* <ToastContainer> */}
-    <App />
-    {/* </ToastContainer> */}
-    </GoogleOAuthProvider>
+      <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID}>
+        <App />
+      </GoogleOAuthProvider>
     </AuthProvider>
-  </React.StrictMode>,
-  document.getElementById("root"),
+  </React.StrictMode>
 );

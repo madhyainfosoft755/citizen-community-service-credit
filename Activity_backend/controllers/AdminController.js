@@ -1477,6 +1477,30 @@ const processUnapprovedPosts = async (req, res) => {
     res.status(500).send('An error occurred while processing posts');
   }
 };
+
+const updateApprovedPosts = async (req, res) => {
+  try {
+    const { approvedPosts } = req.body;
+
+    for (const approvedPost of approvedPosts) {
+      const { postId } = approvedPost;
+
+      // CCH database mein post ko dhundho
+      const post = await Posts.findOne({ where: { id: postId } });
+
+      if (post) {
+        // Approved status ko update karo
+        post.approved = true;
+        await post.save();
+      }
+    }
+
+    res.status(200).send('Approved posts CCH database mein successfully update ho gaye');
+  } catch (error) {
+    logger.error('Approved posts update karne mein error:', error);
+    res.status(500).send('Approved posts update karte waqt ek error hua');
+  }
+};
 module.exports = {
   TestContoller,
   getTotalUsers,
@@ -1524,6 +1548,6 @@ module.exports = {
   processUnendorsedPosts,
   fetchEndorsedPosts,
   updateEndorsedPosts,
-  processUnapprovedPosts
-
+  processUnapprovedPosts,
+  updateApprovedPosts
 };

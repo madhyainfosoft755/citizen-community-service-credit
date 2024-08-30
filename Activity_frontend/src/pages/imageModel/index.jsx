@@ -206,6 +206,8 @@ const ImageModel = () => {
                                 <table className="w-52 border-collapse border-2">
                                     <thead className="">
                                         <tr className="border">
+
+                                            <th className="border p-3">Post id</th>
                                             <th className="border p-3">Category</th>
                                             <th className="border p-3">Name</th>
                                             <th className="border px-8">Date</th>
@@ -218,6 +220,7 @@ const ImageModel = () => {
                                     <tbody className=" ">
                                         {filteredPosts.map((post) => (
                                             <tr key={post.id} className=" border">
+                                                <td className="border p-3 text-center" >{post.id}</td>
                                                 <td className="border p-3 text-center" >{post.category}</td>
                                                 <td className="border p-3 text-center">{post.user ? post.user.name : 'Unknown'}</td>
                                                 <td className="border p-1 text-center ">

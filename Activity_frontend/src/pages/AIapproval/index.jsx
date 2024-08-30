@@ -208,6 +208,7 @@ const AIapproval = () => {
                 <table className="w-52 border-collapse border-2">
                   <thead className="">
                     <tr className="border">
+                      <th className="border p-3">Sr. No.</th>
                       <th className="border p-3">Post Id</th>
                       <th className="border p-3">User profile</th>
                       <th className="border p-3">Category</th>
@@ -222,6 +223,9 @@ const AIapproval = () => {
                   <tbody className=" ">
                     {filteredPosts.map((post) => (
                       <tr key={post.id} className=" border">
+                        <td className="border p-3 text-center">
+                          {filteredPosts.indexOf(post) + 1}
+                        </td>
 
                         <td className="border p-3 text-center" >{post.id}</td>
                         <td className="border p-3 text-center" ><img className='rounded' src={`${API_URL}/image/${post.user.photo}`} alt="post image" /></td>

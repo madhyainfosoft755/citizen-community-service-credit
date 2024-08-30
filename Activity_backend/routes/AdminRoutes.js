@@ -46,7 +46,8 @@ const {
   fetchUnendorsedPosts,
   fetchEndorsedPosts,
   updateEndorsedPosts,
-  processUnapprovedPosts
+  processUnapprovedPosts,
+  updateApprovedPosts
 
   
 } = require("../controllers/AdminController");
@@ -57,6 +58,7 @@ router.get("/test", extractToken, TestContoller);
 router.get("/fetchEndorsedPosts", fetchEndorsedPosts);
 router.post("/updateEndorsedPosts", updateEndorsedPosts)
 router.post("/processUnapprovedPosts",  processUnapprovedPosts);
+router.post("/updateApprovedPosts", updateApprovedPosts);
 router.post("/processUnendorsedPosts",processUnendorsedPosts);
 router.get("/fetchUnendorsedPosts", fetchUnendorsedPosts);
 router.get("/getTotalUser", extractToken, getTotalUsers);
