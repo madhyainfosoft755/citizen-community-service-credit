@@ -420,13 +420,13 @@ const ProfileForUser = () => {
 
                         <div className=" w-full h-full  pt-3 ">
                             <div className=" w-full h-3/5 flex flex-wrap items-center justify-between pl-4 pr-4 pt-1 pb-1">
-                                <div className="w-[48%] rounded-lg bg-[#ffffff] border-[1px]  text-[#6b84ff] h-1/5 flex  items-center justify-center font-semibold cursor-pointer text-center" onClick={() => { navigate("../create") }}><h1>Creaet Activity <FontAwesomeIcon icon={faUser} /></h1></div>
+                                <div className="w-[48%] rounded-lg bg-[#ffffff] border-[1px]  text-[#6b84ff] h-1/5 flex  items-center justify-center font-semibold cursor-pointer text-center" onClick={() => { navigate("../create") }}><h1>Create Activity <FontAwesomeIcon icon={faUser} /></h1></div>
                                 <div className="w-[48%] rounded-lg bg-[#ffffff] border-[1px]  text-[#6b84ff] h-1/5 flex  items-center justify-center font-semibold cursor-pointer text-center" onClick={() => { navigate("../endorse") }}><h1>Endorse <FontAwesomeIcon icon={faUser} /></h1></div>
                                 <div className="w-[48%] rounded-lg bg-[#ffffff] border-[1px]  text-[#6b84ff] h-1/5 flex  items-center justify-center font-semibold cursor-pointer text-center" onClick={() => { navigate("../activity") }}><h1>Activities <FontAwesomeIcon icon={faUser} /></h1></div>
                                 <div className="w-[48%] rounded-lg bg-[#ffffff] border-[1px]  text-[#6b84ff] h-1/5 flex  items-center justify-center font-semibold cursor-pointer text-center" onClick={() => { setIsModalOpen(true) }}><h1>Edit Profile <FontAwesomeIcon icon={faUser} /></h1></div>
                                 <div className="w-[48%] rounded-lg bg-[#ffffff] border-[1px]  text-[#6b84ff] h-1/5 flex flex-shrink-2 items-center justify-center font-semibold cursor-pointer text-center" onClick={() => { setIsPopupVisible(true) }}><h1>Certificate  <FontAwesomeIcon icon={faDownload} /></h1></div>
                                 <div className="w-[48%] rounded-lg bg-[#ffffff] border-[1px]  text-[#6b84ff] h-1/5 flex flex-shrink-2 items-center justify-center font-semibold cursor-pointer text-center" onClick={() => { navigate("../user-report") }}><h1>Genrate Reports <FontAwesomeIcon icon={faFileAlt} /></h1></div>
-                                <div className="w-[48%] rounded-lg bg-[#ffffff] border-[1px]  text-[#6b84ff] h-1/5 flex flex-shrink-2 items-center justify-center font-semibold cursor-pointer text-center" onClick={() => { navigate("../user-report") }}><h1>Group <FontAwesomeIcon icon={faComment} /></h1></div>
+                                <div className="w-[48%] rounded-lg bg-[#ffffff] border-[1px]  text-[#a9aaaf] h-1/5 flex flex-shrink-2 items-center justify-center font-semibold cursor-pointer text-center" onClick={() => { }}><h1>Group <FontAwesomeIcon icon={faComment} /></h1></div>
 
                             </div>
 

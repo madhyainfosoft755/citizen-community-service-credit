@@ -92,3 +92,52 @@
 {"code":"ER_BAD_FIELD_ERROR","errno":1054,"level":"error","message":"here is the error Unknown column 'address' in 'field list'","sql":"SELECT `id`, `name`,`photo`, `email`,`phone`, `address`, `googleId`, `organization`, `category` FROM `users` WHERE id = ?","sqlMessage":"Unknown column 'address' in 'field list'","sqlState":"42S22","stack":"Error: Unknown column 'address' in 'field list'\n    at PromiseConnection.execute (D:\\git utkarsh\\citizen-community-service-credit\\Activity_backend\\node_modules\\mysql2\\promise.js:111:22)\n    at profile (D:\\git utkarsh\\citizen-community-service-credit\\Activity_backend\\controllers\\LoginController.js:948:41)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)"}
 {"code":"ER_BAD_FIELD_ERROR","errno":1054,"level":"error","message":"this is the error from token Unknown column 'address' in 'field list'","sql":"SELECT `id`, `name`,`photo`, `email`,`phone`, `address`, `googleId`, `organization`, `category` FROM `users` WHERE id = ?","sqlMessage":"Unknown column 'address' in 'field list'","sqlState":"42S22","stack":"Error: Unknown column 'address' in 'field list'\n    at PromiseConnection.execute (D:\\git utkarsh\\citizen-community-service-credit\\Activity_backend\\node_modules\\mysql2\\promise.js:111:22)\n    at profile (D:\\git utkarsh\\citizen-community-service-credit\\Activity_backend\\controllers\\LoginController.js:948:41)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)"}
 {"level":"error","message":"user update fail Unexpected end of JSON input","stack":"SyntaxError: Unexpected end of JSON input\n    at JSON.parse (<anonymous>)\n    at updateUser (D:\\git utkarsh\\citizen-community-service-credit\\Activity_backend\\controllers\\LoginController.js:2575:33)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)"}
+{"level":"error","message":"here is the error Cannot read properties of null (reading 'id')","stack":"TypeError: Cannot read properties of null (reading 'id')\n    at login (D:\\git utkarsh\\citizen-community-service-credit\\Activity_backend\\controllers\\LoginController.js:771:52)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)"}
+{"level":"error","message":"here is the error Cannot read properties of null (reading 'id')","stack":"TypeError: Cannot read properties of null (reading 'id')\n    at login (D:\\git utkarsh\\citizen-community-service-credit\\Activity_backend\\controllers\\LoginController.js:771:52)\n    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)"}
+{"level":"error"}
+{"level":"error"}
+{"level":"error"}
+{"expiredAt":"2024-08-21T07:02:21.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-21T07:02:21.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-21T07:02:21.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-21T07:02:21.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-21T07:02:21.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-21T07:02:21.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-21T07:02:21.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-21T07:02:21.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-21T07:02:21.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-21T07:02:21.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-21T07:02:21.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-21T07:02:21.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-21T07:02:21.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-21T07:02:21.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-21T07:02:21.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-21T07:02:21.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"level":"error"}
+{"level":"error","name":"SequelizeDatabaseError","original":{"code":"ER_BAD_FIELD_ERROR","errno":1054,"sql":"SELECT `id`, `Date`, `photos`, `videos`, `category`, `fromTime`, `totalTime`, `UserId`, `latitude`, `longitude`, `endorsementCounter`, `approved`, `rejected`, `rejectionReason` FROM `posts` AS `posts` WHERE `posts`.`category` = false AND `posts`.`endorsementCounter` = true AND `posts`.`waiting` = true;","sqlMessage":"Unknown column 'posts.waiting' in 'where clause'","sqlState":"42S22"},"parameters":{},"parent":{"code":"ER_BAD_FIELD_ERROR","errno":1054,"sql":"SELECT `id`, `Date`, `photos`, `videos`, `category`, `fromTime`, `totalTime`, `UserId`, `latitude`, `longitude`, `endorsementCounter`, `approved`, `rejected`, `rejectionReason` FROM `posts` AS `posts` WHERE `posts`.`category` = false AND `posts`.`endorsementCounter` = true AND `posts`.`waiting` = true;","sqlMessage":"Unknown column 'posts.waiting' in 'where clause'","sqlState":"42S22"},"sql":"SELECT `id`, `Date`, `photos`, `videos`, `category`, `fromTime`, `totalTime`, `UserId`, `latitude`, `longitude`, `endorsementCounter`, `approved`, `rejected`, `rejectionReason` FROM `posts` AS `posts` WHERE `posts`.`category` = false AND `posts`.`endorsementCounter` = true AND `posts`.`waiting` = true;"}
+{"expiredAt":"2024-08-24T05:39:49.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-24T05:39:49.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-24T05:39:49.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-24T05:39:49.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-24T05:39:49.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-24T05:39:49.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-24T05:39:49.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-24T05:39:49.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-24T05:39:49.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-24T05:39:49.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-24T05:39:49.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-24T05:39:49.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-24T05:39:49.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-28T12:17:51.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-28T12:17:51.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-28T12:17:51.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-28T12:17:51.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-28T12:17:51.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-28T12:17:51.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-28T12:17:51.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-28T12:17:51.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-28T12:17:51.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-28T12:17:51.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-28T12:17:51.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-28T12:17:51.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}
+{"expiredAt":"2024-08-28T12:17:51.000Z","level":"error","message":"jwt expired","name":"TokenExpiredError"}

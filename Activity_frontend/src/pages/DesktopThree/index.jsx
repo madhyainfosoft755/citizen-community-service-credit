@@ -436,7 +436,7 @@ const Createpost = () => {
         // console.log("Success:", data);
         const timeSpent = getTimeDifference(fromTime, toTime)
         notify(data.message)
-        navigate("/activity", { state: timeSpent });
+        navigate("/activity", { state: { timeSpent, data } });
       } else {
         console.error("Error:", data.error);
         notify(`${data.error}`)
@@ -753,7 +753,7 @@ const Createpost = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="flex flex-1 flex-col  mb-1 items-start justify-start w-full">
+                  {/* <div className="flex flex-1 flex-col  mb-1 items-start justify-start w-full">
                     <Text
                       className="text-sm font-semibold text-gray-900"
                     >
@@ -772,7 +772,7 @@ const Createpost = () => {
                         />
                       </div>
                     </div>
-                  </div>
+                  </div> */}
                 </List>
 
                 <div className="flex items-start justify-center gap-1 ">

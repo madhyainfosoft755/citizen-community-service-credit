@@ -42,8 +42,13 @@ const {
   getApprovedActivitiesByCategories,
   verifyUser,
   unVerifyUser,
+  getAllEndorseActivities,
+  getAllEndorseActivitiesBy,
+  endorseActivity,
+  getActivityByIdOpen,
 } = require("../controllers/AdminController");
 const extractToken = require("../Middlewere/Authentication");
+const uploadMiddleWare = require("../Middlewere/uploadMiddleware");
 const router = express.Router();
 
 router.get("/test", extractToken, TestContoller);
@@ -75,7 +80,7 @@ router.get(
   extractToken,
   getAllApproversByStatus
 );
-router.get("/getAllActivities", extractToken, getAllActivities);
+router.get("/getAllActivities", extractToken, getAllEndorseActivities);
 router.get("/getAllActivitiesByMonth", extractToken, getAllActivitiesByMonth);
 router.get(
   "/getApprovedActivitiesByMonth",
@@ -99,8 +104,17 @@ router.get("/enable-approvers/:id", extractToken, enableApprover);
 router.get("/disable-approvers/:id", extractToken, disableApprover);
 router.get("/unverify-user/:id", extractToken, unVerifyUser);
 router.get("/verify-user/:id", extractToken, verifyUser);
-router.post("/getAllActivitiesBy", extractToken, getAllActivitiesBy);
+router.post("/getAllActivitiesBy", extractToken, getAllEndorseActivitiesBy);
+router.post(
+  "/getAllActivitiesByForEndorsement",
+  extractToken,
+  getAllActivitiesBy
+);
+router.get("/getAllActivitiesForEndorsement", extractToken, getAllActivities);
+router.get("/endorse-activity/:id", extractToken, endorseActivity);
+
 router.get("/getActivityById/:id", extractToken, getAllActivityById);
+router.get("/getActivityByIdOpen/:id", getActivityByIdOpen);
 router.post(
   "/getAllActivitiesByCategories",
   extractToken,
@@ -121,10 +135,18 @@ router.post(
 
 router.post("/addCategory", extractToken, addCategory);
 router.post("/editCategory", extractToken, editCategory);
-router.post("/addOrganization", extractToken, addOrganization);
-router.post("/editOrganization", extractToken, editOrganization);
+router.post(
+  "/addOrganization",
+  extractToken,
+  uploadMiddleWare.single("logo"),
+  addOrganization
+);
+router.post(
+  "/editOrganization",
+  extractToken,
+  uploadMiddleWare.single("logo"),
+  editOrganization
+);
 router.post("/addApprover", extractToken, addApprover);
 router.post("/editApprover", extractToken, editApprover);
-addOrganization;
-
 module.exports = router;

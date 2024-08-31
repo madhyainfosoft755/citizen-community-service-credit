@@ -347,6 +347,36 @@ const getAllActivities = async (req, res) => {
     }
     const AcitvityList = await Posts.findAll({
       order: [["id", "DESC"]],
+      include: [
+        {
+          model: Users,
+          attributes: ["name", "email"], // Include the fields you need from the Users table
+        },
+      ],
+    });
+    res.json({ activities: AcitvityList });
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
+const getAllEndorseActivities = async (req, res) => {
+  try {
+    const ifAdmin = await verifyIfAdmin(req.token);
+    // console.log("not an admin", ifAdmin);
+
+    if (!ifAdmin) {
+      return res.json({ message: "not an admin" });
+    }
+    const AcitvityList = await Posts.findAll({
+      where: { endorsementCounter: true },
+      order: [["id", "DESC"]],
+      include: [
+        {
+          model: Users,
+          attributes: ["name", "email"], // Include the fields you need from the Users table
+        },
+      ],
     });
     res.json({ activities: AcitvityList });
   } catch (error) {
@@ -371,6 +401,7 @@ const getAllActivitiesBy = async (req, res) => {
 
     const start = startDate !== "NaN-NaN-NaN";
     const end = endDate !== "NaN-NaN-NaN";
+    console.log(filter, "filter");
 
     if (start && end) {
       console.log("both dates are present");
@@ -384,8 +415,11 @@ const getAllActivitiesBy = async (req, res) => {
 
       // Add filter condition only if filter is not null
 
-      if (filter !== "All") {
-        where[filter] = true;
+      if (filter == "endorsed") {
+        where["endorsementCounter"] = true;
+      }
+      if (filter == "waiting") {
+        where["endorsementCounter"] = false;
       }
       AcitvityList = await Posts.findAll({
         where: where,
@@ -396,8 +430,11 @@ const getAllActivitiesBy = async (req, res) => {
         let where = {
           category: selectedCategory,
         };
-        if (filter !== "All") {
-          where[filter] = true;
+        if (filter == "endorsed") {
+          where["endorsementCounter"] = true;
+        }
+        if (filter == "waiting") {
+          where["endorsementCounter"] = false;
         }
         AcitvityList = await Posts.findAll({
           where: where,
@@ -409,8 +446,11 @@ const getAllActivitiesBy = async (req, res) => {
             Date: { [Op.gt]: startDate },
             category: selectedCategory,
           };
-          if (filter !== "All") {
-            where[filter] = true;
+          if (filter == "endorsed") {
+            where["endorsementCounter"] = true;
+          }
+          if (filter == "waiting") {
+            where["endorsementCounter"] = false;
           }
           AcitvityList = await Posts.findAll({
             where: where,
@@ -422,8 +462,131 @@ const getAllActivitiesBy = async (req, res) => {
             Date: { [Op.gt]: endDate },
             category: selectedCategory,
           };
-          if (filter !== "All") {
+          if (filter == "endorsed") {
+            where["endorsementCounter"] = true;
+          }
+          if (filter == "waiting") {
+            where["endorsementCounter"] = false;
+          }
+          AcitvityList = await Posts.findAll({
+            where: where,
+            order: [["id", "DESC"]],
+          });
+        }
+      }
+    }
+
+    console.log(req.body, "body Data");
+    console.log(AcitvityList, "Activity List");
+
+    // const AcitvityList = await Posts.findAll({ where: {} });
+    res.json({ activities: AcitvityList });
+  } catch (error) {
+    logger.error(error);
+
+    console.log(error);
+  }
+};
+
+const getAllEndorseActivitiesBy = async (req, res) => {
+  try {
+    const ifAdmin = await verifyIfAdmin(req.token);
+    // console.log("not an admin", ifAdmin);
+
+    if (!ifAdmin) {
+      return res.json({ message: "not an admin" });
+    }
+
+    let { filter, startDate, endDate, category } = req.body;
+
+    let AcitvityList = null;
+
+    const selectedCategory = category == "All" ? false : category;
+
+    const start = startDate !== "NaN-NaN-NaN";
+    const end = endDate !== "NaN-NaN-NaN";
+    console.log(filter, "filter");
+
+    if (start && end) {
+      console.log("both dates are present");
+
+      let where = {
+        Date: {
+          [Op.between]: [startDate, endDate],
+        },
+        category: selectedCategory,
+        endorsementCounter: true,
+      };
+
+      // Add filter condition only if filter is not null
+
+      if (filter !== "All" && filter !== "waiting") {
+        where[filter] = true;
+      }
+      if (filter == "waiting") {
+        where = {
+          rejected: 0,
+          approved: 0,
+        };
+      }
+      AcitvityList = await Posts.findAll({
+        where: where,
+        order: [["id", "DESC"]],
+      });
+    } else {
+      if (!end && !start) {
+        let where = {
+          category: selectedCategory,
+          endorsementCounter: true,
+        };
+        if (filter !== "All" && filter !== "waiting") {
+          where[filter] = true;
+        }
+        if (filter == "waiting") {
+          where = {
+            rejected: 0,
+            approved: 0,
+          };
+        }
+        AcitvityList = await Posts.findAll({
+          where: where,
+        });
+      } else {
+        if (start) {
+          console.log("start date is present ");
+          let where = {
+            Date: { [Op.gt]: startDate },
+            category: selectedCategory,
+            endorsementCounter: true,
+          };
+          if (filter !== "All" && filter !== "waiting") {
             where[filter] = true;
+          }
+          if (filter == "waiting") {
+            where = {
+              rejected: 0,
+              approved: 0,
+            };
+          }
+          AcitvityList = await Posts.findAll({
+            where: where,
+            order: [["id", "DESC"]],
+          });
+        }
+        if (end) {
+          let where = {
+            Date: { [Op.gt]: endDate },
+            category: selectedCategory,
+            endorsementCounter: true,
+          };
+          if (filter !== "All" && filter !== "waiting") {
+            where[filter] = true;
+          }
+          if (filter == "waiting") {
+            where = {
+              rejected: 0,
+              approved: 0,
+            };
           }
           AcitvityList = await Posts.findAll({
             where: where,
@@ -470,6 +633,26 @@ const getAllActivityById = async (req, res) => {
     console.log(error, "activity by id");
   }
 };
+
+const getActivityByIdOpen = async (req, res) => {
+  try {
+    const id = req.params.id;
+    console.log(id, "id");
+    const AcitvityList = await Posts.findAll({
+      where: { id: id },
+      order: [["id", "DESC"]],
+      include: [
+        {
+          model: Users,
+          attributes: ["name", "email"], // Include the fields you need from the Users table
+        },
+      ],
+    });
+    res.json({ activities: AcitvityList });
+  } catch (error) {
+    console.log(error, "activity by id");
+  }
+};
 //DATA UPDATING API ..
 const approveActivity = async (req, res) => {
   try {
@@ -477,7 +660,7 @@ const approveActivity = async (req, res) => {
     // console.log("not an admin", ifAdmin);
 
     if (!ifAdmin) {
-      return res.json({ message: "not an admin" });
+      return res.json({ message: "Not an admin" });
     }
     id = req.params.id;
     console.log(id, "id exist ");
@@ -506,6 +689,26 @@ const rejectActivity = async (req, res) => {
     );
     res.json({ activities: AcitvityList });
     logger.error(error);
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
+const endorseActivity = async (req, res) => {
+  try {
+    const ifAdmin = await verifyIfAdmin(req.token);
+    // console.log("not an admin", ifAdmin);
+
+    if (!ifAdmin) {
+      return res.json({ message: "not an admin" });
+    }
+    id = req.params.id;
+    console.log(id, "id exist ");
+    const AcitvityList = await Posts.update(
+      { endorsementCounter: true },
+      { where: { id: id } }
+    );
+    res.json({ activities: AcitvityList });
   } catch (error) {
     logger.error(error);
   }
@@ -934,48 +1137,75 @@ const getAllUsersByMonth = async (req, res) => {
 const addCategory = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
-    // console.log("not an admin", ifAdmin);
-
     if (!ifAdmin) {
       return res.json({ message: "not an admin" });
     }
-    const user_id = getUserIdFromToken(req.token);
 
+    const user_id = getUserIdFromToken(req.token);
     const category = req.body.category;
+    const description = req.body.description;
+
+    // Check if the category already exists
+    const existingCategory = await Categories.findOne({
+      where: { name: category },
+    });
+
+    if (existingCategory) {
+      return res.status(400).json({ message: "Category already exists" });
+    }
+
+    // If category does not exist, create a new one
     const categoryList = await Categories.create({
       isEnabled: true,
       name: category,
+      description: description,
     });
+
     res.json({ category: categoryList, message: "success" });
   } catch (error) {
     logger.error(error);
-
     console.log(error, "error in add category");
+    res.status(500).json({ message: "Server error" });
   }
 };
 
 const editCategory = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
-    // console.log("not an admin", ifAdmin);
 
     if (!ifAdmin) {
       return res.json({ message: "not an admin" });
     }
+
     const user_id = getUserIdFromToken(req.token);
     const id = req.body.category_id;
     const category = req.body.category;
+
+    // Check if another category with the same name already exists
+    const existingCategory = await Categories.findOne({
+      where: {
+        name: category,
+        id: { [Op.ne]: id }, // Exclude the current category being updated
+      },
+    });
+
+    if (existingCategory) {
+      return res.status(400).json({ message: "Category name already exists" });
+    }
+
+    // Proceed with updating the category if no duplicate name exists
     const categoryList = await Categories.update(
       {
         name: category,
       },
       { where: { id: id } }
     );
+
     res.json({ category: categoryList, message: "success" });
   } catch (error) {
     logger.error(error);
-
-    console.log(error, "error in add category");
+    console.log(error, "error in edit category");
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -991,6 +1221,8 @@ const addOrganization = async (req, res) => {
 
     const { name, email, phone, address, registration_number, password } =
       req.body;
+    const logo = req.file ? req.file.name : "";
+
     const orgList = await Organisations.create({
       isEnabled: true,
       name,
@@ -999,6 +1231,7 @@ const addOrganization = async (req, res) => {
       address,
       registration_number,
       password,
+      logo,
     });
     res.json({ organization: orgList, message: "success" });
   } catch (error) {
@@ -1011,49 +1244,85 @@ const addOrganization = async (req, res) => {
 const editOrganization = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
-    // console.log("not an admin", ifAdmin);
 
     if (!ifAdmin) {
       return res.json({ message: "not an admin" });
     }
-    const user_id = getUserIdFromToken(req.token);
 
+    const user_id = getUserIdFromToken(req.token);
     const { name, email, phone, address, registration_number, password, id } =
       req.body;
-    const orgList = await Organisations.update(
-      {
-        name,
-        email,
-        phone,
-        address,
-        registration_number,
-        password,
+    const logo = req.file ? req.file.filename : "";
+
+    // Check if another organization with the same name, email, or registration number already exists
+    const existingOrganization = await Organisations.findOne({
+      where: {
+        [Op.or]: [{ name }, { email }, { registration_number }],
+        id: { [Op.ne]: id }, // Exclude the current organization being updated
       },
-      {
-        where: {
-          id: id,
-        },
-      }
-    );
+    });
+
+    if (existingOrganization) {
+      return res.status(400).json({
+        message:
+          "Organization with the same name, email, or registration number already exists",
+      });
+    }
+
+    // Prepare the data to update
+    const updateData = {
+      name,
+      email,
+      phone,
+      address,
+      registration_number,
+      password,
+    };
+
+    if (logo) {
+      updateData.logo = logo;
+    }
+
+    // Update the organization
+    const orgList = await Organisations.update(updateData, {
+      where: {
+        id: id,
+      },
+    });
+
     res.json({ organization: orgList, message: "success" });
   } catch (error) {
     logger.error(error);
-
-    console.log(error, "error in add category");
+    console.log(error, "error in edit organization");
+    res.status(500).json({ message: "Server error" });
   }
 };
 
 const addApprover = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
-    // console.log("not an admin", ifAdmin);
 
     if (!ifAdmin) {
       return res.json({ message: "not an admin" });
     }
-    const user_id = getUserIdFromToken(req.token);
 
+    const user_id = getUserIdFromToken(req.token);
     const { name, email, phone, address } = req.body;
+
+    // Check if an approver with the same name, email, or phone already exists
+    const existingApprover = await Approvers.findOne({
+      where: {
+        [Op.or]: [{ email }, { phone }],
+      },
+    });
+
+    if (existingApprover) {
+      return res.status(400).json({
+        message: "Approver with the same name, email, or phone already exists",
+      });
+    }
+
+    // Proceed with creating the new approver if no duplicate exists
     const orgList = await Approvers.create({
       isEnabled: true,
       name,
@@ -1061,25 +1330,41 @@ const addApprover = async (req, res) => {
       phone,
       address,
     });
+
     res.json({ organization: orgList, message: "success" });
   } catch (error) {
     logger.error(error);
-
-    console.log(error, "error in add category");
+    console.log(error, "error in add approver");
+    res.status(500).json({ message: "Server error" });
   }
 };
 
 const editApprover = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
-    // console.log("not an admin", ifAdmin);
 
     if (!ifAdmin) {
       return res.json({ message: "not an admin" });
     }
-    const user_id = getUserIdFromToken(req.token);
 
+    const user_id = getUserIdFromToken(req.token);
     const { name, email, phone, address, id } = req.body;
+
+    // Check if another approver with the same name, email, or phone already exists
+    const existingApprover = await Approvers.findOne({
+      where: {
+        [Op.or]: [{ name }, { email }, { phone }],
+        id: { [Op.ne]: id }, // Exclude the current approver being updated
+      },
+    });
+
+    if (existingApprover) {
+      return res.status(400).json({
+        message: "Approver with the same name, email, or phone already exists",
+      });
+    }
+
+    // Update the approver if no conflict exists
     const orgList = await Approvers.update(
       {
         name,
@@ -1093,11 +1378,12 @@ const editApprover = async (req, res) => {
         },
       }
     );
+
     res.json({ organization: orgList, message: "success" });
   } catch (error) {
     logger.error(error);
-
-    console.log(error, "error in add category");
+    console.log(error, "error in edit approver");
+    res.status(500).json({ message: "Server error" });
   }
 };
 
@@ -1109,7 +1395,7 @@ const getAllActivitiesByCategories = async (req, res) => {
       return res.json({ message: "not an admin" });
     }
 
-    const { categories, startDate, endDate } = req.body;
+    const { categories, startDate, endDate, organization } = req.body;
 
     // Validate categories input
     if (!Array.isArray(categories) || categories.length === 0) {
@@ -1125,8 +1411,7 @@ const getAllActivitiesByCategories = async (req, res) => {
       if (isNaN(start.getTime())) {
         return res.status(400).json({ message: "Invalid start date format" });
       }
-      dateFilter[Op.gte] = start.toISOString().slice(0, 19).replace("T", " "); // Convert to MySQL format
-      console.log("Start Date:", dateFilter[Op.gte]); // Debug log
+      dateFilter[Op.gte] = start; // Directly use the Date object
     }
 
     if (endDate) {
@@ -1134,33 +1419,39 @@ const getAllActivitiesByCategories = async (req, res) => {
       if (isNaN(end.getTime())) {
         return res.status(400).json({ message: "Invalid end date format" });
       }
-      // Set end date to the end of the specified day
       end.setHours(23, 59, 59, 999);
-      dateFilter[Op.lte] = end.toISOString().slice(0, 19).replace("T", " "); // Convert to MySQL format
-      console.log("End Date:", dateFilter[Op.lte]); // Debug log
+      dateFilter[Op.lte] = end; // Directly use the Date object
     }
 
-    // Debug log the dateFilter
-    console.log("Date Filter:", dateFilter);
-    console.log(
-      "Date full in where:",
-      Object.getOwnPropertySymbols(dateFilter).length
-    );
+    // Build the where clause for the query
+    const whereClause = {
+      ...(Object.getOwnPropertySymbols(dateFilter).length
+        ? { createdAt: dateFilter }
+        : {}),
+      category: {
+        [Op.in]: categories,
+      },
+    };
 
-    // Group and count activities by category
+    // Build include array to join with Users table
+    const include = [];
+    console.log("organization exist", organization);
+    if (organization) {
+      include.push({
+        model: Users, // Assuming Users is the model name for the users table
+        attributes: [], // Exclude Users attributes from the result
+        where: { organization }, // Filter by organization
+      });
+    }
+
+    // Query the Posts with the optional organization filter
     const activitiesByCategories = await Posts.findAll({
       attributes: [
         "category",
-        [Sequelize.fn("COUNT", Sequelize.col("id")), "count"],
+        [Sequelize.fn("COUNT", Sequelize.col("Posts.id")), "count"],
       ],
-      where: {
-        ...(Object.getOwnPropertySymbols(dateFilter).length
-          ? { createdAt: dateFilter }
-          : {}),
-        category: {
-          [Op.in]: categories,
-        },
-      },
+      where: whereClause,
+      include: include.length ? include : undefined, // Conditionally include the Users model
       group: ["category"],
     });
 
@@ -1395,4 +1686,8 @@ module.exports = {
   getApprovedActivitiesByCategories,
   verifyUser,
   unVerifyUser,
+  getAllEndorseActivitiesBy,
+  getAllEndorseActivities,
+  endorseActivity,
+  getActivityByIdOpen,
 };

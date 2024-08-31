@@ -9,6 +9,7 @@ import PopupComponent from "components/popup";
 import { toast } from "react-toastify";
 import QuoteModal from "components/quote-modal";
 import { convertToHours } from "utils";
+import LinkModal from "components/link-modal/link-modal";
 
 
 const DesktopFourPage = () => {
@@ -206,10 +207,13 @@ const DesktopFourPage = () => {
 
   useEffect(() => {
     // This effect will run whenever the location changes
-    if (state) {
-      setShowQuoteModal(true);
+
+    if (userData && userData.userData && userData.userData.organization !== 'NA') {
+      if (state.timeSpent) {
+        setShowQuoteModal(true);
+      }
     }
-  }, []);
+  }, [userData, navigate]);
 
   return (
     <>
@@ -220,7 +224,7 @@ const DesktopFourPage = () => {
           )}
 
           {showQuote && (
-            <QuoteModal onClose={() => setShowQuoteModal(false)} timeSpent={state} />
+            <LinkModal onClose={() => setShowQuoteModal(false)} timeSpent={state.timeSpent} postId={state && state.data.created_post.id} />
           )}
           <div className="relative  w-4/12 h-full  flex items-start justify-center  sm:shadow-none  border-[1px]  rounded-lg sm:rounded-none  lg:h-full sm:w-full sm:h-full md:w-full md:h-full overflow-hidden scroller">
             <div className="flex flex-col  items-center justify-start w-full h-full md:w-full sm:w-full">

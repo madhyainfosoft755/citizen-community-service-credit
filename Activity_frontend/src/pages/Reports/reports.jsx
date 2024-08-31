@@ -10,6 +10,7 @@ import axios from "axios";
 import { formatDate } from "utils";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 import "./style.css";
+
 const getAuthToken = () => {
     const token = localStorage.getItem("token");
     if (token) {
@@ -26,8 +27,8 @@ Chart.register(...registerables);
 const UserReports = () => {
     const [allCategories, setAllCategories] = useState([]);
     const [selectedCategories, setSelectedCategories] = useState([]);
-    const [startDate, setStartDate] = useState(new Date());
-    const [endDate, setEndDate] = useState(new Date());
+    const [startDate, setStartDate] = useState();
+    const [endDate, setEndDate] = useState();
     const [barChartData, setBarChartData] = useState(null);
     const navigate = useNavigate(); // Initialize navigate
 

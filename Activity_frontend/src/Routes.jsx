@@ -11,6 +11,7 @@ import Certificate from "pages/Certficate";
 import ProfileForUser from "pages/User_Profile";
 import UserReport from "pages/Reports/reports";
 import UserReportsTable from "pages/Reports/report-table";
+import ActivityDetails from "pages/endorse-activity/endorse-activity";
 
 const DesktopTwo = React.lazy(() => import("pages/DesktopTwo"));
 const DesktopSeven = React.lazy(() => import("pages/DesktopSeven"));
@@ -98,6 +99,7 @@ const ProjectRoutes = () => {
           <Route path="/verify/:token" element={<Verify />} />
           <Route path="/forget" element={<Forget />} />
           <Route path="/endorse" element={<Endorse />} />
+          <Route path="/endorse-activity/:id" element={<ActivityDetails />} />
           <Route path="/posts/:postId" element={<OpenActivity />} />
           <Route path="/certificate/:id" element={<Certificate />} />
           <Route path="/users-profile" element={<ProfileForUser />} />

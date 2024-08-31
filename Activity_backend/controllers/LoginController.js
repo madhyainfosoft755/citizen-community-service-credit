@@ -1159,7 +1159,7 @@ const CreateActivity = async (req, res) => {
 
     // console.log("what is the date", date)
     // Save to the database
-    await Posts.create({
+    let created_post = await Posts.create({
       category,
       photos,
       videos,
@@ -1172,7 +1172,9 @@ const CreateActivity = async (req, res) => {
       UserId: userId,
     });
 
-    res.status(201).json({ message: "Activity created successfully" });
+    res
+      .status(201)
+      .json({ message: "Activity created successfully", created_post });
   } catch (error) {
     logger.error("here is the error", error);
     console.error("Error creating activity:", error);
@@ -2807,6 +2809,36 @@ const postsForDateRangeUser = async (req, res) => {
   }
 };
 
+const getOrgDetails = async (req, res) => {
+  try {
+    const { org } = req.params;
+
+    const orgDetails = await Organizations.findAll({ where: { name: org } });
+    res.json({ orgDetails });
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
+const submitFeedback = async (req, res) => {
+  try {
+    const name = req.body.name;
+    const rating = req.body.rating;
+    const id = req.body.activityId;
+    if (rating > 2) {
+      const result = await Posts.update(
+        { endorsementCounter: 1, endorser_name: name },
+        { where: { id: id } }
+      );
+      return res.json({ message: "success" });
+    }
+
+    return res.json({ message: "rating is less then 2" });
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
 module.exports = {
   output,
   varifybytoken,
@@ -2866,4 +2898,6 @@ module.exports = {
   getAllActivitiesByCategoriesUser,
   postsForCategoryUser,
   postsForDateRangeUser,
+  getOrgDetails,
+  submitFeedback,
 };

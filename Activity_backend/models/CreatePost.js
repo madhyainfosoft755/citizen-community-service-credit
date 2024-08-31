@@ -2,8 +2,6 @@ module.exports = (sequelize, DataTypes) => {
   const posts = sequelize.define(
     "posts",
     {
-
-
       Date: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -11,38 +9,39 @@ module.exports = (sequelize, DataTypes) => {
 
       photos: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
       },
       videos: {
         type: DataTypes.STRING,
-        allowNull: true
+        allowNull: true,
       },
       category: {
         type: DataTypes.STRING,
-        allowNull: false
+        allowNull: false,
       },
       fromTime: {
         type: DataTypes.TIME,
-        allowNull: false
+        allowNull: false,
       },
       totalTime: {
         type: DataTypes.TIME,
-        allowNull: false
+        allowNull: false,
       },
 
       UserId: {
         type: DataTypes.INTEGER,
-        allowNull: false
+        allowNull: false,
       },
       latitude: {
         type: DataTypes.FLOAT,
-        allowNull: false
+        allowNull: false,
       },
       longitude: {
         type: DataTypes.FLOAT,
-        allowNull: false
+        allowNull: false,
       },
-      endorsementCounter: { // New field for endorsement counter
+      endorsementCounter: {
+        // New field for endorsement counter
         type: DataTypes.INTEGER,
         allowNull: false,
         defaultValue: 0, // Default value is 0
@@ -59,18 +58,18 @@ module.exports = (sequelize, DataTypes) => {
       },
       rejectionReason: {
         type: DataTypes.STRING,
-        allowNull: true
+        allowNull: true,
       },
-
-
-
-
+      endorser_name: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
     },
 
     {
-      timestamps: false
-    });
-
+      timestamps: false,
+    }
+  );
 
   return posts;
 };

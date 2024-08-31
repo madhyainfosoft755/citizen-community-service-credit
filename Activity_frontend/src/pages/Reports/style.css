@@ -13,6 +13,8 @@
 
 .react-datepicker__input-container{
     background-color: aliceblue;
+  padding: 0.5rem 1rem;
+  border-radius: 0.7rem;
 }
 
 /* in react-chartjs-2 i need labeling for horizontal and vertical in barchart in reactjs */
