@@ -209,7 +209,7 @@ const DesktopFourPage = () => {
     // This effect will run whenever the location changes
 
     if (userData && userData.userData && userData.userData.organization !== 'NA') {
-      if (state.timeSpent) {
+      if (state && state.timeSpent) {
         setShowQuoteModal(true);
       }
     }
@@ -224,7 +224,7 @@ const DesktopFourPage = () => {
           )}
 
           {showQuote && (
-            <LinkModal onClose={() => setShowQuoteModal(false)} timeSpent={state.timeSpent} postId={state && state.data.created_post.id} />
+            <LinkModal onClose={() => setShowQuoteModal(false)} timeSpent={state && state.timeSpent} postId={state && state.data.created_post.id} />
           )}
           <div className="relative  w-4/12 h-full  flex items-start justify-center  sm:shadow-none  border-[1px]  rounded-lg sm:rounded-none  lg:h-full sm:w-full sm:h-full md:w-full md:h-full overflow-hidden scroller">
             <div className="flex flex-col  items-center justify-start w-full h-full md:w-full sm:w-full">
@@ -233,7 +233,7 @@ const DesktopFourPage = () => {
                   {userData && (
                     <Img
                       className=" cursor-pointer w-14   h-14  rounded-[50%] object-cover object-center "
-                      src={`${API_URL}/image/${userData.userData.photo}`}
+                      src={`${API_URL}/image/${userData && userData.userData.photo}`}
                       alt="userimage"
                       onClick={() => { navigate("/users-profile") }}
 

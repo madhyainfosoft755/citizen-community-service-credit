@@ -93,6 +93,7 @@ app.get("/api/video/:video", (req, res) => {
 
 app.use("/api/activity", require("./routes/LoginRoutes"));
 app.use("/api/admin", require("./routes/AdminRoutes"));
+app.use("/api/organization", require("./routes/OrgRoutes"));
 
 const constant = require("./config/constant");
 const { verifyToken } = require("./controllers/LoginController");

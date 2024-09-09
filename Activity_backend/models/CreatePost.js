@@ -1,3 +1,5 @@
+const organization = require("./organization");
+
 module.exports = (sequelize, DataTypes) => {
   const posts = sequelize.define(
     "posts",
@@ -64,10 +66,14 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
+      organization: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
     },
 
     {
-      timestamps: false,
+      timestamps: true,
     }
   );
 

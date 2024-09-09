@@ -18,6 +18,25 @@ const Forget = () => {
   const [showPasswordC, setShowPasswordC] = useState(false);
   const [eyeIcon, setEyeIcon] = useState(faEye);
   const [eyeIconC, setEyeIconC] = useState(faEye);
+
+  const [isValid, setIsValid] = useState(true);
+
+
+
+  const validatePassword = (password) => {
+    const regex = /^(?=.*[0-9])(?=.*[!@#$%^&*])/;
+    return regex.test(password);
+  };
+
+  const handlePasswordChange = (e) => {
+    const password = e.target.value;
+    setNewPassword(password);
+    setIsValid(validatePassword(password));
+  };
+
+  // const eyeIcon = showPassword ? faEyeSlash : faEye;
+
+
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
     setEyeIcon(showPassword ? faEye : faEyeSlash);
@@ -175,15 +194,22 @@ const Forget = () => {
 
           {step === 3 && (
             <div className="flex flex-col items-center justify-center mt-5">
-              <div className="flex items-center justify-center border-[1px] border-gray-400 p-1 rounded-xl">
-                <input
-                  className=" border-none bg-inherit text-sm"
-                  type={showPassword ? "text" : "password"}
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="Enter new password"
-                />
-                <FontAwesomeIcon icon={eyeIcon} onClick={togglePasswordVisibility} className="text-gray-700" />
+              <div>
+                <div className={`flex items-center justify-center border-[1px] border-gray-400 p-1 rounded-xl ${!isValid ? 'border-red-500' : ''}`}>
+                  <input
+                    className="border-none bg-inherit text-sm"
+                    type={showPassword ? "text" : "password"}
+                    value={newPassword}
+                    onChange={handlePasswordChange}
+                    placeholder="Enter new password"
+                  />
+                  <FontAwesomeIcon icon={eyeIcon} onClick={togglePasswordVisibility} className="text-gray-700 cursor-pointer" />
+                </div>
+                {!isValid && (
+                  <p className="text-red-500 text-xs mt-1">
+                    Password must contain at least one number and one special character.
+                  </p>
+                )}
               </div>
 
               <div className="mt-2 flex items-center justify-center border-[1px] border-gray-400 p-1 rounded-xl">

@@ -39,6 +39,7 @@ const LINKEDIN_REDIRECT_URI = process.env.LINKEDIN_REDIRECT_URI;
 const JWT_SECRET = process.env.JWT_Secret;
 const qs = require("qs");
 const { count } = require("console");
+const organization = require("../models/organization");
 
 // Function to decode the post ID
 function decodePostID(encodedID) {
@@ -435,10 +436,23 @@ const Register = async (req, res) => {
       aadhar: userData.aadhar,
       address: userData.address,
       role: "user",
-      organization: userData.organization, // Add the organization field
+      organization: JSON.stringify(userData.organization), // Add the organization field
 
       // Add other fields as needed
     });
+
+    const orgArray = JSON.parse(userData.organization);
+
+    await Promise.all(
+      orgArray.map(async (org) => {
+        return await db.AttachOrg.create({
+          // Add your fields here
+          UserId: newUser.id,
+          OrgId: org,
+          // other fields as needed
+        });
+      })
+    );
 
     // You can add more error handling and validation as needed
 
@@ -1085,8 +1099,15 @@ const CreateActivity = async (req, res) => {
       return;
     }
 
-    const { selectedCategories, date, fromTime, toTime, latitude, longitude } =
-      req.body;
+    const {
+      selectedCategories,
+      date,
+      fromTime,
+      toTime,
+      latitude,
+      longitude,
+      organization,
+    } = req.body;
 
     // Format the date to yyyy-mm-dd format
     const formattedDate = format(new Date(date), "yyyy-MM-dd");
@@ -1170,6 +1191,7 @@ const CreateActivity = async (req, res) => {
       fromTime,
       // location: JSON.stringify({ latitude, longitude }), // Store as JSON string in the database
       UserId: userId,
+      organization: organization,
     });
 
     res

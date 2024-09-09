@@ -20,6 +20,7 @@ import { TimePicker } from "react-ios-time-picker"
 import "./style.css"
 import imageCompression from 'browser-image-compression';
 import { convertToHours } from "utils";
+import Select from "react-select";
 
 
 
@@ -62,8 +63,8 @@ const Createpost = () => {
   });
   const [error, setError] = useState(null);
   const [description, setDescription] = useState("");
-
-
+  const [organization, setOrganizations] = useState();
+  const [selectedOrganization, setSelectedOrganization] = useState()
   // Utility function to get the current time in HH:mm format
   const getCurrentTime = () => {
     const now = new Date();
@@ -328,6 +329,23 @@ const Createpost = () => {
 
   useEffect(() => {
     checkUserConfirmation();
+    // Fetch organizations from the database
+    const fetchOrganizations = async () => {
+      try {
+        const response = await fetch(`${API_URL}/activity/getOrganizations`);
+        const data = await response.json();
+        if (response.ok) {
+          setOrganizations(data.map((value) => {
+            return { value: value.id, label: value.name };
+          })); // Ensure data is an array
+        } else {
+          console.error("Error fetching organizations:", data.message);
+        }
+      } catch (error) {
+        console.error("Error fetching organizations:", error);
+      }
+    };
+    fetchOrganizations();
   }, []);
 
   const convertTo24HourFormat = (time) => {
@@ -404,6 +422,7 @@ const Createpost = () => {
     formsDATA.append("latitude", formsData.latitude);
     formsDATA.append("longitude", formsData.longitude);
     formsDATA.append("description", description);
+    formsDATA.append("organization", selectedOrganization);
 
     // console.log(formsDATA.get("name"));
     // console.log("formData", formsDATA);
@@ -449,7 +468,11 @@ const Createpost = () => {
     }
   };
 
-
+  const handleOrganizationChange = (selectedOptions) => {
+    setSelectedOrganization(selectedOptions);
+    console.log('Selected organizations:', selectedOptions);
+    // You can perform other actions with selectedOptions here
+  };
 
   const timeOptions = [];
   for (let i = 0; i < 24; i++) {
@@ -469,7 +492,7 @@ const Createpost = () => {
   };
 
   const Endorse = () => {
-    navigate("/endorse")
+    navigate("/endorse");
   }
 
   const [textIndex, setTextIndex] = useState(0);
@@ -542,6 +565,14 @@ const Createpost = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("userKey");
     navigate("/login");
+  };
+
+  const customStyles = {
+    menu: (provided) => ({
+      ...provided,
+      maxHeight: 100, // Set the max height of the dropdown list
+      overflowY: 'auto', // Enable vertical scrolling
+    }),
   };
   return (
     <>
@@ -727,6 +758,26 @@ const Createpost = () => {
                       To
                     </label>
                     <TimePicker name="toTime" onChange={onChangeToTime} value={toTime} id="totime" min={fromTime} />
+                  </div>
+                </div>
+                <div className="w-full h-auto flex flex-col items-center justify-center relative">
+                  <label className="block font-semibold mb-1 text-left w-full">
+                    Organization:
+                  </label>
+
+                  <div className="w-full">
+                    {organization && (
+                      <Select
+
+                        name="options"
+                        options={organization}
+                        className="basic-multi-select"
+                        classNamePrefix="select"
+                        id="organization"
+                        onChange={handleOrganizationChange}
+                        styles={customStyles}
+                      />
+                    )}
                   </div>
                 </div>
                 <List className="flex items-center justify-center w-full gap-3 ">

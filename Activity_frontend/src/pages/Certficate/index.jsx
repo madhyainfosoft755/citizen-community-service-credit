@@ -299,9 +299,9 @@ const Certficate = ({ setIsPopupVisible }) => {
                             <div className="flex justify-center items-center absolute top-1 left-1">
                                 <img src={`${APP_PATH}images/2.png`} className="w-32 h-32 sm:w-28 sm:h-28 rounded-full" alt="Logo" />
                             </div>
-                            <div className="flex justify-center items-center absolute top-4 right-1">
+                            {orgDetails && orgDetails.logo && <div className="flex justify-center items-center absolute top-4 right-1">
                                 <img src={`${API_URL}/image/${orgDetails && orgDetails.logo}`} className="w-28 h-28 sm:w-28 sm:h-28 rounded-full" alt="Logo" />
-                            </div>
+                            </div>}
                             <div className="text-center absolute top-1 right-1">
                                 <p style={{ fontSize: '12px' }} className="text-gray-300">Date printed on: {formattedDate}</p>
                             </div>

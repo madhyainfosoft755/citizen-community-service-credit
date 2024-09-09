@@ -369,11 +369,7 @@ const getAllEndorseActivities = async (req, res) => {
       return res.json({ message: "not an admin" });
     }
     const AcitvityList = await Posts.findAll({
-      where: {
-        endorsementCounter: {
-          [Op.gt]: 0, // endorsementCounter must be greater than 0
-        },
-      },
+      where: { endorsementCounter: true },
       order: [["id", "DESC"]],
       include: [
         {
@@ -431,12 +427,9 @@ const getAllActivitiesBy = async (req, res) => {
       });
     } else {
       if (!end && !start) {
-        let where;
-        if (selectedCategory) {
-          where = {
-            category: selectedCategory,
-          };
-        }
+        let where = {
+          category: selectedCategory,
+        };
         if (filter == "endorsed") {
           where["endorsementCounter"] = true;
         }
@@ -522,9 +515,7 @@ const getAllEndorseActivitiesBy = async (req, res) => {
           [Op.between]: [startDate, endDate],
         },
         category: selectedCategory,
-        endorsementCounter: {
-          [Op.gt]: 0, // endorsementCounter must be greater than 0
-        },
+        endorsementCounter: true,
       };
 
       // Add filter condition only if filter is not null
@@ -546,9 +537,7 @@ const getAllEndorseActivitiesBy = async (req, res) => {
       if (!end && !start) {
         let where = {
           category: selectedCategory,
-          endorsementCounter: {
-            [Op.gt]: 0, // endorsementCounter must be greater than 0
-          },
+          endorsementCounter: true,
         };
         if (filter !== "All" && filter !== "waiting") {
           where[filter] = true;
@@ -568,9 +557,7 @@ const getAllEndorseActivitiesBy = async (req, res) => {
           let where = {
             Date: { [Op.gt]: startDate },
             category: selectedCategory,
-            endorsementCounter: {
-              [Op.gt]: 0, // endorsementCounter must be greater than 0
-            },
+            endorsementCounter: true,
           };
           if (filter !== "All" && filter !== "waiting") {
             where[filter] = true;
@@ -590,9 +577,7 @@ const getAllEndorseActivitiesBy = async (req, res) => {
           let where = {
             Date: { [Op.gt]: endDate },
             category: selectedCategory,
-            endorsementCounter: {
-              [Op.gt]: 0, // endorsementCounter must be greater than 0
-            },
+            endorsementCounter: true,
           };
           if (filter !== "All" && filter !== "waiting") {
             where[filter] = true;
@@ -720,11 +705,7 @@ const endorseActivity = async (req, res) => {
     id = req.params.id;
     console.log(id, "id exist ");
     const AcitvityList = await Posts.update(
-      {
-        endorsementCounter: {
-          [Op.gt]: 0, // endorsementCounter must be greater than 0
-        },
-      },
+      { endorsementCounter: true },
       { where: { id: id } }
     );
     res.json({ activities: AcitvityList });
@@ -1247,33 +1228,7 @@ const addOrganization = async (req, res) => {
     });
 
     if (existingOrganization) {
-      return res.json({ message: "Organisation name already exists" });
-    }
-
-    const existingEmail = await Organisations.findOne({
-      where: { email },
-    });
-
-    if (existingEmail) {
-      return res.json({ message: "Organisation email already exists" });
-    }
-
-    const existingPhone = await Organisations.findOne({
-      where: { phone },
-    });
-
-    if (existingPhone) {
-      return res.json({ message: "Organisation phone already exists" });
-    }
-
-    const existingRegNumber = await Organisations.findOne({
-      where: { registration_number },
-    });
-
-    if (existingRegNumber) {
-      return res.json({
-        message: "Organisation registration number already exists",
-      });
+      return res.json({ message: "Organisation already exists" });
     }
 
     const logo = req.file ? req.file.name : "";

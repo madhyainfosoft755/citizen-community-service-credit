@@ -42,7 +42,7 @@ const Register = () => {
   // console.log("ye hai selected categories", categories)
   const [selectedCategories, setSelectedCategories] = useState([]); // this function for get selected are
   const [organizations, setOrganizations] = useState([]); // State for organizations
-  const [selectedOrganization, setSelectedOrganization] = useState(""); // State for selected organization
+  const [selectedOrganization, setSelectedOrganization] = useState([]); // State for selected organization
   const [buttonStates, setButtonStates] = useState(Array(6).fill(false)); // Assuming 6 buttons, adjust the size as needed
   const [selectedFile, setSelectedFile] = useState(null);
   const [isMobileVerified, setIsMobileVerified] = useState(false);
@@ -83,7 +83,9 @@ const Register = () => {
         const response = await fetch(`${API_URL}/activity/getOrganizations`);
         const data = await response.json();
         if (response.ok) {
-          setOrganizations(Array.isArray(data) ? data : []); // Ensure data is an array
+          setOrganizations(data.map((value) => {
+            return { value: value.id, label: value.name };
+          })); // Ensure data is an array
         } else {
           console.error("Error fetching organizations:", data.message);
         }
@@ -157,6 +159,14 @@ const Register = () => {
     console.log('Selected Categories:', selectedOptions);
     // You can perform other actions with selectedOptions here
   };
+
+  const handleOrganizationChange = (selectedOptions) => {
+    setSelectedOrganization(selectedOptions.map((value) => value.value));
+    console.log('Selected organizations:', selectedOptions);
+    // You can perform other actions with selectedOptions here
+  };
+
+
 
   const handleInputChange = (e) => {
     // Check if e and e.target are defined
@@ -267,7 +277,7 @@ const Register = () => {
     formsDATA.append("cpassword", e.target[6].value);
     formsDATA.append("selectedCategories", JSON.stringify(selectedCategories));
     formsDATA.append("photo", compressedFile, selectedFile.name);
-    formsDATA.append("organization", selectedOrganization);
+    formsDATA.append("organization", JSON.stringify(selectedOrganization));
 
 
 
@@ -415,7 +425,7 @@ const Register = () => {
               {emailError && <div class="bg-red-50 px-4 text-xs text-red-500 rounded relative flex w-100 my-1" role="alert">
 
                 <span class="block sm:inline py-2 text-xs">{emailError}</span>
-                <span class="px-2 py-2" onClick={() => setMobileError(null)}>
+                <span class="px-2 py-2" onClick={() => setEmailError(null)}>
                   <svg class="fill-current h-3.5 w-3.5 text-red-500 text-xs" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z" /></svg>
                 </span>
               </div>}
@@ -425,7 +435,7 @@ const Register = () => {
                 icon={faPhone} // Change the icon as needed
                 iconColor={"#419f44"}
                 placeholder="Phone"
-                className="text-sm w-full h-7 pl-10 border-solid border-[1px]  border-gray-300 bg-inherit rounded-md focus:border-emerald-300 ease-in duration-300 py-1"
+                className="text-sm w-full h-7 pl-10 border-solid border-[1px] border-gray-300 bg-inherit rounded-md focus:border-emerald-300 ease-in duration-300 py-1"
                 onChange={handleInputChange}
                 name="phone"
                 value={formsData.phone}
@@ -506,22 +516,25 @@ const Register = () => {
                 </span>
               </div>}
             </div>
-            <div className="form-group w-full h-auto cursor-pointer">
-              {/* <label htmlFor="organization">Select Organization</label> */}
-              <select
-                className="w-full  text-sm  pl-10 border-solid border-[1px]  border-gray-300 bg-inherit rounded-md focus:border-emerald-300 ease-in duration-300 cursor-pointer"
-                id="organization"
-                value={selectedOrganization}
-                onChange={(e) => setSelectedOrganization(e.target.value)}
+            <div className="w-full h-auto flex flex-col items-center justify-center relative">
+              <label className="block font-semibold mb-1 text-left w-full">
+                Organization:
+              </label>
 
-              >
-                <option className="w-full" value="" disabled>Select Organization</option>
-                {organizations.map((organization) => (
-                  <option className="w-full" key={organization._id} value={organization._id}>
-                    {organization.name}
-                  </option>
-                ))}
-              </select>
+              <div className="w-full">
+                {organizations && (
+                  <Select
+                    isMulti
+                    name="options"
+                    options={organizations}
+                    className="basic-multi-select"
+                    classNamePrefix="select"
+                    id="organization"
+                    onChange={handleOrganizationChange}
+                    styles={customStyles}
+                  />
+                )}
+              </div>
             </div>
 
             <div className="relative w-full">
