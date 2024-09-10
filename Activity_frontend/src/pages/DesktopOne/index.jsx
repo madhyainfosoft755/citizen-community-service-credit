@@ -178,8 +178,8 @@ const DesktopOnePage = () => {
         if (role === "admin") {
           setIsAdmin(true);
 
-          window.location.href = "https://cch247.com/admin/";
-          // navigate(redirectTo);
+          // window.location.href = "https://cch247.com/admin/";
+          navigate(redirectTo);
         } else {
           navigate("/create");
         }
@@ -388,11 +388,12 @@ const DesktopOnePage = () => {
           className="relative w-full h-full flex flex-col justify-center items-center pt-2 sm:pt-10 sm:w-screen sm:h-screen overflow-hidden  bg-cover bg-center "
         // style={{ backgroundImage: 'url("./images/img_helping.jpg")' }}
         >
-          <Text className="cursor-default text-lg text-blue-400  font-extrabold mt-16  text-center">
+     
+          <Text className=" cursor-default text-lg text-center text-blue-400  font-extrabold">
             Welcome to CCH247 (Community Care 247)
           </Text>
-          <Text className="cursor-default text-sm text-orange-300 mt-2 mb-5 font-extrabold italic">
-            Record, Track, Share and Report your Volunteer Activities
+          <Text className="cursor-default text-sm text-center text-orange-300 mt-2 mb-5 font-extrabold italic">
+            Add, Track and Share your Volunteer Activities
           </Text>
 
           <div className="bg-white-A700 px-2 border-[1px] rounded-3xl w-3/4 relative flex items-center">
@@ -565,7 +566,7 @@ const DesktopOnePage = () => {
               </div>
             </Button>
           </div>
-          <p className="cursor-default text-md sm:text-xl font-semibold text-orange-500 pt-5 mb-3">{"सेवा परमो धर्मः  - सेवा ही परम धर्म है I"}</p>
+        <p className=" cursor-default text-md sm:text-xl font-semibold text-orange-500 pt-5 mb-3">{"सेवा परमो धर्मः  - सेवा ही परम धर्म है I"}</p>
         </div>
 
       </form>

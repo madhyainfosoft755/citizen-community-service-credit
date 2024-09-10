@@ -7,12 +7,12 @@ const { where, Op, Sequelize } = require("sequelize");
 const organization = require("../models/organization");
 const JWT_SECRET = process.env.JWT_Secret;
 // const { logger } = require("../utils/util");
-
 const Users = db.users;
 const Categories = db.Categories;
 const Posts = db.Posts;
 const Organisations = db.Organisations;
 const Approvers = db.Approvers;
+const axios  = require("axios");
 
 // Helper function to convert HH:mm:ss time format to seconds
 const convertTimeToSeconds = (time) => {
@@ -1698,6 +1698,155 @@ const verifyToken = async (req, res) => {
   }
 };
 
+const fetchUnendorsedPosts = async (req, res) => {
+  try {
+    const unendorsedPosts = await Posts.findAll({
+      where: {
+        endorsementCounter: 0,
+      },
+      include: [
+        {
+          model: Users, // Assuming there is an association with the Users model
+          attributes: ['name'], // Select only the 'name' attribute from Users
+        },
+      ],
+    });
+
+    res.status(200).json(unendorsedPosts);
+  } catch (error) {
+    console.error('Error fetching unendorsed posts:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+
+const processUnendorsedPosts =  async (req, res) => {
+  try {
+      const postsToSend = req.body;
+      console.log("what are the posts to send", postsToSend);
+      
+
+      // logger.info('Processing unendorsed', postsToSend);
+
+      const response = await axios.post('http://localhost:5000/api/bulk-posts', {postsToSend}, {
+          headers: {
+              'Content-Type': 'application/json',
+          },
+      });
+
+      console.log("what is the response", response);
+      
+
+      if (response.status === 200) {
+          res.status(200).send('Posts processed successfully');
+      } else {
+          res.status(response.status).send('Failed to process posts');
+      }
+  } catch (error) {
+      console.error('Error processing posts:', error);
+      res.status(500).send('An error occurred while processing posts');
+  }
+};
+
+const updateEndorsedPosts = async (req, res) => {
+  try {
+    const { endorsedPosts } = req.body;
+
+    for (const endorsedPost of endorsedPosts) {
+      const { postId } = endorsedPost;
+
+      // Find the post in the CCH database
+      const post = await Posts.findOne({ where: { id: postId } });
+
+      if (post) {
+        // Update the endorsement counter or status
+        post.endorsementCounter += 1; // or increment a counter if using the counter approach
+        await post.save();
+      }
+    }
+
+    res.status(200).send('Endorsed posts updated successfully in CCH database');
+  } catch (error) {
+    console.error('Error updating endorsed posts:', error);
+    res.status(500).send('An error occurred while updating endorsed posts');
+  }
+};
+
+const fetchEndorsedPosts = async (req, res) => {
+  try {
+    const unendorsedPosts = await Posts.findAll({
+      where: {
+        endorsementCounter: {
+          [Op.gte]: 1, // Fetch posts with endorsementCounter >= 1
+        },
+        approved:false //
+      },
+      include: [
+        {
+          model: Users, // Assuming there is an association with the Users model
+          attributes: ['name', 'photo'], // Select only the 'name' attribute from Users
+        },
+      ],
+    });
+
+    res.status(200).json(unendorsedPosts);
+  } catch (error) {
+    console.error('Error fetching unendorsed posts:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+const processUnapprovedPosts = async (req, res) => {
+  try {
+    const postsToSend = req.body;
+    // console.log("what are the posts to send", postsToSend);
+
+   
+    // logger.info('Processing unendorsed', postsToSend);
+
+    const response = await axios.post('http://localhost:5000/api/bulk-approval', { postsToSend }, {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    // console.log("what is the response", response);
+
+
+    if (response.status === 200) {
+      res.status(200).send('Posts processed successfully');
+    } else {
+      res.status(response.status).send('Failed to process posts');
+    }
+  } catch (error) {
+    logger.error('Error processing', error)
+    // console.error('Error processing posts:', error);
+    res.status(500).send('An error occurred while processing posts');
+  }
+};
+
+const updateApprovedPosts = async (req, res) => {
+  try {
+    const { approvedPosts } = req.body;
+
+    for (const approvedPost of approvedPosts) {
+      const { postId } = approvedPost;
+
+      // CCH database mein post ko dhundho
+      const post = await Posts.findOne({ where: { id: postId } });
+
+      if (post) {
+        // Approved status ko update karo
+        post.approved = true;
+        await post.save();
+      }
+    }
+
+    res.status(200).send('Approved posts CCH database mein successfully update ho gaye');
+  } catch (error) {
+    logger.error('Approved posts update karne mein error:', error);
+    res.status(500).send('Approved posts update karte waqt ek error hua');
+  }
+};
 module.exports = {
   TestContoller,
   getTotalUsers,
@@ -1745,4 +1894,10 @@ module.exports = {
   getAllEndorseActivities,
   endorseActivity,
   getActivityByIdOpen,
+  fetchUnendorsedPosts,
+  processUnendorsedPosts,
+  fetchEndorsedPosts,
+  updateEndorsedPosts,
+  processUnapprovedPosts,
+  updateApprovedPosts
 };
