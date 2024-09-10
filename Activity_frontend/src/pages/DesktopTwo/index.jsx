@@ -32,6 +32,7 @@ const Register = () => {
     password: "",
     confirmPassword: "",
     selectedFile: "",
+    categories: ""
   });
   const [error, setError] = useState(); // State for error message
   const [passwordError, setPasswordError] = useState(false);
@@ -155,12 +156,18 @@ const Register = () => {
     });
   };
   const handleCategoryChange = (selectedOptions) => {
+    setError({ ...error, categories: '' })
+
     if (selectedOptions.length > 6) {
       return;
     }
     setSelectedCategories(selectedOptions.map((value) => value.value));
     console.log('Selected Categories:', selectedOptions);
     setSelectedOrganizationMenu(selectedOptions.map((value) => ({ label: value.label, value: value.value })));
+    setFormData((prevData) => ({
+      ...prevData,
+      categories: 'selected',
+    }));
 
     // You can perform other actions with selectedOptions here
   };
@@ -173,6 +180,7 @@ const Register = () => {
 
   const handleEmptyFields = () => {
     let newErrors = { ...error };
+
 
     // Iterate over the formData object to check for empty fields
     Object.keys(formsData).forEach((field) => {
@@ -222,6 +230,8 @@ const Register = () => {
     if (e && e.target) {
       const { name, value } = e.target;
       setFieldBeingEdited(name);
+      setError({ ...error, [name]: null })
+
       // Check if mobile number is verified when it reaches 10 digits
       if (name === "name") {
 
@@ -230,11 +240,11 @@ const Register = () => {
       }
 
       if (name === "phone") {
-        if (value.length !== 10)
+        if (!/^\d+$/.test(value))
           setError({ ...error, [name]: `Incorrect mobile number format` })
         else {
           setError({ ...error, [name]: null })
-          checkIfExistPhone(value);
+          // checkIfExistPhone(value);
         }
 
       }
@@ -254,7 +264,7 @@ const Register = () => {
         } else {
 
           setError({ ...error, [name]: null })
-          checkIfExistEmail(value);
+          // checkIfExistEmail(value);
         }
       }
 
@@ -289,12 +299,12 @@ const Register = () => {
   };
 
 
-  const checkIfExistEmail = async (email) => {
+  const checkIfExistEmail = async (e) => {
     // e.preventDefault();
     try {
       // Send a POST request to the API
       const response = await axios.post(`${API_URL}/activity/check-exists`, {
-        email: email
+        email: e.target.value
       });
 
       console.log(response.data)
@@ -307,13 +317,13 @@ const Register = () => {
     }
   };
 
-  const checkIfExistPhone = async (phone) => {
+  const checkIfExistPhone = async (e) => {
     // e.preventDefault();
     try {
       // Send a POST request to the API
 
       const response = await axios.post(`${API_URL}/activity/check-exists`, {
-        phone: phone
+        phone: e.target.value
       });
       if (response.data.exists) {
         setError({ ...error, phone: "Phone already exist" });
@@ -332,6 +342,7 @@ const Register = () => {
     // Check if passwords match
     if (formsData.password !== formsData.confirmPassword) {
       setPasswordError(true);
+
       // notify("pasword do not match")
       return; // Exit function if passwords don't match
     }
@@ -339,16 +350,12 @@ const Register = () => {
     setPasswordError(false);
 
     // Validate mobile number format
-    if (!validateMobileNumber(formsData.phone)) {
-      setMobileError("Invalid mobile number format");
-      // notify(mobileError)
-      return;
-    }
     // Reset mobile number error state if valid
     setMobileError("");
 
     if (!selectedCategories || selectedCategories.length === 0) {
-      notify("Please select at least one category to register.");
+      // notify("Please select at least one category to register.");
+      setError({ ...error, categories: "Please select atleast one category" })
       return;
     }
     const options = {
@@ -357,9 +364,11 @@ const Register = () => {
       useWebWorker: true,
     };
 
-    const compressedFile = await imageCompression(selectedFile, options);
+    let compressedFile = null;
 
-
+    if (selectedFile) {
+      compressedFile = await imageCompression(selectedFile, options);
+    }
     const formsDATA = new FormData();
     formsDATA.append("name", e.target[0].value);
     formsDATA.append("email", e.target[1].value);
@@ -415,14 +424,20 @@ const Register = () => {
         // setIsloading(false)
       } else {
         // setError(data.message); // Update error message state
-        console.error("Error:", data.error); // Display error message to the user
-        if (!(data.message == 'Email already exists'))
-          notify(data.message)
-        else
-          setEmailError(data.message)
+        console.error("Error:", data.error);
+        // Display error message to the user
+        setError({ ...error, [data.field]: data.message })
+
       }
     } catch (error) {
-      console.error("Error:", error);
+      if (error.response) {
+        // Access response details here
+        console.log("Error status:", error.response.field); // e.g., 400
+        console.log("Error data:", error.response.message); // Response body
+      } else {
+        // Handle other errors (e.g., network issues)
+        console.log("Error message:", error.message);
+      }
     }
     finally {
       setIsloading(false)
@@ -511,6 +526,7 @@ const Register = () => {
                 placeholder="Email"
                 className="text-sm w-full h-7 pl-10 border-solid border-[1px]  border-gray-300 bg-inherit rounded-md focus:border-emerald-300 ease-in duration-300 py-1"
                 onChange={handleInputChange}
+                onBlur={checkIfExistEmail}
                 name="email"
                 type="email"
 
@@ -527,6 +543,7 @@ const Register = () => {
                 placeholder="Phone"
                 className="text-sm w-full h-7 pl-10 border-solid border-[1px] border-gray-300 bg-inherit rounded-md focus:border-emerald-300 ease-in duration-300 py-1"
                 onChange={handleInputChange}
+                onBlur={checkIfExistPhone}
                 name="phone"
                 value={formsData.phone}
                 type="number"
@@ -649,7 +666,7 @@ const Register = () => {
               )}
             </div>
 
-            <div className="w-full h-auto flex flex-col items-center justify-center relative">
+            <div className="w-full h-auto flex flex-col justify-center relative">
               <label className="block font-semibold mb-1 text-left w-full">
                 <span className="text-red-500">*</span>Select Categories:
               </label>
@@ -672,6 +689,8 @@ const Register = () => {
                 <div className="text-blue-500 mt-2">
                   You can only select up to {'6'} categories.
                 </div>
+                {error && error.categories && <span className="text-red-500 text-xs text-left">{error.categories}</span>}
+
               </div>
             </div>
 

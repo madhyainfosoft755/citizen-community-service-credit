@@ -89,7 +89,7 @@ const getTotalUsers = async (req, res) => {
     const total = await Users.findAll({
       include: [
         {
-          model: OrgAttach, // This is your org_attach model
+          model: AttachOrg, // This is your org_attach model
           where: { orgId: ifAdmin }, // Filter based on the orgId
         },
       ],
@@ -148,6 +148,7 @@ const getTotalApprovedHours = async (req, res) => {
 
     // Convert the total time sum back to HH:mm:ss format
     const formattedTotalTimeSum = convertSecondsToTime(totalTimeSum);
+
     res.json({ total: formattedTotalTimeSum });
   } catch (error) {
     logger.error(error);

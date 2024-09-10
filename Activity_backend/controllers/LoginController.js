@@ -336,19 +336,27 @@ const Register = async (req, res) => {
 
     // Check if any required field is empty
     if (!userData.name) {
-      return res.status(400).json({ message: "Name is required" });
+      return res
+        .status(400)
+        .json({ field: "name", message: "Name is required" });
     }
 
     if (!userData.email) {
-      return res.status(400).json({ message: "Email is required" });
+      return res
+        .status(400)
+        .json({ field: "email", message: "Email is required" });
     }
 
     if (!userData.password) {
-      return res.status(400).json({ message: "Password is required" });
+      return res
+        .status(400)
+        .json({ field: "password", message: "Password is required" });
     }
     // Check if files were uploaded
     if (!req.files || !req.files.photo) {
-      return res.status(400).json({ message: "Photo is required" });
+      return res
+        .status(400)
+        .json({ field: "photo", message: "Photo is required" });
     }
 
     // Check if the uploaded file is an image
@@ -361,6 +369,7 @@ const Register = async (req, res) => {
       : "";
     if (!allowedExtensions.includes(fileExtension[1])) {
       return res.status(400).json({
+        field: "photo",
         message: "Allowed image formats are JPG, JPEG, PNG, GIF, JFIF",
       });
     }
@@ -371,7 +380,9 @@ const Register = async (req, res) => {
     });
     // console.log("this is the existing user", existingUser)
     if (existingUser) {
-      return res.status(400).json({ message: "Email already exists" });
+      return res
+        .status(400)
+        .json({ field: "email", message: "Email already exists" });
     }
 
     // Check if user with the same mobile number already exists
@@ -381,7 +392,7 @@ const Register = async (req, res) => {
     if (existingMobileUser) {
       return res
         .status(400)
-        .json({ message: "Mobile number already registered" });
+        .json({ field: "phone", message: "Mobile number already registered" });
     }
 
     // Validate password strength
@@ -389,6 +400,7 @@ const Register = async (req, res) => {
       /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[~`!@#$%^&*()-_=+{}[\]|;:'",.<>?\\/])[A-Za-z\d~`!@#$%^&*()-_=+{}[\]|;:'",.<>?\\/]{8,}$/;
     if (!passwordRegex.test(userData.password)) {
       return res.status(400).json({
+        field: "password",
         message:
           "Password must be at least 8 characters long and include at least one letter, one number, and one special character.",
       });
@@ -514,7 +526,7 @@ const RegisterLinkedin = async (req, res) => {
     if (existingMobileUser) {
       return res
         .status(400)
-        .json({ message: "Mobile number already registered" });
+        .json({ field: "phone", message: "Mobile number already registered" });
     }
 
     // Check if user with the same aadhar number already exists
