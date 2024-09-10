@@ -161,12 +161,16 @@ const ProfilePage = () => {
             });
 
             const data = await response.json();
-            console.log("kya data mila : ", data)
+            // console.log("kya data mila : ", data)
 
+            if (data.message == "Mobile number already registered") {
+                setFormErrors({ phone: "Mobile number already registered" });
+
+            }
             const { token, userKey } = data.data;
 
-            console.log("user key :", userKey)
-            console.log("token:", token)
+            // console.log("user key :", userKey)
+            // console.log("token:", token)
 
             if (response.ok) {
                 // notify(data.message);
@@ -179,7 +183,7 @@ const ProfilePage = () => {
                     // notify("Login Successful")
                     navigate("/create");
                 } else {
-                    console.log("Response is missing");
+                    // console.log("Response is missing");
                     notify(data.message);
                 }
                 // navigate("/create", { state: { data } });
@@ -201,6 +205,7 @@ const ProfilePage = () => {
             }
         } catch (error) {
             console.error("Error:", error);
+
         } finally {
             setIsLoading(false);
         }
@@ -306,6 +311,24 @@ const ProfilePage = () => {
                             </option>
                         ))}
                     </select>
+                </div>
+
+                <div className="w-4/6  sm:w-5/6 h-auto flex flex-col items-center justify-center  relative ">
+                    <label className="block font-bold mb-1"><span className="text-red-500">*</span>Select Organization:</label>
+                    <div className="grid grid-cols-3 gap-1 w-full">
+                        {organizations.map((organization, index) => (
+                            <button
+                                key={index}
+                                type="button"
+                                className={`p-1 rounded text-xs text-center ${buttonStates[index] ? "bg-[#546ef6] text-white" : "bg-gray-50 text-black"
+                                    }`}
+                                onClick={() => handleButtonClick(index, organization.name)}
+                            >
+                                {organization.name}
+                            </button>
+                        ))}
+                    </div>
+                    {formErrors.categories && <small className="error text-red-500">{formErrors.categories}</small>}
                 </div>
 
                 <div className="w-4/6  sm:w-5/6 h-auto flex flex-col items-center justify-center  relative ">

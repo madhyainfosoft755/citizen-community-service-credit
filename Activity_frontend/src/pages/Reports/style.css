@@ -1,0 +1,20 @@
+/* .scroller::-webkit-scrollbar {
+    display: none;
+}
+
+
+.horizontal {
+    writing-mode: vertical-lr;
+    text-orientation: mixed;
+    white-space: nowrap;
+    transform: rotate(180deg);
+
+} */
+
+.react-datepicker__input-container{
+    background-color: aliceblue;
+  padding: 0.5rem 1rem;
+  border-radius: 0.7rem;
+}
+
+/* in react-chartjs-2 i need labeling for horizontal and vertical in barchart in reactjs */

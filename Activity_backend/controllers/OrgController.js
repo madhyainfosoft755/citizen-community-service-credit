@@ -7,13 +7,13 @@ const { where, Op, Sequelize } = require("sequelize");
 const organization = require("../models/organization");
 const JWT_SECRET = process.env.JWT_Secret;
 // const { logger } = require("../utils/util");
+
 const Users = db.users;
 const Categories = db.Categories;
 const Posts = db.Posts;
 const Organisations = db.Organisations;
 const Approvers = db.Approvers;
-const axios  = require("axios");
-
+const AttachOrg = db.AttachOrg;
 // Helper function to convert HH:mm:ss time format to seconds
 const convertTimeToSeconds = (time) => {
   const [hours, minutes, seconds] = time.split(":").map(Number);
@@ -56,9 +56,9 @@ const verifyIfAdmin = async (token) => {
       return false;
     }
     const total = await Users.findAll({
-      where: { verified: true, id: user_id, role: "admin" },
+      where: { verified: true, id: user_id, role: "org_admin" },
     });
-    if (total.length > 0) return true;
+    if (total.length > 0) return Users.orgId;
     else return false;
   } catch (error) {
     logger.error(error);
@@ -86,7 +86,14 @@ const getTotalUsers = async (req, res) => {
       return res.json({ message: "not an admin" });
     }
 
-    const total = await Users.findAll();
+    const total = await Users.findAll({
+      include: [
+        {
+          model: OrgAttach, // This is your org_attach model
+          where: { orgId: ifAdmin }, // Filter based on the orgId
+        },
+      ],
+    });
     res.json({ total: total.length });
   } catch (error) {
     logger.error(error);
@@ -369,11 +376,7 @@ const getAllEndorseActivities = async (req, res) => {
       return res.json({ message: "not an admin" });
     }
     const AcitvityList = await Posts.findAll({
-      where: {
-        endorsementCounter: {
-          [Op.gt]: 0, // endorsementCounter must be greater than 0
-        },
-      },
+      where: { endorsementCounter: true },
       order: [["id", "DESC"]],
       include: [
         {
@@ -431,12 +434,9 @@ const getAllActivitiesBy = async (req, res) => {
       });
     } else {
       if (!end && !start) {
-        let where;
-        if (selectedCategory) {
-          where = {
-            category: selectedCategory,
-          };
-        }
+        let where = {
+          category: selectedCategory,
+        };
         if (filter == "endorsed") {
           where["endorsementCounter"] = true;
         }
@@ -522,9 +522,7 @@ const getAllEndorseActivitiesBy = async (req, res) => {
           [Op.between]: [startDate, endDate],
         },
         category: selectedCategory,
-        endorsementCounter: {
-          [Op.gt]: 0, // endorsementCounter must be greater than 0
-        },
+        endorsementCounter: true,
       };
 
       // Add filter condition only if filter is not null
@@ -546,9 +544,7 @@ const getAllEndorseActivitiesBy = async (req, res) => {
       if (!end && !start) {
         let where = {
           category: selectedCategory,
-          endorsementCounter: {
-            [Op.gt]: 0, // endorsementCounter must be greater than 0
-          },
+          endorsementCounter: true,
         };
         if (filter !== "All" && filter !== "waiting") {
           where[filter] = true;
@@ -568,9 +564,7 @@ const getAllEndorseActivitiesBy = async (req, res) => {
           let where = {
             Date: { [Op.gt]: startDate },
             category: selectedCategory,
-            endorsementCounter: {
-              [Op.gt]: 0, // endorsementCounter must be greater than 0
-            },
+            endorsementCounter: true,
           };
           if (filter !== "All" && filter !== "waiting") {
             where[filter] = true;
@@ -590,9 +584,7 @@ const getAllEndorseActivitiesBy = async (req, res) => {
           let where = {
             Date: { [Op.gt]: endDate },
             category: selectedCategory,
-            endorsementCounter: {
-              [Op.gt]: 0, // endorsementCounter must be greater than 0
-            },
+            endorsementCounter: true,
           };
           if (filter !== "All" && filter !== "waiting") {
             where[filter] = true;
@@ -720,11 +712,7 @@ const endorseActivity = async (req, res) => {
     id = req.params.id;
     console.log(id, "id exist ");
     const AcitvityList = await Posts.update(
-      {
-        endorsementCounter: {
-          [Op.gt]: 0, // endorsementCounter must be greater than 0
-        },
-      },
+      { endorsementCounter: true },
       { where: { id: id } }
     );
     res.json({ activities: AcitvityList });
@@ -1247,33 +1235,7 @@ const addOrganization = async (req, res) => {
     });
 
     if (existingOrganization) {
-      return res.json({ message: "Organisation name already exists" });
-    }
-
-    const existingEmail = await Organisations.findOne({
-      where: { email },
-    });
-
-    if (existingEmail) {
-      return res.json({ message: "Organisation email already exists" });
-    }
-
-    const existingPhone = await Organisations.findOne({
-      where: { phone },
-    });
-
-    if (existingPhone) {
-      return res.json({ message: "Organisation phone already exists" });
-    }
-
-    const existingRegNumber = await Organisations.findOne({
-      where: { registration_number },
-    });
-
-    if (existingRegNumber) {
-      return res.json({
-        message: "Organisation registration number already exists",
-      });
+      return res.json({ message: "Organisation already exists" });
     }
 
     const logo = req.file ? req.file.name : "";
@@ -1698,155 +1660,6 @@ const verifyToken = async (req, res) => {
   }
 };
 
-const fetchUnendorsedPosts = async (req, res) => {
-  try {
-    const unendorsedPosts = await Posts.findAll({
-      where: {
-        endorsementCounter: 0,
-      },
-      include: [
-        {
-          model: Users, // Assuming there is an association with the Users model
-          attributes: ['name'], // Select only the 'name' attribute from Users
-        },
-      ],
-    });
-
-    res.status(200).json(unendorsedPosts);
-  } catch (error) {
-    console.error('Error fetching unendorsed posts:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-};
-
-
-const processUnendorsedPosts =  async (req, res) => {
-  try {
-      const postsToSend = req.body;
-      console.log("what are the posts to send", postsToSend);
-      
-
-      // logger.info('Processing unendorsed', postsToSend);
-
-      const response = await axios.post('http://localhost:5000/api/bulk-posts', {postsToSend}, {
-          headers: {
-              'Content-Type': 'application/json',
-          },
-      });
-
-      console.log("what is the response", response);
-      
-
-      if (response.status === 200) {
-          res.status(200).send('Posts processed successfully');
-      } else {
-          res.status(response.status).send('Failed to process posts');
-      }
-  } catch (error) {
-      console.error('Error processing posts:', error);
-      res.status(500).send('An error occurred while processing posts');
-  }
-};
-
-const updateEndorsedPosts = async (req, res) => {
-  try {
-    const { endorsedPosts } = req.body;
-
-    for (const endorsedPost of endorsedPosts) {
-      const { postId } = endorsedPost;
-
-      // Find the post in the CCH database
-      const post = await Posts.findOne({ where: { id: postId } });
-
-      if (post) {
-        // Update the endorsement counter or status
-        post.endorsementCounter += 1; // or increment a counter if using the counter approach
-        await post.save();
-      }
-    }
-
-    res.status(200).send('Endorsed posts updated successfully in CCH database');
-  } catch (error) {
-    console.error('Error updating endorsed posts:', error);
-    res.status(500).send('An error occurred while updating endorsed posts');
-  }
-};
-
-const fetchEndorsedPosts = async (req, res) => {
-  try {
-    const unendorsedPosts = await Posts.findAll({
-      where: {
-        endorsementCounter: {
-          [Op.gte]: 1, // Fetch posts with endorsementCounter >= 1
-        },
-        approved:false //
-      },
-      include: [
-        {
-          model: Users, // Assuming there is an association with the Users model
-          attributes: ['name', 'photo'], // Select only the 'name' attribute from Users
-        },
-      ],
-    });
-
-    res.status(200).json(unendorsedPosts);
-  } catch (error) {
-    console.error('Error fetching unendorsed posts:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-};
-const processUnapprovedPosts = async (req, res) => {
-  try {
-    const postsToSend = req.body;
-    // console.log("what are the posts to send", postsToSend);
-
-   
-    // logger.info('Processing unendorsed', postsToSend);
-
-    const response = await axios.post('http://localhost:5000/api/bulk-approval', { postsToSend }, {
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-
-    // console.log("what is the response", response);
-
-
-    if (response.status === 200) {
-      res.status(200).send('Posts processed successfully');
-    } else {
-      res.status(response.status).send('Failed to process posts');
-    }
-  } catch (error) {
-    logger.error('Error processing', error)
-    // console.error('Error processing posts:', error);
-    res.status(500).send('An error occurred while processing posts');
-  }
-};
-
-const updateApprovedPosts = async (req, res) => {
-  try {
-    const { approvedPosts } = req.body;
-
-    for (const approvedPost of approvedPosts) {
-      const { postId } = approvedPost;
-
-      // CCH database mein post ko dhundho
-      const post = await Posts.findOne({ where: { id: postId } });
-
-      if (post) {
-        // Approved status ko update karo
-        post.approved = true;
-        await post.save();
-      }
-    }
-
-    res.status(200).send('Approved posts CCH database mein successfully update ho gaye');
-  } catch (error) {
-    logger.error('Approved posts update karne mein error:', error);
-    res.status(500).send('Approved posts update karte waqt ek error hua');
-  }
-};
 module.exports = {
   TestContoller,
   getTotalUsers,
@@ -1894,10 +1707,4 @@ module.exports = {
   getAllEndorseActivities,
   endorseActivity,
   getActivityByIdOpen,
-  fetchUnendorsedPosts,
-  processUnendorsedPosts,
-  fetchEndorsedPosts,
-  updateEndorsedPosts,
-  processUnapprovedPosts,
-  updateApprovedPosts
 };

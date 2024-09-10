@@ -46,24 +46,12 @@ const {
   getAllEndorseActivitiesBy,
   endorseActivity,
   getActivityByIdOpen,
-  processUnendorsedPosts,
-  fetchUnendorsedPosts,
-  fetchEndorsedPosts,
-  updateEndorsedPosts,
-  processUnapprovedPosts,
-  updateApprovedPosts
-} = require("../controllers/AdminController");
+} = require("../controllers/OrgController");
 const extractToken = require("../Middlewere/Authentication");
 const uploadMiddleWare = require("../Middlewere/uploadMiddleware");
 const router = express.Router();
 
 router.get("/test", extractToken, TestContoller);
-router.get("/fetchEndorsedPosts", fetchEndorsedPosts);
-router.post("/updateEndorsedPosts", updateEndorsedPosts)
-router.post("/processUnapprovedPosts",  processUnapprovedPosts);
-router.post("/updateApprovedPosts", updateApprovedPosts);
-router.post("/processUnendorsedPosts",processUnendorsedPosts);
-router.get("/fetchUnendorsedPosts", fetchUnendorsedPosts);
 router.get("/getTotalUser", extractToken, getTotalUsers);
 router.get("/verifyToken", extractToken, verifyToken);
 router.get("/getTotalCategories", extractToken, getTotalCategories);

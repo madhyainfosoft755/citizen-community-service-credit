@@ -1,40 +1,25 @@
 import React, { useEffect, useState } from "react";
 import Select from "react-select";
-
 import "./edit-model.css";
+import { API_URL } from "Constant";
 
 const EditUserModal = ({ userData, isOpen, onClose, onSave }) => {
   const [formData, setFormData] = useState({
-    name: userData.name,
-    email: userData.email,
-    phone: userData.phone,
+    name: userData.name || "",
+    email: userData.email || "",
+    phone: userData.phone || "",
+    address: userData.address || "",
+    organization: userData.organization || "",
+    selectedCategories: userData.category || [],
+    photo: userData.photo || "", // Added photo to formData
   });
 
-  const [categories, setCategories] = useState(
-    JSON.parse(userData.category).map((value) => {
-      return { value: value, label: value };
-    })
-  );
-
-  const [organisations, setOrganisations] = useState(
-    userData.organisation &&
-      JSON.parse(userData.organisation).map((value) => {
-        return { value: value, label: value };
-      })
-  );
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSave(formData);
-  };
+  const [categories, setCategories] = useState([]);
+  const [allCategories, setAllCategories] = useState([]);
+  const [allOrganisations, setAllOrganisations] = useState([]);
+  const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
+  const [selectedPhoto, setSelectedPhoto] = useState(null); // State for selected photo
 
   useEffect(() => {
     if (userData) {
@@ -43,15 +28,140 @@ const EditUserModal = ({ userData, isOpen, onClose, onSave }) => {
         phone: userData.phone || "",
         email: userData.email || "",
         address: userData.address || "",
-        organisation: userData.organisation || "",
+        organization: userData.organization || "",
+        selectedCategories: userData.category || [],
+        photo: userData.photo || "", // Initialize photo from userData
       });
+
+      setCategories(
+        JSON.parse(userData.category).map((value) => ({
+          value,
+          label: value,
+        }))
+      );
     }
   }, [userData]);
+
+  useEffect(() => {
+    const fetchOrganizations = async () => {
+      try {
+        const response = await fetch(`${API_URL}/activity/getOrganizations`);
+        const data = await response.json();
+        if (response.ok) {
+          setAllOrganisations(
+            Array.isArray(data)
+              ? data.map((value) => ({
+                  value: value.name,
+                  label: value.name,
+                }))
+              : []
+          );
+        } else {
+          console.error("Error fetching organizations:", data.message);
+        }
+      } catch (error) {
+        console.error("Error fetching organizations:", error);
+      }
+    };
+
+    const fetchCategories = async () => {
+      try {
+        const response = await fetch(`${API_URL}/activity/getCategories`);
+        const data = await response.json();
+        if (response.ok) {
+          setAllCategories(
+            data.map((value) => ({
+              value: value.name,
+              label: value.name,
+            }))
+          );
+        } else {
+          console.error("Error fetching categories:", data.message);
+        }
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+      }
+    };
+
+    fetchCategories();
+    fetchOrganizations();
+  }, []);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      [name]: value,
+    }));
+  };
+
+  const handleCategoryChange = (selectedCategories) => {
+    setCategories(selectedCategories);
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      selectedCategories: selectedCategories.map((cat) => cat.value),
+    }));
+  };
+
+  const handlePhotoChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setFormData((prevFormData) => ({
+        ...prevFormData,
+        photo: file,
+      }));
+      setSelectedPhoto(URL.createObjectURL(file));
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    const token = localStorage.getItem("token");
+    if (!token) {
+      // Uncomment this line if you want to navigate to the login page
+      // navigate("/login");
+      return;
+    }
+
+    const formDataWithPhoto = new FormData();
+    Object.entries(formData).forEach(([key, value]) => {
+      if (key === "selectedCategories") {
+        formDataWithPhoto.append(key, JSON.stringify(value));
+      } else {
+        formDataWithPhoto.append(key, value);
+      }
+    });
+
+    try {
+      const response = await fetch(`${API_URL}/activity/update-user`, {
+        method: "POST",
+        body: formDataWithPhoto,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setError({ field: data.field, message: data.message });
+        return;
+      }
+
+      if (data.status === "success") {
+        setError(null);
+        setSuccess(true);
+      }
+    } catch (error) {
+      console.error("Error submitting the form:", error);
+    }
+  };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50 ">
+    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
       <div className="relative top-5 mx-auto p-5 pt-5 pb-8 border w-96 px-5 shadow-lg rounded-lg bg-[#ffffff]">
         <form onSubmit={handleSubmit}>
           <div className="text-center text-xl font-bold mb-4">
@@ -69,8 +179,12 @@ const EditUserModal = ({ userData, isOpen, onClose, onSave }) => {
               name="name"
               value={formData.name}
               onChange={handleChange}
+              required
               className="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             />
+            {error && error.field === "name" && (
+              <Alert message={error.message} onClose={() => setError(null)} />
+            )}
           </div>
           <div className="mb-4">
             <label
@@ -84,8 +198,12 @@ const EditUserModal = ({ userData, isOpen, onClose, onSave }) => {
               name="email"
               value={formData.email}
               onChange={handleChange}
+              required
               className="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             />
+            {error && error.field === "email" && (
+              <Alert message={error.message} onClose={() => setError(null)} />
+            )}
           </div>
           <div className="mb-4">
             <label
@@ -101,62 +219,126 @@ const EditUserModal = ({ userData, isOpen, onClose, onSave }) => {
               onChange={handleChange}
               className="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             />
+            {error && error.field === "phone" && (
+              <Alert message={error.message} onClose={() => setError(null)} />
+            )}
           </div>
           <div className="mb-4">
             <label
               className="block text-gray-700 text-sm font-bold mb-2"
-              htmlFor="phone"
+              htmlFor="address"
             >
               Address
             </label>
             <input
               type="text"
-              name="phone"
-              value={formData.phone}
+              name="address"
+              value={formData.address}
               onChange={handleChange}
               className="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             />
+            {error && error.field === "address" && (
+              <Alert message={error.message} onClose={() => setError(null)} />
+            )}
+          </div>
+          <div className="mb-4">
+            <label
+              className="block text-gray-700 text-sm font-bold mb-2"
+              htmlFor="photo"
+            >
+              Photo
+            </label>
+            <input
+              type="file"
+              name="photo"
+              accept="image/*"
+              onChange={handlePhotoChange}
+              className="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+            />
+            <div className="mt-2">
+              <img
+                src={selectedPhoto || `${API_URL}/image/${userData.photo}`}
+                alt="Profile Preview"
+                className="w-32 h-32 object-cover rounded-full mx-auto"
+              />
+            </div>
           </div>
           <div className="mb-8">
             <label htmlFor="category">Select Categories </label>
-
             <Select
               isMulti
-              name="options"
-              options={categories}
+              name="categories"
+              options={allCategories}
               className="basic-multi-select"
               classNamePrefix="select"
               id="category"
               value={categories}
-              onChange={() => {}}
+              onChange={handleCategoryChange}
             />
+            {error && error.field === "category" && (
+              <Alert message={error.message} onClose={() => setError(null)} />
+            )}
           </div>
           <div className="mb-8">
-            <label htmlFor="category">Organisation </label>
-
+            <label
+              htmlFor="organization"
+              className="block text-gray-700 text-sm font-bold mb-2"
+            >
+              Organization
+            </label>
             <Select
-              name="options"
-              options={categories}
-              className="basic-multi-select"
+              name="organization"
+              options={allOrganisations}
+              className="basic-select"
               classNamePrefix="select"
-              id="organisation"
-              value={organisations}
-              onChange={() => {}}
+              id="organization"
+              value={{
+                label: formData.organization,
+                value: formData.organization,
+              }}
+              onChange={(selected) =>
+                setFormData((prevFormData) => ({
+                  ...prevFormData,
+                  organization: selected ? selected.value : "",
+                }))
+              }
             />
+            {error && error.field === "organization" && (
+              <Alert message={error.message} onClose={() => setError(null)} />
+            )}
           </div>
-          <div className="flex justify-between">
+          {success && (
+            <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
+              Changes saved successfully!
+              <span
+                className="absolute top-0 bottom-0 right-0 px-4 py-3"
+                onClick={() => setSuccess(false)}
+              >
+                <svg
+                  className="fill-current h-6 w-6 text-green-500"
+                  role="button"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                >
+                  <title>Close</title>
+                  <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.698-1.697L10 8.183l2.651-3.029a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.15 2.758 3.152a1.2 1.2 0 0 1 0 1.698z" />
+                </svg>
+              </span>
+            </div>
+          )}
+          <div className="flex items-center justify-between">
             <button
               type="button"
               onClick={onClose}
-              className="bg-[#db5d52] hover:bg-red-700 text-[#ffffff] font-bold py-2 px-8 rounded focus:outline-none focus:shadow-outline rounded_border_button"
+              className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
             >
-              Cancel
+              Close
             </button>
             <button
               type="submit"
-              className="bg-[#537cff] hover:bg-blue-700 text-[#ffffff] font-bold py-2 px-8 rounded focus:outline-none focus:shadow-outline rounded_border_button"
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
             >
-              Save
+              Save Changes
             </button>
           </div>
         </form>
@@ -166,3 +348,23 @@ const EditUserModal = ({ userData, isOpen, onClose, onSave }) => {
 };
 
 export default EditUserModal;
+
+const Alert = ({ message, onClose }) => (
+  <div
+    className="bg-red-50 px-4 text-sm text-red-500 rounded relative flex mb-3"
+    role="alert"
+  >
+    <span className="block sm:inline py-2 text-xs">{message}</span>
+    <span className="px-2 py-2" onClick={onClose}>
+      <svg
+        className="fill-current h-3.5 w-3.5 text-red-500 text-xs"
+        role="button"
+        xmlns="http://www.w3.org/2000/svg"
+        viewBox="0 0 20 20"
+      >
+        <title>Close</title>
+        <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.698-1.697L10 8.183l2.651-3.029a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.15 2.758 3.152a1.2 1.2 0 0 1 0 1.698z" />
+      </svg>
+    </span>
+  </div>
+);

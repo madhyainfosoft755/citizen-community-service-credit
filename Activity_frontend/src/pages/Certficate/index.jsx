@@ -51,7 +51,7 @@ const Certficate = ({ setIsPopupVisible }) => {
         const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
 
         pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-        pdf.save('sample.pdf');
+        pdf.save('Certificate.pdf');
         element.style.display = 'none';
 
     };
@@ -60,6 +60,7 @@ const Certficate = ({ setIsPopupVisible }) => {
     const [userName, setUserName] = useState();
     const [totalTime, setTotalTime] = useState();
     const [categoryList, setCategoryList] = useState();
+    const [orgDetails, setOrgDetails] = useState();
     const [error, setError] = useState();
     const [formattedDate, setFormattedDate] = useState();
     const navigate = useNavigate();
@@ -201,6 +202,28 @@ const Certficate = ({ setIsPopupVisible }) => {
                 setError("An error occurred while fetching users Time.");
             }
         }
+
+        const fetchOrgOfUser = async () => {
+            try {
+                if (userData && userData.userData) {
+                    const token = localStorage.getItem("token");
+                    const response = await fetch(`${API_URL}/activity/getOrgDetails/${userData.userData.organization}`, {
+                        method: "GET",
+                        headers: { Authorization: `Bearer ${token}` },
+                    });
+
+                    const data = await response.json();
+                    if (response.ok) {
+                        setOrgDetails(data.orgDetails[0]);
+                    }
+                }
+            }
+            catch (error) {
+                console.error("Error fetching user total time", error);
+                setError("An error occurred while fetching users Time.");
+            }
+        }
+        fetchOrgOfUser();
         getAllPostedCategories()
     }, [userData])
 
@@ -213,7 +236,7 @@ const Certficate = ({ setIsPopupVisible }) => {
                         // shape="round"
                         color="indigo_A200"
                         onClick={generatePDF}>
-                        Print
+                        Download
                     </Button>
                     &nbsp;
                     &nbsp;
@@ -263,7 +286,9 @@ const Certficate = ({ setIsPopupVisible }) => {
                                             );
 
                                         })}
-                                    etc. activities.
+                                    etc. activities  {userData && userData.userData.organization && userData.userData.organization !== 'NA' ? `for ${userData.userData.organization}`
+                                        : 'as individual volunteer'
+                                    }
                                 </p>
                             </div>
                             <div>
@@ -272,8 +297,11 @@ const Certficate = ({ setIsPopupVisible }) => {
                                 </p>
                             </div>
                             <div className="flex justify-center items-center absolute top-1 left-1">
-                                <img src={`${APP_PATH}images/2.png`} className="w-36 h-36 sm:w-28 sm:h-28 rounded-full" alt="Logo" />
+                                <img src={`${APP_PATH}images/2.png`} className="w-32 h-32 sm:w-28 sm:h-28 rounded-full" alt="Logo" />
                             </div>
+                            {orgDetails && orgDetails.logo && <div className="flex justify-center items-center absolute top-4 right-1">
+                                <img src={`${API_URL}/image/${orgDetails && orgDetails.logo}`} className="w-28 h-28 sm:w-28 sm:h-28 rounded-full" alt="Logo" />
+                            </div>}
                             <div className="text-center absolute top-1 right-1">
                                 <p style={{ fontSize: '12px' }} className="text-gray-300">Date printed on: {formattedDate}</p>
                             </div>
@@ -284,6 +312,11 @@ const Certficate = ({ setIsPopupVisible }) => {
                                     <p className="text-sm text-blue-600 font-semibold">Signature</p>
                                     <p className="text-sm text-blue-600 mt-2 font-semibold">CC247 Management </p>
                                 </div>
+                            </div>
+                            <div>
+                                <p className="text-xs mt-10 text-gray-700 italic">
+                                    This is an electronically generated certificate. The activities are thoroughly reviewed and verified before approval.  The signature is not mandatory.
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -309,7 +342,10 @@ const Certficate = ({ setIsPopupVisible }) => {
                                             );
 
                                         })}
-                                    etc. activities.
+                                    etc. activities  {userData && userData.userData.organization && userData.userData.organization !== 'NA'
+                                        ? "for " + userData.userData.organization
+                                        : 'as individual volunteer'
+                                    }
                                 </p>
                             </div>
                             <div>
@@ -320,7 +356,10 @@ const Certficate = ({ setIsPopupVisible }) => {
                             </div>
 
                             <div className="flex justify-center items-center absolute top-1 left-1">
-                                <img src={`${APP_PATH}images/2.png`} className="w-36 h-36 rounded-full" alt="Logo" />
+                                <img src={`${APP_PATH}images/2.png`} className="w-32 h-32 rounded-full" alt="Logo" />
+                            </div>
+                            <div className="flex justify-center items-center absolute top-5 right-1">
+                                <img src={`${API_URL}/image/${orgDetails && orgDetails.logo}`} className="w-28 h-28 sm:w-28 sm:h-28 rounded-full" alt="Logo" />
                             </div>
                             <div className="text-center absolute top-1 right-1">
                                 <p style={{ fontSize: '12px' }} className="text-gray-300">Date printed on: {formattedDate}</p>
@@ -335,6 +374,11 @@ const Certficate = ({ setIsPopupVisible }) => {
                                     <p className="text-sm text-gray-800 mt-2 font-semibold">CC247 Management </p>
                                     {/* <p className="text-sm text-gray-800 mt-2 font-semibold">and Administration</p> */}
                                 </div>
+                            </div>
+                            <div>
+                                <p className="text-xs mt-10 text-gray-700 italic">
+                                    This is an electronically generated certificate. The activities are thoroughly reviewed and verified before approval.  The signature is not mandatory.
+                                </p>
                             </div>
                         </div>
                     </div>

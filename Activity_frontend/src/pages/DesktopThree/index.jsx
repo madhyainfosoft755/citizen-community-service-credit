@@ -20,6 +20,7 @@ import { TimePicker } from "react-ios-time-picker"
 import "./style.css"
 import imageCompression from 'browser-image-compression';
 import { convertToHours } from "utils";
+import Select from "react-select";
 
 
 
@@ -62,8 +63,8 @@ const Createpost = () => {
   });
   const [error, setError] = useState(null);
   const [description, setDescription] = useState("");
-
-
+  const [organization, setOrganizations] = useState();
+  const [selectedOrganization, setSelectedOrganization] = useState()
   // Utility function to get the current time in HH:mm format
   const getCurrentTime = () => {
     const now = new Date();
@@ -213,7 +214,7 @@ const Createpost = () => {
         notify("Session time Out")
       }
     } catch (error) {
-      notify(error)
+      // notify(error)
       console.error("Error checking token expiry:", error);
     }
   };
@@ -328,6 +329,23 @@ const Createpost = () => {
 
   useEffect(() => {
     checkUserConfirmation();
+    // Fetch organizations from the database
+    const fetchOrganizations = async () => {
+      try {
+        const response = await fetch(`${API_URL}/activity/getOrganizations`);
+        const data = await response.json();
+        if (response.ok) {
+          setOrganizations(data.map((value) => {
+            return { value: value.id, label: value.name };
+          })); // Ensure data is an array
+        } else {
+          console.error("Error fetching organizations:", data.message);
+        }
+      } catch (error) {
+        console.error("Error fetching organizations:", error);
+      }
+    };
+    fetchOrganizations();
   }, []);
 
   const convertTo24HourFormat = (time) => {
@@ -342,6 +360,32 @@ const Createpost = () => {
     return `${hours}:${minutes}`;
   };
 
+  /**
+ * Function to calculate the time difference between two times
+ * @param {string} startTime - The start time in "HH:MM:SS" format
+ * @param {string} endTime - The end time in "HH:MM:SS" format
+ * @returns {object} An object containing the difference in hours, minutes, and seconds
+ */
+  function getTimeDifference(startTime, endTime) {
+    // Convert time strings to Date objects
+    const start = new Date(`1970-01-01T${startTime}Z`);
+    const end = new Date(`1970-01-01T${endTime}Z`);
+
+    // Calculate the difference in milliseconds
+    let differenceInMs = end - start;
+
+    // If the end time is before the start time, add 24 hours to the end time
+    if (differenceInMs < 0) {
+      differenceInMs += 24 * 60 * 60 * 1000; // 24 hours in milliseconds
+    }
+
+    // Calculate hours, minutes, and seconds from the difference
+    const hours = Math.floor(differenceInMs / (1000 * 60 * 60));
+    const minutes = Math.floor((differenceInMs % (1000 * 60 * 60)) / (1000 * 60));
+    const seconds = Math.floor((differenceInMs % (1000 * 60)) / 1000);
+
+    return { hours, minutes, seconds };
+  }
   // console.log("what is the description", description)
 
   const handleSubmit = async (e) => {
@@ -353,7 +397,7 @@ const Createpost = () => {
     };
 
     if (!selectedFile) {
-      notify("Please upload a photo ");
+      // notify("Please upload a photo ");
       return;
     }
     const compressedFile = await imageCompression(selectedFile, options);
@@ -378,6 +422,7 @@ const Createpost = () => {
     formsDATA.append("latitude", formsData.latitude);
     formsDATA.append("longitude", formsData.longitude);
     formsDATA.append("description", description);
+    formsDATA.append("organization", selectedOrganization);
 
     // console.log(formsDATA.get("name"));
     // console.log("formData", formsDATA);
@@ -408,11 +453,12 @@ const Createpost = () => {
       const data = await response.json();
       if (response.ok) {
         // console.log("Success:", data);
-        notify(data.message)
-        navigate("/activity", { state: true });
+        const timeSpent = getTimeDifference(fromTime, toTime)
+        // notify(data.message)
+        navigate("/activity", { state: { timeSpent, data } });
       } else {
         console.error("Error:", data.error);
-        notify(`${data.error}`)
+        // notify(`${data.error}`)
       }
     } catch (error) {
       console.error("Error:", error);
@@ -422,7 +468,11 @@ const Createpost = () => {
     }
   };
 
-
+  const handleOrganizationChange = (selectedOptions) => {
+    setSelectedOrganization(selectedOptions);
+    console.log('Selected organizations:', selectedOptions);
+    // You can perform other actions with selectedOptions here
+  };
 
   const timeOptions = [];
   for (let i = 0; i < 24; i++) {
@@ -442,7 +492,7 @@ const Createpost = () => {
   };
 
   const Endorse = () => {
-    navigate("/endorse")
+    navigate("/endorse");
   }
 
   const [textIndex, setTextIndex] = useState(0);
@@ -516,6 +566,14 @@ const Createpost = () => {
     localStorage.removeItem("userKey");
     navigate("/login");
   };
+
+  const customStyles = {
+    menu: (provided) => ({
+      ...provided,
+      maxHeight: 100, // Set the max height of the dropdown list
+      overflowY: 'auto', // Enable vertical scrolling
+    }),
+  };
   return (
     <>
       {authenticated && (
@@ -580,7 +638,7 @@ const Createpost = () => {
                 {`${totalTime || 0} Hrs | ${totalTime && convertToHours(totalTime)} Pts`}
                 {/* <FontAwesomeIcon icon={faLocationDot} className="pr-3 text-blue-600" /> */}
               </Button>
-              <img  src={APP_PATH + "images/2.png"} className=" w-14 h-14 rounded-full" alt="" />
+              <img src={APP_PATH + "images/2.png"} className=" w-14 h-14 rounded-full" alt="" />
 
             </div>
 
@@ -702,6 +760,26 @@ const Createpost = () => {
                     <TimePicker name="toTime" onChange={onChangeToTime} value={toTime} id="totime" min={fromTime} />
                   </div>
                 </div>
+                <div className="w-full h-auto flex flex-col items-center justify-center relative">
+                  <label className="block font-semibold mb-1 text-left w-full">
+                    Organization:
+                  </label>
+
+                  <div className="w-full">
+                    {organization && (
+                      <Select
+
+                        name="options"
+                        options={organization}
+                        className="basic-multi-select"
+                        classNamePrefix="select"
+                        id="organization"
+                        onChange={handleOrganizationChange}
+                        styles={customStyles}
+                      />
+                    )}
+                  </div>
+                </div>
                 <List className="flex items-center justify-center w-full gap-3 ">
                   <div className="flex flex-1 flex-col mb-1 items-start justify-start w-full ">
                     <Text
@@ -726,7 +804,7 @@ const Createpost = () => {
                       </div>
                     </div>
                   </div>
-                  <div className="flex flex-1 flex-col  mb-1 items-start justify-start w-full">
+                  {/* <div className="flex flex-1 flex-col  mb-1 items-start justify-start w-full">
                     <Text
                       className="text-sm font-semibold text-gray-900"
                     >
@@ -745,7 +823,7 @@ const Createpost = () => {
                         />
                       </div>
                     </div>
-                  </div>
+                  </div> */}
                 </List>
 
                 <div className="flex items-start justify-center gap-1 ">
@@ -765,9 +843,9 @@ const Createpost = () => {
                     SUBMIT
                   </Button>
 
-                <button onClick={handleLogout} className=" bg-[#546ef6] text-sm tracking-widest font-semibold text-white-A700 w-1/2 py-3  mb-2 rounded-full">
-                  LOGOUT
-                </button>
+                  <button onClick={handleLogout} className=" bg-[#546ef6] text-sm tracking-widest font-semibold text-white-A700 w-1/2 py-3  mb-2 rounded-full">
+                    LOGOUT
+                  </button>
                 </div>
 
               </div>

@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Button, Img, Input, Line, Text } from "components";
-// import MyGoogle from 'components/googlelogin/Googlelogin'
-// import Googlelogin from "pages/GoogleLogin/Googlelogin";
 import { API_URL, APP_PATH } from "Constant";
 import { useNavigate } from "react-router-dom";
 import Location from "pages/Location/Location";
@@ -18,10 +16,12 @@ import { useAuth } from "components/AuthProvider/AuthProvider";
 
 const DesktopOnePage = () => {
   const [isLoading, setIsLoading] = useState(false); // State for loader
+
   const [locationData, setLocationData] = useState({
     city: "",
     state: "",
   });
+
   const handlebuttonclick = () => {
     navigate("/register");
   };
@@ -388,6 +388,7 @@ const DesktopOnePage = () => {
           className="relative w-full h-full flex flex-col justify-center items-center pt-2 sm:pt-10 sm:w-screen sm:h-screen overflow-hidden  bg-cover bg-center "
         // style={{ backgroundImage: 'url("./images/img_helping.jpg")' }}
         >
+     
           <Text className=" cursor-default text-lg text-center text-blue-400  font-extrabold">
             Welcome to CCH247 (Community Care 247)
           </Text>

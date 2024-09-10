@@ -8,7 +8,7 @@ import "./slider.css";
 import PopupComponent from "components/popup";
 import SplashScreen from "components/Splash Screen/SplashScreen";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faCircleCheck } from "@fortawesome/free-solid-svg-icons";
+import { faCircleCheck, faCircleXmark } from "@fortawesome/free-solid-svg-icons";
 import Share from "components/shareComponent";
 
 const Slider1 = ({ items, isPopUpVisible, setIsPopUpVisible, setSelectedPost, selectedPost }) => {
@@ -145,7 +145,7 @@ const Slider1 = ({ items, isPopUpVisible, setIsPopUpVisible, setSelectedPost, se
                         {[...Array(1)].map((_, i) => (
                           <FontAwesomeIcon
                             key={i}
-                            icon={faCircleCheck}
+                            icon={item && item.endorsementCounter > i ? faCircleCheck : faCircleXmark}
                             className={`mx-1 ${item && item.endorsementCounter > i ? 'text-green-500 -ml-1' : 'text-red-500 -ml-1'}`}
                           />
                         ))}

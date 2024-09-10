@@ -39,6 +39,8 @@ const LINKEDIN_REDIRECT_URI = process.env.LINKEDIN_REDIRECT_URI;
 const JWT_SECRET = process.env.JWT_Secret;
 const qs = require("qs");
 const { count } = require("console");
+const organization = require("../models/organization");
+const CreatePost = require("../models/CreatePost");
 
 // Function to decode the post ID
 function decodePostID(encodedID) {
@@ -141,7 +143,7 @@ const getUserIdFromToken = (req) => {
     const token = authorizationHeader.split(" ")[1];
     try {
       const decodedToken = Jwt.verify(token, jwtKey);
-      // console.log("ye hai user ki id", decodedToken.userId)
+      console.log("ye hai user ki id", decodedToken);
       return decodedToken.userId;
     } catch (error) {
       console.error("Error decoding token:", error);
@@ -353,14 +355,14 @@ const Register = async (req, res) => {
     const photoFile = req.files.photo;
     // console.log("ye hai photo file", photoFile)
     // Check if the file has an allowed image extension
-    const allowedExtensions = ["jpg", "jpeg", "png", "gif","jfif"];
+    const allowedExtensions = ["jpg", "jpeg", "png", "gif", "jfif"];
     const fileExtension = photoFile[0].filename
       ? photoFile[0].filename.split(".")
       : "";
     if (!allowedExtensions.includes(fileExtension[1])) {
-      return res
-        .status(400)
-        .json({ message: "Allowed image formats are JPG, JPEG, PNG, GIF, JFIF" });
+      return res.status(400).json({
+        message: "Allowed image formats are JPG, JPEG, PNG, GIF, JFIF",
+      });
     }
 
     // Check if user with the same email already exists
@@ -433,11 +435,25 @@ const Register = async (req, res) => {
       category: JSON.stringify(selectedCategories), // Store as a JSON string
       verificationToken: verificationToken, // Store verification token in the database
       aadhar: userData.aadhar,
+      address: userData.address,
       role: "user",
-      organization: userData.organization, // Add the organization field
+      organization: JSON.stringify(userData.organization), // Add the organization field
 
       // Add other fields as needed
     });
+
+    const orgArray = JSON.parse(userData.organization);
+
+    await Promise.all(
+      orgArray.map(async (org) => {
+        return await db.AttachOrg.create({
+          // Add your fields here
+          UserId: newUser.id,
+          OrgId: org,
+          // other fields as needed
+        });
+      })
+    );
 
     // You can add more error handling and validation as needed
 
@@ -946,7 +962,7 @@ const profile = async (req, res) => {
         });
 
         const [rows] = await connection.execute(
-          "SELECT `id`, `name`,`photo`, `email`, `googleId`, `organization`, `category` FROM `users` WHERE id = ?",
+          "SELECT `id`, `name`,`photo`, `email`,`phone`, `address`, `googleId`, `organization`, `category` FROM `users` WHERE id = ?",
           [userId]
         );
 
@@ -958,6 +974,8 @@ const profile = async (req, res) => {
             name: rows[0].name,
             email: rows[0].email,
             photo: rows[0].photo,
+            phone: rows[0].phone,
+            address: rows[0].address,
             totalTime: rows[0].totalTime, // Include totalTime from the database
             googleId: rows[0].googleId, // Include googleId from the database
             organization: rows[0].organization, // Include googleId from the database
@@ -1082,8 +1100,15 @@ const CreateActivity = async (req, res) => {
       return;
     }
 
-    const { selectedCategories, date, fromTime, toTime, latitude, longitude } =
-      req.body;
+    const {
+      selectedCategories,
+      date,
+      fromTime,
+      toTime,
+      latitude,
+      longitude,
+      organization,
+    } = req.body;
 
     // Format the date to yyyy-mm-dd format
     const formattedDate = format(new Date(date), "yyyy-MM-dd");
@@ -1156,7 +1181,7 @@ const CreateActivity = async (req, res) => {
 
     // console.log("what is the date", date)
     // Save to the database
-    await Posts.create({
+    let created_post = await Posts.create({
       category,
       photos,
       videos,
@@ -1167,9 +1192,12 @@ const CreateActivity = async (req, res) => {
       fromTime,
       // location: JSON.stringify({ latitude, longitude }), // Store as JSON string in the database
       UserId: userId,
+      organization: organization,
     });
 
-    res.status(201).json({ message: "Activity created successfully" });
+    res
+      .status(201)
+      .json({ message: "Activity created successfully", created_post });
   } catch (error) {
     logger.error("here is the error", error);
     console.error("Error creating activity:", error);
@@ -2467,7 +2495,7 @@ const shareTestLink = async (req, res) => {
   <meta property="article:section" content="${post.category}" />
     </head>
     <body>
-      <h1>Loading.. </h1>
+      <h1>Loading...</h1>
       <script>
         window.location.href = "${process.env.URL}/posts/${postID}";
       </script>
@@ -2497,6 +2525,384 @@ const visitorCount = async (req, res) => {
   }
 };
 
+const updateUser = async (req, res) => {
+  try {
+    const userData = req.body;
+    const id = getUserIdFromToken(req);
+    console.log("here is the data", userData);
+
+    // Check if any required field is empty
+    console.log("id ", id);
+    if (!userData.name) {
+      return res
+        .status(400)
+        .json({ field: "name", message: "Name is required" });
+    }
+
+    if (!userData.email) {
+      return res
+        .status(400)
+        .json({ field: "email", message: "Email is required" });
+    }
+
+    // Handle photo upload if present
+    let photoUrl;
+    if (req.file) {
+      photoUrl = req.file.filename;
+    }
+
+    // Check if a user with the same email already exists
+    const existingUser = await Users.findOne({
+      where: {
+        email: userData.email,
+        id: {
+          [Op.ne]: id, // Exclude user with this ID
+        },
+      },
+    });
+
+    if (existingUser) {
+      return res
+        .status(400)
+        .json({ field: "email", message: "Email already exists" });
+    }
+
+    // Check if a user with the same mobile number already exists
+    const existingMobileUser = await Users.findOne({
+      where: {
+        phone: userData.phone,
+        id: {
+          [Op.ne]: id, // Exclude user with this ID
+        },
+      },
+    });
+
+    if (existingMobileUser) {
+      return res
+        .status(400)
+        .json({ field: "phone", message: "Mobile number already registered" });
+    }
+
+    // Ensure "Others" category is always present
+    let selectedCategories = userData.selectedCategories;
+
+    if (typeof selectedCategories === "string") {
+      selectedCategories = JSON.parse(selectedCategories);
+    }
+
+    if (!selectedCategories) {
+      return res.status(400).json({
+        field: "category",
+        message: "Choose at least one category",
+      });
+    }
+
+    if (!Array.isArray(selectedCategories)) {
+      selectedCategories = [selectedCategories];
+    }
+
+    if (selectedCategories.length == 0) {
+      return res.status(400).json({
+        field: "category",
+        message: "Choose at least one category",
+      });
+    }
+
+    if (!selectedCategories.includes("Others")) {
+      selectedCategories.push("Others");
+    }
+
+    // Update user information in the database
+    const updatedUser = await Users.update(
+      {
+        name: userData.name,
+        email: userData.email,
+        phone: userData.phone,
+        category: JSON.stringify(selectedCategories),
+        organization: userData.organization, // Add the organization field
+        address: userData.address,
+        photo: photoUrl || userData.photo, // Update photo if a new photo is uploaded
+        // Add other fields as needed
+      },
+      {
+        where: { id: id },
+      }
+    );
+
+    return res.status(200).json({
+      status: "success",
+      message: "User updated successfully",
+    });
+  } catch (error) {
+    logger.error("User update failed", error);
+    return res.status(500).json({
+      status: "error",
+      message: "User update failed",
+    });
+  }
+};
+
+const getAllActivitiesByCategoriesUser = async (req, res) => {
+  try {
+    const id = getUserIdFromToken(req);
+
+    if (!id) {
+      return res.json({ message: "Invalid token " });
+    }
+
+    const { categories, start: startDate, end: endDate } = req.body;
+
+    // Validate categories input
+    if (!Array.isArray(categories) || categories.length === 0) {
+      return res.status(400).json({ message: "Invalid categories provided" });
+    }
+
+    // Initialize date filter
+    const dateFilter = {};
+
+    // Validate and add startDate and endDate to dateFilter if provided
+    if (startDate) {
+      const start = new Date(startDate);
+      if (isNaN(start.getTime())) {
+        return res.status(400).json({ message: "Invalid start date format" });
+      }
+      dateFilter[Op.gte] = start.toISOString().slice(0, 19).replace("T", " "); // Convert to MySQL format
+      console.log("Start Date:", dateFilter[Op.gte]); // Debug log
+    }
+
+    if (endDate) {
+      const end = new Date(endDate);
+      if (isNaN(end.getTime())) {
+        return res.status(400).json({ message: "Invalid end date format" });
+      }
+      // Set end date to the end of the specified day
+      end.setHours(23, 59, 59, 999);
+      dateFilter[Op.lte] = end.toISOString().slice(0, 19).replace("T", " "); // Convert to MySQL format
+      console.log("End Date:", dateFilter[Op.lte]); // Debug log
+    }
+
+    // Debug log the dateFilter
+    console.log("Date Filter:", dateFilter);
+    console.log(
+      "Date full in where:",
+      Object.getOwnPropertySymbols(dateFilter).length
+    );
+
+    // Group and count activities by category
+    const activitiesByCategories = await Posts.findAll({
+      attributes: [
+        "category",
+        [Sequelize.fn("COUNT", Sequelize.col("id")), "count"],
+      ],
+      where: {
+        ...(Object.getOwnPropertySymbols(dateFilter).length
+          ? { createdAt: dateFilter }
+          : {}),
+        category: {
+          [Op.in]: categories,
+        },
+        UserId: id,
+      },
+      group: ["category"],
+    });
+
+    // Prepare result object
+    const result = {};
+
+    // Populate result object with category counts
+    activitiesByCategories.forEach((item) => {
+      const category = item.get("category");
+      const count = item.get("count");
+      result[category] = count;
+    });
+
+    res.json(result);
+  } catch (error) {
+    console.error(error); // Debug log
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const postsForCategoryUser = async (req, res) => {
+  try {
+    const id = getUserIdFromToken(req);
+
+    console.log("user id ", id);
+    const { categories, start, end } = req.body; // Assuming categories, start, and end dates are passed in the request body
+
+    // Validate the input
+    if (!categories || categories.length === 0) {
+      return res.status(400).json({ error: "Categories are required" });
+    }
+
+    let dateCondition = {};
+    let errorMessage =
+      "No posts found for the specified categories and date range.";
+    if (start && end) {
+      dateCondition = { [Op.between]: [start, end] };
+      errorMessage =
+        "No posts found for the specified categories in the selected date range.";
+    } else {
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      // console.log(thirtyDaysAgo, "thirty days ago");
+      dateCondition = { [Op.gte]: thirtyDaysAgo };
+      errorMessage =
+        "No posts found for the specified categories within past 30 days.";
+    }
+
+    const posts = await db.Posts.findAll({
+      where: {
+        category: {
+          [Op.in]: categories,
+        },
+        Date: dateCondition,
+        UserId: id,
+        // approved: true,
+      },
+    });
+
+    if (posts.length === 0) {
+      return res.status(404).json({ error: errorMessage });
+    }
+
+    res.json(posts);
+  } catch (error) {
+    // console.error("Error fetching posts for categories and date range", error);
+    res.status(500).json({ error: "An error occurred while fetching posts." });
+  }
+};
+
+const postsForDateRangeUser = async (req, res) => {
+  try {
+    const { start, end } = req.query;
+    const id = getUserIdFromToken(req);
+
+    // Validate the input dates
+
+    if (!start || !end) {
+      return res
+        .status(400)
+        .json({ error: "Both start and end dates are required." });
+    }
+    let dateCondition = {};
+    let errorMessage =
+      "No posts found for the specified categories and date range.";
+    if (start && end) {
+      // const startDate = new Date(start);
+      // const endDate = new Date(end);
+      // console.log(startDate, "start date");
+      // console.log(endDate, "end date");
+      dateCondition = { [Op.between]: [start, end] };
+      errorMessage =
+        "No posts found for the specified categories in the selected date range.";
+    } else {
+      const thirtyDaysAgo = new Date();
+      thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+      dateCondition = { [Op.gte]: thirtyDaysAgo };
+      errorMessage =
+        "No posts found for the specified categories within past 30 days.";
+    }
+
+    // const posts = await db.Posts.findAll({
+    //   where: {
+    //     Date: {
+    //       [db.Sequelize.Op.between]: [start, end],
+    //     },
+    //     approved : true
+    //   },
+    // });
+    const posts = await db.Posts.findAll({
+      where: {
+        Date: dateCondition,
+        approved: true,
+        UserId: id,
+      },
+    });
+    // console.log("ye hain selected range of date ke posts", posts)
+
+    if (posts.length === 0) {
+      return res
+        .status(404)
+        .json({ error: "No posts found for the specified date range." });
+    }
+
+    res.json(posts);
+  } catch (error) {
+    logger.error("Error fetching posts for date range", error);
+    // console.error(error);
+    res.status(500).json({ error: "An error occurred while fetching posts." });
+  }
+};
+
+const getOrgDetails = async (req, res) => {
+  try {
+    const { org } = req.params;
+
+    const orgDetails = await Organizations.findAll({ where: { name: org } });
+    res.json({ orgDetails });
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
+const submitFeedback = async (req, res) => {
+  try {
+    const name = req.body.name;
+    const rating = req.body.rating;
+    const id = req.body.activityId;
+    if (rating > 2) {
+      const result = await Posts.update(
+        { endorsementCounter: 1, endorser_name: name },
+        { where: { id: id } }
+      );
+      return res.json({ message: "success" });
+    }
+
+    return res.json({ message: "rating is less then 2" });
+  } catch (error) {
+    logger.error(error);
+  }
+};
+
+const checkifAlreadyExist = async (req, res) => {
+  try {
+    const { email, phone } = req.body;
+
+    // Build a dynamic query object
+    let query = {};
+    if (email) {
+      query.email = email;
+    }
+    if (phone) {
+      query.phone = phone;
+    }
+
+    if (!email && !phone) {
+      return res
+        .status(400)
+        .json({ message: "Please provide email or phone to check." });
+    }
+
+    // Check if the user with the email or phone already exists
+    const userExists = await Users.findOne({ where: query });
+
+    if (userExists) {
+      return res
+        .status(200)
+        .json({ message: "User already exists.", exists: true });
+    }
+
+    return res
+      .status(200)
+      .json({ message: "User does not exist.", exists: false });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ message: "Internal server error.", error: error.message });
+  }
+};
 module.exports = {
   output,
   varifybytoken,
@@ -2552,4 +2958,11 @@ module.exports = {
   getAllPostedCategories,
   visitorCount,
   shareTestLink,
+  updateUser,
+  getAllActivitiesByCategoriesUser,
+  postsForCategoryUser,
+  postsForDateRangeUser,
+  getOrgDetails,
+  submitFeedback,
+  checkifAlreadyExist,
 };

@@ -16,7 +16,8 @@ import { API_URL } from "Constant";
 import { toast } from "react-toastify";
 import { CirclesWithBar } from 'react-loader-spinner';
 import imageCompression from 'browser-image-compression';
-
+import Select from "react-select";
+import axios from "axios";
 const Register = () => {
   const notify = (e) => toast(e);
   const navigate = useNavigate();
@@ -28,11 +29,11 @@ const Register = () => {
     email: "",
     phone: "",
     address: "",
-    idCard: "",
     password: "",
     confirmPassword: "",
+    selectedFile: "",
   });
-  const [error, setError] = useState(""); // State for error message
+  const [error, setError] = useState(); // State for error message
   const [passwordError, setPasswordError] = useState(false);
   const [mobileError, setMobileError] = useState(""); // State for mobile number error
   const [aadharError, setAadharError] = useState(""); // State for Aadhar number error
@@ -42,7 +43,8 @@ const Register = () => {
   // console.log("ye hai selected categories", categories)
   const [selectedCategories, setSelectedCategories] = useState([]); // this function for get selected are
   const [organizations, setOrganizations] = useState([]); // State for organizations
-  const [selectedOrganization, setSelectedOrganization] = useState(""); // State for selected organization
+  const [selectedOrganization, setSelectedOrganization] = useState([]); // State for selected organization
+  const [selectedOrganizationMenu, setSelectedOrganizationMenu] = useState([]); // State for selected organization
   const [buttonStates, setButtonStates] = useState(Array(6).fill(false)); // Assuming 6 buttons, adjust the size as needed
   const [selectedFile, setSelectedFile] = useState(null);
   const [isMobileVerified, setIsMobileVerified] = useState(false);
@@ -59,10 +61,12 @@ const Register = () => {
         if (response.ok) {
           if (data.length > 0) {
 
-            const sortedCategories = data.sort((a, b) => a.name.localeCompare(b.name));
-            const limitedCategories = sortedCategories.slice(0, 6);
-            setCategories(limitedCategories);
-            setButtonStates(Array(limitedCategories.length).fill(false)); // Adjust button states based on categories length
+            // const sortedCategories = data.sort((a, b) => a.name.localeCompare(b.name));
+            // const limitedCategories = sortedCategories.slice(0, 6);
+            setCategories(data.map((value) => {
+              return { value: value.name, label: value.name };
+            }));
+            // setButtonStates(Array(limitedCategories.length).fill(false)); // Adjust button states based on categories length
           }
           else {
             // notify(data.message)
@@ -81,7 +85,9 @@ const Register = () => {
         const response = await fetch(`${API_URL}/activity/getOrganizations`);
         const data = await response.json();
         if (response.ok) {
-          setOrganizations(Array.isArray(data) ? data : []); // Ensure data is an array
+          setOrganizations(data.map((value) => {
+            return { value: value.id, label: value.name };
+          })); // Ensure data is an array
         } else {
           console.error("Error fetching organizations:", data.message);
         }
@@ -102,6 +108,7 @@ const Register = () => {
       return;
     }
 
+    setError({ ...error, selectedFile: "selected" })
     // Get the file extension
     const fileExtension = file.name.split(".").pop().toLowerCase();
 
@@ -147,6 +154,67 @@ const Register = () => {
       return updatedCategories;
     });
   };
+  const handleCategoryChange = (selectedOptions) => {
+    if (selectedOptions.length > 6) {
+      return;
+    }
+    setSelectedCategories(selectedOptions.map((value) => value.value));
+    console.log('Selected Categories:', selectedOptions);
+    setSelectedOrganizationMenu(selectedOptions.map((value) => ({ label: value.label, value: value.value })));
+
+    // You can perform other actions with selectedOptions here
+  };
+
+  const handleOrganizationChange = (selectedOptions) => {
+    setSelectedOrganization(selectedOptions.map((value) => value.value));
+    console.log('Selected organizations:', selectedOptions);
+    // You can perform other actions with selectedOptions here
+  };
+
+  const handleEmptyFields = () => {
+    let newErrors = { ...error };
+
+    // Iterate over the formData object to check for empty fields
+    Object.keys(formsData).forEach((field) => {
+      if (!formsData[field]) {
+        newErrors[field] = `${field.charAt(0).toUpperCase() + field.slice(1)} is a required field`;
+      }
+    });
+
+    // Update the error state with the new errors
+    setError(newErrors);
+  };
+
+  function validatePassword(password) {
+    const minLength = 8;
+    const maxLength = 20;
+
+    const lengthCheck = password.length >= minLength && password.length <= maxLength;
+    const hasUppercase = /[A-Z]/.test(password);
+    const hasLowercase = /[a-z]/.test(password);
+    const hasNumber = /\d/.test(password);
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
+    if (!lengthCheck) {
+      return `Password must be between ${minLength} and ${maxLength} characters.`;
+    }
+    if (!hasUppercase) {
+      return "Password must contain at least one uppercase letter.";
+    }
+    if (!hasLowercase) {
+      return "Password must contain at least one lowercase letter.";
+    }
+    if (!hasNumber) {
+      return "Password must contain at least one number.";
+    }
+    if (!hasSpecialChar) {
+      return "Password must contain at least one special character.";
+    }
+
+    return false;
+  }
+
+
 
   const handleInputChange = (e) => {
     // Check if e and e.target are defined
@@ -155,12 +223,25 @@ const Register = () => {
       const { name, value } = e.target;
       setFieldBeingEdited(name);
       // Check if mobile number is verified when it reaches 10 digits
-      if (name === "phone" && value.length === 10) {
-        setIsMobileVerified(true);
-        setMobileError("");
-      } else {
-        setIsMobileVerified(false);
-        setMobileError(value.length > 0 ? "Invalid mobile number format" : "");
+      if (name === "name") {
+
+        setError({ ...error, [name]: null })
+
+      }
+
+      if (name === "phone") {
+        if (value.length !== 10)
+          setError({ ...error, [name]: `Incorrect mobile number format` })
+        else {
+          setError({ ...error, [name]: null })
+          checkIfExistPhone(value);
+        }
+
+      }
+
+      if (name == 'address') {
+        setError({ ...error, [name]: null })
+
       }
 
 
@@ -169,37 +250,29 @@ const Register = () => {
       if (name === "email") {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(value)) {
-          setError("Invalid email format");
+          setError({ ...error, [name]: "Incorrect email format" });
         } else {
-          setError("");
+
+          setError({ ...error, [name]: null })
+          checkIfExistEmail(value);
         }
       }
 
-
-      // Clear error for other input fields when they become empty
-      if (value.length === 0) {
-        switch (name) {
-          case "name":
-            setError("");
-            break;
-          case "email":
-            setError("");
-            break;
-          case "phone":
-            setMobileError("");
-            break;
-          case "address":
-            // No error state for address field, add code here if needed
-            break;
-          case "password":
-            setPasswordError(false);
-            break;
-          case "confirmPassword":
-            setPasswordError(false);
-            break;
-          default:
-            break;
+      if (name == 'passoword') {
+        let passerror = validatePassword(value)
+        if (passerror) {
+          setError({ ...error, [name]: passerror });
+        } else {
+          setError({ ...error, [name]: null })
         }
+      }
+
+      if (name == 'confirmPassword') {
+        let passerror = !(formsData.password == value);
+        if (passerror) {
+          setError({ ...error, [name]: "Password did not match" });
+        } else
+          setError({ ...error, [name]: null })
       }
 
       // Check if name is defined before updating state
@@ -208,14 +281,54 @@ const Register = () => {
           ...prevData,
           [name]: value,
         }));
+
       }
+
+
     }
   };
+
+
+  const checkIfExistEmail = async (email) => {
+    // e.preventDefault();
+    try {
+      // Send a POST request to the API
+      const response = await axios.post(`${API_URL}/activity/check-exists`, {
+        email: email
+      });
+
+      console.log(response.data)
+      if (response.data.exists) {
+        setError({ ...error, email: "Email already exist" });
+      }
+
+    } catch (error) {
+
+    }
+  };
+
+  const checkIfExistPhone = async (phone) => {
+    // e.preventDefault();
+    try {
+      // Send a POST request to the API
+
+      const response = await axios.post(`${API_URL}/activity/check-exists`, {
+        phone: phone
+      });
+      if (response.data.exists) {
+        setError({ ...error, phone: "Phone already exist" });
+      }
+
+    } catch (error) {
+
+    }
+  };
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-
+    handleEmptyFields();
     // Check if passwords match
     if (formsData.password !== formsData.confirmPassword) {
       setPasswordError(true);
@@ -257,7 +370,7 @@ const Register = () => {
     formsDATA.append("cpassword", e.target[6].value);
     formsDATA.append("selectedCategories", JSON.stringify(selectedCategories));
     formsDATA.append("photo", compressedFile, selectedFile.name);
-    formsDATA.append("organization", selectedOrganization);
+    formsDATA.append("organization", JSON.stringify(selectedOrganization));
 
 
 
@@ -325,6 +438,14 @@ const Register = () => {
   const direct = () => {
     navigate("/login");
   };
+
+  const customStyles = {
+    menu: (provided) => ({
+      ...provided,
+      maxHeight: 100, // Set the max height of the dropdown list
+      overflowY: 'auto', // Enable vertical scrolling
+    }),
+  };
   return (
     <div className=" w-screen h-screen sm:w-screen sm:h-screen md:w-screen md:h-screen flex items-center justify-center pt-5 pb-5 sm:p-0">
 
@@ -369,7 +490,7 @@ const Register = () => {
             className=" w-5/6 h-full sm:w-full sm:h-full md:w-full md:h-full flex flex-col items-center justify-between sm:justify-between gap-y-2.5 sm:gap-y-3 sm:mt-2 px-6  "
           >
 
-            <div className="w-full h-7 flex flex-col items-center justify-center relative">
+            <div className="w-full h-7 flex flex-col mt-2 justify-center relative">
               <InputWithIconAndText
                 icon={faUser} // Change the icon as needed
                 iconColor={"#578be5"}
@@ -377,11 +498,13 @@ const Register = () => {
                 className="text-sm w-full h-7 pl-10 border-solid border-[1px]  border-gray-300 bg-inherit rounded-md focus:border-emerald-300 ease-in duration-300 py-1"
                 onChange={handleInputChange}
                 name="name"
-                required
+
               />
+              {error && error.name && <span className="text-red-500 text-xs text-left">{error.name}</span>}
               <h1 className="text-red-500 absolute -left-2 -top-1">*</h1>
             </div>
-            <div className="w-full h-7 flex flex-col items-center justify-center relative">
+
+            <div className="w-full h-7 flex flex-col justify-center relative">
               <InputWithIconAndText
                 icon={faEnvelope} // Change the icon as needed
                 iconColor={"#645a9f"}
@@ -390,42 +513,31 @@ const Register = () => {
                 onChange={handleInputChange}
                 name="email"
                 type="email"
-                required
+
               />
               <h1 className="text-red-500 absolute -left-2 -top-1">*</h1>
-              {fieldBeingEdited === "email" && error && <div className="error-message">{error}</div>}
-              {emailError && <div class="bg-red-50 px-4 text-xs text-red-500 rounded relative flex w-100 my-1" role="alert">
+              {error && error.email && <span className="text-red-500 text-xs text-left">{error.email}</span>}
 
-                <span class="block sm:inline py-2 text-xs">{emailError}</span>
-                <span class="px-2 py-2" onClick={() => setMobileError(null)}>
-                  <svg class="fill-current h-3.5 w-3.5 text-red-500 text-xs" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z" /></svg>
-                </span>
-              </div>}
+
             </div>
-            <div className="w-full h-7 relative">
+            <div className="w-full flex-col h-7 mb-3 relative">
               <InputWithIconAndText
                 icon={faPhone} // Change the icon as needed
                 iconColor={"#419f44"}
                 placeholder="Phone"
-                className="text-sm w-full h-7 pl-10 border-solid border-[1px]  border-gray-300 bg-inherit rounded-md focus:border-emerald-300 ease-in duration-300 py-1"
+                className="text-sm w-full h-7 pl-10 border-solid border-[1px] border-gray-300 bg-inherit rounded-md focus:border-emerald-300 ease-in duration-300 py-1"
                 onChange={handleInputChange}
                 name="phone"
                 value={formsData.phone}
                 type="number"
-                required
+
               />
               <h1 className="text-red-500 absolute -left-2 -top-1">*</h1>
+              {error && error.phone && <span className="text-red-500 text-xs text-left">{error.phone}</span>}
 
             </div>
 
-            {fieldBeingEdited === "phone" && mobileError && <div class="bg-red-50 px-4 text-xs text-red-500 rounded relative flex my-2" role="alert">
-
-              <span class="block sm:inline py-2 text-xs">{mobileError}</span>
-              <span class="px-2 py-2" onClick={() => setMobileError(null)}>
-                <svg class="fill-current h-3.5 w-3.5 text-red-500 text-xs" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z" /></svg>
-              </span>
-            </div>}
-            <div className="w-full h-7 flex flex-col items-center justify-center relative">
+            <div className="w-full h-7 flex flex-col justify-center relative">
               <InputWithIconAndText
                 icon={faLocationCrosshairs} // Change the icon as needed
                 iconColor={"#d67500"}
@@ -433,9 +545,11 @@ const Register = () => {
                 className="text-sm w-full h-7 pl-10 border-solid border-[1px]  border-gray-300 bg-inherit rounded-md focus:border-emerald-300 ease-in duration-300 py-1"
                 onChange={handleInputChange}
                 name="address"
-                required
+
               />
               <h1 className="text-red-500 absolute -left-2 -top-1">*</h1>
+              {error && error.address && <span className="text-red-500 text-xs text-left">{error.address}</span>}
+
             </div>
             {/* <div className="w-full h-7 flex flex-col items-center justify-center relative">
               <InputWithIconAndText
@@ -450,7 +564,7 @@ const Register = () => {
             </div>
             {fieldBeingEdited === "aadhar" && aadharError && <div className="error-message">{aadharError}</div>} */}
 
-            <div className="w-full h-7 flex flex-col items-center justify-center relative">
+            <div className="w-full h-7 flex flex-col justify-center relative">
               <InputWithIconAndText
                 icon={faKey} // Change the icon as needed
                 iconColor={"#f4b8c0"}
@@ -460,11 +574,14 @@ const Register = () => {
                 // inputClassName="password-input"
                 onChange={handleInputChange}
                 name="password"
-                required
+
               />
               <h1 className="text-red-500 absolute -left-2 -top-1">*</h1>
+              {error && error.password && <span className="text-red-500 text-xs text-left">{error.password}</span>}
+
+
             </div>
-            <div className="w-full h-7 flex flex-col items-center justify-center relative">
+            <div className="w-full h-7 flex flex-col justify-center relative">
               <InputWithIconAndText
                 icon={faLock} // Change the icon as needed
                 iconColor={"#f5191c"}
@@ -474,36 +591,35 @@ const Register = () => {
                 // inputClassName="password-input"
                 onChange={handleInputChange}
                 name="confirmPassword"
-                required
+
               />
               <h1 className="text-red-500 absolute -left-2 -top-1">*</h1>
               {/* {passwordError && (
                 <div className="error-message">Passwords do not match</div>
               )} */}
-              {passwordError && <div class="bg-red-50 px-4 text-xs text-red-500 rounded relative my-3 flex w-100" role="alert">
+              {error && error.confirmPassword && <span className="text-red-500 text-xs text-left">{error.confirmPassword}</span>}
 
-                <span class="block sm:inline py-2 text-xs">{'Password does not match'}</span>
-                <span class="px-2 py-2" onClick={() => setPasswordError(false)}>
-                  <svg class="fill-current h-3.5 w-3.5 text-red-500 text-xs" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z" /></svg>
-                </span>
-              </div>}
+
             </div>
-            <div className="form-group w-full h-auto cursor-pointer">
-              {/* <label htmlFor="organization">Select Organization</label> */}
-              <select
-                className="w-full  text-sm  pl-10 border-solid border-[1px]  border-gray-300 bg-inherit rounded-md focus:border-emerald-300 ease-in duration-300 cursor-pointer"
-                id="organization"
-                value={selectedOrganization}
-                onChange={(e) => setSelectedOrganization(e.target.value)}
+            <div className="w-full h-auto flex flex-col justify-center relative">
+              <label className="block font-semibold mb-1 text-left w-full">
+                Organization:
+              </label>
 
-              >
-                <option className="w-full" value="" disabled>Select Organization</option>
-                {organizations.map((organization) => (
-                  <option className="w-full" key={organization._id} value={organization._id}>
-                    {organization.name}
-                  </option>
-                ))}
-              </select>
+              <div className="w-full">
+                {organizations && (
+                  <Select
+                    isMulti
+                    name="options"
+                    options={organizations}
+                    className="basic-multi-select"
+                    classNamePrefix="select"
+                    id="organization"
+                    onChange={handleOrganizationChange}
+                    styles={customStyles}
+                  />
+                )}
+              </div>
             </div>
 
             <div className="relative w-full">
@@ -522,25 +638,44 @@ const Register = () => {
                 className="hidden"
                 onChange={handleFileChange}
                 placeholder="select a file"
-                required
+
               />
               <span className="absolute left-0 top-0 text-red-500">*</span>
 
               {selectedFile ? (
                 <p className="mt-2 text-sm text-emerald-600">Selected: {selectedFile.name}</p>
-              ) : (
-                <p className="mt-2 text-sm text-gray-500">No file selected</p>
+              ) : error && error.selectedFile && (
+                <p className="mt-2 text-sm text-red-500">No file selected</p>
               )}
             </div>
 
-            {fileError && <div class="bg-red-50 px-4 text-xs text-red-500 rounded relative my-3 flex w-100" role="alert">
+            <div className="w-full h-auto flex flex-col items-center justify-center relative">
+              <label className="block font-semibold mb-1 text-left w-full">
+                <span className="text-red-500">*</span>Select Categories:
+              </label>
 
-              <span class="block sm:inline py-2 text-xs">{'Select one of these jpg , png, jpeg, jfif'}</span>
-              <span class="px-2 py-2" onClick={() => setFileError(false)}>
-                <svg class="fill-current h-3.5 w-3.5 text-red-500 text-xs" role="button" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><title>Close</title><path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z" /></svg>
-              </span>
-            </div>}
-            <div className="w-full h-auto flex flex-col items-center justify-center  relative ">
+              <div className="w-full">
+                {categories && (
+                  <Select
+                    isMulti
+                    name="options"
+                    options={categories}
+                    value={selectedOrganizationMenu}
+
+                    className="basic-multi-select"
+                    classNamePrefix="select"
+                    id="category"
+                    onChange={handleCategoryChange}
+                    styles={customStyles}
+                  />
+                )}
+                <div className="text-blue-500 mt-2">
+                  You can only select up to {'6'} categories.
+                </div>
+              </div>
+            </div>
+
+            {/* <div className="w-full h-auto flex flex-col items-center justify-center  relative ">
               <label className="block font-semibold mb-1 text-left w-full"><span className="text-red-500">*</span>Select Categories:</label>
               <div className="grid grid-cols-3 gap-1 w-full">
                 {categories.map((category, index) => (
@@ -555,7 +690,7 @@ const Register = () => {
                   </button>
                 ))}
               </div>
-            </div>
+            </div> */}
 
 
 
