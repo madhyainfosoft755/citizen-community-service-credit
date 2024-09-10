@@ -15,6 +15,7 @@ import CertficatePopup from "components/certificate_modal";
 import EditProfile from "components/editProfile/editProfile";
 import EditUserModal from "components/editmodel/editmodel";
 const ProfileForUser = () => {
+    const [imageLoaded, setImageLoaded] = useState(true);
     const notify = (e) => toast(e);
     const [error, setError] = useState(null);
     const { authenticated, setAuthenticated } = useAuth();
@@ -358,29 +359,42 @@ const ProfileForUser = () => {
 
                         <div className="bg-gray-50 flex flex-row items-center justify-between p-2 sm:px-2   w-full ">
 
-                                <div className="flex  gap-2 items-center justify-center " >
-                                    {userData && (
+                            <div className="flex  gap-2 items-center justify-center " >
+                                {userData && userData.userData && (
+                                    userData.userData.photo && imageLoaded ? (
                                         <Img
-                                            className="w-14 h-14 rounded-[50%] object-cover object-center"
+                                            className="cursor-pointer w-14 h-14 rounded-full object-cover object-top"
                                             src={`${API_URL}/image/${userData.userData.photo}`}
-                                            alt="userimage"
+                                            alt="User Photo"
+                                            onClick={() => { navigate("/users-profile") }}
+                                            onError={() => setImageLoaded(false)}
                                         />
-                                    )}
-                                    <div className="flex flex-col items-center justify-center w-3/5 ">
-                                        <div className="cursor-default flex flex-col items-start justify-center w-full ">
-                                            <Text
-                                                className="text-center text-gray-900 uppercase"
-                                                size="txtInterSemiBold16Gray900"
-                                            >
-                                                {/* {userData && userData.userData.name} */}
-                                                {userName && userName.split(" ")[0]}
-                                            </Text>
-                                           </div>
+                                    ) : (
+                                        <div className="bg-white-A700 w-16 h-14 rounded-full flex items-center justify-center">
+
+                                            <FontAwesomeIcon
+                                                icon={faUser}
+                                                className="ri-user-fill h-1/2 cursor-pointer text-gray-600"
+                                                onClick={() => { navigate("/users-profile") }}
+                                            />
+                                        </div>
+                                    )
+                                )}
+                                <div className="flex flex-col items-center justify-center w-3/5 ">
+                                    <div className="cursor-default flex flex-col items-start justify-center w-full ">
+                                        <Text
+                                            className="text-center text-gray-900 uppercase"
+                                            size="txtInterSemiBold16Gray900"
+                                        >
+                                            {/* {userData && userData.userData.name} */}
+                                            {userName && userName.split(" ")[0]}
+                                        </Text>
                                     </div>
                                 </div>
-                                <Button onClick={direct} className="text-blue-500 bg-white-A700 px-3 py-2 rounded-full text-xs font-semibold cursor-pointer">{`${totalTime || 0} Hrs | ${totalTime && convertToHours(totalTime)} Pts`}</Button>
+                            </div>
+                            <Button onClick={direct} className="text-blue-500 bg-white-A700 px-3 py-2 rounded-full text-xs font-semibold cursor-pointer">{`${totalTime || 0} Hrs | ${totalTime && convertToHours(totalTime)} Pts`}</Button>
 
-                                <img onClick={()=>navigate("/create")} src={APP_PATH + "images/2.png"} className="cursor-pointer w-14 h-14 rounded-full" alt="" />
+                            <img onClick={() => navigate("/create")} src={APP_PATH + "images/2.png"} className="cursor-pointer w-14 h-14 rounded-full" alt="" />
 
                         </div>
 
