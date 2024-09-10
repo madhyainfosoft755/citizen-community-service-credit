@@ -378,7 +378,7 @@ const Register = () => {
     formsDATA.append("password", e.target[5].value);
     formsDATA.append("cpassword", e.target[6].value);
     formsDATA.append("selectedCategories", JSON.stringify(selectedCategories));
-    formsDATA.append("photo", compressedFile, selectedFile.name);
+    selectedFile && formsDATA.append("photo", compressedFile, selectedFile && selectedFile.name);
     formsDATA.append("organization", JSON.stringify(selectedOrganization));
 
 
