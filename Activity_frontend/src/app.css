@@ -1,0 +1,8 @@
+*{
+    font-family:Arial;
+    
+}
+
+.Toastify__toast {
+    border-radius: 10px; /* Adjust the value to change the roundness */
+  }

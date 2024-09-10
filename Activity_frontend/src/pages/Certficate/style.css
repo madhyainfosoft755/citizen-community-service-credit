@@ -1,0 +1,19 @@
+.certificate-container {
+    /* width: 80%; */
+    /* max-width: 800px; */
+    /* margin: 0 auto; */
+    border: 1px solid #1a202c;
+    padding: 40px;
+    background-color: #fff;
+    /* box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); */
+}
+
+.certificate-header {
+    font-family: 'Times New Roman', Times, serif;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.certificate-body {
+    font-family: 'Arial', sans-serif;
+}

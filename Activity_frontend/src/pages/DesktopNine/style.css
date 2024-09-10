@@ -1,0 +1,13 @@
+.scroller::-webkit-scrollbar{
+    display: none;
+}
+
+
+.horizontal{
+    writing-mode: vertical-lr;
+        text-orientation: mixed;
+        white-space: nowrap;
+        transform: rotate(180deg);
+        
+}
+/* in react-chartjs-2 i need labeling for horizontal and vertical in barchart in reactjs */

@@ -1,0 +1,22 @@
+{
+  "short_name": "CC247",
+  "name": "सेवा परमो धर्मः  - सेवा ही परम धर्म है I Community Care 247 ",
+  "description": "सेवा परमो धर्मः  - सेवा ही परम धर्म है I",
+
+  "icons": [
+    {
+      "src": "./images/2.png",
+      "type": "image/png",
+      "sizes": "192x192"
+    },
+    {
+      "src": "./images/2.png",
+      "type": "image/png",
+      "sizes": "512x512"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#000000",
+  "background_color": "#ffffff"
+}

@@ -1,0 +1,57 @@
+module.exports = {
+  mode: "jit",
+  content: [
+    "./src/**/**/*.{js,ts,jsx,tsx,html,mdx}",
+    "./src/**/*.{js,ts,jsx,tsx,html,mdx}",
+  ],
+  darkMode: "class",
+  theme: {
+    screens: { md: { max: "1050px" }, sm: { max: "550px" } }, 
+    extend: {
+      colors: {
+        gray: {
+          50: "#f4f6ff",
+          100: "#f1f3ff",
+          600: "#7e7e7e",
+          800: "#3c3c3c",
+          900: "#272727",
+          "50_01": "#f8f9ff",
+          "700_33": "#63636333",
+          "800_7e": "#3c3c3c7e",
+          "900_b2": "#272727b2",
+          "500_33": "#959da533",
+        },
+        indigo: {
+          500: "#384fc6",
+          A200_21: "#546ef621",
+          A200: "#546ef6",
+          A200_5f: "#546ef65f",
+          A200_33: "#546ef633",
+          "500_19": "#383dc019",
+        },
+        blue: { 50: "#eff1ff", A400: "#1877f2" },
+        red: { 500: "#ea4335" },
+        black: {
+          900: "#000000",
+          "900_87": "#00000087",
+          "900_28": "#00000028",
+          "900_26": "#00000026",
+          "900_a2": "#000000a2",
+          "900_99": "#00000099",
+          "900_19": "#00000019",
+          "900_14": "#00000014",
+        },
+        white: { A700_33: "#ffffff33", A700: "#ffffff" },
+      },
+      boxShadow: {
+        bs: "0px 0px  5px 0px #546ef633",
+        bs1: "0px 0px  4px 0px #00000019",
+        bs2: "0px 8px  24px 0px #959da533",
+        bs4: "0px 1px  4px 0px #00000028",
+        bs3: "0px 2px  8px 0px #63636333",
+      },
+      fontFamily: { inter: "Inter" },
+    },
+  },
+  plugins: [require("@tailwindcss/forms")],
+};

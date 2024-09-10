@@ -1,0 +1,24 @@
+.no-spinner::-webkit-outer-spin-button,
+.no-spinner::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.green-border{
+    transition: border-color 0.3s ease-in-out;
+}
+
+.green-border:focus-within{
+    border-color: #adff2f;
+}
+
+.green-border.focus-within {
+    border-color: #adff2f;
+  }
+.sixfont{
+    font-weight: 600;
+}
+
+.scroller::-webkit-scrollbar{
+    display: none;
+}
