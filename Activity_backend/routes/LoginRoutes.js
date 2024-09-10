@@ -79,11 +79,8 @@ router.get("/fetchApprovers", fetchApprovers);
 router.post("/addApprover", addApprover);
 router.get("/pendingApproval", pendingApproval);
 router.get("/getUsersWithMostPostsInYear", getUsersWithMostPostsInYear);
-router.get(
-  "/getUsersWithMostPostsInSixMonths",
-  getUsersWithMostPostsInSixMonths
-);
 
+router.get("/getUsersWithMostPostsInSixMonths",  getUsersWithMostPostsInSixMonths);
 router.get("/getUsersWithMostPostsInQuater", getUsersWithMostPostsInQuater);
 router.get("/getUsersWithMostPostsInMonth", getUsersWithMostPostsInMonth);
 router.put("/approveHours/:postId", approveHours);

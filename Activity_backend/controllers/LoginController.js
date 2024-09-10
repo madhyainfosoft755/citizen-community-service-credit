@@ -1392,7 +1392,7 @@ const fetchPostsInArea = async (req, res) => {
 
     // Calculate the coordinates of the area's boundaries (50 kilometers around the given coordinates)
     const earthRadiusKm = 6371;
-    const distanceKm = 500;
+    const distanceKm = 5000;
 
     const latRadians = latitude * (Math.PI / 180);
     // const lonRadians = longitude * (Math.PI / 180);
@@ -1468,6 +1468,9 @@ const getCategories = async (req, res) => {
     res.status(500).json({ message: "Failed to fetch categories", error });
   }
 };
+
+
+
 
 //ADMINISTRATOR CONTROLLERS
 
@@ -1860,8 +1863,8 @@ const pendingApproval = async (req, res) => {
     const posts = await Posts.findAll({
       where: {
         endorsementCounter: {
-          [Op.gt]: 0, // will find all posts with endorsementCounter greater than 1
-        }, // will find all post for approval
+          [Op.gt]: 0, // will find all posts with endorsementCounter greater than 0
+        }, 
         approved: false,
         rejected: false,
       },
