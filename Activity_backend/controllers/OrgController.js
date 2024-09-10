@@ -13,7 +13,7 @@ const Categories = db.Categories;
 const Posts = db.Posts;
 const Organisations = db.Organisations;
 const Approvers = db.Approvers;
-
+const AttachOrg = db.AttachOrg;
 // Helper function to convert HH:mm:ss time format to seconds
 const convertTimeToSeconds = (time) => {
   const [hours, minutes, seconds] = time.split(":").map(Number);
@@ -56,9 +56,9 @@ const verifyIfAdmin = async (token) => {
       return false;
     }
     const total = await Users.findAll({
-      where: { verified: true, id: user_id, role: "admin" },
+      where: { verified: true, id: user_id, role: "org_admin" },
     });
-    if (total.length > 0) return true;
+    if (total.length > 0) return Users.orgId;
     else return false;
   } catch (error) {
     logger.error(error);
@@ -86,7 +86,14 @@ const getTotalUsers = async (req, res) => {
       return res.json({ message: "not an admin" });
     }
 
-    const total = await Users.findAll();
+    const total = await Users.findAll({
+      include: [
+        {
+          model: OrgAttach, // This is your org_attach model
+          where: { orgId: ifAdmin }, // Filter based on the orgId
+        },
+      ],
+    });
     res.json({ total: total.length });
   } catch (error) {
     logger.error(error);

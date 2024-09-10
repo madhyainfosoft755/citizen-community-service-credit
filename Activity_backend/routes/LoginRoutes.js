@@ -61,6 +61,7 @@ const {
   postsForCategoryUser,
   getOrgDetails,
   submitFeedback,
+  checkifAlreadyExist,
 } = require("../controllers/LoginController");
 const { upload } = require("../utils/util");
 const uploadMiddleWare = require("../Middlewere/uploadMiddleware");
@@ -130,6 +131,7 @@ router.post("/get-user-report", getAllActivitiesByCategoriesUser);
 router.get("/get-user-report-date", postsForDateRangeUser);
 router.get("/getOrgDetails/:org", getOrgDetails);
 router.post("/submitFeedback", submitFeedback);
+router.post("/check-exists", checkifAlreadyExist);
 router.post("/update-user", uploadMiddleWare.single("photo"), updateUser);
 
 module.exports = router;

@@ -214,7 +214,7 @@ const Createpost = () => {
         notify("Session time Out")
       }
     } catch (error) {
-      notify(error)
+      // notify(error)
       console.error("Error checking token expiry:", error);
     }
   };
@@ -397,7 +397,7 @@ const Createpost = () => {
     };
 
     if (!selectedFile) {
-      notify("Please upload a photo ");
+      // notify("Please upload a photo ");
       return;
     }
     const compressedFile = await imageCompression(selectedFile, options);
@@ -454,11 +454,11 @@ const Createpost = () => {
       if (response.ok) {
         // console.log("Success:", data);
         const timeSpent = getTimeDifference(fromTime, toTime)
-        notify(data.message)
+        // notify(data.message)
         navigate("/activity", { state: { timeSpent, data } });
       } else {
         console.error("Error:", data.error);
-        notify(`${data.error}`)
+        // notify(`${data.error}`)
       }
     } catch (error) {
       console.error("Error:", error);

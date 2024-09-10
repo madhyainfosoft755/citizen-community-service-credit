@@ -40,6 +40,7 @@ const JWT_SECRET = process.env.JWT_Secret;
 const qs = require("qs");
 const { count } = require("console");
 const organization = require("../models/organization");
+const CreatePost = require("../models/CreatePost");
 
 // Function to decode the post ID
 function decodePostID(encodedID) {
@@ -2861,6 +2862,44 @@ const submitFeedback = async (req, res) => {
   }
 };
 
+const checkifAlreadyExist = async (req, res) => {
+  try {
+    const { email, phone } = req.body;
+
+    // Build a dynamic query object
+    let query = {};
+    if (email) {
+      query.email = email;
+    }
+    if (phone) {
+      query.phone = phone;
+    }
+
+    if (!email && !phone) {
+      return res
+        .status(400)
+        .json({ message: "Please provide email or phone to check." });
+    }
+
+    // Check if the user with the email or phone already exists
+    const userExists = await Users.findOne({ where: query });
+
+    if (userExists) {
+      return res
+        .status(200)
+        .json({ message: "User already exists.", exists: true });
+    }
+
+    return res
+      .status(200)
+      .json({ message: "User does not exist.", exists: false });
+  } catch (error) {
+    console.log(error);
+    return res
+      .status(500)
+      .json({ message: "Internal server error.", error: error.message });
+  }
+};
 module.exports = {
   output,
   varifybytoken,
@@ -2922,4 +2961,5 @@ module.exports = {
   postsForDateRangeUser,
   getOrgDetails,
   submitFeedback,
+  checkifAlreadyExist,
 };
