@@ -96,11 +96,19 @@ const EditUserModal = ({ userData, isOpen, onClose, onSave }) => {
   };
 
   const handleCategoryChange = (selectedCategories) => {
+    if (selectedCategories.length > 6) {
+      setError({
+        field: "category",
+        message: "You can select a maximum of 6 categories.",
+      });
+      return;
+    }
     setCategories(selectedCategories);
     setFormData((prevFormData) => ({
       ...prevFormData,
       selectedCategories: selectedCategories.map((cat) => cat.value),
     }));
+    setError(null); // Clear error when selection is valid
   };
 
   const handlePhotoChange = (e) => {
@@ -116,6 +124,14 @@ const EditUserModal = ({ userData, isOpen, onClose, onSave }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    if (formData.name.trim().length < 2) {
+      setError({
+        field: "name",
+        message: "Name must be at least 2 characters long.",
+      });
+      return;
+    }
 
     const token = localStorage.getItem("token");
     if (!token) {
@@ -292,14 +308,15 @@ const EditUserModal = ({ userData, isOpen, onClose, onSave }) => {
               className="basic-select"
               classNamePrefix="select"
               id="organization"
-              value={{
-                label: formData.organization,
-                value: formData.organization,
-              }}
-              onChange={(selected) =>
+              value={
+                formData.organization
+                  ? { value: formData.organization, label: formData.organization }
+                  : null
+              }
+              onChange={(selectedOption) =>
                 setFormData((prevFormData) => ({
                   ...prevFormData,
-                  organization: selected ? selected.value : "",
+                  organization: selectedOption ? selectedOption.value : "",
                 }))
               }
             />
@@ -347,8 +364,6 @@ const EditUserModal = ({ userData, isOpen, onClose, onSave }) => {
   );
 };
 
-export default EditUserModal;
-
 const Alert = ({ message, onClose }) => (
   <div
     className="bg-red-50 px-4 text-sm text-red-500 rounded relative flex mb-3"
@@ -368,3 +383,5 @@ const Alert = ({ message, onClose }) => (
     </span>
   </div>
 );
+
+export default EditUserModal;
