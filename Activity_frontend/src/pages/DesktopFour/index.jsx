@@ -10,9 +10,11 @@ import { toast } from "react-toastify";
 import QuoteModal from "components/quote-modal";
 import { convertToHours } from "utils";
 import LinkModal from "components/link-modal/link-modal";
-
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faUser } from "@fortawesome/free-solid-svg-icons";
 
 const DesktopFourPage = () => {
+  const [imageLoaded, setImageLoaded] = useState(true);
   const notify = (e) => toast(e);
   const [isPopUpVisible, setIsPopUpVisible] = useState(false); // State for pop-up visibility
   const [selectedPost, setSelectedPost] = useState(null); // State for selected post
@@ -229,15 +231,26 @@ const DesktopFourPage = () => {
           <div className="relative  w-4/12 h-full  flex items-start justify-center  sm:shadow-none  border-[1px]  rounded-lg sm:rounded-none  lg:h-full sm:w-full sm:h-full md:w-full md:h-full overflow-hidden scroller">
             <div className="flex flex-col  items-center justify-start w-full h-full md:w-full sm:w-full">
               <div className="bg-gray-50 flex flex-row items-center justify-between p-3 sm:px-2 w-full ">
-                <div className="flex flex-row gap-1 items-center justify-center ml-[5px]" onClick={openProfilePopup}>
-                  {userData && (
-                    <Img
-                      className=" cursor-pointer w-14   h-14  rounded-[50%] object-cover object-center "
-                      src={`${API_URL}/image/${userData && userData.userData.photo}`}
-                      alt="userimage"
-                      onClick={() => { navigate("/users-profile") }}
+                <div className="flex flex-row gap-3 items-center justify-center ml-[5px]" onClick={openProfilePopup}>
+                  {userData && userData.userData && (
+                    userData.userData.photo && imageLoaded ? (
+                      <Img
+                        className="cursor-pointer w-14 h-14 rounded-full object-cover object-top"
+                        src={`${API_URL}/image/${userData.userData.photo}`}
+                        alt="User Photo"
+                        onClick={() => { navigate("/users-profile") }}
+                        onError={() => setImageLoaded(false)}
+                      />
+                    ) : (
+                      <div className="bg-white-A700 w-16 h-14 rounded-full flex items-center justify-center">
 
-                    />
+                        <FontAwesomeIcon
+                          icon={faUser}
+                          className="ri-user-fill h-1/2 cursor-pointer text-gray-600"
+                          onClick={() => { navigate("/users-profile") }}
+                        />
+                      </div>
+                    )
                   )}
                   <div className="flex flex-col items-center justify-center w-3/5 ">
                     <div className=" cursor-default flex flex-col items-start justify-center w-full ">
