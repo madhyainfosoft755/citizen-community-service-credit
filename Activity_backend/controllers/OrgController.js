@@ -58,7 +58,8 @@ const verifyIfAdmin = async (token) => {
     const total = await Users.findAll({
       where: { verified: true, id: user_id, role: "org_admin" },
     });
-    if (total.length > 0) return Users.orgId;
+    // console.log("priniting slelceted user ", total[0].orgId);
+    if (total.length > 0) return total[0].orgId;
     else return false;
   } catch (error) {
     logger.error(error);
@@ -80,7 +81,7 @@ const TestContoller = async (req, res) => {
 const getTotalUsers = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
-    // console.log("not an admin", ifAdmin);
+    console.log("not an admin", ifAdmin);
 
     if (!ifAdmin) {
       return res.json({ message: "not an admin" });
@@ -89,11 +90,12 @@ const getTotalUsers = async (req, res) => {
     const total = await Users.findAll({
       include: [
         {
-          model: AttachOrg, // This is your org_attach model
-          where: { orgId: ifAdmin }, // Filter based on the orgId
+          model: AttachOrg,
+          where: { OrgId: ifAdmin },
         },
       ],
     });
+    console.log("total users", total);
     res.json({ total: total.length });
   } catch (error) {
     logger.error(error);
