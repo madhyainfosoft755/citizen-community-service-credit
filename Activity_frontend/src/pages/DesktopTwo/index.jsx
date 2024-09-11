@@ -369,6 +369,7 @@ const Register = () => {
     if (selectedFile) {
       compressedFile = await imageCompression(selectedFile, options);
     }
+
     const formsDATA = new FormData();
     formsDATA.append("name", e.target[0].value);
     formsDATA.append("email", e.target[1].value);
