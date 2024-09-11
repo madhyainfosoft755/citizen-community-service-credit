@@ -195,6 +195,16 @@ const EditUserModal = ({ userData, isOpen, onClose, onSave }) => {
               name="name"
               value={formData.name}
               onChange={handleChange}
+              onBlur={() => {
+                if (formData.name.length < 2) {
+                  setError({ field: "name", message: "Name must be at least 2 characters long." });
+                }
+              }}
+              onFocus={() => {
+                if (error && error.field === "name") {
+                  setError(null); // Clear the error when the user focuses on the input
+                }
+              }}
               required
               className="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
             />
@@ -202,6 +212,8 @@ const EditUserModal = ({ userData, isOpen, onClose, onSave }) => {
               <Alert message={error.message} onClose={() => setError(null)} />
             )}
           </div>
+
+
           <div className="mb-4">
             <label
               className="block text-gray-700 text-sm font-bold mb-2"
