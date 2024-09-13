@@ -492,22 +492,30 @@ const RegisterLinkedin = async (req, res) => {
 
     // Check if any required field is empty
     if (!userData.name) {
-      return res.status(400).json({ message: "Name is required" });
+      return res
+        .status(400)
+        .json({ field: "name", message: "Name is required" });
     }
 
     if (!userData.email) {
-      return res.status(400).json({ message: "Email is required" });
+      return res
+        .status(400)
+        .json({ field: "email", message: "Email is required" });
     }
 
     if (!userData.photo) {
-      return res.status(400).json({ message: "Photo is required" });
+      return res
+        .status(400)
+        .json({ field: "photo", message: "Photo is required" });
     }
 
     // Validate photo URL
     const urlRegex =
       /(http|https):\/\/(\w+:?\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?/;
     if (!urlRegex.test(userData.photo)) {
-      return res.status(400).json({ message: "Invalid photo URL format" });
+      return res
+        .status(400)
+        .json({ field: "photo", message: "Invalid photo URL format" });
     }
 
     // Check if user with the same email already exists
@@ -516,7 +524,9 @@ const RegisterLinkedin = async (req, res) => {
     });
     // console.log("this is the existing user", existingUser)
     if (existingUser) {
-      return res.status(400).json({ message: "Email already exists" });
+      return res
+        .status(400)
+        .json({ field: "email", message: "Email already exists" });
     }
 
     // Check if user with the same mobile number already exists
@@ -552,8 +562,6 @@ const RegisterLinkedin = async (req, res) => {
     if (!selectedCategories.includes("Others")) {
       selectedCategories.push("Others");
     }
-
-    // console.log("Final categories:", selectedCategories);
 
     // Download and save profile picture
     const pictureUrl = userData.photo;
@@ -1469,9 +1477,6 @@ const getCategories = async (req, res) => {
   }
 };
 
-
-
-
 //ADMINISTRATOR CONTROLLERS
 
 // adminAuthMiddleware.js
@@ -1864,7 +1869,7 @@ const pendingApproval = async (req, res) => {
       where: {
         endorsementCounter: {
           [Op.gt]: 0, // will find all posts with endorsementCounter greater than 0
-        }, 
+        },
         approved: false,
         rejected: false,
       },

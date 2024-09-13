@@ -140,7 +140,12 @@ const getTotalApprovedHours = async (req, res) => {
     if (!ifAdmin) {
       return res.json({ message: "not an admin" });
     }
-    const all_posts = await Posts.findAll({ where: { approved: true } });
+
+    const org_name = await Organisations.findOne({ where: { id: ifAdmin } });
+
+    const all_posts = await Posts.findAll({
+      where: { approved: true, organization: org_name.name },
+    });
     // Calculate the sum of totalTime
     let totalTimeSum = 0;
     all_posts.forEach((post) => {
@@ -165,7 +170,12 @@ const getTotalRejectedHours = async (req, res) => {
     if (!ifAdmin) {
       return res.json({ message: "not an admin" });
     }
-    const all_posts = await Posts.findAll({ where: { rejected: true } });
+
+    const org_name = await Organisations.findOne({ where: { id: ifAdmin } });
+
+    const all_posts = await Posts.findAll({
+      where: { rejected: true, organization: org_name.name },
+    });
     let totalTimeSum = 0;
     all_posts.forEach((post) => {
       totalTimeSum += convertTimeToSeconds(post.totalTime);
@@ -188,8 +198,11 @@ const getTotalUnopenedHours = async (req, res) => {
     if (!ifAdmin) {
       return res.json({ message: "not an admin" });
     }
+
+    const org_name = await Organisations.findOne({ where: { id: ifAdmin } });
+
     const all_posts = await Posts.findAll({
-      where: { rejected: false, approved: false },
+      where: { rejected: false, approved: false, organization: org_name.name },
     });
     let totalTimeSum = 0;
     all_posts.forEach((post) => {
@@ -213,7 +226,11 @@ const getTotalActivities = async (req, res) => {
     if (!ifAdmin) {
       return res.json({ message: "not an admin" });
     }
-    const total = await Posts.findAll({ where: { approved: true } });
+    const org_name = await Organisations.findOne({ where: { id: ifAdmin } });
+
+    const total = await Posts.findAll({
+      where: { approved: true, organization: org_name.name },
+    });
     res.json({ total: total.length });
   } catch (error) {
     logger.error(error);
@@ -231,6 +248,12 @@ const getAllUsers = async (req, res) => {
     const usersList = await Users.findAll({
       where: { role: "user" },
       order: [["id", "DESC"]],
+      include: [
+        {
+          model: AttachOrg,
+          where: { OrgId: ifAdmin },
+        },
+      ],
     });
     res.json({ users: usersList });
   } catch (error) {
@@ -320,6 +343,12 @@ const getAllApprovers = async (req, res) => {
       return res.json({ message: "not an admin" });
     }
     const OrganizationList = await Approvers.findAll({
+      include: [
+        {
+          model: AttachOrg,
+          where: { OrgId: ifAdmin },
+        },
+      ],
       order: [["id", "DESC"]],
     });
     res.json({ approvers: OrganizationList });
@@ -339,6 +368,12 @@ const getAllApproversByStatus = async (req, res) => {
     const status = req.params.status;
 
     const OrganizationList = await Approvers.findAll({
+      include: [
+        {
+          model: AttachOrg,
+          where: { OrgId: ifAdmin },
+        },
+      ],
       where: { isEnabled: status },
       order: [["id", "DESC"]],
     });
@@ -378,8 +413,11 @@ const getAllEndorseActivities = async (req, res) => {
     if (!ifAdmin) {
       return res.json({ message: "not an admin" });
     }
+
+    const org_name = await Organisations.findOne({ where: { id: ifAdmin } });
+
     const AcitvityList = await Posts.findAll({
-      where: { endorsementCounter: true },
+      where: { endorsementCounter: true, organization: org_name.name },
       order: [["id", "DESC"]],
       include: [
         {
@@ -403,6 +441,8 @@ const getAllActivitiesBy = async (req, res) => {
       return res.json({ message: "not an admin" });
     }
 
+    const org_name = await Organisations.findOne({ where: { id: ifAdmin } });
+
     let { filter, startDate, endDate, category } = req.body;
 
     let AcitvityList = null;
@@ -421,6 +461,7 @@ const getAllActivitiesBy = async (req, res) => {
           [Op.between]: [startDate, endDate],
         },
         category: selectedCategory,
+        organization: org_name.name,
       };
 
       // Add filter condition only if filter is not null
@@ -439,6 +480,7 @@ const getAllActivitiesBy = async (req, res) => {
       if (!end && !start) {
         let where = {
           category: selectedCategory,
+          organization: org_name.name,
         };
         if (filter == "endorsed") {
           where["endorsementCounter"] = true;
@@ -455,6 +497,7 @@ const getAllActivitiesBy = async (req, res) => {
           let where = {
             Date: { [Op.gt]: startDate },
             category: selectedCategory,
+            organization: org_name.name,
           };
           if (filter == "endorsed") {
             where["endorsementCounter"] = true;
@@ -471,6 +514,7 @@ const getAllActivitiesBy = async (req, res) => {
           let where = {
             Date: { [Op.gt]: endDate },
             category: selectedCategory,
+            organization: org_name.name,
           };
           if (filter == "endorsed") {
             where["endorsementCounter"] = true;
@@ -507,6 +551,8 @@ const getAllEndorseActivitiesBy = async (req, res) => {
       return res.json({ message: "not an admin" });
     }
 
+    const org_name = await Organisations.findOne({ where: { id: ifAdmin } });
+
     let { filter, startDate, endDate, category } = req.body;
 
     let AcitvityList = null;
@@ -526,6 +572,7 @@ const getAllEndorseActivitiesBy = async (req, res) => {
         },
         category: selectedCategory,
         endorsementCounter: true,
+        organization: org_name.name,
       };
 
       // Add filter condition only if filter is not null
@@ -548,6 +595,7 @@ const getAllEndorseActivitiesBy = async (req, res) => {
         let where = {
           category: selectedCategory,
           endorsementCounter: true,
+          organization: org_name.name,
         };
         if (filter !== "All" && filter !== "waiting") {
           where[filter] = true;
@@ -568,6 +616,7 @@ const getAllEndorseActivitiesBy = async (req, res) => {
             Date: { [Op.gt]: startDate },
             category: selectedCategory,
             endorsementCounter: true,
+            organization: org_name.name,
           };
           if (filter !== "All" && filter !== "waiting") {
             where[filter] = true;
@@ -588,6 +637,7 @@ const getAllEndorseActivitiesBy = async (req, res) => {
             Date: { [Op.gt]: endDate },
             category: selectedCategory,
             endorsementCounter: true,
+            organization: org_name.name,
           };
           if (filter !== "All" && filter !== "waiting") {
             where[filter] = true;
@@ -629,6 +679,12 @@ const getAllActivityById = async (req, res) => {
     const id = req.params.id;
     console.log(id, "id");
     const AcitvityList = await Posts.findAll({
+      include: [
+        {
+          model: AttachOrg,
+          where: { OrgId: ifAdmin },
+        },
+      ],
       where: { id: id },
       order: [["id", "DESC"]],
       include: [
