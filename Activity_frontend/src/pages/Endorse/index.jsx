@@ -6,7 +6,7 @@ import { useAuth } from "components/AuthProvider/AuthProvider";
 import Location from "pages/Location/Location";
 import { Transition } from "@headlessui/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
+import { faMagnifyingGlass, faUser } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import PopupComponent from "components/popup";
 import "./style.css";
@@ -14,6 +14,7 @@ import { toast } from "react-toastify";
 import { convertToHours } from "utils";
 import { format } from "date-fns";
 const Endorse = () => {
+  const [imageLoaded, setImageLoaded] = useState(true);
   const notify = (e) => toast(e);
   const [isPopUpVisible, setIsPopUpVisible] = useState(false); // State for pop-up visibility
   const [selectedPost, setSelectedPost] = useState(null); // State for selected post
@@ -415,15 +416,26 @@ const Endorse = () => {
             <div className="flex flex-col gap-3 items-center justify-start w-full h-full   sm:p-0 ">
               <div className="relative bg-gray-50 flex flex-row items-center justify-between p-3  sm:px-2 w-full rounded-md sm:rounded-none ">
 
-                <div className="flex  items-center justify-between " onClick={openProfilePopup}>
-                  {userData && (
-                    <Img
-                      className="cursor-pointer w-14 h-14 sm:w-14 sm:h-14 mr-2  rounded-full object-cover object-top "
-                      src={`${API_URL}/image/${userData.userData.photo}`}
-                      alt="userimage"
-                      onClick={() => { navigate("/users-profile") }}
+                <div className="flex gap-3 items-center justify-between " onClick={openProfilePopup}>
+                {userData && userData.userData && (
+                    userData.userData.photo && imageLoaded ? (
+                      <Img
+                        className="cursor-pointer w-14 h-14 rounded-full object-cover object-top"
+                        src={`${API_URL}/image/${userData.userData.photo}`}
+                        alt="User Photo"
+                        onClick={() => { navigate("/users-profile") }}
+                        onError={() => setImageLoaded(false)}
+                      />
+                    ) : (
+                      <div className="bg-white-A700 w-16 h-14 rounded-full flex items-center justify-center">
 
-                    />
+                        <FontAwesomeIcon
+                          icon={faUser}
+                          className="ri-user-fill h-1/2 cursor-pointer text-gray-600"
+                          onClick={() => { navigate("/users-profile") }}
+                        />
+                      </div>
+                    )
                   )}
                   <div className="flex flex-col items-center justify-center w-3/5">
                     <div className="cursor-default flex flex-col items-start justify-center w-full">
