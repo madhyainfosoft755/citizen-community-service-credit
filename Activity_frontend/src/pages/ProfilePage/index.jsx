@@ -7,6 +7,7 @@ import { API_URL, APP_PATH } from "Constant";
 import { toast } from "react-toastify";
 import { CirclesWithBar } from 'react-loader-spinner';
 import { useAuth } from "components/AuthProvider/AuthProvider";
+import Select from "react-select";
 
 const ProfilePage = () => {
     const { setAuthenticated, setIsAdmin } = useAuth();
@@ -34,7 +35,9 @@ const ProfilePage = () => {
         password: "",
         confirmPassword: "",
     });
+    const [error, setError] = useState();
     const [selectedFile, setSelectedFile] = useState(null);
+    const [selectedOrganizationMenu, setSelectedOrganizationMenu] = useState([]); // State for selected organization
 
     useEffect(() => {
         const fetchCategories = async () => {
@@ -43,8 +46,11 @@ const ProfilePage = () => {
                 const data = await response.json();
                 if (response.ok) {
                     const sortedCategories = data.sort((a, b) => a.name.localeCompare(b.name));
+                    setCategories(sortedCategories.map((value) => {
+                        return { value: value.name, label: value.name };
+                    }));
                     const limitedCategories = sortedCategories.slice(0, 6);
-                    setCategories(limitedCategories);
+                    // setCategories(limitedCategories);
                     setButtonStates(Array(limitedCategories.length).fill(false));
                 } else {
                     console.error("Error fetching categories:", data.message);
@@ -219,6 +225,31 @@ const ProfilePage = () => {
         e.target.parentElement.classList.remove('focus-within');
     };
 
+    const handleCategoryChange = (selectedOptions) => {
+        setError({ ...error, categories: '' })
+
+        if (selectedOptions.length > 6) {
+            return;
+        }
+        setSelectedCategories(selectedOptions.map((value) => value.value));
+        console.log('Selected Categories:', selectedOptions);
+        setSelectedOrganizationMenu(selectedOptions.map((value) => ({ label: value.label, value: value.value })));
+        setFormData((prevData) => ({
+            ...prevData,
+            categories: 'selected',
+        }));
+
+        // You can perform other actions with selectedOptions here
+    };
+
+    const customStyles = {
+        menu: (provided) => ({
+            ...provided,
+            maxHeight: 100, // Set the max height of the dropdown list
+            overflowY: 'auto', // Enable vertical scrolling
+        }),
+    };
+
     return (
         <div className="w-screen h-screen sm:w-screen sm:h-screen md:w-screen md:h-screen lg:w-screen lg:h-screen flex items-center justify-center pt-5 pb-5 sm:p-0 ">
             <form onSubmit={handleSubmit} className="bg-white-A700_33 gap-4 p-2 sm:pt-4 sm:pb-4 scroller relative w-4/12 h-full sm:w-full sm:h-full md:w-3/4 md:h-full lg:w-3/4 lg:h-full flex flex-col items-center justify-start md:justify-between md:pt-10 md:pb-10 sm:justify-between border-[1px] rounded-lg sm:rounded-none overflow-auto scroller">
@@ -295,7 +326,7 @@ const ProfilePage = () => {
                         />
                     </div>
                 </div> */}
-                <div className="form-group sm:w-5/6 w-4/6 h-10  bg-gray-50 green-border flex items-center justify-center  p-2 rounded-xl overflow-hidden">
+                {/* <div className="form-group sm:w-5/6 w-4/6 h-10  bg-gray-50 green-border flex items-center justify-center  p-2 rounded-xl overflow-hidden">
                     <select
                         className="w-full  text-sm  pl-10 border-none bg-inherit"
                         id="organization"
@@ -311,9 +342,9 @@ const ProfilePage = () => {
                             </option>
                         ))}
                     </select>
-                </div>
+                </div> */}
 
-                <div className="w-4/6  sm:w-5/6 h-auto flex flex-col items-center justify-center  relative ">
+                {/* <div className="w-4/6  sm:w-5/6 h-auto flex flex-col items-center justify-center  relative ">
                     <label className="block font-bold mb-1"><span className="text-red-500">*</span>Select Organization:</label>
                     <div className="grid grid-cols-3 gap-1 w-full">
                         {organizations.map((organization, index) => (
@@ -330,21 +361,25 @@ const ProfilePage = () => {
                     </div>
                     {formErrors.categories && <small className="error text-red-500">{formErrors.categories}</small>}
                 </div>
+*/}
 
                 <div className="w-4/6  sm:w-5/6 h-auto flex flex-col items-center justify-center  relative ">
                     <label className="block font-bold mb-1"><span className="text-red-500">*</span>Select Categories:</label>
-                    <div className="grid grid-cols-3 gap-1 w-full">
-                        {categories.map((category, index) => (
-                            <button
-                                key={index}
-                                type="button"
-                                className={`p-1 rounded text-xs text-center ${buttonStates[index] ? "bg-[#546ef6] text-white" : "bg-gray-50 text-black"
-                                    }`}
-                                onClick={() => handleButtonClick(index, category.name)}
-                            >
-                                {category.name}
-                            </button>
-                        ))}
+                    <div className="w-full">
+                        {categories && (
+                            <Select
+                                isMulti
+                                name="options"
+                                options={categories}
+                                value={selectedOrganizationMenu}
+
+                                className="basic-multi-select"
+                                classNamePrefix="select"
+                                id="category"
+                                onChange={handleCategoryChange}
+                                styles={customStyles}
+                            />
+                        )}
                     </div>
                     {formErrors.categories && <small className="error text-red-500">{formErrors.categories}</small>}
                 </div>

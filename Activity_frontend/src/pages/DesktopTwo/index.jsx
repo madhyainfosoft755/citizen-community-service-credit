@@ -180,6 +180,7 @@ const Register = () => {
 
   const handleEmptyFields = () => {
     let newErrors = { ...error };
+    console.log(newErrors, "new errors");
 
 
     // Iterate over the formData object to check for empty fields
@@ -188,6 +189,9 @@ const Register = () => {
         newErrors[field] = `${field.charAt(0).toUpperCase() + field.slice(1)} is a required field`;
       }
     });
+
+    console.log(newErrors, "new errors");
+
 
     // Update the error state with the new errors
     setError(newErrors);
@@ -340,6 +344,7 @@ const Register = () => {
 
     handleEmptyFields();
     // Check if passwords match
+    console.log(error, "submit")
     if (formsData.password !== formsData.confirmPassword) {
       setPasswordError(true);
 
@@ -355,7 +360,7 @@ const Register = () => {
 
     if (!selectedCategories || selectedCategories.length === 0) {
       // notify("Please select at least one category to register.");
-      setError({ ...error, categories: "Please select atleast one category" })
+      // setError({ ...error, categories: "Please select atleast one category" })
       return;
     }
     const options = {
