@@ -27,8 +27,8 @@ const Register = () => {
   const [formsData, setFormData] = useState({
     name: "",
     email: "",
-    phone: "",
-    address: "",
+    // phone: "",
+    // address: "",
     password: "",
     confirmPassword: "",
     selectedFile: "",
@@ -243,20 +243,20 @@ const Register = () => {
 
       }
 
-      if (name === "phone") {
-        if (!/^\d+$/.test(value))
-          setError({ ...error, [name]: `Incorrect mobile number format` })
-        else {
-          setError({ ...error, [name]: null })
-          // checkIfExistPhone(value);
-        }
+      // if (name === "phone") {
+      //   if (!/^\d+$/.test(value))
+      //     setError({ ...error, [name]: `Incorrect mobile number format` })
+      //   else {
+      //     setError({ ...error, [name]: null })
+      //     // checkIfExistPhone(value);
+      //   }
 
-      }
+      // }
 
-      if (name == 'address') {
-        setError({ ...error, [name]: null })
+      // if (name == 'address') {
+      //   setError({ ...error, [name]: null })
 
-      }
+      // }
 
 
 
@@ -542,7 +542,7 @@ const Register = () => {
 
 
             </div>
-            <div className="w-full flex-col h-7 mb-3 relative">
+            <div className="w-full flex-col h-7 relative">
               <InputWithIconAndText
                 icon={faPhone} // Change the icon as needed
                 iconColor={"#419f44"}
@@ -555,8 +555,7 @@ const Register = () => {
                 type="number"
 
               />
-              <h1 className="text-red-500 absolute -left-2 -top-1">*</h1>
-              {error && error.phone && <span className="text-red-500 text-xs text-left">{error.phone}</span>}
+              
 
             </div>
 
@@ -570,8 +569,7 @@ const Register = () => {
                 name="address"
 
               />
-              <h1 className="text-red-500 absolute -left-2 -top-1">*</h1>
-              {error && error.address && <span className="text-red-500 text-xs text-left">{error.address}</span>}
+             
 
             </div>
             {/* <div className="w-full h-7 flex flex-col items-center justify-center relative">

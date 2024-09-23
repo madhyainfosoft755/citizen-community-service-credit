@@ -1135,23 +1135,20 @@ const CreateActivity = async (req, res) => {
 
     // console.log("req data mai date kya aa rhi hai ", formattedDate);
     // Check if files were uploaded
-    const photos =
-      req.files && req.files.photo
-        ? req.files.photo.reduce((acc, file) => {
-            // acc.push(file.filename);
-            return acc + file.filename;
-          }, [])
-        : "";
-
-    console.log("ye hain photos", photos);
-    const videos =
-      req.files && req.files.video
-        ? req.files.video.reduce((acc, file) => {
-            // acc.push(file.filename);
-            return acc + file.filename;
-          }, [])
-        : "";
-    console.log("ye hain videos", videos);
+    const photoFiles = [];
+for (let i = 0; i < 10; i++) { // Assume max 10 photos
+if (req.files[`photo ${i}`]) {
+photoFiles.push(req.files[`photo ${i}`][0].filename);
+}
+}
+    // const videos =
+    //   req.files && req.files.video
+    //     ? req.files.video.reduce((acc, file) => {
+    //         // acc.push(file.filename);
+    //         return acc + file.filename;
+    //       }, [])
+    //     : "";
+    // console.log("ye hain videos", videos);
 
     // Check for missing fields and create an array to store missing fields
     const missingFields = [];
@@ -1203,8 +1200,8 @@ const CreateActivity = async (req, res) => {
     // Save to the database
     let created_post = await Posts.create({
       category,
-      photos,
-      videos,
+      photos: photoFiles.join(","),
+      // videos,
       Date: formattedDate,
       totalTime,
       latitude,
@@ -2545,6 +2542,7 @@ const visitorCount = async (req, res) => {
 const updateUser = async (req, res) => {
   try {
     const userData = req.body;
+    console.log("what is the user data", userData);
     const id = getUserIdFromToken(req);
     console.log("here is the data", userData);
 
@@ -2629,6 +2627,11 @@ const updateUser = async (req, res) => {
       selectedCategories.push("Others");
     }
 
+     // Fetch the current user data
+     const currentUser = await Users.findOne({ where: { id: id } });
+     console.log("current user", currentUser);
+
+     
     // Update user information in the database
     const updatedUser = await Users.update(
       {
@@ -2639,6 +2642,8 @@ const updateUser = async (req, res) => {
         organization: userData.organization, // Add the organization field
         address: userData.address,
         photo: photoUrl || userData.photo, // Update photo if a new photo is uploaded
+        // If email is updated, set verified to false
+        verified: userData.email !== currentUser.email ? false : currentUser.verified,
         // Add other fields as needed
       },
       {
