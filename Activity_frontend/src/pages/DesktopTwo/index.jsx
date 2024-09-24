@@ -265,6 +265,11 @@ const Register = () => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(value)) {
           setError({ ...error, [name]: "Incorrect email format" });
+
+          if (!value) {
+            setError({ ...error, [name]: null })
+
+          }
         } else {
 
           setError({ ...error, [name]: null })
@@ -272,12 +277,18 @@ const Register = () => {
         }
       }
 
-      if (name == 'passoword') {
-        let passerror = validatePassword(value)
+      if (name == 'password') {
+        let passerror = validatePassword(value);
+        let passmatch = (formsData.confirmPassword == value);
+        console.log(passmatch, "pass error");
+
         if (passerror) {
           setError({ ...error, [name]: passerror });
         } else {
           setError({ ...error, [name]: null })
+        }
+        if (passmatch) {
+          setError({ ...error, confirmPassword: null });
         }
       }
 

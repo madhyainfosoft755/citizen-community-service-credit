@@ -1,3 +1,5 @@
+const organization = require("./organization");
+
 module.exports = (sequelize, DataTypes) => {
   const Approver = sequelize.define(
     "approver",
@@ -20,6 +22,10 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
       },
       aadhar: {
+        type: DataTypes.STRING,
+        allowNull: true,
+      },
+      organization: {
         type: DataTypes.STRING,
         allowNull: true,
       },
