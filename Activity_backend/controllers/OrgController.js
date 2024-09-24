@@ -677,7 +677,9 @@ const getAllActivityById = async (req, res) => {
       return res.json({ message: "not an admin" });
     }
     const id = req.params.id;
+
     console.log(id, "id");
+
     const AcitvityList = await Posts.findAll({
       include: [
         {
@@ -1382,7 +1384,8 @@ const addApprover = async (req, res) => {
       return res.json({ message: "not an admin" });
     }
 
-    const user_id = getUserIdFromToken(req.token);
+    const org_name = await Organisations.findOne({ where: { id: ifAdmin } });
+
     const { name, email, phone, address } = req.body;
 
     // Check if an approver with the same name, email, or phone already exists
@@ -1405,6 +1408,7 @@ const addApprover = async (req, res) => {
       email,
       phone,
       address,
+      org_name,
     });
 
     res.json({ organization: orgList, message: "success" });
