@@ -8,7 +8,7 @@ import Location from "pages/Location/Location";
 import { useAuth } from "components/AuthProvider/AuthProvider";
 import axios from "axios";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faLocationDot } from "@fortawesome/free-solid-svg-icons";
+import { faLocationDot, faUser } from "@fortawesome/free-solid-svg-icons";
 // import { faLocationDot } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
 import { CirclesWithBar } from 'react-loader-spinner'
@@ -25,6 +25,7 @@ import Select from "react-select";
 
 
 const Createpost = () => {
+  const [imageLoaded, setImageLoaded] = useState(true);
   const dateInputRef = useRef(null); // Ref for the date input
   const [showCalendar, setShowCalendar] = useState(false); // State for calendar visibility
   const [isPopUpVisible, setIsPopUpVisible] = useState(false); // State for pop-up visibility
@@ -41,7 +42,7 @@ const Createpost = () => {
   // console.log("these are user categories" , categories)
   const [selectedCategories, setSelectedCategories] = useState([]);
   const { authenticated, setAuthenticated } = useAuth();
-  const [userData, setUserData] = useState();
+  const [userData, setUserData] = useState({ userData: {} });
   const [maxToTime, setMaxToTime] = useState(""); // Added state for max to time
   const [totalTime, setTotalTime] = useState(""); // Added state for total time
   const [userName, setUserName] = useState(""); // Added state for user name
@@ -638,6 +639,10 @@ const Createpost = () => {
       overflowY: 'auto', // Enable vertical scrolling
     }),
   };
+
+
+
+
   return (
     <>
       {authenticated && (
@@ -670,15 +675,27 @@ const Createpost = () => {
 
             <div className="bg-gray-50 flex flex-row items-center justify-between p-3   sm:px-2 w-full ">
 
-              <div className="  flex gap-1 items-center justify-center " onClick={openProfilePopup}>
+              <div className="  flex gap-3 items-center justify-center " onClick={openProfilePopup}>
 
-                {userData && (
-                  <Img
-                    className="cursor-pointer   w-14 h-14 rounded-full object-cover object-top  "
-                    src={`${API_URL}/image/${userData.userData.photo}`}
-                    alt="image"
-                    onClick={() => { navigate("/users-profile") }}
-                  />
+                {userData && userData.userData && (
+                  userData.userData.photo && imageLoaded ? (
+                    <Img
+                      className="cursor-pointer w-14 h-14 rounded-full object-cover object-top"
+                      src={`${API_URL}/image/${userData.userData.photo}`}
+                      alt="User Photo"
+                      onClick={() => { navigate("/users-profile") }}
+                      onError={() => setImageLoaded(false)}
+                    />
+                  ) : (
+                    <div className="bg-white-A700 w-16 h-14 rounded-full flex items-center justify-center">
+
+                    <FontAwesomeIcon
+                      icon={faUser}
+                      className="ri-user-fill h-1/2 cursor-pointer text-gray-600"
+                      onClick={() => { navigate("/users-profile") }}
+                    />
+                    </div>
+                  )
                 )}
                 <div className="flex flex-col items-center justify-center w-3/5">
                   <div className=" cursor-default flex flex-col items-start justify-center w-full">
