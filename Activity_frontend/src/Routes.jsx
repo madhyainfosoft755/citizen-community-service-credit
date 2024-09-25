@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Home from "pages/Home";
 import NotFound from "pages/NotFound";
 import PageNavigation from "pages/PageNavigation/PageNavigate";
@@ -34,6 +34,18 @@ const TokenRetrival = React.lazy(() => import("pages/TokenRetriver"))
 const Profile = React.lazy(() => import("pages/Profile"))
 const Imgmodel = React.lazy(() => import("pages/imageModel"))
 const AIapproval = React.lazy(() => import("pages/AIapproval"))
+
+const RestrictedRoute = ({ children }) => {
+  const { authenticated } = useAuth();
+  const restrictedPaths = ['/forget', '/login', '/register'];
+  const currentPath = window.location.pathname.replace('/apps', '');
+
+  if (authenticated && restrictedPaths.includes(currentPath)) {
+    return <Navigate to="/create" replace />;
+  }
+
+  return children;
+};
 
 const ProjectRoutes = () => {
   // const { authenticated, setAuthenticated } = useAuth();
@@ -90,23 +102,23 @@ const ProjectRoutes = () => {
     <React.Suspense fallback={<h1 className="w-screen h-screen flex items-center justify-center">Loading...</h1>}>
       <Router basename="/apps">
         <Routes>
-          <Route path="/" element={<DesktopOne />} />
-          <Route path="/token" element={< TokenRetrival />} />
-          <Route path="/profile" element={<ProfilePage />} />
-          <Route path="/userprofile" element={<Profile />} />
-          <Route path="/login" element={<DesktopOne />} />
-          <Route path="/register" element={<DesktopTwo />} />
-          <Route path="/create" element={<DesktopThree />} />
-          <Route path="/activity" element={<DesktopFour />} />
-          <Route path="/verify/:token" element={<Verify />} />
-          <Route path="/forget" element={<Forget />} />
-          <Route path="/endorse" element={<Endorse />} />
-          <Route path="/endorse-activity/:id" element={<ActivityDetails />} />
-          <Route path="/posts/:postId" element={<OpenActivity />} />
-          <Route path="/certificate/:id" element={<Certificate />} />
-          <Route path="/users-profile" element={<ProfileForUser />} />
-          <Route path="/user-report" element={<UserReport />} />
-          <Route path="/user-report-table" element={<UserReportsTable />} />
+          <Route path="/" element={<RestrictedRoute><DesktopOne /></RestrictedRoute>} />
+          <Route path="/token" element={<RestrictedRoute><TokenRetrival /></RestrictedRoute>} />
+          <Route path="/profile" element={<RestrictedRoute><ProfilePage /></RestrictedRoute>} />
+          <Route path="/userprofile" element={<RestrictedRoute><Profile /></RestrictedRoute>} />
+          <Route path="/login" element={<RestrictedRoute><DesktopOne /></RestrictedRoute>} />
+          <Route path="/register" element={<RestrictedRoute><DesktopTwo /></RestrictedRoute>} />
+          <Route path="/create" element={<RestrictedRoute><DesktopThree /></RestrictedRoute>} />
+          <Route path="/activity" element={<RestrictedRoute><DesktopFour /></RestrictedRoute>} />
+          <Route path="/verify/:token" element={<RestrictedRoute><Verify /></RestrictedRoute>} />
+          <Route path="/forget" element={<RestrictedRoute><Forget /></RestrictedRoute>} />
+          <Route path="/endorse" element={<RestrictedRoute><Endorse /></RestrictedRoute>} />
+          <Route path="/endorse-activity/:id" element={<RestrictedRoute><ActivityDetails/></RestrictedRoute>} />
+          <Route path="/posts/:postId" element={<RestrictedRoute><OpenActivity /></RestrictedRoute>} />
+          <Route path="/certificate/:id" element={<RestrictedRoute><Certificate /></RestrictedRoute>} />
+          <Route path="/users-profile" element={<RestrictedRoute><ProfileForUser /></RestrictedRoute>} />
+          <Route path="/user-report" element={<RestrictedRoute><UserReport /></RestrictedRoute>} />
+          <Route path="/user-report-table" element={<RestrictedRoute><UserReportsTable /></RestrictedRoute>} />
 
           <Route path="/admin" element={<ProtectedRoute element={DesktopFive} adminOnly />} />
           <Route path="/imgmod" element={<ProtectedRoute element={Imgmodel} adminOnly />} />
@@ -121,7 +133,8 @@ const ProjectRoutes = () => {
           <Route path="/reviewactivity/:userId/:postId" element={<ProtectedRoute element={ReviewActivity} adminOnly />} />
 
 
-          <Route path="*" element={<NotFound />} />
+          {/* <Route path="*" element={<NotFound />} /> */}
+          <Route path="*" element={<Navigate to="/create" replace />} />
         </Routes>
       </Router>
     </React.Suspense>

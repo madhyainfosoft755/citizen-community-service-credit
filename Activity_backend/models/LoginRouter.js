@@ -21,7 +21,7 @@ module.exports = (sequelize, DataTypes) => {
       },
 
       photo: {
-        type: DataTypes.ARRAY(DataTypes.STRING),
+        type: DataTypes.STRING,
         allowNull: false,
       },
       category: {

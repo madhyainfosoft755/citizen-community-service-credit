@@ -419,7 +419,9 @@ const Createpost = () => {
     for (let i = 0; i < selectedFile.length; i++) {
       try {
         const compressedFile = await imageCompression(selectedFile[i], options);
-        formsDATA.append(`photo${i}`, compressedFile, compressedFile.name);
+        console.log(`Original file name: ${selectedFile[i].name}`); // Log original file name
+      console.log(`Compressed file name: ${compressedFile.name}`); // Log compressed file name
+        formsDATA.append(`photo`, compressedFile, selectedFile[i].name); 
       } catch (error) {
         console.error(`Error compressing file ${i}:`, error);
         toast.error(`File ${i + 1} compress karne mein error aaya`);
@@ -442,12 +444,12 @@ const Createpost = () => {
     // console.log(formsDATA.get("name"));
     // console.log("formData", formsDATA);
 
-    // const formDataJson = {};
-    // for (const [key, value] of formsDATA.entries()) {
-    //   formDataJson[key] = value;
-    // }
+    const formDataJson = {};
+    for (const [key, value] of formsDATA.entries()) {
+      formDataJson[key] = value;
+    }
 
-    // console.log("form data", formDataJson);
+    console.log("form data", formDataJson);
     const token = localStorage.getItem("token");
     try {
       setIsLoading(true);
@@ -468,9 +470,10 @@ const Createpost = () => {
         navigate("/activity", { state: { timeSpent, data } });
       } else {
         console.error("Error:", data.error);
-        // notify(`${data.error}`)
+        notify(`${data.error}`)
       }
     } catch (error) {
+      notify("Error Creating Activity")
       console.error("Error:", error);
     } finally {
       setIsLoading(false);

@@ -386,14 +386,14 @@ const Register = async (req, res) => {
     }
 
     // Check if user with the same mobile number already exists
-    const existingMobileUser = await Users.findOne({
-      where: { phone: userData.phone },
-    });
-    if (existingMobileUser) {
-      return res
-        .status(400)
-        .json({ field: "phone", message: "Mobile number already registered" });
-    }
+    // const existingMobileUser = await Users.findOne({
+    //   where: { phone: userData.phone },
+    // });
+    // if (existingMobileUser) {
+    //   return res
+    //     .status(400)
+    //     .json({ field: "phone", message: "Mobile number already registered" });
+    // }
 
     // Validate password strength
     const passwordRegex =
@@ -1135,12 +1135,27 @@ const CreateActivity = async (req, res) => {
 
     // console.log("req data mai date kya aa rhi hai ", formattedDate);
     // Check if files were uploaded
-    const photoFiles = [];
-for (let i = 0; i < 10; i++) { // Assume max 10 photos
-if (req.files[`photo ${i}`]) {
-photoFiles.push(req.files[`photo ${i}`][0].filename);
-}
-}
+    if (!Array.isArray(req.files.photo)) {
+      return res.status(400).json({ error: "Photos should be an array" });
+    }
+
+    const photos = req.files.photo.reduce((acc, file) => {
+      acc.push(file.filename);
+      return acc;
+    }, []);
+
+    console.log("ye hain photos", photos);
+
+    // Check if files were uploaded
+    // const photos =
+    //   req.files && req.files.photo
+    //     ? req.files.photo.reduce((acc, file) => {
+    //         // acc.push(file.filename);
+    //         return acc + file.filename;
+    //       }, [])
+    //     : "";
+
+    // console.log("ye hain photos", photos);
     // const videos =
     //   req.files && req.files.video
     //     ? req.files.video.reduce((acc, file) => {
@@ -1200,7 +1215,7 @@ photoFiles.push(req.files[`photo ${i}`][0].filename);
     // Save to the database
     let created_post = await Posts.create({
       category,
-      photos: photoFiles.join(","),
+      photos:JSON.stringify(photos),
       // videos,
       Date: formattedDate,
       totalTime,
@@ -2542,7 +2557,6 @@ const visitorCount = async (req, res) => {
 const updateUser = async (req, res) => {
   try {
     const userData = req.body;
-    console.log("what is the user data", userData);
     const id = getUserIdFromToken(req);
     console.log("here is the data", userData);
 
@@ -2627,11 +2641,6 @@ const updateUser = async (req, res) => {
       selectedCategories.push("Others");
     }
 
-     // Fetch the current user data
-     const currentUser = await Users.findOne({ where: { id: id } });
-     console.log("current user", currentUser);
-
-     
     // Update user information in the database
     const updatedUser = await Users.update(
       {
@@ -2642,8 +2651,6 @@ const updateUser = async (req, res) => {
         organization: userData.organization, // Add the organization field
         address: userData.address,
         photo: photoUrl || userData.photo, // Update photo if a new photo is uploaded
-        // If email is updated, set verified to false
-        verified: userData.email !== currentUser.email ? false : currentUser.verified,
         // Add other fields as needed
       },
       {

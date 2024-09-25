@@ -28,7 +28,8 @@ const DesktopFourPage = () => {
   const [userName, setUserName] = useState("")
   const { state } = useLocation();
   const [showQuote, setShowQuoteModal] = useState(false);
-  console.log("state create activity", state);
+  // console.log("state create activity", state);
+
   useEffect(() => {
     const fetchUserPosts = async () => {
       try {
