@@ -187,6 +187,7 @@ const EditUserModal = ({ userData, isOpen, onClose, onSave }) => {
       });
 
       const data = await response.json();
+      console.log("what is the data", data);
 
       if (!response.ok) {
         setError({ field: data.field, message: data.message });

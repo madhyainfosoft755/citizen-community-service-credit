@@ -388,14 +388,14 @@ const Register = async (req, res) => {
     }
 
     // Check if user with the same mobile number already exists
-    const existingMobileUser = await Users.findOne({
-      where: { phone: userData.phone },
-    });
-    if (existingMobileUser) {
-      return res
-        .status(400)
-        .json({ field: "phone", message: "Mobile number already registered" });
-    }
+    // const existingMobileUser = await Users.findOne({
+    //   where: { phone: userData.phone },
+    // });
+    // if (existingMobileUser) {
+    //   return res
+    //     .status(400)
+    //     .json({ field: "phone", message: "Mobile number already registered" });
+    // }
 
     // Validate password strength
     const passwordRegex =
@@ -1137,23 +1137,35 @@ const CreateActivity = async (req, res) => {
 
     // console.log("req data mai date kya aa rhi hai ", formattedDate);
     // Check if files were uploaded
-    const photos =
-      req.files && req.files.photo
-        ? req.files.photo.reduce((acc, file) => {
-            // acc.push(file.filename);
-            return acc + file.filename;
-          }, [])
-        : "";
+    if (!Array.isArray(req.files.photo)) {
+      return res.status(400).json({ error: "Photos should be an array" });
+    }
+
+    const photos = req.files.photo.reduce((acc, file) => {
+      acc.push(file.filename);
+      return acc;
+    }, []);
 
     console.log("ye hain photos", photos);
-    const videos =
-      req.files && req.files.video
-        ? req.files.video.reduce((acc, file) => {
-            // acc.push(file.filename);
-            return acc + file.filename;
-          }, [])
-        : "";
-    console.log("ye hain videos", videos);
+
+    // Check if files were uploaded
+    // const photos =
+    //   req.files && req.files.photo
+    //     ? req.files.photo.reduce((acc, file) => {
+    //         // acc.push(file.filename);
+    //         return acc + file.filename;
+    //       }, [])
+    //     : "";
+
+    // console.log("ye hain photos", photos);
+    // const videos =
+    //   req.files && req.files.video
+    //     ? req.files.video.reduce((acc, file) => {
+    //         // acc.push(file.filename);
+    //         return acc + file.filename;
+    //       }, [])
+    //     : "";
+    // console.log("ye hain videos", videos);
 
     // Check for missing fields and create an array to store missing fields
     const missingFields = [];
@@ -1205,8 +1217,8 @@ const CreateActivity = async (req, res) => {
     // Save to the database
     let created_post = await Posts.create({
       category,
-      photos,
-      videos,
+      photos:JSON.stringify(photos),
+      // videos,
       Date: formattedDate,
       totalTime,
       latitude,

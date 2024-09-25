@@ -14,7 +14,7 @@ import Share from "components/shareComponent";
 const Slider1 = ({ items, isPopUpVisible, setIsPopUpVisible, setSelectedPost, selectedPost }) => {
   const [locationData, setLocationData] = useState([]);
   const [showSplashScreen, setShowSplashScreen] = useState(true); // State to control splash screen visibility
-  console.log("kya endrose aa rha hai", items)
+  // console.log("kya endrose aa rha hai", items)
 
   useEffect(() => {
     const fetchData = async () => {
@@ -28,7 +28,7 @@ const Slider1 = ({ items, isPopUpVisible, setIsPopUpVisible, setSelectedPost, se
 
             if (response.data && response.data.results.length > 0) {
 
-              console.log("what is the response data", response)
+              // console.log("what is the response data", response)
               const { address_components } = response.data.results[0];
               const cityData = address_components.find(component =>
                 component.types.includes("administrative_area_level_3")
@@ -56,7 +56,7 @@ const Slider1 = ({ items, isPopUpVisible, setIsPopUpVisible, setSelectedPost, se
   const handleViewPost = (post) => {
     setSelectedPost(post);
     setIsPopUpVisible(true);
-    console.log("kya hai post", post)
+    // console.log("kya hai post", post)
   };
 
   // console.log("location data", locationData)
@@ -78,6 +78,8 @@ const Slider1 = ({ items, isPopUpVisible, setIsPopUpVisible, setSelectedPost, se
     return `${day}-${month}-${year}`;
   };
 
+// console.log("data of posts",locationData);
+
   return (
     <div className="relative w-full h-full flex flex-col justify-between border-none outline-none overflow-hidden">
 
@@ -88,13 +90,14 @@ const Slider1 = ({ items, isPopUpVisible, setIsPopUpVisible, setSelectedPost, se
         locationData && locationData.length > 0 && items ? (
           <Slider {...settings}>
             {locationData.map((item, index) => (
+              
               <div key={index} className="relative">
                 <div className="w-full h-1/2 sm:h-1/2  md:h-1/2 flex items-center justify-center bg-gray-50">
-                  {item && item.photos && (
+                {item && item.photos && JSON.parse(item.photos).length > 0 && (
                     <img
                       className="w-auto h-5/6 object-cover object-top rounded"
-                      src={`${API_URL}/image/${item.photos}`}
-                      alt={`Photo ${item.id}`}
+                      src={`${API_URL}/image/${JSON.parse(item.photos)[0]}`}
+                      alt="First photo"
                       onClick={() => handleViewPost(item)}
                     />
                   )}

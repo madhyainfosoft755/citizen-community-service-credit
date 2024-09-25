@@ -20,22 +20,59 @@ const Forget = () => {
   const [eyeIconC, setEyeIconC] = useState(faEye);
 
   const [isValid, setIsValid] = useState(true);
+  const [passwordError, setPasswordError] = useState("");
 
 
 
   const validatePassword = (password) => {
-    const regex = /^(?=.*[0-9])(?=.*[!@#$%^&*])/;
-    return regex.test(password);
+    const errors = [];
+    if (!/[a-z]/.test(password)) {
+      errors.push("one small letter");
+    }
+    if (!/[A-Z]/.test(password)) {
+      errors.push("one capital letter");
+    }
+    if (!/[~`!@#$%^&*()\-=+{}[\]\|;:'",.<>?\\\/]/.test(password)) {
+      errors.push("one special character");
+    }
+    if (!/\d/.test(password)) {
+      errors.push("one number");
+    }
+    return errors;
   };
+
+  // const handlePasswordChange = (e) => {
+  //   const password = e.target.value;
+  //   setNewPassword(password);
+  //   setIsValid(validatePassword(password));
+  // };
+
+  // const eyeIcon = showPassword ? faEyeSlash : faEye;
+
 
   const handlePasswordChange = (e) => {
     const password = e.target.value;
     setNewPassword(password);
-    setIsValid(validatePassword(password));
+
+    if (!password) {
+      setPasswordError("Password is required");
+    } else if (password.length < 8) {
+      setPasswordError("Password must be at least 8 characters");
+    } else {
+      const errors = validatePassword(password);
+      if (errors.length > 0) {
+        setPasswordError(`Password must include at least ${errors.join(", ")}`);
+      } else {
+        setPasswordError("");
+      }
+    }
   };
 
-  // const eyeIcon = showPassword ? faEyeSlash : faEye;
-
+  const handlePasswordBlur = () => {
+    if (!newPassword) {
+      setPasswordError("Password is required");
+    }
+  };
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
@@ -201,13 +238,14 @@ const Forget = () => {
                     type={showPassword ? "text" : "password"}
                     value={newPassword}
                     onChange={handlePasswordChange}
+                    onBlur={handlePasswordBlur}
                     placeholder="Enter new password"
                   />
                   <FontAwesomeIcon icon={eyeIcon} onClick={togglePasswordVisibility} className="text-gray-700 cursor-pointer" />
                 </div>
-                {!isValid && (
+                {passwordError && (
                   <p className="text-red-500 text-xs mt-1">
-                    Password must contain at least one number and one special character.
+                    {passwordError}
                   </p>
                 )}
               </div>
@@ -220,7 +258,7 @@ const Forget = () => {
                   onChange={(e) => setConfirmNewPassword(e.target.value)}
                   placeholder="Confirm new password"
                 />
-                <FontAwesomeIcon icon={eyeIconC} onClick={togglePasswordVisibility1} className="text-gray-700" />
+                <FontAwesomeIcon icon={eyeIconC} onClick={togglePasswordVisibility1} className="text-gray-700 cursor-pointer" />
               </div>
 
               <button
