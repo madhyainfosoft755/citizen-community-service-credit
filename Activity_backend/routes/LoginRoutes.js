@@ -62,9 +62,11 @@ const {
   getOrgDetails,
   submitFeedback,
   checkifAlreadyExist,
+  getOrganizationsUser,
 } = require("../controllers/LoginController");
 const { upload } = require("../utils/util");
 const uploadMiddleWare = require("../Middlewere/uploadMiddleware");
+const extractToken = require("../Middlewere/Authentication");
 
 // Express route
 router.get("/output", output);
@@ -80,7 +82,10 @@ router.post("/addApprover", addApprover);
 router.get("/pendingApproval", pendingApproval);
 router.get("/getUsersWithMostPostsInYear", getUsersWithMostPostsInYear);
 
-router.get("/getUsersWithMostPostsInSixMonths",  getUsersWithMostPostsInSixMonths);
+router.get(
+  "/getUsersWithMostPostsInSixMonths",
+  getUsersWithMostPostsInSixMonths
+);
 router.get("/getUsersWithMostPostsInQuater", getUsersWithMostPostsInQuater);
 router.get("/getUsersWithMostPostsInMonth", getUsersWithMostPostsInMonth);
 router.put("/approveHours/:postId", approveHours);
@@ -91,6 +96,7 @@ router.get("/getCategoriesAdmin", getCategoriesAdmin);
 router.put("/toggleCategory/:id", toggleCategory);
 router.post("/createOrganization", createOrganization);
 router.get("/getOrganizations", getOrganizations);
+router.get("/getOrganizationsofUser", getOrganizationsUser);
 router.get("/getOrganizationsAdmin", getOrganizationsAdmin);
 router.put("/toggleOrganization/:id", toggleOrganization);
 router.post("/resendVerification", resendVerification);

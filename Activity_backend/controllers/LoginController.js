@@ -15,6 +15,8 @@ const Organizations = db.Organisations;
 const Approver = db.Approvers;
 const LoginLog = db.loginlog;
 const VisitorLogs = db.visitorlogs;
+const AttachOrg = db.AttachOrg;
+
 const Jwt = require("jsonwebtoken");
 const { logger } = require("../utils/util");
 const {
@@ -2028,6 +2030,29 @@ const getOrganizations = async (req, res) => {
   }
 };
 
+const getOrganizationsUser = async (req, res) => {
+  try {
+    const id = getUserIdFromToken(req);
+    const organizations = await Organizations.findAll({
+      include: [
+        {
+          model: AttachOrg,
+          where: { UserId: id },
+        },
+      ],
+      where: { isEnabled: true },
+    });
+
+    if (organizations.length === 0) {
+      return res.status(200).json({ message: "No organizations found" });
+    }
+
+    res.status(200).json(organizations);
+  } catch (error) {
+    res.status(500).json({ message: "Failed to fetch organizations", error });
+  }
+};
+
 const toggleOrganization = async (req, res) => {
   try {
     const { id } = req.params;
@@ -2994,4 +3019,5 @@ module.exports = {
   getOrgDetails,
   submitFeedback,
   checkifAlreadyExist,
+  getOrganizationsUser,
 };

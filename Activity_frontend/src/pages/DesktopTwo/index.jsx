@@ -311,18 +311,28 @@ const Register = () => {
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(value)) {
           setError({ ...error, [name]: "Incorrect email format" });
+
+          if (!value) {
+            setError({ ...error, [name]: null })
+
+          }
         } else {
           setError({ ...error, [name]: null });
           // checkIfExistEmail(value);
         }
       }
 
+
       if (name == "passoword") {
         let passerror = validatePassword(value);
+
         if (passerror) {
           setError({ ...error, [name]: passerror });
         } else {
           setError({ ...error, [name]: null });
+        }
+        if (passmatch) {
+          setError({ ...error, confirmPassword: null });
         }
       }
 
