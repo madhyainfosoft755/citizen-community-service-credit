@@ -252,22 +252,56 @@ const Register = () => {
   };
 
   const handlePasswordChange = (e) => {
-    const password = e.target.value;
+    const { name, value } = e.target;
     setFormData((prevData) => ({
       ...prevData,
-      password: password,
+      [name]: value,
     }));
 
-    if (!password) {
-      setPasswordError("Password is required");
-    } else if (password.length < 8) {
-      setPasswordError("Password must be at least 8 characters");
-    } else {
-      const errors = validatePassword(password);
-      if (errors.length > 0) {
-        setPasswordError(`Password must include at least ${errors.join(", ")}`);
+    if (name === "password") {
+      if (!value) {
+        setPasswordError("Password is required");
+      } else if (value.length < 8) {
+        setPasswordError("Password must be at least 8 characters");
       } else {
-        setPasswordError("");
+        const errors = validatePassword(value);
+        if (errors.length > 0) {
+          setPasswordError(
+            `Password must include at least ${errors.join(", ")}`
+          );
+        } else {
+          setPasswordError("");
+        }
+      }
+
+      // Check if confirm password matches
+      if (formsData.confirmPassword && value !== formsData.confirmPassword) {
+        setError((prevError) => ({
+          ...prevError,
+          confirmPassword: "Passwords do not match",
+        }));
+      } else {
+        setError((prevError) => ({
+          ...prevError,
+          confirmPassword: null,
+        }));
+      }
+    } else if (name === "confirmPassword") {
+      if (!value) {
+        setError((prevError) => ({
+          ...prevError,
+          confirmPassword: "Confirm Password is required",
+        }));
+      } else if (value !== formsData.password) {
+        setError((prevError) => ({
+          ...prevError,
+          confirmPassword: "Passwords do not match",
+        }));
+      } else {
+        setError((prevError) => ({
+          ...prevError,
+          confirmPassword: null,
+        }));
       }
     }
   };
@@ -313,15 +347,13 @@ const Register = () => {
           setError({ ...error, [name]: "Incorrect email format" });
 
           if (!value) {
-            setError({ ...error, [name]: null })
-
+            setError({ ...error, [name]: null });
           }
         } else {
           setError({ ...error, [name]: null });
           // checkIfExistEmail(value);
         }
       }
-
 
       if (name == "passoword") {
         let passerror = validatePassword(value);
@@ -331,6 +363,8 @@ const Register = () => {
         } else {
           setError({ ...error, [name]: null });
         }
+        let passmatch = formsData.confirmPassword == value;
+        console.log(passmatch, "passmatch");
         if (passmatch) {
           setError({ ...error, confirmPassword: null });
         }
@@ -389,7 +423,6 @@ const Register = () => {
     // Check if passwords match
     // console.log(error, "submit")
 
-    
     // Validate all fields, including password
     const passwordErrors = validatePassword(formsData.password);
     if (passwordErrors.length > 0) {
@@ -665,13 +698,10 @@ const Register = () => {
                 type="password"
                 className="w-full h-7 text-sm  pl-10 border-solid border-[1px]  border-gray-300 bg-inherit rounded-md focus:border-emerald-300 ease-in duration-300 py-1"
                 // inputClassName="password-input"
-                onChange={handleInputChange}
+                onChange={handlePasswordChange}
                 name="confirmPassword"
               />
               <h1 className="text-red-500 absolute -left-2 -top-1">*</h1>
-              {/* {passwordError && (
-                <div className="error-message">Passwords do not match</div>
-              )} */}
               {error && error.confirmPassword && (
                 <span className="text-red-500 text-xs text-left">
                   {error.confirmPassword}

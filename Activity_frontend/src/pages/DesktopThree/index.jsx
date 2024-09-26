@@ -558,41 +558,41 @@ const Createpost = () => {
     setMaxToTime(maxToTime);
   };
 
-  const onChangeToTime = (timeValue) => {
-    const toTimeDate = parse(toTime, 'HH:mm', new Date());
+  // const onChangeToTime = (timeValue) => {
+  //   const toTimeDate = parse(toTime, 'HH:mm', new Date());
 
 
-    if (toTimeDate < fromTimeDate) {
-      // toast.error('Time must be within the selected date');
-      setError({ ...error, time: "To time can not be greater than from time" })
-      return;
-    }
-    if (isEqual(toTimeDate, fromTimeDate)) {
-      // toast.error('Both times cannot be the same. Please select a time later than the from time.');
-      setError({ ...error, time: "Both From & To time can not be same" })
-      return;
-    }
+  //   if (toTimeDate < fromTimeDate) {
+  //     // toast.error('Time must be within the selected date');
+  //     setError({ ...error, time: "To time can not be greater than from time" })
+  //     return;
+  //   }
+  //   if (isEqual(toTimeDate, fromTimeDate)) {
+  //     // toast.error('Both times cannot be the same. Please select a time later than the from time.');
+  //     setError({ ...error, time: "Both From & To time can not be same" })
+  //     return;
+  //   }
 
-    if (fromTimeDate > new Date()) {
-      // toast.error('Both times cannot be the same. Please select a time later than the from time.');
-      setError({ ...error, time: "Time can not be more than current time" })
-      return;
-    }
+  //   if (fromTimeDate > new Date()) {
+  //     // toast.error('Both times cannot be the same. Please select a time later than the from time.');
+  //     setError({ ...error, time: "Time can not be more than current time" })
+  //     return;
+  //   }
 
 
-    const timeDifference = differenceInHours(toTimeDate, fromTimeDate);
+  //   const timeDifference = differenceInHours(toTimeDate, fromTimeDate);
 
-    if (timeDifference <= 8 && timeDifference >= 0) {
-      console.log("to time", timeDifference);
+  //   if (timeDifference <= 8 && timeDifference >= 0) {
+  //     console.log("to time", timeDifference);
 
-      setToTime(toTime);
-    } else {
-      setError({ ...error, time: "Time can not be more than 8 hours" })
-      return;
-    }
+  //     setToTime(toTime);
+  //   } else {
+  //     setError({ ...error, time: "Time can not be more than 8 hours" })
+  //     return;
+  //   }
 
-    setError({ ...error, time: null })
-  }
+  //   setError({ ...error, time: null })
+  // }
 
   const onChangeToTime = (timeValue) => {
     const toTime = timeValue;
