@@ -79,7 +79,7 @@ const DesktopOnePage = () => {
 
     // If the user is already authenticated, log them out
     if (localStorage.getItem("token")) {
-      logout();
+      navigate('/create')
     }
   }, []);
 
