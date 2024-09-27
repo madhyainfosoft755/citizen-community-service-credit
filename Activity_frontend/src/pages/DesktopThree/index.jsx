@@ -12,7 +12,18 @@ import { faLocationDot, faUser } from "@fortawesome/free-solid-svg-icons";
 // import { faLocationDot } from "@fortawesome/free-solid-svg-icons";
 import { toast } from "react-toastify";
 import { CirclesWithBar } from "react-loader-spinner";
-import { differenceInHours, parse, isSameDay, format, isEqual } from "date-fns"; // Importing necessary functions from date-fns
+import {
+  differenceInHours,
+  parse,
+  isSameDay,
+  format,
+  isEqual,
+  isAfter,
+  differenceInMinutes,
+  startOfDay,
+  isBefore,
+  getHours,
+} from "date-fns"; // Importing necessary functions from date-fns
 import PopupComponent from "components/popup";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -33,9 +44,9 @@ const Createpost = () => {
   const notify = (e) => toast(e);
   const navigate = useNavigate();
   const [currentDate, setCurrentDate] = useState(new Date());
-  const handleDateChange = (value) => {
-    setCurrentDate(value);
-  };
+  const [maxAllowedTime, setMaxAllowedTime] = useState(
+    format(new Date(), "HH:mm")
+  );
   const [categories, setCategories] = useState([]);
   // console.log("these are user categories" , categories)
   const [selectedCategories, setSelectedCategories] = useState([]);
@@ -332,13 +343,16 @@ const Createpost = () => {
     // Fetch organizations from the database
     const fetchOrganizations = async () => {
       try {
-        const response = await fetch(`${API_URL}/activity/getOrganizationsofUser`, {
-          method: 'GET', // or 'POST' depending on your request type
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${localStorage.getItem('token')}`, // Add token from localStorage
-          },
-        });
+        const response = await fetch(
+          `${API_URL}/activity/getOrganizationsofUser`,
+          {
+            method: "GET", // or 'POST' depending on your request type
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${localStorage.getItem("token")}`, // Add token from localStorage
+            },
+          }
+        );
 
         const data = await response.json();
         if (response.ok) {
@@ -399,6 +413,49 @@ const Createpost = () => {
   }
   // console.log("what is the description", description)
 
+  useEffect(() => {
+    const updateTimes = () => {
+      const now = new Date();
+      const selectedDate = startOfDay(currentDate);
+      
+      if (isSameDay(selectedDate, now)) {
+        // If selected date is today, set maxAllowedTime to current time
+        setMaxAllowedTime(format(now, 'HH:mm'));
+      } else {
+        // If selected date is not today, allow full day
+        setMaxAllowedTime('23:59');
+      }
+
+      // Adjust times if they're invalid for the selected date
+      const fromTimeDate = parse(fromTime, 'HH:mm', selectedDate);
+      const toTimeDate = parse(toTime, 'HH:mm', selectedDate);
+
+      if (isBefore(selectedDate, startOfDay(now))) {
+        // If selected date is in the past, allow any time
+        if (isAfter(toTimeDate, fromTimeDate) === false) {
+          setToTime(format(new Date(fromTimeDate.getTime() + 5 * 60000), 'HH:mm')); // Set to 5 minutes after fromTime
+        }
+      } else if (isSameDay(selectedDate, now)) {
+        // If selected date is today, adjust times if they're in the future
+        if (isAfter(fromTimeDate, now)) {
+          setFromTime(format(now, 'HH:mm'));
+          setToTime(format(new Date(now.getTime() + 5 * 60000), 'HH:mm')); // Set to 5 minutes after current time
+        } else if (isAfter(toTimeDate, now)) {
+          setToTime(format(now, 'HH:mm'));
+        }
+      }
+    };
+
+    updateTimes();
+  }, [currentDate, fromTime, toTime]);
+
+  const handleDateChange = (value) => {
+    setCurrentDate(value);
+    // // Reset times when date changes
+    // setFromTime(getCurrentTime());
+    // setToTime(getCurrentTime());
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     const options = {
@@ -415,14 +472,32 @@ const Createpost = () => {
 
     // const timeDifference = differenceInHours(toTime, fromTime);
     // console.log(fromTime, toTime);
+    // Null checks for fromTime and toTime
+    if (!fromTime || !toTime) {
+      toast.error("Please select both From Time and To Time");
+      return;
+    }
+
+    const fromTimeDate = parse(fromTime, "HH:mm", new Date());
+    const toTimeDate = parse(toTime, "HH:mm", new Date());
+    const timeDifferenceInMinutes = differenceInMinutes(
+      toTimeDate,
+      fromTimeDate
+    );
+
+    if (timeDifferenceInMinutes <= 0 || timeDifferenceInMinutes > 480) {
+      toast.error("Invalid time range");
+      return;
+    }
+
     if (fromTime == toTime) {
       toast.error("from time and to time can not be same ");
       return;
     }
 
-    if (error.time) {
-      return;
-    }
+    // if (error.time) {
+    //   return;
+    // }
     // Create FormData object
     const formsDATA = new FormData();
     // console.log(formsDATA);
@@ -431,8 +506,8 @@ const Createpost = () => {
       try {
         const compressedFile = await imageCompression(selectedFile[i], options);
         console.log(`Original file name: ${selectedFile[i].name}`); // Log original file name
-      console.log(`Compressed file name: ${compressedFile.name}`); // Log compressed file name
-        formsDATA.append(`photo`, compressedFile, selectedFile[i].name); 
+        console.log(`Compressed file name: ${compressedFile.name}`); // Log compressed file name
+        formsDATA.append(`photo`, compressedFile, selectedFile[i].name);
       } catch (error) {
         console.error(`Error compressing file ${i}:`, error);
         toast.error(`File ${i + 1} compress karne mein error aaya`);
@@ -476,15 +551,17 @@ const Createpost = () => {
       const data = await response.json();
       if (response.ok) {
         // console.log("Success:", data);
-        const timeSpent = getTimeDifference(fromTime, toTime);
+        // const timeSpent = getTimeDifference(fromTime, toTime);
         // notify(data.message)
-        navigate("/activity", { state: { timeSpent, data } });
+        navigate("/activity", {
+          state: { timeSpent: timeDifferenceInMinutes, data },
+        });
       } else {
         console.error("Error:", data.error);
-        notify(`${data.error}`)
+        notify(`${data.error}`);
       }
     } catch (error) {
-      notify("Error Creating Activity")
+      notify("Error Creating Activity");
       console.error("Error:", error);
     } finally {
       setIsLoading(false);
@@ -558,84 +635,112 @@ const Createpost = () => {
     setMaxToTime(maxToTime);
   };
 
-  const onChangeToTime = (timeValue) => {
-    const toTimeDate = parse(toTime, 'HH:mm', new Date());
+  // const onChangeToTime = (timeValue) => {
+  //   const toTimeDate = parse(toTime, 'HH:mm', new Date());
 
+  //   if (toTimeDate < fromTimeDate) {
+  //     // toast.error('Time must be within the selected date');
+  //     setError({ ...error, time: "To time can not be greater than from time" })
+  //     return;
+  //   }
+  //   if (isEqual(toTimeDate, fromTimeDate)) {
+  //     // toast.error('Both times cannot be the same. Please select a time later than the from time.');
+  //     setError({ ...error, time: "Both From & To time can not be same" })
+  //     return;
+  //   }
 
-    if (toTimeDate < fromTimeDate) {
-      // toast.error('Time must be within the selected date');
-      setError({ ...error, time: "To time can not be greater than from time" })
-      return;
-    }
-    if (isEqual(toTimeDate, fromTimeDate)) {
-      // toast.error('Both times cannot be the same. Please select a time later than the from time.');
-      setError({ ...error, time: "Both From & To time can not be same" })
-      return;
-    }
+  //   if (fromTimeDate > new Date()) {
+  //     // toast.error('Both times cannot be the same. Please select a time later than the from time.');
+  //     setError({ ...error, time: "Time can not be more than current time" })
+  //     return;
+  //   }
 
-    if (fromTimeDate > new Date()) {
-      // toast.error('Both times cannot be the same. Please select a time later than the from time.');
-      setError({ ...error, time: "Time can not be more than current time" })
-      return;
-    }
+  //   const timeDifference = differenceInHours(toTimeDate, fromTimeDate);
 
+  //   if (timeDifference <= 8 && timeDifference >= 0) {
+  //     console.log("to time", timeDifference);
 
-    const timeDifference = differenceInHours(toTimeDate, fromTimeDate);
+  //     setToTime(toTime);
+  //   } else {
+  //     setError({ ...error, time: "Time can not be more than 8 hours" })
+  //     return;
+  //   }
 
-    if (timeDifference <= 8 && timeDifference >= 0) {
-      console.log("to time", timeDifference);
+  //   setError({ ...error, time: null })
+  // }
 
-      setToTime(toTime);
-    } else {
-      setError({ ...error, time: "Time can not be more than 8 hours" })
-      return;
-    }
+  // const onChangeToTime = (timeValue) => {
+  //   const toTime = timeValue;
+  //   setToTime(toTime);
 
-    setError({ ...error, time: null })
-  }
+  //   const toTimeDate = parse(toTime, 'HH:mm', new Date());
+  //   const fromTimeDate = parse(fromTime, 'HH:mm', new Date());
+  //   console.log(fromTimeDate, "from time");
+  //   console.log(toTimeDate, "to time");
+
+  //   if (toTimeDate < fromTimeDate) {
+  //     // toast.error('Time must be within the selected date');
+  //     setError({ ...error, time: "To time can not be greater than from time" })
+  //     return;
+  //   }
+  //   if (isEqual(toTimeDate, fromTimeDate)) {
+  //     // toast.error('Both times cannot be the same. Please select a time later than the from time.');
+  //     setError({ ...error, time: "Both From & To time can not be same" })
+  //     return;
+  //   }
+
+  //   if (toTimeDate > new Date()) {
+  //     // toast.error('Both times cannot be the same. Please select a time later than the from time.');
+  //     setError({ ...error, time: "Time can not be more than current time" })
+  //     return;
+  //   }
+
+  //   const timeDifference = differenceInHours(toTimeDate, fromTimeDate);
+
+  //   if (timeDifference <= 8 && timeDifference >= 0) {
+  //     console.log("to time", timeDifference);
+
+  //     setToTime(toTime);
+  //   } else {
+  //     setError({ ...error, time: "Time can not be more than 8 hours" })
+  //     return;
+  //   }
+
+  //   setError({ ...error, time: null })
+
+  // }
 
   const onChangeToTime = (timeValue) => {
     const toTime = timeValue;
+    const toTimeDate = parse(toTime, "HH:mm", new Date());
+    const fromTimeDate = parse(fromTime, "HH:mm", new Date());
+    const maxAllowedDate = parse(maxAllowedTime, "HH:mm", new Date());
+
+    if (isAfter(toTimeDate, maxAllowedDate)) {
+      toast.error(
+        "To time cannot be after the maximum allowed time for the selected date"
+      );
+      return;
+    }
+
+    const timeDifferenceInMinutes = differenceInMinutes(
+      toTimeDate,
+      fromTimeDate
+    );
+
+    if (timeDifferenceInMinutes <= 0) {
+      toast.error("To time must be later than From time");
+      return;
+    }
+
+    if (timeDifferenceInMinutes > 480) {
+      // 8 hours = 480 minutes
+      toast.error("Time difference cannot be more than 8 hours");
+      return;
+    }
+
     setToTime(toTime);
-
-    const toTimeDate = parse(toTime, 'HH:mm', new Date());
-    const fromTimeDate = parse(fromTime, 'HH:mm', new Date());
-    console.log(fromTimeDate, "from time");
-    console.log(toTimeDate, "to time");
-
-    if (toTimeDate < fromTimeDate) {
-      // toast.error('Time must be within the selected date');
-      setError({ ...error, time: "To time can not be greater than from time" })
-      return;
-    }
-    if (isEqual(toTimeDate, fromTimeDate)) {
-      // toast.error('Both times cannot be the same. Please select a time later than the from time.');
-      setError({ ...error, time: "Both From & To time can not be same" })
-      return;
-    }
-
-    if (toTimeDate > new Date()) {
-      // toast.error('Both times cannot be the same. Please select a time later than the from time.');
-      setError({ ...error, time: "Time can not be more than current time" })
-      return;
-    }
-
-
-    const timeDifference = differenceInHours(toTimeDate, fromTimeDate);
-
-    if (timeDifference <= 8 && timeDifference >= 0) {
-      console.log("to time", timeDifference);
-
-      setToTime(toTime);
-    } else {
-      setError({ ...error, time: "Time can not be more than 8 hours" })
-      return;
-    }
-
-    setError({ ...error, time: null })
-
-  }
-
+  };
 
   const handleLogout = () => {
     // Clear authentication status, remove token and user key, and redirect to the login page
@@ -898,11 +1003,15 @@ const Createpost = () => {
                       value={toTime}
                       id="totime"
                       min={fromTime}
+                      max={maxAllowedTime}
                     />
                   </div>
-
                 </div>
-                {error && error.time && <span className="text-red-500 text-left text-sm">{error.time}</span>}
+                {error && error.time && (
+                  <span className="text-red-500 text-left text-sm">
+                    {error.time}
+                  </span>
+                )}
 
                 <div className="w-full h-auto flex flex-col items-center justify-center relative">
                   <label className="block font-semibold mb-1 text-left w-full">

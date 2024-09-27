@@ -34,7 +34,7 @@ dotenv.config();
 const { validationResult } = require("express-validator");
 const fs = require("fs");
 const path = require("path");
-const { format } = require("date-fns");
+const { format, differenceInMinutes, isAfter, isSameDay, parse } = require("date-fns");
 const LINKEDIN_CLIENT_ID = process.env.LINKEDIN_CLIENT_ID;
 const LINKEDIN_CLIENT_SECRET = process.env.LINKEDIN_CLIENT_SECRET;
 const LINKEDIN_REDIRECT_URI = process.env.LINKEDIN_REDIRECT_URI;
@@ -336,6 +336,8 @@ const Register = async (req, res) => {
     const userData = req.body;
     // console.log("here is he data", userData);
 
+    const processedPhone = userData.phone === '' ? null : userData.phone;
+
     // Check if any required field is empty
     if (!userData.name) {
       return res
@@ -444,7 +446,7 @@ const Register = async (req, res) => {
       name: req.body.name,
       email: userData.email,
       password: userData.password,
-      phone: userData.phone,
+      phone: processedPhone,
       photo: photoFile[0].filename,
       category: JSON.stringify(selectedCategories), // Store as a JSON string
       verificationToken: verificationToken, // Store verification token in the database
@@ -1131,6 +1133,22 @@ const CreateActivity = async (req, res) => {
       longitude,
       organization,
     } = req.body;
+
+    const activityDate = new Date(date);
+    const currentDate = new Date();
+    const fromTimeDate = parse(fromTime, 'HH:mm', activityDate);
+    const toTimeDate = parse(toTime, 'HH:mm', activityDate);
+
+    // Check if toTime is after current time for today's date
+    if (isSameDay(activityDate, currentDate) && isAfter(toTimeDate, currentDate)) {
+      return res.status(400).json({ error: "To time cannot be in the future" });
+    }
+
+    const timeDifferenceInMinutes = differenceInMinutes(toTimeDate, fromTimeDate);
+
+    if (timeDifferenceInMinutes <= 0 || timeDifferenceInMinutes > 480) {
+      return res.status(400).json({ error: "Invalid time range" });
+    }
 
     // Format the date to yyyy-mm-dd format
     const formattedDate = format(new Date(date), "yyyy-MM-dd");
