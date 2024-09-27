@@ -579,7 +579,7 @@ const Register = () => {
           </div>
         )}
 
-        <div className="absolute  top-[50%] left-[50%] transform -translate-x-[50%] -translate-y-[75%] bg-white rounded-full overflow-hidden  opacity-60">
+        <div className="absolute  top-[50%] left-[50%] transform -translate-x-[50%] -translate-y-[75%] bg-white rounded-full overflow-hidden  opacity-25">
           <img src="./images/2.png" alt="" />
         </div>
         <div className="absolute -bottom-10 -left-20 w-64 h-64 bg-[#f5f6fe] rounded-full"></div>

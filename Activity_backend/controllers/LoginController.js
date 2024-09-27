@@ -336,6 +336,8 @@ const Register = async (req, res) => {
     const userData = req.body;
     // console.log("here is he data", userData);
 
+    const processedPhone = userData.phone === '' ? null : userData.phone;
+
     // Check if any required field is empty
     if (!userData.name) {
       return res
@@ -444,7 +446,7 @@ const Register = async (req, res) => {
       name: req.body.name,
       email: userData.email,
       password: userData.password,
-      phone: userData.phone,
+      phone: processedPhone,
       photo: photoFile[0].filename,
       category: JSON.stringify(selectedCategories), // Store as a JSON string
       verificationToken: verificationToken, // Store verification token in the database

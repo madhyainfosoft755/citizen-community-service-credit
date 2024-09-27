@@ -243,15 +243,15 @@ const UserReports = () => {
                         </button>
                         <h1 className="text-xl font-semibold">Personal Reports</h1>
                     </div>
-                    <div className="flex flex-col md:flex-row md:space-x-4 space-y-4 md:space-y-0 p-3">
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700">
+                    <div className="flex items-center justify-center gap-4">
+                        <div >
+                            <label className="block text-sm font-medium text-gray-700 ">
                                 Start Date
                             </label>
                             <DatePicker
                                 selected={startDate}
                                 onChange={(date) => setStartDate(date)}
-                                className="border rounded px-2 py-1 w-full"
+                                className="border rounded px-2 py-1 w-full bg-green-400"
                             />
                         </div>
                         <div>
