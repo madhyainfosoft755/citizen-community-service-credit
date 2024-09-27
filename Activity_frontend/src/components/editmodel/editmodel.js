@@ -163,6 +163,15 @@ const EditUserModal = ({ userData, isOpen, onClose, onSave }) => {
       return;
     }
 
+    if (!formData.phone || formData.phone.trim().length < 10) {
+      setError({
+        field: "mobile",
+        message: "Mobile number must be at least 10 characters long.",
+      });
+      console.log("error", error);
+      return;
+    }
+
     const token = localStorage.getItem("token");
     if (!token) {
       return;
@@ -228,7 +237,10 @@ const EditUserModal = ({ userData, isOpen, onClose, onSave }) => {
               onChange={handleChange}
               onBlur={() => {
                 if (formData.name.length < 2) {
-                  setError({ field: "name", message: "Name must be at least 2 characters long." });
+                  setError({
+                    field: "name",
+                    message: "Name must be at least 2 characters long.",
+                  });
                 }
               }}
               onFocus={() => {
@@ -276,7 +288,24 @@ const EditUserModal = ({ userData, isOpen, onClose, onSave }) => {
               value={formData.phone}
               onChange={handleChange}
               className="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              onBlur={() => {
+                if (!formData.phone || formData.phone.trim().length < 10) {
+                  setError({
+                    field: "phone",
+                    message:
+                      "Phone number must be at least 10 characters long.",
+                  });
+                }
+              }}
+              onFocus={() => {
+                if (error && error.field === "phone") {
+                  setError(null);
+                }
+              }}
             />
+            {error && error.field === "phone" && (
+              <Alert message={error.message} onClose={() => setError(null)} />
+            )}
           </div>
 
           {/* Address field */}
