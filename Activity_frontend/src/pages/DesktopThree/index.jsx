@@ -501,19 +501,23 @@ const Createpost = () => {
     // Create FormData object
     const formsDATA = new FormData();
     // console.log(formsDATA);
+
+    const compressedFiles = [];
     // Har ek file ko compress karein
     for (let i = 0; i < selectedFile.length; i++) {
       try {
         const compressedFile = await imageCompression(selectedFile[i], options);
-        console.log(`Original file name: ${selectedFile[i].name}`); // Log original file name
-        console.log(`Compressed file name: ${compressedFile.name}`); // Log compressed file name
+        // console.log(`Original file name: ${selectedFile[i].name}`); // Log original file name
+        // console.log(`Compressed file name: ${compressedFile.name}`); // Log compressed file name
         formsDATA.append(`photo`, compressedFile, selectedFile[i].name);
+        // console.log(`Compressed file ${i + 1}: ${compressedFile.name}`);
       } catch (error) {
-        console.error(`Error compressing file ${i}:`, error);
+        console.error(`Error compressing file ${i + 1}:`, error);
         toast.error(`File ${i + 1} compress karne mein error aaya`);
         return;
       }
     }
+    // console.log(`Total compressed files: ${compressedFiles.length}`);
     formsDATA.append("selectedCategories", selectedCategories);
     formsDATA.append("date", currentDate);
     // formsDATA.append("photo", compressedFile, selectedFile.name);

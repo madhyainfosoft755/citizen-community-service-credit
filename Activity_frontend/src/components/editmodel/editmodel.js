@@ -30,7 +30,9 @@ const EditUserModal = ({ userData, isOpen, onClose, onSave }) => {
     phone: userData.phone || "",
     address: userData.address || "",
     organization: userData.organization || "",
-    selectedCategories: userData.category || [],
+    selectedCategories: Array.isArray(userData.category)
+      ? userData.category
+      : JSON.parse(userData.category || "[]"),
     photo: userData.photo || "",
   });
 
@@ -49,15 +51,20 @@ const EditUserModal = ({ userData, isOpen, onClose, onSave }) => {
         email: userData.email || "",
         address: userData.address || "",
         organization: userData.organization || "",
-        selectedCategories: userData.category || [],
+        selectedCategories: Array.isArray(userData.category)
+          ? userData.category
+          : JSON.parse(userData.category || "[]"), // Parse only once here
         photo: userData.photo || "",
       });
+      // console.log("userData.category", userData.category);
 
       setCategories(
-        JSON.parse(userData.category).map((value) => ({
-          value,
-          label: value,
-        }))
+        Array.isArray(userData.category)
+          ? userData.category.map((value) => ({ value, label: value }))
+          : JSON.parse(userData.category || "[]").map((value) => ({
+              value,
+              label: value,
+            }))
       );
     }
   }, [userData]);
@@ -95,6 +102,7 @@ const EditUserModal = ({ userData, isOpen, onClose, onSave }) => {
               label: value.name,
             }))
           );
+          console.log("allCategories", allCategories);
         } else {
           console.error("Error fetching categories:", data.message);
         }
@@ -180,7 +188,7 @@ const EditUserModal = ({ userData, isOpen, onClose, onSave }) => {
     const formDataWithPhoto = new FormData();
     Object.entries(formData).forEach(([key, value]) => {
       if (key === "selectedCategories") {
-        formDataWithPhoto.append(key, JSON.stringify(value));
+        formDataWithPhoto.append(key, JSON.stringify(value)); // Handle JSON once here
       } else {
         formDataWithPhoto.append(key, value);
       }

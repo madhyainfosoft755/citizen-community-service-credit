@@ -34,7 +34,13 @@ dotenv.config();
 const { validationResult } = require("express-validator");
 const fs = require("fs");
 const path = require("path");
-const { format, differenceInMinutes, isAfter, isSameDay, parse } = require("date-fns");
+const {
+  format,
+  differenceInMinutes,
+  isAfter,
+  isSameDay,
+  parse,
+} = require("date-fns");
 const LINKEDIN_CLIENT_ID = process.env.LINKEDIN_CLIENT_ID;
 const LINKEDIN_CLIENT_SECRET = process.env.LINKEDIN_CLIENT_SECRET;
 const LINKEDIN_REDIRECT_URI = process.env.LINKEDIN_REDIRECT_URI;
@@ -336,7 +342,7 @@ const Register = async (req, res) => {
     const userData = req.body;
     // console.log("here is he data", userData);
 
-    const processedPhone = userData.phone === '' ? null : userData.phone;
+    const processedPhone = userData.phone === "" ? null : userData.phone;
 
     // Check if any required field is empty
     if (!userData.name) {
@@ -390,14 +396,14 @@ const Register = async (req, res) => {
     }
 
     // Check if user with the same mobile number already exists
-    // const existingMobileUser = await Users.findOne({
-    //   where: { phone: userData.phone },
-    // });
-    // if (existingMobileUser) {
-    //   return res
-    //     .status(400)
-    //     .json({ field: "phone", message: "Mobile number already registered" });
-    // }
+    const existingMobileUser = await Users.findOne({
+      where: { phone: userData.phone },
+    });
+    if (existingMobileUser) {
+      return res
+        .status(400)
+        .json({ field: "phone", message: "Mobile number already registered" });
+    }
 
     // Validate password strength
     const passwordRegex =
@@ -1136,15 +1142,21 @@ const CreateActivity = async (req, res) => {
 
     const activityDate = new Date(date);
     const currentDate = new Date();
-    const fromTimeDate = parse(fromTime, 'HH:mm', activityDate);
-    const toTimeDate = parse(toTime, 'HH:mm', activityDate);
+    const fromTimeDate = parse(fromTime, "HH:mm", activityDate);
+    const toTimeDate = parse(toTime, "HH:mm", activityDate);
 
     // Check if toTime is after current time for today's date
-    if (isSameDay(activityDate, currentDate) && isAfter(toTimeDate, currentDate)) {
+    if (
+      isSameDay(activityDate, currentDate) &&
+      isAfter(toTimeDate, currentDate)
+    ) {
       return res.status(400).json({ error: "To time cannot be in the future" });
     }
 
-    const timeDifferenceInMinutes = differenceInMinutes(toTimeDate, fromTimeDate);
+    const timeDifferenceInMinutes = differenceInMinutes(
+      toTimeDate,
+      fromTimeDate
+    );
 
     if (timeDifferenceInMinutes <= 0 || timeDifferenceInMinutes > 480) {
       return res.status(400).json({ error: "Invalid time range" });
@@ -1235,7 +1247,7 @@ const CreateActivity = async (req, res) => {
     // Save to the database
     let created_post = await Posts.create({
       category,
-      photos:JSON.stringify(photos),
+      photos: JSON.stringify(photos),
       // videos,
       Date: formattedDate,
       totalTime,
@@ -2500,6 +2512,11 @@ const getLinkToSharePost = async (req, res) => {
     });
 
     console.log("show post", post);
+     // Parse the photos JSON string to an array
+     const photos = JSON.parse(post.photos);
+    
+     // Use the first photo for the og:image tag
+     const firstPhoto = photos[0] || '';
 
     const htmlContent = `
     <!DOCTYPE html>
@@ -2511,7 +2528,7 @@ const getLinkToSharePost = async (req, res) => {
   <!-- Open Graph meta tags -->
   <meta property="og:title" content="Community Care 247" />
   <meta property="og:description" content="Your app for recording your community service hours" />
-  <meta property="og:image" content="https://cch247.com/api/image/${post.photos}" />
+  <meta property="og:image" content="https://cch247.com/api/image/${firstPhoto}" />
   <meta property="og:url" content="https://cch247.com/api/posts/${encodedID}" />
   <meta property="og:type" content="website"/>
   <meta property="og:site_name" content="CC247" />
@@ -2623,20 +2640,32 @@ const updateUser = async (req, res) => {
       photoUrl = req.file.filename;
     }
 
-    // Check if a user with the same email already exists
-    const existingUser = await Users.findOne({
-      where: {
-        email: userData.email,
-        id: {
-          [Op.ne]: id, // Exclude user with this ID
-        },
-      },
-    });
+    // Fetch the current user
+    const currentUser = await Users.findByPk(id);
+    if (!currentUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
 
-    if (existingUser) {
-      return res
-        .status(400)
-        .json({ field: "email", message: "Email already exists" });
+    // Check if the email is being changed
+    let emailChanged = false;
+    if (currentUser.email !== userData.email) {
+      emailChanged = true;
+
+      // Check if a user with the new email already exists
+      const existingUser = await Users.findOne({
+        where: {
+          email: userData.email,
+          id: {
+            [Op.ne]: id, // Exclude user with this ID
+          },
+        },
+      });
+
+      if (existingUser) {
+        return res
+          .status(400)
+          .json({ field: "email", message: "Email already exists" });
+      }
     }
 
     // Check if a user with the same mobile number already exists
@@ -2685,22 +2714,24 @@ const updateUser = async (req, res) => {
     }
 
     // Update user information in the database
-    const updatedUser = await Users.update(
-      {
-        name: userData.name,
-        email: userData.email,
-        phone: userData.phone,
-        category: JSON.stringify(selectedCategories),
-        organization: userData.organization, // Add the organization field
-        address: userData.address,
-        photo: photoUrl || userData.photo, // Update photo if a new photo is uploaded
-        // Add other fields as needed
-      },
-      {
-        where: { id: id },
-      }
-    );
+    const updateData = {
+      name: userData.name,
+      email: userData.email,
+      phone: userData.phone,
+      category: JSON.stringify(selectedCategories),
+      organization: userData.organization,
+      address: userData.address,
+      photo: photoUrl || userData.photo,
+    };
 
+    // If email has changed, set verified to false
+    if (emailChanged) {
+      updateData.verified = false;
+    }
+
+    const updatedUser = await Users.update(updateData, {
+      where: { id: id },
+    });
     return res.status(200).json({
       status: "success",
       message: "User updated successfully",

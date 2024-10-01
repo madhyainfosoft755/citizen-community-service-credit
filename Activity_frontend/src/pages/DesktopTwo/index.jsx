@@ -585,7 +585,7 @@ const Register = () => {
         <div className="absolute -bottom-10 -left-20 w-64 h-64 bg-[#f5f6fe] rounded-full"></div>
         <div className="absolute -top-10 -right-20 w-64 h-64 bg-[#f5f6fe] rounded-full"></div>
 
-        <div className="relative w-full h-full sm:w-full sm:h-full md:w-full md:h-full flex flex-col items-center justify-evenly gap-1 sm:-mt-0 ">
+        <div className="relative w-full h-full sm:w-full sm:h-full md:w-full md:h-full flex flex-col items-center justify-evenly  sm:-mt-0 ">
           <h3 className=" text-xl font-bold font-sans  sm:mt-4  text-black-900 ">
             Lets get started
           </h3>
@@ -633,7 +633,7 @@ const Register = () => {
                 </span>
               )}
             </div>
-            <div className="w-full flex-col h-7 relative">
+            <div className="w-full flex-col h-7 relative mb-1">
               <InputWithIconAndText
                 icon={faPhone} // Change the icon as needed
                 iconColor={"#419f44"}
@@ -645,6 +645,12 @@ const Register = () => {
                 value={formsData.phone}
                 type="number"
               />
+              <h1 className="text-red-500 absolute -left-2 -top-1">*</h1>
+              {error && error.phone && (
+                <span className="text-red-500 text-xs text-left">
+                  {error.phone}
+                </span>
+              )}
             </div>
 
             <div className="w-full h-7 flex flex-col justify-center relative">
