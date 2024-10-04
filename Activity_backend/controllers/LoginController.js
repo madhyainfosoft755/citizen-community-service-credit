@@ -2753,7 +2753,9 @@ const getAllActivitiesByCategoriesUser = async (req, res) => {
       return res.json({ message: "Invalid token " });
     }
 
-    const { categories, start: startDate, end: endDate } = req.body;
+    const { categories, start: startDate, end: endDate, reportType } = req.body;
+
+    console.log("report type", reportType );
 
     // Validate categories input
     if (!Array.isArray(categories) || categories.length === 0) {
@@ -2784,6 +2786,32 @@ const getAllActivitiesByCategoriesUser = async (req, res) => {
       console.log("End Date:", dateFilter[Op.lte]); // Debug log
     }
 
+
+    // Define base where condition
+    const whereCondition = {
+      ...(Object.getOwnPropertySymbols(dateFilter).length
+        ? { createdAt: dateFilter }
+        : {}),
+      category: {
+        [Op.in]: categories,
+      },
+      UserId: id,
+    };
+
+    // Add report type specific conditions
+    switch (reportType) {
+      case 'approved':
+        whereCondition.approved = true;
+        break;
+      case 'endorsed':
+        whereCondition.endorsementCounter = { [Op.gt]: 0 };
+        break;
+        case 'unendorsed':
+        whereCondition.endorsementCounter = { [Op.eq]: 0 }; // Yeh new condition hai
+        break;
+      // 'all' case doesn't need any additional conditions
+    }
+    
     // Debug log the dateFilter
     console.log("Date Filter:", dateFilter);
     console.log(
@@ -2791,21 +2819,15 @@ const getAllActivitiesByCategoriesUser = async (req, res) => {
       Object.getOwnPropertySymbols(dateFilter).length
     );
 
+
+
     // Group and count activities by category
     const activitiesByCategories = await Posts.findAll({
       attributes: [
         "category",
         [Sequelize.fn("COUNT", Sequelize.col("id")), "count"],
       ],
-      where: {
-        ...(Object.getOwnPropertySymbols(dateFilter).length
-          ? { createdAt: dateFilter }
-          : {}),
-        category: {
-          [Op.in]: categories,
-        },
-        UserId: id,
-      },
+      where: whereCondition,
       group: ["category"],
     });
 
