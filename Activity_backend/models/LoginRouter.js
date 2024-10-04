@@ -14,6 +14,7 @@ module.exports = (sequelize, DataTypes) => {
       phone: {
         type: DataTypes.STRING,
         allowNull: true,
+        unique: false,
       },
       password: {
         type: DataTypes.STRING,
@@ -66,10 +67,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: true,
       },
-      orgId: {
-        type: DataTypes.INTEGER,
-        allowNull: true,
-      },
+      
     },
     {
       timestamps: true,

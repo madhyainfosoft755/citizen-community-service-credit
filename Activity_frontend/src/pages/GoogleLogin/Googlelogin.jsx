@@ -1,11 +1,10 @@
-import React, { useState } from 'react';
-import { useGoogleLogin } from '@react-oauth/google';
+import React, { useState } from "react";
+import { useGoogleLogin } from "@react-oauth/google";
 // import { FaGoogle } from "react-icons/fa";
-import { LoginApi, getUserInfoFromGoogle } from 'Services'
+import { LoginApi, getUserInfoFromGoogle } from "Services";
 import { useNavigate } from "react-router-dom";
 // import './google.css'
 import { Button, Img, Input, Line, Text } from "components";
-
 
 function MyGoogle() {
   const navigate = useNavigate();
@@ -14,18 +13,18 @@ function MyGoogle() {
   const handleLogin = async (access_token, userInfo) => {
     try {
       const userData = await LoginApi({ access_token, userInfo });
-      localStorage.setItem('token', userData.token);
+      localStorage.setItem("token", userData.token);
 
       // Navigate to the profile page
       // navigate('/create');
     } catch (error) {
       // Handle login error
-      console.error('Login error:', error);
+      console.error("Login error:", error);
     }
   };
 
   const DesktopOnePage = useGoogleLogin({
-    onSuccess: async access_token => {
+    onSuccess: async (access_token) => {
       try {
         const userInfo = await getUserInfoFromGoogle(access_token);
         console.log(userInfo);
@@ -33,14 +32,17 @@ function MyGoogle() {
         console.log(access_token);
       } catch (error) {
         // Handle user info retrieval error
-        console.error('User info retrieval error:', error);
+        console.error("User info retrieval error:", error);
       }
     },
   });
 
   return (
     <>
-      <a className="btn btn-primary google-plus text-center" onClick={() => DesktopOnePage()}>
+      <a
+        className="btn btn-primary google-plus text-center"
+        onClick={() => DesktopOnePage()}
+      >
         {/* <FaGoogle /> */}
         {/* <svg className='googleLogo' xmlns="http://www.w3.org/2000/svg" width="35" height="35" viewBox="0 0 35 35" fill="none">
           <circle cx="17.5" cy="17.5" r="17.5" fill="white" />
@@ -48,17 +50,11 @@ function MyGoogle() {
         </svg> */}
 
         {/* <span className='mb-2'> </span> */}
-        
+
         <Text
-                      className="text-base text-white-A700"
-                      size="txtInterSemiBold16"
-                    >
-                      
-
-
-
-                    </Text>
-                  
+          className="text-base text-white-A700"
+          size="txtInterSemiBold16"
+        ></Text>
       </a>
     </>
   );

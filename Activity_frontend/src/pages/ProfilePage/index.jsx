@@ -134,9 +134,9 @@ const ProfilePage = () => {
 
         const errors = {};
 
-        if (!validateMobileNumber(formData.phone)) {
-            errors.phone = "Invalid mobile number format";
-        }
+        // if (!validateMobileNumber(formData.phone)) {
+        //     errors.phone = "Invalid mobile number format";
+        // }
 
 
         if (!selectedCategories || selectedCategories.length === 0) {
@@ -287,7 +287,7 @@ const ProfilePage = () => {
                 </div>
                 <div className={`relative sm:w-5/6 w-4/6 h-10 bg-gray-50 flex items-center justify-center  p-2 rounded-xl border-[1px] ${formErrors.aadhar ? 'border-red-500' : 'border-white-A700'}  green-border`}>
                     <FontAwesomeIcon icon={faPhone} className="text-gray-500" />
-                    <h1 className="text-red-500 absolute -left-3 -top-1 text-xl">*</h1>
+                    {/* <h1 className="text-red-500 absolute -left-3 -top-1 text-xl">*</h1> */}
                     <input
                         name="phone"
                         className="w-full h-full bg-inherit border-none no-spinner"
@@ -295,7 +295,7 @@ const ProfilePage = () => {
                         placeholder="Phone Number"
                         value={formData.phone}
                         onChange={handleInputChange}
-                        required
+                        // required
                     />
                     {formErrors.phone && <small className="error absolute left-0 -bottom-4 text-red-500">{formErrors.phone}</small>}
                 </div>
@@ -308,7 +308,7 @@ const ProfilePage = () => {
                         placeholder="Address"
                         value={formData.address}
                         onChange={handleInputChange}
-                        required
+                        // required
                     />
 
                 </div>
