@@ -83,11 +83,10 @@ const Register = () => {
       try {
         const response = await fetch(`${API_URL}/activity/getOrganizations`);
         const data = await response.json();
+        console.log("organizations", data);
         if (response.ok) {
           setOrganizations(
-            data.map((value) => {
-              return { value: value.id, label: value.name };
-            })
+            data.map((orgName) => ({ value: orgName, label: orgName }))
           ); // Ensure data is an array
         } else {
           console.error("Error fetching organizations:", data.message);
@@ -476,13 +475,16 @@ const Register = () => {
     formsDATA.append("cpassword", e.target[6].value);
     formsDATA.append("selectedCategories", JSON.stringify(selectedCategories));
     selectedFile &&
-      formsDATA.append(
-        "photo",
-        compressedFile,
-        selectedFile && selectedFile.name
-      );
+    formsDATA.append(
+      "photo",
+      compressedFile,
+      selectedFile && selectedFile.name
+    );
+    // const organizationValues = selectedOrganization.map(org => org.value);
+    // console.log("organizationValues", organizationValues);
     formsDATA.append("organization", JSON.stringify(selectedOrganization));
-
+    console.log("selectedOrganization", selectedOrganization);
+    
     try {
       setIsloading(true);
 
@@ -493,7 +495,7 @@ const Register = () => {
       // console.log("kya response aa rha hai", response);
 
       const data = await response.json();
-      // console.log("kya data aa rha hai", data);
+      console.log("kya data aa rha hai", data);
       if (response.ok) {
         // console.log("Success:", data);
         navigate("/login" || "/createpost, { state: { user: formsData } }");
@@ -585,7 +587,7 @@ const Register = () => {
         <div className="absolute -bottom-10 -left-20 w-64 h-64 bg-[#f5f6fe] rounded-full"></div>
         <div className="absolute -top-10 -right-20 w-64 h-64 bg-[#f5f6fe] rounded-full"></div>
 
-        <div className="relative w-full h-full sm:w-full sm:h-full md:w-full md:h-full flex flex-col items-center justify-evenly  sm:-mt-0 ">
+        <div className=" overflow-auto scroller relative w-full h-full sm:w-full sm:h-full md:w-full md:h-full flex flex-col items-center justify-evenly  sm:-mt-0 ">
           <h3 className=" text-xl font-bold font-sans  sm:mt-4  text-black-900 ">
             Lets get started
           </h3>

@@ -340,7 +340,8 @@ const transporter = nodemailer.createTransport({
 const Register = async (req, res) => {
   try {
     const userData = req.body;
-    // console.log("here is he data", userData);
+    console.log("Received user data:", userData);
+    console.log("Type of organization data:", typeof userData.organization);
 
     const processedPhone = userData.phone === "" ? null : userData.phone;
 
@@ -371,7 +372,7 @@ const Register = async (req, res) => {
 
     // Check if the uploaded file is an image
     const photoFile = req.files.photo;
-    // console.log("ye hai photo file", photoFile)
+    
     // Check if the file has an allowed image extension
     const allowedExtensions = ["jpg", "jpeg", "png", "gif", "jfif"];
     const fileExtension = photoFile[0].filename
@@ -443,6 +444,42 @@ const Register = async (req, res) => {
       selectedCategories.push("Others");
     }
 
+
+
+    // let organizationData;
+    // console.log("Organization data received:", userData.organization);
+    // try {
+    //   // Agar string hai to parse karein
+    //   if (typeof userData.organization === 'string'&& !Array.isArray(JSON.parse(userData.organization))) {
+    //     organizationData = JSON.parse(userData.organization);
+    //     console.log("Parsed organization data:", organizationData);
+    //   } else if (typeof organizationData === 'string') {
+    //     // Agar already parsed hai to direct use karein
+    //     organizationData = JSON.parse(organizationData);
+    //   }
+      
+    //   // Ensure it's an array
+    //   if (!Array.isArray(organizationData)) {
+    //     organizationData = [organizationData];
+    //   }
+      
+    //   // Remove any duplicates and filter out empty values
+    //   organizationData = [...new Set(organizationData)].filter(item => item && item !== '');
+    //   console.log("Processed organization data:", organizationData);
+    // } catch (error) {
+    //   console.error("Error parsing organization data:", error);
+    //   organizationData = []; // Fallback to empty array if parsing fails
+    // }
+
+    // console.log("Final organization data:", organizationData);
+    // if (typeof selectedCategories === "string") {
+    //   selectedCategories = JSON.parse(selectedCategories);
+    // }
+
+    // if (!Array.isArray(selectedCategories)) {
+    //   selectedCategories = [selectedCategories];
+    // }
+
     // console.log("Final categories:", selectedCategories);
 
     // const Category = selectedCategories;
@@ -459,23 +496,25 @@ const Register = async (req, res) => {
       aadhar: userData.aadhar,
       address: userData.address,
       role: "user",
-      organization: JSON.stringify(userData.organization), // Add the organization field
+      organization: userData.organization, // Add the organization field
 
       // Add other fields as needed
     });
 
-    const orgArray = JSON.parse(userData.organization);
+    console.log("New user created:", newUser.toJSON());
+    console.log("Saved organization data:", newUser.organization);
+    // const orgArray = JSON.parse(userData.organization);
 
-    await Promise.all(
-      orgArray.map(async (org) => {
-        return await db.AttachOrg.create({
-          // Add your fields here
-          UserId: newUser.id,
-          OrgId: org,
-          // other fields as needed
-        });
-      })
-    );
+    // await Promise.all(
+    //   orgArray.map(async (org) => {
+    //     return await db.AttachOrg.create({
+    //       // Add your fields here
+    //       UserId: newUser.id,
+    //       OrgId: org,
+    //       // other fields as needed
+    //     });
+    //   })
+    // );
 
     // You can add more error handling and validation as needed
 
@@ -483,6 +522,7 @@ const Register = async (req, res) => {
       status: "success",
       message:
         "Registration successful. Please check your email for verification.",
+        data:newUser
     });
   } catch (error) {
     logger.error("Registration failed:", error);
@@ -2047,6 +2087,7 @@ const getOrganizationsAdmin = async (req, res) => {
 const getOrganizations = async (req, res) => {
   try {
     const organizations = await Organizations.findAll({
+      attributes: ['name'],
       where: { isEnabled: true },
     });
 
@@ -2054,7 +2095,8 @@ const getOrganizations = async (req, res) => {
       return res.status(200).json({ message: "No organizations found" });
     }
 
-    res.status(200).json(organizations);
+    const organizationNames = organizations.map(org => org.name);
+    res.status(200).json(organizationNames);
   } catch (error) {
     res.status(500).json({ message: "Failed to fetch organizations", error });
   }
@@ -2066,7 +2108,7 @@ const getOrganizationsUser = async (req, res) => {
     const organizations = await Organizations.findAll({
       include: [
         {
-          model: AttachOrg,
+          // model: AttachOrg,
           where: { UserId: id },
         },
       ],
@@ -2807,7 +2849,7 @@ const getAllActivitiesByCategoriesUser = async (req, res) => {
         whereCondition.endorsementCounter = { [Op.gt]: 0 };
         break;
         case 'unendorsed':
-        whereCondition.endorsementCounter = { [Op.eq]: 0 }; // Yeh new condition hai
+        whereCondition.endorsementCounter = { [Op.eq]: 0 }; 
         break;
       // 'all' case doesn't need any additional conditions
     }

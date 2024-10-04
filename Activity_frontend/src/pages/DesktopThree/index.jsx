@@ -417,31 +417,33 @@ const Createpost = () => {
     const updateTimes = () => {
       const now = new Date();
       const selectedDate = startOfDay(currentDate);
-      
+
       if (isSameDay(selectedDate, now)) {
         // If selected date is today, set maxAllowedTime to current time
-        setMaxAllowedTime(format(now, 'HH:mm'));
+        setMaxAllowedTime(format(now, "HH:mm"));
       } else {
         // If selected date is not today, allow full day
-        setMaxAllowedTime('23:59');
+        setMaxAllowedTime("23:59");
       }
 
       // Adjust times if they're invalid for the selected date
-      const fromTimeDate = parse(fromTime, 'HH:mm', selectedDate);
-      const toTimeDate = parse(toTime, 'HH:mm', selectedDate);
+      const fromTimeDate = parse(fromTime, "HH:mm", selectedDate);
+      const toTimeDate = parse(toTime, "HH:mm", selectedDate);
 
       if (isBefore(selectedDate, startOfDay(now))) {
         // If selected date is in the past, allow any time
         if (isAfter(toTimeDate, fromTimeDate) === false) {
-          setToTime(format(new Date(fromTimeDate.getTime() + 5 * 60000), 'HH:mm')); // Set to 5 minutes after fromTime
+          setToTime(
+            format(new Date(fromTimeDate.getTime() + 5 * 60000), "HH:mm")
+          ); // Set to 5 minutes after fromTime
         }
       } else if (isSameDay(selectedDate, now)) {
         // If selected date is today, adjust times if they're in the future
         if (isAfter(fromTimeDate, now)) {
-          setFromTime(format(now, 'HH:mm'));
-          setToTime(format(new Date(now.getTime() + 5 * 60000), 'HH:mm')); // Set to 5 minutes after current time
+          setFromTime(format(now, "HH:mm"));
+          setToTime(format(new Date(now.getTime() + 5 * 60000), "HH:mm")); // Set to 5 minutes after current time
         } else if (isAfter(toTimeDate, now)) {
-          setToTime(format(now, 'HH:mm'));
+          setToTime(format(now, "HH:mm"));
         }
       }
     };
@@ -762,6 +764,9 @@ const Createpost = () => {
     }),
   };
 
+  const [selectedOrg, setSelectedOrg] = useState("Individual");
+
+  console.log("what are the categories", userData);
   return (
     <>
       {authenticated && (
@@ -879,11 +884,19 @@ const Createpost = () => {
                   {userData && (
                     <h4 className="text-sm font-semibold">
                       Organization:{" "}
-                      <small className="font-thin">
-                        {userData.userData.organization
-                          ? userData.userData.organization
-                          : "NA"}
-                      </small>
+                      <select
+                        className="font-thin py-0 rounded-md border-none outline-none"
+                        value={selectedOrg}
+                        onChange={(e) => setSelectedOrg(e.target.value)}
+                      >
+                        <option value="Individual">Individual</option>
+                        {userData.userData.organizations &&
+                          userData.userData.organizations.map((org, index) => (
+                            <option key={index} value={org}>
+                              {org}
+                            </option>
+                          ))}
+                      </select>
                     </h4>
                   )}
                 </div>
