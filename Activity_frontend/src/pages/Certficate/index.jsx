@@ -118,7 +118,7 @@ const Certficate = ({ setIsPopupVisible }) => {
         const contentType = response.headers.get("content-type");
         if (contentType && contentType.includes("application/json")) {
           const userData = await response.json();
-          console.log(userData, "user data");
+          // console.log(userData, "user data");
           setUserName(userData && userData.userData.name);
           setUserData(userData); // Update user data in the state
         } else {

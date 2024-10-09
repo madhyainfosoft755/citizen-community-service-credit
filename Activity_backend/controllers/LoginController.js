@@ -151,7 +151,7 @@ const getUserIdFromToken = (req) => {
     const token = authorizationHeader.split(" ")[1];
     try {
       const decodedToken = Jwt.verify(token, jwtKey);
-      console.log("ye hai user ki id", decodedToken);
+      // console.log("ye hai user ki id", decodedToken);
       return decodedToken.userId;
     } catch (error) {
       console.error("Error decoding token:", error);
@@ -1162,7 +1162,7 @@ const CreateActivity = async (req, res) => {
 
     // Extract userId from the token
     const userId = getUserIdFromToken(req);
-    console.log("YE HAI USER KI ID", userId);
+    // console.log("YE HAI USER KI ID", userId);
 
     if (userId === null || userId === undefined) {
       // console.log("no user id found");
@@ -2102,26 +2102,76 @@ const getOrganizations = async (req, res) => {
   }
 };
 
+// const getOrganizationsUser = async (req, res) => {
+//   try {
+//     const id = getUserIdFromToken(req);
+//     // console.log("ye hai id", id);
+//     const organizations = await Users.findAll({
+//       include: [
+//         {
+//           // model: Users,
+//           where: { UserId: id },
+//         },
+//       ],
+//       where: { isEnabled: true },
+//     });
+
+//     console.log("ye hai organizations", organizations);
+
+//     if (organizations.length === 0) {
+//       return res.status(200).json({ message: "No organizations found" });
+//     }
+
+//     res.status(200).json(organizations);
+//   } catch (error) {
+//     res.status(500).json({ message: "Failed to fetch organizations", error });
+//   }
+// };
+
+
 const getOrganizationsUser = async (req, res) => {
   try {
     const id = getUserIdFromToken(req);
-    const organizations = await Organizations.findAll({
-      include: [
-        {
-          // model: AttachOrg,
-          where: { UserId: id },
-        },
-      ],
-      where: { isEnabled: true },
+    // console.log("ye hai id", id);
+
+    // Pehle user ki organization fetch karo
+    const user = await Users.findByPk(id, {
+      attributes: ['organization']
     });
 
+    // Organization string ko array mein convert karo
+    let userOrgs;
+    try {
+      userOrgs = JSON.parse(user.organization);
+    } catch (error) {
+      console.error("Error parsing user organizations:", error);
+      return res.status(400).json({ message: "User ke organizations ka format sahi nahi hai" });
+    }
+
+    if (!Array.isArray(userOrgs) || userOrgs.length === 0) {
+      return res.status(200).json({ message: "No Organization found for the user" });
+    }
+    
+    const organizations = await Organizations.findAll({
+      where: { 
+        name: {
+          [Op.in]: userOrgs
+        },
+        isEnabled: true 
+      },
+      attributes: ['name', 'email', 'phone', 'address', 'logo']
+    });
+
+    console.log("ye hain organizations", organizations);
+
     if (organizations.length === 0) {
-      return res.status(200).json({ message: "No organizations found" });
+      return res.status(200).json({ message: "No data found for the organizations" });
     }
 
     res.status(200).json(organizations);
   } catch (error) {
-    res.status(500).json({ message: "Failed to fetch organizations", error });
+    console.error("Error fetching organizations:", error);
+    res.status(500).json({ message: "Error fetching organizations", error: error.message });
   }
 };
 
@@ -2710,21 +2760,21 @@ const updateUser = async (req, res) => {
       }
     }
 
-    // Check if a user with the same mobile number already exists
-    const existingMobileUser = await Users.findOne({
-      where: {
-        phone: userData.phone,
-        id: {
-          [Op.ne]: id, // Exclude user with this ID
-        },
-      },
-    });
+    // // Check if a user with the same mobile number already exists
+    // const existingMobileUser = await Users.findOne({
+    //   where: {
+    //     phone: userData.phone,
+    //     id: {
+    //       [Op.ne]: id, // Exclude user with this ID
+    //     },
+    //   },
+    // });
 
-    if (existingMobileUser) {
-      return res
-        .status(400)
-        .json({ field: "phone", message: "Mobile number already registered" });
-    }
+    // if (existingMobileUser) {
+    //   return res
+    //     .status(400)
+    //     .json({ field: "phone", message: "Mobile number already registered" });
+    // }
 
     // Ensure "Others" category is always present
     let selectedCategories = userData.selectedCategories;

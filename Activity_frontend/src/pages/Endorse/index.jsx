@@ -416,7 +416,7 @@ const Endorse = () => {
             <div className="flex flex-col gap-3 items-center justify-start w-full h-full   sm:p-0 ">
               <div className="relative bg-gray-50 flex flex-row items-center justify-between p-3  sm:px-2 w-full rounded-md sm:rounded-none ">
 
-                <div className="flex gap-3 items-center justify-between " onClick={openProfilePopup}>
+                <div className="flex gap-3 items-center justify-between " >
                 {userData && userData.userData && (
                     userData.userData.photo && imageLoaded ? (
                       <Img
@@ -497,7 +497,7 @@ const Endorse = () => {
                             className="absolute -top-[10px] right-0 w-full sm:w-64 bg-white border border-gray-300 rounded-lg shadow-sm mt-2 z-10"
                           >
                             <select
-                              className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring focus:ring-blue-500"
+                              className="w-full px-4 py-2 rounded-lg border border-gray-300 focus:outline-none focus:ring focus:ring-blue-500 cursor-pointer"
                               value={searchQuery.category}
                               onChange={(e) =>
                                 setSearchQuery({
@@ -543,7 +543,7 @@ const Endorse = () => {
                       />
                     </div>
                   ) : (
-                    <table className="w-52 border-collapse border-2">
+                    <table className="w-52 border-collapse border-2 cursor-default">
                       <thead className="">
                         <tr className="border">
                           <th className="border p-3">Category</th>

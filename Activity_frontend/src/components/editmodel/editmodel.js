@@ -29,7 +29,9 @@ const EditUserModal = ({ userData, isOpen, onClose, onSave }) => {
     email: userData.email || "",
     phone: userData.phone || "",
     address: userData.address || "",
-    organization: userData.organization || "",
+    organization: Array.isArray(userData.organization)
+      ? userData.organization
+      : [userData.organization].filter(Boolean),
     selectedCategories: Array.isArray(userData.category)
       ? userData.category
       : JSON.parse(userData.category || "[]"),
@@ -42,6 +44,13 @@ const EditUserModal = ({ userData, isOpen, onClose, onSave }) => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState(null);
+
+  const handleOrganizationChange = (selectedOptions) => {
+    setFormData((prevFormData) => ({
+      ...prevFormData,
+      organization: selectedOptions.map((option) => option.value),
+    }));
+  };
 
   useEffect(() => {
     if (userData) {
@@ -77,9 +86,9 @@ const EditUserModal = ({ userData, isOpen, onClose, onSave }) => {
         if (response.ok) {
           setAllOrganisations(
             Array.isArray(data)
-              ? data.map((value) => ({
-                  value: value.name,
-                  label: value.name,
+              ? data.map((name) => ({
+                  value: name,
+                  label: name,
                 }))
               : []
           );
@@ -102,7 +111,7 @@ const EditUserModal = ({ userData, isOpen, onClose, onSave }) => {
               label: value.name,
             }))
           );
-          console.log("allCategories", allCategories);
+          // console.log("allCategories", allCategories);
         } else {
           console.error("Error fetching categories:", data.message);
         }
@@ -187,7 +196,7 @@ const EditUserModal = ({ userData, isOpen, onClose, onSave }) => {
 
     const formDataWithPhoto = new FormData();
     Object.entries(formData).forEach(([key, value]) => {
-      if (key === "selectedCategories") {
+      if (key === "selectedCategories" || key === "organization") {
         formDataWithPhoto.append(key, JSON.stringify(value)); // Handle JSON once here
       } else {
         formDataWithPhoto.append(key, value);
@@ -204,7 +213,7 @@ const EditUserModal = ({ userData, isOpen, onClose, onSave }) => {
       });
 
       const data = await response.json();
-      console.log("what is the data", data);
+      // console.log("what is the data", data);
 
       if (!response.ok) {
         setError({ field: data.field, message: data.message });
@@ -226,7 +235,7 @@ const EditUserModal = ({ userData, isOpen, onClose, onSave }) => {
     <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
       <div className="relative top-5 mx-auto p-5 pt-5 pb-8 border w-96 px-5 shadow-lg rounded-lg bg-[#ffffff]">
         <form onSubmit={handleSubmit}>
-          <div className="text-center text-xl font-bold mb-4">
+          <div className="text-center text-xl font-bold mb-4 cursor-default">
             Edit User Details
           </div>
 
@@ -342,16 +351,13 @@ const EditUserModal = ({ userData, isOpen, onClose, onSave }) => {
               Organization
             </label>
             <Select
+              isMulti
               options={allOrganisations}
-              value={allOrganisations.find(
-                (org) => org.value === formData.organization
+              value={allOrganisations.filter((org) =>
+                formData.organization.includes(org.value)
               )}
-              onChange={(selectedOption) =>
-                setFormData((prevFormData) => ({
-                  ...prevFormData,
-                  organization: selectedOption ? selectedOption.value : "",
-                }))
-              }
+              onChange={handleOrganizationChange}
+              className="cursor-pointer"
             />
           </div>
 

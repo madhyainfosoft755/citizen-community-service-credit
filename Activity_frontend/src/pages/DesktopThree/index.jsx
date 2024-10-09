@@ -356,11 +356,14 @@ const Createpost = () => {
 
         const data = await response.json();
         if (response.ok) {
-          setOrganizations(
-            data.map((value) => {
+          // Individual option ko sabse pehle add karo
+          const organizationOptions = [
+            { value: "individual", label: "Individual" },
+            ...data.map((value) => {
               return { value: value.id, label: value.name };
-            })
-          ); // Ensure data is an array
+            }),
+          ];
+          setOrganizations(organizationOptions);
         } else {
           console.error("Error fetching organizations:", data.message);
         }
@@ -766,7 +769,6 @@ const Createpost = () => {
 
   const [selectedOrg, setSelectedOrg] = useState("Individual");
 
-  console.log("what are the categories", userData);
   return (
     <>
       {authenticated && (
@@ -807,7 +809,7 @@ const Createpost = () => {
             <div className="bg-gray-50 flex flex-row items-center justify-between p-3   sm:px-2 w-full ">
               <div
                 className="  flex gap-3 items-center justify-center "
-                onClick={openProfilePopup}
+                // onClick={openProfilePopup}
               >
                 {userData &&
                   userData.userData &&
@@ -882,22 +884,28 @@ const Createpost = () => {
                     Select Category
                   </Text>
                   {userData && (
-                    <h4 className="text-sm font-semibold">
-                      Organization:{" "}
+                    <div className="w-1/2 h-auto flex items-center justify-end relative">
+                      <label className="block font-semibold  text-left">
+                        Organization:
+                      </label>
+
                       <select
-                        className="font-thin py-0 rounded-md border-none outline-none"
+                        id="organization"
                         value={selectedOrg}
-                        onChange={(e) => setSelectedOrg(e.target.value)}
+                        onChange={(e) => {
+                          setSelectedOrg(e.target.value);
+                          handleOrganizationChange(e.target.value);
+                        }}
+                        className="w-full p-1 border-[1px] outline-[1px] border-gray-300 rounded-md focus:border-[#546ef6] focus:ring focus:ring-[#546ef6] focus:ring-opacity-50"
                       >
-                        <option value="Individual">Individual</option>
-                        {userData.userData.organizations &&
-                          userData.userData.organizations.map((org, index) => (
-                            <option key={index} value={org}>
-                              {org}
+                        {organization &&
+                          organization.map((org) => (
+                            <option key={org.value} value={org.value}>
+                              {org.label}
                             </option>
                           ))}
                       </select>
-                    </h4>
+                    </div>
                   )}
                 </div>
                 <div className="flex flex-wrap items-center justify-between w-full">
@@ -907,7 +915,7 @@ const Createpost = () => {
                         key={category.id}
                         className={`flex flex-wrap text-xs text-center rounded-lg items-center justify-center border-2 overflow-hidden border-double border-white mt-1 w-5/12 px-5 py-2 sm:px-5 sm:py-2 cursor-pointer ${
                           selectedCategories === category.name
-                            ? "border-[1px] border-[#546ef6] text-[#546ef6] bg-sky-50/40"
+                            ? "border-[1px] border-[#546ef6] text-[#546ef6] bg-green-500/40"
                             : ""
                         }`}
                       >
@@ -1030,7 +1038,7 @@ const Createpost = () => {
                   </span>
                 )}
 
-                <div className="w-full h-auto flex flex-col items-center justify-center relative">
+                {/* <div className="w-full h-auto flex flex-col items-center justify-center relative">
                   <label className="block font-semibold mb-1 text-left w-full">
                     Organization:
                   </label>
@@ -1048,7 +1056,7 @@ const Createpost = () => {
                       />
                     )}
                   </div>
-                </div>
+                </div> */}
                 <List className="flex items-center justify-center w-full gap-3 ">
                   <div className="flex flex-1 flex-col mb-1 items-start justify-start w-full ">
                     <Text className="text-sm font-semibold text-gray-900">
