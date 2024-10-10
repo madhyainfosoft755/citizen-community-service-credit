@@ -915,7 +915,7 @@ const Createpost = () => {
                         key={category.id}
                         className={`flex flex-wrap text-xs text-center rounded-lg items-center justify-center border-2 overflow-hidden border-double border-white mt-1 w-5/12 px-5 py-2 sm:px-5 sm:py-2 cursor-pointer ${
                           selectedCategories === category.name
-                            ? "border-[1px] border-[#546ef6] text-[#546ef6] bg-green-500/40"
+                            ? "border-[1px] border-[#546ef6]  bg-green-500/40 "
                             : ""
                         }`}
                       >

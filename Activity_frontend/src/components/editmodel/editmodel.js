@@ -44,6 +44,44 @@ const EditUserModal = ({ userData, isOpen, onClose, onSave }) => {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(false);
   const [selectedPhoto, setSelectedPhoto] = useState(null);
+  const [originalData, setOriginalData] = useState({ ...userData });
+  const [originalCategories, setOriginalCategories] = useState([]);
+  const [showConfirmation, setShowConfirmation] = useState(false);
+
+  useEffect(() => {
+    if (userData) {
+      const parsedCategories = Array.isArray(userData.category)
+        ? userData.category
+        : JSON.parse(userData.category || "[]");
+
+      setFormData({ ...userData });
+      setOriginalData({ ...userData });
+
+      setCategories(parsedCategories.map((value) => ({ value, label: value })));
+      setOriginalCategories(
+        parsedCategories.map((value) => ({ value, label: value }))
+      );
+    }
+  }, [userData]);
+
+  const handleCloseAttempt = () => {
+    if (
+      JSON.stringify(formData) !== JSON.stringify(originalData) ||
+      JSON.stringify(categories) !== JSON.stringify(originalCategories)
+    ) {
+      setShowConfirmation(true);
+    } else {
+      onClose();
+    }
+  };
+
+  const handleConfirmedClose = () => {
+    setFormData({ ...originalData });
+    setCategories([...originalCategories]);
+    setShowConfirmation(false);
+    setError(null);
+    onClose();
+  };
 
   const handleOrganizationChange = (selectedOptions) => {
     setFormData((prevFormData) => ({
@@ -169,6 +207,11 @@ const EditUserModal = ({ userData, isOpen, onClose, onSave }) => {
     }
   };
 
+  const validateMobileNumber = (number) => {
+    if (!number) return true; // Empty is valid
+    return /^\d{10}$/.test(number); // Must be exactly 10 digits if not empty
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -180,10 +223,24 @@ const EditUserModal = ({ userData, isOpen, onClose, onSave }) => {
       return;
     }
 
-    if (!formData.phone || formData.phone.trim().length < 10) {
+    // if (!formData.phone || formData.phone.trim().length < 10 || !validateMobileNumber(formData.phone)) {
+    //   setError({
+    //     field: "phone",
+    //     message: "Phone number must be at least 10 characters long.",
+    //   });
+    //   console.log("error", error);
+    //   return;
+    // }
+
+    // const formDataToSubmit = { ...formData };
+    // if (!formDataToSubmit.phone) {
+    //   formDataToSubmit.phone = null;
+    // }
+
+    if (formData.phone && !validateMobileNumber(formData.phone)) {
       setError({
-        field: "mobile",
-        message: "Mobile number must be at least 10 characters long.",
+        field: "phone",
+        message: "Phone number must be exactly 10 digits long.",
       });
       console.log("error", error);
       return;
@@ -197,12 +254,18 @@ const EditUserModal = ({ userData, isOpen, onClose, onSave }) => {
     const formDataWithPhoto = new FormData();
     Object.entries(formData).forEach(([key, value]) => {
       if (key === "selectedCategories" || key === "organization") {
-        formDataWithPhoto.append(key, JSON.stringify(value)); // Handle JSON once here
+        const valueToSend = typeof value === 'string' ? JSON.parse(value) : value;
+        formDataWithPhoto.append(key, JSON.stringify(valueToSend));
+      } else if (key === "phone") {
+        // Agar phone empty string hai, toh usko as-is bhej do
+        formDataWithPhoto.append(key, value || "");
+        
       } else {
         formDataWithPhoto.append(key, value);
       }
     });
-
+    console.log("Organization being sent:", formDataWithPhoto.get('organization'));
+    console.log("Phone being sent:", formDataWithPhoto.get('phone'));
     try {
       const response = await fetch(`${API_URL}/activity/update-user`, {
         method: "POST",
@@ -223,6 +286,7 @@ const EditUserModal = ({ userData, isOpen, onClose, onSave }) => {
       if (data.status === "success") {
         setError(null);
         setSuccess(true);
+        onSave(formData);
       }
     } catch (error) {
       console.error("Error submitting the form:", error);
@@ -302,15 +366,23 @@ const EditUserModal = ({ userData, isOpen, onClose, onSave }) => {
             <input
               type="text"
               name="phone"
-              value={formData.phone}
+              value={formData.phone || ""}
               onChange={handleChange}
               className="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              // onBlur={() => {
+              //   if (!formData.phone || formData.phone.trim().length < 10) {
+              //     setError({
+              //       field: "phone",
+              //       message:
+              //         "Phone number must be at least 10 characters long.",
+              //     });
+              //   }
+              // }}
               onBlur={() => {
-                if (!formData.phone || formData.phone.trim().length < 10) {
+                if (formData.phone && !validateMobileNumber(formData.phone)) {
                   setError({
                     field: "phone",
-                    message:
-                      "Phone number must be at least 10 characters long.",
+                    message: "Phone number must be exactly 10 digits long.",
                   });
                 }
               }}
@@ -357,7 +429,16 @@ const EditUserModal = ({ userData, isOpen, onClose, onSave }) => {
                 formData.organization.includes(org.value)
               )}
               onChange={handleOrganizationChange}
-              className="cursor-pointer"
+              styles={{
+                control: (provided) => ({
+                  ...provided,
+                  cursor: "pointer",
+                }),
+                option: (provided) => ({
+                  ...provided,
+                  cursor: "pointer",
+                }),
+              }}
             />
           </div>
 
@@ -374,6 +455,16 @@ const EditUserModal = ({ userData, isOpen, onClose, onSave }) => {
               options={allCategories}
               value={categories}
               onChange={handleCategoryChange}
+              styles={{
+                control: (provided) => ({
+                  ...provided,
+                  cursor: "pointer",
+                }),
+                option: (provided) => ({
+                  ...provided,
+                  cursor: "pointer",
+                }),
+              }}
             />
             {error && error.field === "category" && (
               <Alert message={error.message} onClose={() => setError(null)} />
@@ -392,7 +483,7 @@ const EditUserModal = ({ userData, isOpen, onClose, onSave }) => {
               type="file"
               name="photo"
               onChange={handlePhotoChange}
-              className="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              className="shadow appearance-none border rounded-lg w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline cursor-pointer"
             />
             {selectedPhoto && (
               <img
@@ -424,13 +515,10 @@ const EditUserModal = ({ userData, isOpen, onClose, onSave }) => {
             </div>
           )}
 
-          <div className="flex items-center justify-between">
+          <div className="relative flex items-center justify-between">
             <button
               type="button"
-              onClick={() => {
-                setSuccess(false);
-                onClose();
-              }}
+              onClick={handleCloseAttempt}
               className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
             >
               Close
@@ -441,6 +529,27 @@ const EditUserModal = ({ userData, isOpen, onClose, onSave }) => {
             >
               Save
             </button>
+            {showConfirmation && (
+              <div className=" bg-gray-400 text-center px-4 py-2 absolute top-[1%] left-[50%] transform -translate-x-[50%] -translate-y-[80%] confirmation-dialog rounded-md">
+                <p>
+                  You have made some changes. Are you sure you want to close?
+                </p>
+                <div className="flex justify-between mt-3">
+                  <button
+                    onClick={handleConfirmedClose}
+                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                  >
+                    Yes
+                  </button>
+                  <button
+                    onClick={() => setShowConfirmation(false)}
+                    className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                  >
+                    No
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </form>
       </div>

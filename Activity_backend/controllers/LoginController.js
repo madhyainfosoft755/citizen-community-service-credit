@@ -372,7 +372,7 @@ const Register = async (req, res) => {
 
     // Check if the uploaded file is an image
     const photoFile = req.files.photo;
-    
+
     // Check if the file has an allowed image extension
     const allowedExtensions = ["jpg", "jpeg", "png", "gif", "jfif"];
     const fileExtension = photoFile[0].filename
@@ -444,8 +444,6 @@ const Register = async (req, res) => {
       selectedCategories.push("Others");
     }
 
-
-
     // let organizationData;
     // console.log("Organization data received:", userData.organization);
     // try {
@@ -457,12 +455,12 @@ const Register = async (req, res) => {
     //     // Agar already parsed hai to direct use karein
     //     organizationData = JSON.parse(organizationData);
     //   }
-      
+
     //   // Ensure it's an array
     //   if (!Array.isArray(organizationData)) {
     //     organizationData = [organizationData];
     //   }
-      
+
     //   // Remove any duplicates and filter out empty values
     //   organizationData = [...new Set(organizationData)].filter(item => item && item !== '');
     //   console.log("Processed organization data:", organizationData);
@@ -522,7 +520,7 @@ const Register = async (req, res) => {
       status: "success",
       message:
         "Registration successful. Please check your email for verification.",
-        data:newUser
+      data: newUser,
     });
   } catch (error) {
     logger.error("Registration failed:", error);
@@ -2087,7 +2085,7 @@ const getOrganizationsAdmin = async (req, res) => {
 const getOrganizations = async (req, res) => {
   try {
     const organizations = await Organizations.findAll({
-      attributes: ['name'],
+      attributes: ["name"],
       where: { isEnabled: true },
     });
 
@@ -2095,7 +2093,7 @@ const getOrganizations = async (req, res) => {
       return res.status(200).json({ message: "No organizations found" });
     }
 
-    const organizationNames = organizations.map(org => org.name);
+    const organizationNames = organizations.map((org) => org.name);
     res.status(200).json(organizationNames);
   } catch (error) {
     res.status(500).json({ message: "Failed to fetch organizations", error });
@@ -2128,7 +2126,6 @@ const getOrganizations = async (req, res) => {
 //   }
 // };
 
-
 const getOrganizationsUser = async (req, res) => {
   try {
     const id = getUserIdFromToken(req);
@@ -2136,7 +2133,7 @@ const getOrganizationsUser = async (req, res) => {
 
     // Pehle user ki organization fetch karo
     const user = await Users.findByPk(id, {
-      attributes: ['organization']
+      attributes: ["organization"],
     });
 
     // Organization string ko array mein convert karo
@@ -2145,33 +2142,41 @@ const getOrganizationsUser = async (req, res) => {
       userOrgs = JSON.parse(user.organization);
     } catch (error) {
       console.error("Error parsing user organizations:", error);
-      return res.status(400).json({ message: "User ke organizations ka format sahi nahi hai" });
+      return res
+        .status(400)
+        .json({ message: "User ke organizations ka format sahi nahi hai" });
     }
 
     if (!Array.isArray(userOrgs) || userOrgs.length === 0) {
-      return res.status(200).json({ message: "No Organization found for the user" });
+      return res
+        .status(200)
+        .json({ message: "No Organization found for the user" });
     }
-    
+
     const organizations = await Organizations.findAll({
-      where: { 
+      where: {
         name: {
-          [Op.in]: userOrgs
+          [Op.in]: userOrgs,
         },
-        isEnabled: true 
+        isEnabled: true,
       },
-      attributes: ['name', 'email', 'phone', 'address', 'logo']
+      attributes: ["name", "email", "phone", "address", "logo"],
     });
 
     console.log("ye hain organizations", organizations);
 
     if (organizations.length === 0) {
-      return res.status(200).json({ message: "No data found for the organizations" });
+      return res
+        .status(200)
+        .json({ message: "No data found for the organizations" });
     }
 
     res.status(200).json(organizations);
   } catch (error) {
     console.error("Error fetching organizations:", error);
-    res.status(500).json({ message: "Error fetching organizations", error: error.message });
+    res
+      .status(500)
+      .json({ message: "Error fetching organizations", error: error.message });
   }
 };
 
@@ -2604,11 +2609,11 @@ const getLinkToSharePost = async (req, res) => {
     });
 
     console.log("show post", post);
-     // Parse the photos JSON string to an array
-     const photos = JSON.parse(post.photos);
-    
-     // Use the first photo for the og:image tag
-     const firstPhoto = photos[0] || '';
+    // Parse the photos JSON string to an array
+    const photos = JSON.parse(post.photos);
+
+    // Use the first photo for the og:image tag
+    const firstPhoto = photos[0] || "";
 
     const htmlContent = `
     <!DOCTYPE html>
@@ -2712,6 +2717,20 @@ const updateUser = async (req, res) => {
     const id = getUserIdFromToken(req);
     console.log("here is the data", userData);
 
+    let parsedOrganization;
+    try {
+      parsedOrganization = JSON.parse(userData.organization);
+      // If it's still a string after parsing, parse it again
+      if (typeof parsedOrganization === "string") {
+        parsedOrganization = JSON.parse(parsedOrganization);
+      }
+    } catch (error) {
+      console.error("Error parsing organization data:", error);
+      parsedOrganization = userData.organization; // Use as-is if parsing fails
+    }
+
+    console.log("Parsed organization data:", parsedOrganization);
+
     // Check if any required field is empty
     console.log("id ", id);
     if (!userData.name) {
@@ -2809,12 +2828,17 @@ const updateUser = async (req, res) => {
     const updateData = {
       name: userData.name,
       email: userData.email,
-      phone: userData.phone,
       category: JSON.stringify(selectedCategories),
-      organization: userData.organization,
+      organization: JSON.stringify(parsedOrganization),
       address: userData.address,
       photo: photoUrl || userData.photo,
     };
+    // Only include phone if it's provided in the request
+    if (userData.phone !== undefined) {
+      updateData.phone = userData.phone.trim() || null;
+    }
+
+    console.log("Final update data:", updateData);
 
     // If email has changed, set verified to false
     if (emailChanged) {
@@ -2847,7 +2871,7 @@ const getAllActivitiesByCategoriesUser = async (req, res) => {
 
     const { categories, start: startDate, end: endDate, reportType } = req.body;
 
-    console.log("report type", reportType );
+    console.log("report type", reportType);
 
     // Validate categories input
     if (!Array.isArray(categories) || categories.length === 0) {
@@ -2878,7 +2902,6 @@ const getAllActivitiesByCategoriesUser = async (req, res) => {
       console.log("End Date:", dateFilter[Op.lte]); // Debug log
     }
 
-
     // Define base where condition
     const whereCondition = {
       ...(Object.getOwnPropertySymbols(dateFilter).length
@@ -2892,26 +2915,24 @@ const getAllActivitiesByCategoriesUser = async (req, res) => {
 
     // Add report type specific conditions
     switch (reportType) {
-      case 'approved':
+      case "approved":
         whereCondition.approved = true;
         break;
-      case 'endorsed':
+      case "endorsed":
         whereCondition.endorsementCounter = { [Op.gt]: 0 };
         break;
-        case 'unendorsed':
-        whereCondition.endorsementCounter = { [Op.eq]: 0 }; 
+      case "unendorsed":
+        whereCondition.endorsementCounter = { [Op.eq]: 0 };
         break;
       // 'all' case doesn't need any additional conditions
     }
-    
+
     // Debug log the dateFilter
     console.log("Date Filter:", dateFilter);
     console.log(
       "Date full in where:",
       Object.getOwnPropertySymbols(dateFilter).length
     );
-
-
 
     // Group and count activities by category
     const activitiesByCategories = await Posts.findAll({
