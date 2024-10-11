@@ -63,6 +63,7 @@ const {
   submitFeedback,
   checkifAlreadyExist,
   getOrganizationsUser,
+  getUserCategories
 } = require("../controllers/LoginController");
 const { upload } = require("../utils/util");
 const uploadMiddleWare = require("../Middlewere/uploadMiddleware");
@@ -70,6 +71,7 @@ const extractToken = require("../Middlewere/Authentication");
 
 // Express route
 router.get("/output", output);
+router.get("/getUserCategories", getUserCategories);
 router.post("/LinkedInLogin", LinkedInLogin);
 router.get("/getPostsByUser/:userId", getPostsByUser);
 router.get("/reviewpostforuser/:userId/:postId", reviewpostforuser);

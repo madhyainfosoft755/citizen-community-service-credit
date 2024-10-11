@@ -536,7 +536,7 @@ const Register = async (req, res) => {
 const RegisterLinkedin = async (req, res) => {
   try {
     const userData = req.body;
-    // console.log("here is he data", userData);
+    console.log("here is he data", userData);
 
     // Check if any required field is empty
     if (!userData.name) {
@@ -577,15 +577,15 @@ const RegisterLinkedin = async (req, res) => {
         .json({ field: "email", message: "Email already exists" });
     }
 
-    // Check if user with the same mobile number already exists
-    const existingMobileUser = await Users.findOne({
-      where: { phone: userData.phone },
-    });
-    if (existingMobileUser) {
-      return res
-        .status(400)
-        .json({ field: "phone", message: "Mobile number already registered" });
-    }
+    // // Check if user with the same mobile number already exists
+    // const existingMobileUser = await Users.findOne({
+    //   where: { phone: userData.phone },
+    // });
+    // if (existingMobileUser) {
+    //   return res
+    //     .status(400)
+    //     .json({ field: "phone", message: "Mobile number already registered" });
+    // }
 
     // Check if user with the same aadhar number already exists
     // const existingAadharUser = await Users.findOne({ where: { aadhar: userData.aadhar } });
@@ -611,6 +611,14 @@ const RegisterLinkedin = async (req, res) => {
       selectedCategories.push("Others");
     }
 
+    // Organization ko parse karein
+    let organizations = [];
+    try {
+      organizations = JSON.parse(userData.organization);
+    } catch (error) {
+      console.error("Error parsing organization:", error);
+    }
+
     // Download and save profile picture
     const pictureUrl = userData.photo;
     const fileExtension = path.extname(new URL(pictureUrl).pathname);
@@ -624,18 +632,18 @@ const RegisterLinkedin = async (req, res) => {
     fs.writeFileSync(filePath, buffer);
 
     // const Category = selectedCategories;
-
+    const phoneNumber = userData.phone ? userData.phone.trim() : null;
     // Create a new user instance and save it to the database
     const newUser = await Users.create({
       name: userData.name,
       email: userData.email,
       password: generatedPassword,
-      phone: userData.phone,
+      phone: phoneNumber,
       photo: fileName,
       category: JSON.stringify(selectedCategories), // Store as a JSON string
       aadhar: userData.aadhar,
       role: "user",
-      organization: userData.organization, // Add the organization field
+      organization: JSON.stringify(organizations), // Add the organization field
       verified: true,
       // Add other fields as needed
     });
@@ -1556,6 +1564,43 @@ const getCategories = async (req, res) => {
     res.status(200).json(categories);
   } catch (error) {
     res.status(500).json({ message: "Failed to fetch categories", error });
+  }
+};
+
+const getUserCategories = async (req, res) => {
+  try {
+    // Get user ID from token
+    const userId = getUserIdFromToken(req);
+
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized: Invalid token" });
+    }
+
+    // User ko database se fetch karna
+    const user = await Users.findByPk(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // User ki categories ko parse karna
+    let userCategories;
+    try {
+      userCategories = JSON.parse(user.category);
+      if (!Array.isArray(userCategories)) {
+        userCategories = [userCategories]; // Agar single category hai to array mein convert karna
+      }
+    } catch (error) {
+      console.error("Error parsing user categories:", error);
+      // Agar JSON parse fail ho jata hai, to comma-separated string maan kar split karna
+      userCategories = user.category.split(',').map(cat => cat.trim());
+    }
+
+    // User ki categories return karna
+    res.status(200).json(userCategories);
+  } catch (error) {
+    console.error("Error fetching user categories:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
@@ -3204,4 +3249,5 @@ module.exports = {
   submitFeedback,
   checkifAlreadyExist,
   getOrganizationsUser,
+  getUserCategories
 };

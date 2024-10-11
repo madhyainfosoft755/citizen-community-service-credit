@@ -839,6 +839,7 @@ const Createpost = () => {
                     <Text
                       className="text-center text-gray-900 uppercase"
                       size="txtInterSemiBold16Gray900"
+                      onClick={() => { navigate("/users-profile") }}
                     >
                       {Name}
                     </Text>

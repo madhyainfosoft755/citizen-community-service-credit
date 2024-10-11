@@ -1,6 +1,6 @@
 // src/Charts.js
-import React, { useEffect, useState } from "react";
-import { Chart, registerables } from "chart.js";
+import React, { useEffect, useState, useRef } from "react";
+import { Chart } from "chart.js/auto";
 import { Bar, Pie } from "react-chartjs-2";
 import DatePicker from "react-datepicker";
 import Select from "react-select";
@@ -10,6 +10,7 @@ import axios from "axios";
 import { formatDate } from "utils";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 import "./style.css";
+import NoDataSVG from "../../assets/images/nopost.svg";
 
 const getAuthToken = () => {
   const token = localStorage.getItem("token");
@@ -21,17 +22,49 @@ const getAuthToken = () => {
   return null;
 };
 
+// thk hai ab humko sirf user ki jitni categories hain sirf unka data dikhana hai
 // Register all necessary components
-Chart.register(...registerables);
+// Chart.register(...registerables);
 
 const UserReports = () => {
   const [allCategories, setAllCategories] = useState([]);
-  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [selectedCategories, setSelectedCategories] = useState([
+    { value: "all", label: "All Categories" },
+  ]);
   const [startDate, setStartDate] = useState();
   const [endDate, setEndDate] = useState();
   const [barChartData, setBarChartData] = useState(null);
   const navigate = useNavigate(); // Initialize navigate
-  const [reportType, setReportType] = useState("all");
+  const [reportType, setReportType] = useState("approved");
+  const barChartRef = useRef(null);
+  const [barChart, setBarChart] = useState(null);
+  const [noDataFound, setNoDataFound] = useState(false);
+
+  console.log("allCategories", allCategories);
+
+  useEffect(() => {
+    if (barChartData && barChartRef.current) {
+      if (barChart) {
+        barChart.destroy();
+      }
+
+      const ctx = barChartRef.current.getContext("2d");
+      const newChart = new Chart(ctx, {
+        type: "bar",
+        data: barChartData,
+        options: options,
+      });
+
+      setBarChart(newChart);
+    }
+
+    // // Cleanup function
+    // return () => {
+    //   if (barChart) {
+    //     barChart.destroy();
+    //   }
+    // };
+  }, [barChartData]);
 
   // Define color palette for categories
   const colorPalette = [
@@ -46,115 +79,176 @@ const UserReports = () => {
   useEffect(() => {
     async function fetchCategories() {
       try {
-        const response = await axios.get(`${API_URL}/activity/getCategories`);
-        setAllCategories(response.data);
+        // Get the token from localStorage
+        const token = localStorage.getItem("token");
+
+        if (!token) {
+          console.error("No token found, user might not be logged in");
+          return;
+        }
+
+        const response = await axios.get(
+          `${API_URL}/activity/getUserCategories`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const formattedCategories = response.data.map((category) => ({
+          value: category,
+          label: category,
+        }));
+        setAllCategories(formattedCategories);
+        setSelectedCategories([{ value: "all", label: "All Categories" }]);
       } catch (error) {
         console.error("Error fetching categories", error);
+        // Handle specific errors here, e.g., redirect to login if unauthorized
+        if (error.response && error.response.status === 401) {
+          // Redirect to login page or show login modal
+          console.log("User is unauthorized, needs to login again");
+          // Example: history.push('/login');
+        }
       }
     }
     fetchCategories();
   }, []);
 
   useEffect(() => {
-    async function fetchUserReport() {
-      if (selectedCategories.length === 0) return;
-
-      const data = {
-        categories: selectedCategories.map((value) => value.value),
-        start: formatDate(startDate),
-        end: formatDate(endDate),
-        reportType: reportType,
-      };
-      try {
-        const headers = getAuthToken();
-        const response = await axios.post(
-          `${API_URL}/activity/get-user-report`,
-          data,
-          {
-            headers,
-          }
-        );
-        const result = response.data;
-        console.log("result", result);
-        const dataAll = {
-          labels: selectedCategories.map((value) => value.label),
-          datasets: [
-            {
-              label: "All",
-              backgroundColor: selectedCategories.map(
-                (_, index) => colorPalette[index % colorPalette.length]
-              ),
-              borderColor: selectedCategories.map(
-                (_, index) => colorPalette[index % colorPalette.length]
-              ),
-              borderWidth: 1,
-              hoverBackgroundColor: selectedCategories.map((_, index) =>
-                colorPalette[index % colorPalette.length].replace("0.6", "0.4")
-              ),
-              hoverBorderColor: selectedCategories.map(
-                (_, index) => colorPalette[index % colorPalette.length]
-              ),
-              data: selectedCategories.map((value) => result[value.value]),
-            },
-          ],
-        };
-        setBarChartData(dataAll);
-      } catch (err) {
-        console.error("Error fetching user report", err);
-      }
+    if (selectedCategories.length > 0) {
+      fetchUserReport();
     }
-    fetchUserReport();
   }, [selectedCategories, startDate, endDate, reportType]);
 
-  useEffect(() => {
-    async function fetchUserReport() {
-      if (allCategories.length === 0) return;
+  const fetchUserReport = async () => {
+    const categoriesToFetch = selectedCategories.some(
+      (cat) => cat.value === "all"
+    )
+      ? allCategories.map((cat) => cat.value)
+      : selectedCategories
+          .filter((cat) => cat.value !== "all")
+          .map((cat) => cat.value);
 
-      const data = {
-        categories: allCategories.map((value) => value.name),
-        start: formatDate(startDate),
-        end: formatDate(endDate),
-        reportType:reportType
-      };
-      try {
-        const headers = getAuthToken();
-        const response = await axios.post(
-          `${API_URL}/activity/get-user-report`,
-          data,
-          {
-            headers,
-          }
-        );
-        const result = response.data;
+    const data = {
+      categories: categoriesToFetch,
+      start: formatDate(startDate),
+      end: formatDate(endDate),
+      reportType: reportType,
+    };
+
+    try {
+      const headers = getAuthToken();
+      const response = await axios.post(
+        `${API_URL}/activity/get-user-report`,
+        data,
+        { headers }
+      );
+      const result = response.data;
+      console.log("result", result);
+
+      const hasData = Object.values(result).some((value) => value > 0);
+
+      if (!hasData) {
+        setNoDataFound(true);
+        setBarChartData(null);
+      } else {
+        setNoDataFound(false);
         const dataAll = {
-          labels: allCategories.map((value) => value.name),
+          labels: categoriesToFetch,
           datasets: [
             {
-              label: "All",
-              backgroundColor: allCategories.map(
+              label: "Activity",
+              backgroundColor: categoriesToFetch.map(
                 (_, index) => colorPalette[index % colorPalette.length]
               ),
-              borderColor: allCategories.map(
+              borderColor: categoriesToFetch.map(
                 (_, index) => colorPalette[index % colorPalette.length]
               ),
               borderWidth: 1,
-              hoverBackgroundColor: allCategories.map((_, index) =>
+              hoverBackgroundColor: categoriesToFetch.map((_, index) =>
                 colorPalette[index % colorPalette.length].replace("0.6", "0.4")
               ),
-              hoverBorderColor: allCategories.map(
+              hoverBorderColor: categoriesToFetch.map(
                 (_, index) => colorPalette[index % colorPalette.length]
               ),
-              data: allCategories.map((value) => result[value.name]),
+              data: categoriesToFetch.map((category) => result[category] || 0),
             },
           ],
         };
         setBarChartData(dataAll);
-      } catch (err) {
-        console.error("Error fetching user report", err);
       }
+    } catch (err) {
+      console.error("Error fetching user report", err);
+      setNoDataFound(true);
+      setBarChartData(null);
     }
-    fetchUserReport();
-  }, [allCategories, startDate, endDate,reportType]);
+  };
+
+  const getNoDataMessage = () => {
+    switch (reportType) {
+      case "approved":
+        return "No approved posts found for the selected criteria.";
+      case "endorsed":
+        return "No endorsed posts found for the selected criteria.";
+      case "unendorsed":
+        return "No unendorsed posts found for the selected criteria.";
+      case "all":
+        return "No posts found for the selected criteria.";
+      default:
+        return "No data found for the selected criteria.";
+    }
+  };
+
+  // useEffect(() => {
+  //   async function fetchUserReport() {
+  //     if (allCategories.length === 0) return;
+
+  //     const data = {
+  //       categories: allCategories.map((value) => value.name),
+  //       start: formatDate(startDate),
+  //       end: formatDate(endDate),
+  //       reportType: reportType,
+  //     };
+  //     try {
+  //       const headers = getAuthToken();
+  //       const response = await axios.post(
+  //         `${API_URL}/activity/get-user-report`,
+  //         data,
+  //         {
+  //           headers,
+  //         }
+  //       );
+  //       const result = response.data;
+  //       const dataAll = {
+  //         labels: allCategories.map((value) => value.name),
+  //         datasets: [
+  //           {
+  //             label: "All",
+  //             backgroundColor: allCategories.map(
+  //               (_, index) => colorPalette[index % colorPalette.length]
+  //             ),
+  //             borderColor: allCategories.map(
+  //               (_, index) => colorPalette[index % colorPalette.length]
+  //             ),
+  //             borderWidth: 1,
+  //             hoverBackgroundColor: allCategories.map((_, index) =>
+  //               colorPalette[index % colorPalette.length].replace("0.6", "0.4")
+  //             ),
+  //             hoverBorderColor: allCategories.map(
+  //               (_, index) => colorPalette[index % colorPalette.length]
+  //             ),
+  //             data: allCategories.map((value) => result[value.name]),
+  //           },
+  //         ],
+  //       };
+  //       setBarChartData(dataAll);
+  //     } catch (err) {
+  //       console.error("Error fetching user report", err);
+  //     }
+  //   }
+  //   fetchUserReport();
+  // }, [allCategories, startDate, endDate, reportType]);
 
   const pieData = {
     labels: selectedCategories.map((value) => value.label),
@@ -181,6 +275,13 @@ const UserReports = () => {
     scales: {
       y: {
         beginAtZero: true,
+        ticks: {
+          callback: function (value) {
+            if (Number.isInteger(value)) {
+              return value;
+            }
+          },
+        },
         title: {
           display: true,
           text: "Activity",
@@ -221,12 +322,24 @@ const UserReports = () => {
     minWidth: isMobile ? "100%" : "500px",
   };
 
+  // Add this function to handle changes in the Select component
+  const handleCategoryChange = (selectedOptions) => {
+    if (selectedOptions.some((option) => option.value === "all")) {
+      setSelectedCategories([
+        { value: "all", label: "All Categories" },
+        ...allCategories,
+      ]);
+    } else {
+      setSelectedCategories(selectedOptions);
+    }
+  };
+
   return (
     <div className="flex flex-col items-center sm:p-0 p-4 md:p-6  space-y-8 border-2 md:border-none overflow-x-auto">
       {/* Header with Back Button */}
 
       <div
-        className="max-w-full  border md:border-none sm:p-0 md:p-6 rounded-lg"
+        className="max-w-full  border md:border-none sm:p-0 md:p-6 rounded-lg "
         style={containerStyle}
       >
         <div className="w-full max-w-[500px] space-y-4">
@@ -270,10 +383,10 @@ const UserReports = () => {
               </label>
               <Select
                 isMulti
-                options={allCategories.map((cat) => ({
-                  value: cat.name,
-                  label: cat.name,
-                }))}
+                options={[
+                  { value: "all", label: "All Categories" },
+                  ...allCategories,
+                ]}
                 value={selectedCategories}
                 onChange={(selected) => setSelectedCategories(selected)}
                 className="basic-multi-select"
@@ -290,7 +403,7 @@ const UserReports = () => {
                   { value: "all", label: "All Posts" },
                   { value: "approved", label: "Approved Posts" },
                   { value: "endorsed", label: "Endorsed Posts" },
-                  { value: 'unendorsed', label: 'Unendorsed Posts' }
+                  { value: "unendorsed", label: "Unendorsed Posts" },
                 ]}
                 value={{
                   value: reportType,
@@ -307,11 +420,18 @@ const UserReports = () => {
           </div>
         </div>
 
-        <div className="w-full max-w-md p-1">
+        <div className="w-full p-1">
           <h2 className="text-xl font-semibold text-center mb-4">Bar Chart</h2>
-          <div className="h-64">
-            {barChartData ? (
-              <Bar data={barChartData} options={options} />
+          <div className="w-full h-64">
+            {noDataFound ? (
+              <div className="flex flex-col items-center justify-center h-full">
+                <img className="w-20" src={NoDataSVG} alt="No Data" />
+                <p className="text-center text-gray-500 mt-4">
+                  {getNoDataMessage()}
+                </p>
+              </div>
+            ) : barChartData ? (
+              <canvas ref={barChartRef} />
             ) : (
               <p className="text-center text-gray-500">Loading data...</p>
             )}

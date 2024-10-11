@@ -65,10 +65,37 @@ const EditUserModal = ({ userData, isOpen, onClose, onSave }) => {
   }, [userData]);
 
   const handleCloseAttempt = () => {
-    if (
-      JSON.stringify(formData) !== JSON.stringify(originalData) ||
-      JSON.stringify(categories) !== JSON.stringify(originalCategories)
-    ) {
+    // console.log("Original Data:", originalData);
+    // console.log("Current Form Data:", formData);
+  
+    const hasChanges = Object.keys(formData).some(key => {
+      if (key === 'selectedCategories') {
+        const originalCategories = Array.isArray(originalData.category) 
+          ? originalData.category 
+          : JSON.parse(originalData.category || '[]');
+        const currentCategories = formData[key];
+        // console.log(`Comparing categories - Original:`, originalCategories, `Current:`, currentCategories);
+        return JSON.stringify(currentCategories.sort()) !== JSON.stringify(originalCategories.sort());
+      }
+      if (key === 'organization') {
+        const originalOrg = Array.isArray(originalData[key]) ? originalData[key] : JSON.parse(originalData[key] || '[]');
+        const currentOrg = Array.isArray(formData[key]) ? formData[key] : JSON.parse(formData[key] || '[]');
+        // console.log(`Comparing organization - Original:`, originalOrg, `Current:`, currentOrg);
+        return JSON.stringify(currentOrg.sort()) !== JSON.stringify(originalOrg.sort());
+      }
+      if (key === 'phone') {
+        const originalPhone = originalData[key] || '';
+        const currentPhone = formData[key] || '';
+        // console.log(`Comparing ${key} - Original:`, originalPhone, `Current:`, currentPhone);
+        return originalPhone !== currentPhone;
+      }
+      // console.log(`Comparing ${key} - Original:`, originalData[key], `Current:`, formData[key]);
+      return formData[key] !== originalData[key];
+    });
+  
+    // console.log("Has changes:", hasChanges);
+  
+    if (hasChanges) {
       setShowConfirmation(true);
     } else {
       onClose();
