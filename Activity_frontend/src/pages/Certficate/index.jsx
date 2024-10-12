@@ -390,7 +390,7 @@ const Certficate = ({ setIsPopupVisible }) => {
           <div
             ref={pdfRef}
             className="w-full  min-h-screen flex justify-center items-center bg-white"
-            style={{ background: "#ffffff", display: "" }}
+            style={{ background: "#ffffff", display: "none" }}
           >
             <div
               className="bg-white border border-gray-300  shadow-lg relative"

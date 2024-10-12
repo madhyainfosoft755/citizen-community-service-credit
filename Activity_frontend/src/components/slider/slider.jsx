@@ -16,6 +16,17 @@ const Slider1 = ({ items, isPopUpVisible, setIsPopUpVisible, setSelectedPost, se
   const [showSplashScreen, setShowSplashScreen] = useState(true); // State to control splash screen visibility
   // console.log("kya endrose aa rha hai", items)
 
+  const getFirstPhoto = (photos) => {
+    if (!photos) return null;
+
+    try {
+      const parsedPhotos = JSON.parse(photos);
+      return Array.isArray(parsedPhotos) ? parsedPhotos[0] : parsedPhotos;
+    } catch (error) {
+      return photos;
+    }
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       const updatedItems = await Promise.all(items &&
@@ -40,7 +51,9 @@ const Slider1 = ({ items, isPopUpVisible, setIsPopUpVisible, setSelectedPost, se
               const city = cityData ? cityData.long_name : "Unknown City";
               const state = politicalData ? politicalData.long_name : "Unknown State";
 
-              return { ...item, city, state };
+              const firstPhoto = getFirstPhoto(item.photos);
+
+              return { ...item, city, state, firstPhoto };
             }
           } catch (error) {
             console.error("Error fetching location data:", error);
@@ -78,7 +91,7 @@ const Slider1 = ({ items, isPopUpVisible, setIsPopUpVisible, setSelectedPost, se
     return `${day}-${month}-${year}`;
   };
 
-// console.log("data of posts",locationData);
+  // console.log("data of posts",locationData);
 
   return (
     <div className="relative w-full h-full flex flex-col justify-between border-none outline-none overflow-hidden">
@@ -90,13 +103,13 @@ const Slider1 = ({ items, isPopUpVisible, setIsPopUpVisible, setSelectedPost, se
         locationData && locationData.length > 0 && items ? (
           <Slider {...settings}>
             {locationData.map((item, index) => (
-              
+
               <div key={index} className="relative">
                 <div className="w-full h-1/2 sm:h-1/2  md:h-1/2 flex items-center justify-center bg-gray-50">
-                {item && item.photos && JSON.parse(item.photos).length > 0 && (
+                  {item && item.firstPhoto && (
                     <img
                       className="w-auto h-5/6 object-cover object-top rounded"
-                      src={`${API_URL}/image/${JSON.parse(item.photos)[0]}`}
+                      src={`${API_URL}/image/${item.firstPhoto}`}
                       alt="First photo"
                       onClick={() => handleViewPost(item)}
                     />
