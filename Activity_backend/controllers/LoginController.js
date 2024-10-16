@@ -1604,6 +1604,59 @@ const getUserCategories = async (req, res) => {
   }
 };
 
+
+const getUserReport = async (req, res) => {
+  try {
+    const id = getUserIdFromToken(req);
+    const { categories, start, end, reportType } = req.body;
+
+    let dateCondition = {};
+    if (start && end) {
+      dateCondition = { [Op.between]: [start, end] };
+    } else {
+      const oneMonthAgo = new Date();
+      oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+      dateCondition = { [Op.gte]: oneMonthAgo };
+    }
+
+    let approvalCondition = {};
+    switch (reportType) {
+      case 'approved':
+        approvalCondition = { approved: true };
+        break;
+      case 'endorsed':
+        approvalCondition = { endorsementCounter: { [Op.gt]: 0 } };
+        break;
+      case 'unendorsed':
+        approvalCondition = { endorsementCounter: 0 };
+        break;
+      // 'all' case doesn't need any additional condition
+    }
+
+    const posts = await db.Posts.findAll({
+      where: {
+        UserId: id,
+        category: {
+          [Op.in]: categories,
+        },
+        Date: dateCondition,
+        ...approvalCondition,
+      },
+    });
+
+    const result = categories.reduce((acc, category) => {
+      acc[category] = posts.filter(post => post.category === category).length;
+      return acc;
+    }, {});
+
+    res.json(result);
+  } catch (error) {
+    logger.error("Error fetching user report", error);
+    res.status(500).json({ error: "An error occurred while fetching the report." });
+  }
+};
+
+
 //ADMINISTRATOR CONTROLLERS
 
 // adminAuthMiddleware.js
@@ -3186,6 +3239,62 @@ const checkifAlreadyExist = async (req, res) => {
       .json({ message: "Internal server error.", error: error.message });
   }
 };
+
+const getUserPostsStats = async (req, res) => {
+  try {
+    const id = getUserIdFromToken(req);
+    console.log("user id", id);
+    const { start, end } = req.query;
+    console.log("start and end", start, end);
+    let dateCondition = {};
+    if (start && end) {
+      const startDate = new Date(start).toISOString().split('T')[0];
+      const endDate = new Date(end).toISOString().split('T')[0];
+      dateCondition = { [Op.between]: [startDate, endDate] };
+    } else {
+      const oneMonthAgo = new Date();
+      oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+      const oneMonthAgoFormatted = oneMonthAgo.toISOString().split('T')[0];
+      const todayFormatted = new Date().toISOString().split('T')[0];
+      dateCondition = { 
+        [Op.between]: [oneMonthAgoFormatted, todayFormatted] 
+      };
+    }
+    console.log("date condition", dateCondition);
+
+    const allPosts = await db.Posts.count({
+      where: { UserId: id, Date: dateCondition }
+    });
+    console.log("all posts", allPosts);
+    const unendorsedPosts = await db.Posts.count({
+      where: { UserId: id, Date: dateCondition, endorsementCounter: 0 }
+    });
+    console.log("unendorsed posts", unendorsedPosts);
+    const endorsedPosts = await db.Posts.count({
+      where: { UserId: id, Date: dateCondition, endorsementCounter: { [Op.gt]: 0 } }
+    });
+    console.log("endorsed posts", endorsedPosts); 
+    const approvedPosts = await db.Posts.count({
+      where: { UserId: id, Date: dateCondition, approved: true }
+    });
+    console.log("approved posts", approvedPosts);
+    const rejectedPosts = await db.Posts.count({
+      where: { UserId: id, Date: dateCondition, rejected: true }
+    });
+    console.log("rejected posts", rejectedPosts);
+
+    res.json({
+      allPosts,
+      unendorsedPosts,
+      endorsedPosts,
+      approvedPosts,
+      rejectedPosts
+    });
+  } catch (error) {
+    logger.error("Error fetching user posts stats", error);
+    res.status(500).json({ error: "An error occurred while fetching the stats." });
+  }
+};
 module.exports = {
   output,
   varifybytoken,
@@ -3249,5 +3358,7 @@ module.exports = {
   submitFeedback,
   checkifAlreadyExist,
   getOrganizationsUser,
-  getUserCategories
+  getUserCategories,
+  getUserReport,
+  getUserPostsStats
 };

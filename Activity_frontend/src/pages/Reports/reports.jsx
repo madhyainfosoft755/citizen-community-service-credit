@@ -11,6 +11,7 @@ import { formatDate } from "utils";
 import { useNavigate } from "react-router-dom"; // Import useNavigate
 import "./style.css";
 import NoDataSVG from "../../assets/images/nopost.svg";
+import { format } from "date-fns";
 
 const getAuthToken = () => {
   const token = localStorage.getItem("token");
@@ -31,8 +32,10 @@ const UserReports = () => {
   const [selectedCategories, setSelectedCategories] = useState([
     { value: "all", label: "All Categories" },
   ]);
-  const [startDate, setStartDate] = useState();
-  const [endDate, setEndDate] = useState();
+  const [startDate, setStartDate] = useState(
+    new Date(new Date().setMonth(new Date().getMonth() - 1))
+  );
+  const [endDate, setEndDate] = useState(new Date());
   const [barChartData, setBarChartData] = useState(null);
   const navigate = useNavigate(); // Initialize navigate
   const [reportType, setReportType] = useState("approved");
@@ -40,7 +43,11 @@ const UserReports = () => {
   const [barChart, setBarChart] = useState(null);
   const [noDataFound, setNoDataFound] = useState(false);
 
-  console.log("allCategories", allCategories);
+  const [pieChartData, setPieChartData] = useState(null);
+  const pieChartRef = useRef(null);
+  const [pieChart, setPieChart] = useState(null);
+
+  // console.log("allCategories", allCategories);
 
   useEffect(() => {
     if (barChartData && barChartRef.current) {
@@ -75,6 +82,49 @@ const UserReports = () => {
     "rgba(153, 102, 255, 0.6)",
     "rgba(255, 159, 64, 0.6)",
   ];
+
+  const fetchUserPostsStats = async () => {
+    try {
+      const headers = getAuthToken();
+      const response = await axios.get(
+        `${API_URL}/activity/get-user-posts-stats?start=${startDate}&end=${endDate}`,
+        { headers }
+      );
+      const stats = response.data;
+
+      console.log("what are the stats", stats);
+
+      setPieChartData({
+        labels: [
+          "All Posts",
+          "Unendorsed Posts",
+          "Endorsed Posts",
+          "Approved Posts",
+          "Rejected Posts",
+        ],
+        datasets: [
+          {
+            data: [
+              stats.allPosts,
+              stats.unendorsedPosts,
+              stats.endorsedPosts,
+              stats.approvedPosts,
+              stats.rejectedPosts,
+            ],
+            backgroundColor: [
+              "#9966FF",
+              "#FFCE56",
+              "#36A2EB",
+              "#4BC0C0",
+             "#FF6384",
+            ],
+          },
+        ],
+      });
+    } catch (err) {
+      console.error("Error fetching user posts stats", err);
+    }
+  };
 
   useEffect(() => {
     async function fetchCategories() {
@@ -120,6 +170,48 @@ const UserReports = () => {
       fetchUserReport();
     }
   }, [selectedCategories, startDate, endDate, reportType]);
+
+  useEffect(() => {
+    fetchUserPostsStats();
+  }, [startDate, endDate]);
+
+  useEffect(() => {
+    if (pieChartData && pieChartRef.current) {
+      if (pieChart) {
+        pieChart.destroy();
+      }
+
+      const ctx = pieChartRef.current.getContext("2d");
+      const newPieChart = new Chart(ctx, {
+        type: "pie",
+        data: pieChartData,
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: "top",
+            },
+            title: {
+              display: true,
+              text: "Posts Statistics",
+            },
+            tooltip: {
+              callbacks: {
+                label: function (context) {
+                  const label = context.label || "";
+                  const value = context.raw || 0;
+                  return `${label}: ${value}`;
+                },
+              },
+            },
+          },
+        },
+      });
+
+      setPieChart(newPieChart);
+    }
+  }, [pieChartData]);
 
   const fetchUserReport = async () => {
     const categoriesToFetch = selectedCategories.some(
@@ -334,6 +426,8 @@ const UserReports = () => {
     }
   };
 
+  
+
   return (
     <div className="flex flex-col items-center sm:p-0 p-4 md:p-6  space-y-8 border-2 md:border-none overflow-x-auto">
       {/* Header with Back Button */}
@@ -361,6 +455,8 @@ const UserReports = () => {
                 selected={startDate}
                 onChange={(date) => setStartDate(date)}
                 className="border rounded px-2 py-1 w-full bg-green-400"
+                dateFormat="dd-MM-yyyy"
+                maxDate={endDate}
               />
             </div>
             <div>
@@ -372,6 +468,9 @@ const UserReports = () => {
                 onChange={(date) => setEndDate(date)}
                 style={{ border: "1px solid gray" }}
                 className="border rounded px-2 py-1 w-full"
+                dateFormat="dd-MM-yyyy"
+                minDate={startDate}
+                maxDate={new Date()}
               />
             </div>
           </div>
@@ -436,7 +535,20 @@ const UserReports = () => {
               <p className="text-center text-gray-500">Loading data...</p>
             )}
           </div>
+
         </div>
+          <div className="w-full p-1">
+            <h2 className="text-xl font-semibold text-center mb-4">
+              Posts Statistics
+            </h2>
+            <div className="h-64">
+              {pieChartData ? (
+                <canvas ref={pieChartRef} />
+              ) : (
+                <p className="text-center text-gray-500">Loading data...</p>
+              )}
+            </div>
+          </div>
 
         <div className="w-full max-w-md p-1">
           {/* <h2 className="text-xl font-semibold text-center mb-4">Pie Chart</h2> */}
