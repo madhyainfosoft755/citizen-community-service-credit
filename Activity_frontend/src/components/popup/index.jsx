@@ -22,18 +22,39 @@ const PopupComponent = ({ post, onClose }) => {
       </button>
       <br />
 
-      <div className="w-full h-full flex items-center justify-center sm:flex-col">
+      <div className="w-full h-full flex flex-col items-center justify-center sm:flex-col">
         <div className="w-auto h-4/6 flex flex-wrap gap-2 items-center justify-center">
           {/* Render photo if available */}
-          {post.photos &&
-            JSON.parse(post.photos).map((photo, index) => (
-              <img
-                key={index}
-                className="popup-image w-auto h-full mr-2 "
-                src={`${API_URL}/image/${photo}`}
-                alt={`Post Photo ${index + 1}`}
-              />
-            ))}
+          {(() => {
+                try {
+                  const parsedPhotos = JSON.parse(post.photos);
+                  return Array.isArray(parsedPhotos) ? (
+                    parsedPhotos.map((photo, index) => (
+                      <img
+                        key={index}
+                        className="popup-image w-auto h-full mr-2"
+                        src={`${API_URL}/image/${photo}`}
+                        alt={`Post Photo ${index + 1}`}
+                      />
+                    ))
+                  ) : (
+                    <img
+                      className="popup-image w-auto h-full mr-2"
+                      src={`${API_URL}/image/${parsedPhotos}`}
+                      alt="Post Photo"
+                    />
+                  );
+                } catch (error) {
+                  // Agar JSON parse fail ho jata hai, to string ko as-is use karo
+                  return (
+                    <img
+                      className="popup-image w-auto h-full mr-2"
+                      src={`${API_URL}/image/${post.photos}`}
+                      alt="Post Photo"
+                    />
+                  );
+                }
+              })()}
         </div>
 
         <div className="w-auto h-4/5 ">

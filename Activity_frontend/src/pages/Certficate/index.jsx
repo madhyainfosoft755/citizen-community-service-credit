@@ -118,7 +118,7 @@ const Certficate = ({ setIsPopupVisible }) => {
         const contentType = response.headers.get("content-type");
         if (contentType && contentType.includes("application/json")) {
           const userData = await response.json();
-          console.log(userData, "user data");
+          // console.log(userData, "user data");
           setUserName(userData && userData.userData.name);
           setUserData(userData); // Update user data in the state
         } else {
@@ -218,6 +218,7 @@ const Certficate = ({ setIsPopupVisible }) => {
           );
 
           const data = await response.json();
+          // console.log("data mai kya aa rha hai", data);
           if (response.ok) {
             setCategoryList([...new Set(data.categoriesArray)]);
           }
@@ -305,28 +306,28 @@ const Certficate = ({ setIsPopupVisible }) => {
                 </p>
               </div>
               <div className="mb-6">
-                <p className="text-lg text-gray-800 mt-2">
-                  <strong>Mr / Ms {userData && userData.userData.name} </strong>{" "}
+                <p className="text-lg text-gray-800 mt-2 ">
+                  <span className="font-bold">
+                    Mr / Ms{" "}
+                    <span className="uppercase">
+                      {userData && userData.userData.name}{" "}
+                    </span>
+                  </span>{" "}
                   has successfully spent{" "}
-                  <strong>
+                  <span className="font-bold">
                     {totalTime && convertToHoursWithoutPoints(totalTime)} hours
-                  </strong>{" "}
+                  </span>{" "}
                   in the &nbsp;
                   {categoryList &&
                     categoryList.map((value, index) => {
                       return (
-                        <strong key={index}>
+                        <span className="font-bold" key={index}>
                           {value}
                           {index < categoryList.length - 1 ? ", " : " "}
-                        </strong>
+                        </span>
                       );
                     })}
-                  etc. activities{" "}
-                  {userData &&
-                  userData.userData.organization &&
-                  userData.userData.organization !== "NA"
-                    ? `for ${userData.userData.organization}`
-                    : "as individual volunteer"}
+                  {categoryList?.length > 1 ? "activities" : "activity"}{" "}
                 </p>
               </div>
               <div>
@@ -353,7 +354,7 @@ const Certficate = ({ setIsPopupVisible }) => {
                   />
                 </div>
               )}
-              <div className="text-center absolute top-1 right-1">
+              <div className="text-center absolute top-4 right-2">
                 <p style={{ fontSize: "12px" }} className="text-gray-300">
                   Date printed on: {formattedDate}
                 </p>
@@ -396,7 +397,7 @@ const Certficate = ({ setIsPopupVisible }) => {
               style={{
                 width: "297mm",
                 height: "210mm",
-                padding: "10mm",
+                padding: "30mm",
                 boxSizing: "border-box",
                 background: "#ffffff",
               }}
@@ -411,31 +412,29 @@ const Certficate = ({ setIsPopupVisible }) => {
                   </p>
                 </div>
                 <div className="mb-6">
-                  <p className="text-lg text-gray-800 mt-2">
-                    <strong>
-                      Mr / Ms {userData && userData.userData.name}{" "}
-                    </strong>{" "}
+                  <p className="text-lg text-gray-800 align-baseline ">
+                    <span className="font-bold text-lg">
+                      Mr / Ms{" "}
+                      <span className="uppercase text-lg">
+                        {userData && userData.userData.name}{" "}
+                      </span>{" "}
+                    </span>{" "}
                     has successfully spent{" "}
-                    <strong>
+                    <span className="font-bold text-lg">
                       {totalTime && convertToHoursWithoutPoints(totalTime)}{" "}
                       hours
-                    </strong>{" "}
+                    </span>{" "}
                     in the &nbsp;
                     {categoryList &&
                       categoryList.map((value, index) => {
                         return (
-                          <strong key={index}>
+                          <span className="font-bold text-lg" key={index}>
                             {value}
                             {index < categoryList.length - 1 ? ", " : " "}
-                          </strong>
+                          </span>
                         );
                       })}
-                    etc. activities{" "}
-                    {userData &&
-                    userData.userData.organization &&
-                    userData.userData.organization !== "NA"
-                      ? "for " + userData.userData.organization
-                      : "as individual volunteer"}
+                    {categoryList?.length > 1 ? "activities" : "activity"}{" "}
                   </p>
                 </div>
                 <div>
@@ -454,14 +453,14 @@ const Certficate = ({ setIsPopupVisible }) => {
                     alt="Logo"
                   />
                 </div>
-                <div className="flex justify-center items-center absolute top-5 right-1">
+                {/* <div className="flex justify-center items-center absolute top-5 right-1">
                   <img
                     src={`${API_URL}/image/${orgDetails && orgDetails.logo}`}
                     className="w-28 h-28 sm:w-28 sm:h-28 rounded-full"
                     alt="Logo"
                   />
-                </div>
-                <div className="text-center absolute top-1 right-1">
+                </div> */}
+                <div className="text-center absolute top-5 right-3">
                   <p style={{ fontSize: "12px" }} className="text-gray-300">
                     Date printed on: {formattedDate}
                   </p>
@@ -489,13 +488,13 @@ const Certficate = ({ setIsPopupVisible }) => {
                 </div>
               </div>
 
-                <div className="w-full absolute bottom-5 text-center">
-                  <p className="text-xs mt-10 text-gray-700 italic">
-                    This is an electronically generated certificate. The
-                    activities are thoroughly reviewed and verified before
-                    approval. The signature is not mandatory.
-                  </p>
-                </div>
+              <div className="w-full  absolute bottom-5 left-0 flex justify-center items-center">
+                <p className="text-xs  text-gray-700 italic">
+                  This is an electronically generated certificate. The
+                  activities are thoroughly reviewed and verified before
+                  approval. The signature is not mandatory.
+                </p>
+              </div>
             </div>
           </div>
         </div>

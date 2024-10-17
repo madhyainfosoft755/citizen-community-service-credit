@@ -63,6 +63,9 @@ const {
   submitFeedback,
   checkifAlreadyExist,
   getOrganizationsUser,
+  getUserCategories,
+  getUserReport,
+  getUserPostsStats
 } = require("../controllers/LoginController");
 const { upload } = require("../utils/util");
 const uploadMiddleWare = require("../Middlewere/uploadMiddleware");
@@ -70,6 +73,8 @@ const extractToken = require("../Middlewere/Authentication");
 
 // Express route
 router.get("/output", output);
+router.get("/getUserCategories", getUserCategories);
+router.get("/get-user-posts-stats", getUserPostsStats);
 router.post("/LinkedInLogin", LinkedInLogin);
 router.get("/getPostsByUser/:userId", getPostsByUser);
 router.get("/reviewpostforuser/:userId/:postId", reviewpostforuser);
@@ -130,7 +135,7 @@ router.post("/getAllPostedCategories/:id", getAllPostedCategories);
 router.get("/getPost/:id", getPost);
 router.get("/posts/:id", getLinkToSharePost);
 router.get("/test-posts/:id", shareTestLink);
-router.post("/get-user-report", getAllActivitiesByCategoriesUser);
+router.post("/get-user-report", getUserReport);
 router.get("/get-user-report-date", postsForDateRangeUser);
 router.get("/getOrgDetails/:org", getOrgDetails);
 router.post("/submitFeedback", submitFeedback);

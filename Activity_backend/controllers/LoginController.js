@@ -151,7 +151,7 @@ const getUserIdFromToken = (req) => {
     const token = authorizationHeader.split(" ")[1];
     try {
       const decodedToken = Jwt.verify(token, jwtKey);
-      console.log("ye hai user ki id", decodedToken);
+      // console.log("ye hai user ki id", decodedToken);
       return decodedToken.userId;
     } catch (error) {
       console.error("Error decoding token:", error);
@@ -372,7 +372,7 @@ const Register = async (req, res) => {
 
     // Check if the uploaded file is an image
     const photoFile = req.files.photo;
-    
+
     // Check if the file has an allowed image extension
     const allowedExtensions = ["jpg", "jpeg", "png", "gif", "jfif"];
     const fileExtension = photoFile[0].filename
@@ -444,8 +444,6 @@ const Register = async (req, res) => {
       selectedCategories.push("Others");
     }
 
-
-
     // let organizationData;
     // console.log("Organization data received:", userData.organization);
     // try {
@@ -457,12 +455,12 @@ const Register = async (req, res) => {
     //     // Agar already parsed hai to direct use karein
     //     organizationData = JSON.parse(organizationData);
     //   }
-      
+
     //   // Ensure it's an array
     //   if (!Array.isArray(organizationData)) {
     //     organizationData = [organizationData];
     //   }
-      
+
     //   // Remove any duplicates and filter out empty values
     //   organizationData = [...new Set(organizationData)].filter(item => item && item !== '');
     //   console.log("Processed organization data:", organizationData);
@@ -522,7 +520,7 @@ const Register = async (req, res) => {
       status: "success",
       message:
         "Registration successful. Please check your email for verification.",
-        data:newUser
+      data: newUser,
     });
   } catch (error) {
     logger.error("Registration failed:", error);
@@ -538,7 +536,7 @@ const Register = async (req, res) => {
 const RegisterLinkedin = async (req, res) => {
   try {
     const userData = req.body;
-    // console.log("here is he data", userData);
+    console.log("here is he data", userData);
 
     // Check if any required field is empty
     if (!userData.name) {
@@ -579,15 +577,15 @@ const RegisterLinkedin = async (req, res) => {
         .json({ field: "email", message: "Email already exists" });
     }
 
-    // Check if user with the same mobile number already exists
-    const existingMobileUser = await Users.findOne({
-      where: { phone: userData.phone },
-    });
-    if (existingMobileUser) {
-      return res
-        .status(400)
-        .json({ field: "phone", message: "Mobile number already registered" });
-    }
+    // // Check if user with the same mobile number already exists
+    // const existingMobileUser = await Users.findOne({
+    //   where: { phone: userData.phone },
+    // });
+    // if (existingMobileUser) {
+    //   return res
+    //     .status(400)
+    //     .json({ field: "phone", message: "Mobile number already registered" });
+    // }
 
     // Check if user with the same aadhar number already exists
     // const existingAadharUser = await Users.findOne({ where: { aadhar: userData.aadhar } });
@@ -613,6 +611,14 @@ const RegisterLinkedin = async (req, res) => {
       selectedCategories.push("Others");
     }
 
+    // Organization ko parse karein
+    let organizations = [];
+    try {
+      organizations = JSON.parse(userData.organization);
+    } catch (error) {
+      console.error("Error parsing organization:", error);
+    }
+
     // Download and save profile picture
     const pictureUrl = userData.photo;
     const fileExtension = path.extname(new URL(pictureUrl).pathname);
@@ -626,18 +632,18 @@ const RegisterLinkedin = async (req, res) => {
     fs.writeFileSync(filePath, buffer);
 
     // const Category = selectedCategories;
-
+    const phoneNumber = userData.phone ? userData.phone.trim() : null;
     // Create a new user instance and save it to the database
     const newUser = await Users.create({
       name: userData.name,
       email: userData.email,
       password: generatedPassword,
-      phone: userData.phone,
+      phone: phoneNumber,
       photo: fileName,
       category: JSON.stringify(selectedCategories), // Store as a JSON string
       aadhar: userData.aadhar,
       role: "user",
-      organization: userData.organization, // Add the organization field
+      organization: JSON.stringify(organizations), // Add the organization field
       verified: true,
       // Add other fields as needed
     });
@@ -1162,7 +1168,7 @@ const CreateActivity = async (req, res) => {
 
     // Extract userId from the token
     const userId = getUserIdFromToken(req);
-    console.log("YE HAI USER KI ID", userId);
+    // console.log("YE HAI USER KI ID", userId);
 
     if (userId === null || userId === undefined) {
       // console.log("no user id found");
@@ -1560,6 +1566,96 @@ const getCategories = async (req, res) => {
     res.status(500).json({ message: "Failed to fetch categories", error });
   }
 };
+
+const getUserCategories = async (req, res) => {
+  try {
+    // Get user ID from token
+    const userId = getUserIdFromToken(req);
+
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized: Invalid token" });
+    }
+
+    // User ko database se fetch karna
+    const user = await Users.findByPk(userId);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // User ki categories ko parse karna
+    let userCategories;
+    try {
+      userCategories = JSON.parse(user.category);
+      if (!Array.isArray(userCategories)) {
+        userCategories = [userCategories]; // Agar single category hai to array mein convert karna
+      }
+    } catch (error) {
+      console.error("Error parsing user categories:", error);
+      // Agar JSON parse fail ho jata hai, to comma-separated string maan kar split karna
+      userCategories = user.category.split(',').map(cat => cat.trim());
+    }
+
+    // User ki categories return karna
+    res.status(200).json(userCategories);
+  } catch (error) {
+    console.error("Error fetching user categories:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+
+const getUserReport = async (req, res) => {
+  try {
+    const id = getUserIdFromToken(req);
+    const { categories, start, end, reportType } = req.body;
+
+    let dateCondition = {};
+    if (start && end) {
+      dateCondition = { [Op.between]: [start, end] };
+    } else {
+      const oneMonthAgo = new Date();
+      oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+      dateCondition = { [Op.gte]: oneMonthAgo };
+    }
+
+    let approvalCondition = {};
+    switch (reportType) {
+      case 'approved':
+        approvalCondition = { approved: true };
+        break;
+      case 'endorsed':
+        approvalCondition = { endorsementCounter: { [Op.gt]: 0 } };
+        break;
+      case 'unendorsed':
+        approvalCondition = { endorsementCounter: 0 };
+        break;
+      // 'all' case doesn't need any additional condition
+    }
+
+    const posts = await db.Posts.findAll({
+      where: {
+        UserId: id,
+        category: {
+          [Op.in]: categories,
+        },
+        Date: dateCondition,
+        ...approvalCondition,
+      },
+    });
+
+    const result = categories.reduce((acc, category) => {
+      acc[category] = posts.filter(post => post.category === category).length;
+      return acc;
+    }, {});
+
+    res.json(result);
+  } catch (error) {
+    logger.error("Error fetching user report", error);
+    res.status(500).json({ error: "An error occurred while fetching the report." });
+  }
+};
+
 
 //ADMINISTRATOR CONTROLLERS
 
@@ -2087,7 +2183,7 @@ const getOrganizationsAdmin = async (req, res) => {
 const getOrganizations = async (req, res) => {
   try {
     const organizations = await Organizations.findAll({
-      attributes: ['name'],
+      attributes: ["name"],
       where: { isEnabled: true },
     });
 
@@ -2095,33 +2191,90 @@ const getOrganizations = async (req, res) => {
       return res.status(200).json({ message: "No organizations found" });
     }
 
-    const organizationNames = organizations.map(org => org.name);
+    const organizationNames = organizations.map((org) => org.name);
     res.status(200).json(organizationNames);
   } catch (error) {
     res.status(500).json({ message: "Failed to fetch organizations", error });
   }
 };
 
+// const getOrganizationsUser = async (req, res) => {
+//   try {
+//     const id = getUserIdFromToken(req);
+//     // console.log("ye hai id", id);
+//     const organizations = await Users.findAll({
+//       include: [
+//         {
+//           // model: Users,
+//           where: { UserId: id },
+//         },
+//       ],
+//       where: { isEnabled: true },
+//     });
+
+//     console.log("ye hai organizations", organizations);
+
+//     if (organizations.length === 0) {
+//       return res.status(200).json({ message: "No organizations found" });
+//     }
+
+//     res.status(200).json(organizations);
+//   } catch (error) {
+//     res.status(500).json({ message: "Failed to fetch organizations", error });
+//   }
+// };
+
 const getOrganizationsUser = async (req, res) => {
   try {
     const id = getUserIdFromToken(req);
-    const organizations = await Organizations.findAll({
-      include: [
-        {
-          // model: AttachOrg,
-          where: { UserId: id },
-        },
-      ],
-      where: { isEnabled: true },
+    // console.log("ye hai id", id);
+
+    // Pehle user ki organization fetch karo
+    const user = await Users.findByPk(id, {
+      attributes: ["organization"],
     });
 
+    // Organization string ko array mein convert karo
+    let userOrgs;
+    try {
+      userOrgs = JSON.parse(user.organization);
+    } catch (error) {
+      console.error("Error parsing user organizations:", error);
+      return res
+        .status(400)
+        .json({ message: "User ke organizations ka format sahi nahi hai" });
+    }
+
+    if (!Array.isArray(userOrgs) || userOrgs.length === 0) {
+      return res
+        .status(200)
+        .json({ message: "No Organization found for the user" });
+    }
+
+    const organizations = await Organizations.findAll({
+      where: {
+        name: {
+          [Op.in]: userOrgs,
+        },
+        isEnabled: true,
+      },
+      attributes: ["name", "email", "phone", "address", "logo"],
+    });
+
+    console.log("ye hain organizations", organizations);
+
     if (organizations.length === 0) {
-      return res.status(200).json({ message: "No organizations found" });
+      return res
+        .status(200)
+        .json({ message: "No data found for the organizations" });
     }
 
     res.status(200).json(organizations);
   } catch (error) {
-    res.status(500).json({ message: "Failed to fetch organizations", error });
+    console.error("Error fetching organizations:", error);
+    res
+      .status(500)
+      .json({ message: "Error fetching organizations", error: error.message });
   }
 };
 
@@ -2554,11 +2707,11 @@ const getLinkToSharePost = async (req, res) => {
     });
 
     console.log("show post", post);
-     // Parse the photos JSON string to an array
-     const photos = JSON.parse(post.photos);
-    
-     // Use the first photo for the og:image tag
-     const firstPhoto = photos[0] || '';
+    // Parse the photos JSON string to an array
+    const photos = JSON.parse(post.photos);
+
+    // Use the first photo for the og:image tag
+    const firstPhoto = photos[0] || "";
 
     const htmlContent = `
     <!DOCTYPE html>
@@ -2662,6 +2815,20 @@ const updateUser = async (req, res) => {
     const id = getUserIdFromToken(req);
     console.log("here is the data", userData);
 
+    let parsedOrganization;
+    try {
+      parsedOrganization = JSON.parse(userData.organization);
+      // If it's still a string after parsing, parse it again
+      if (typeof parsedOrganization === "string") {
+        parsedOrganization = JSON.parse(parsedOrganization);
+      }
+    } catch (error) {
+      console.error("Error parsing organization data:", error);
+      parsedOrganization = userData.organization; // Use as-is if parsing fails
+    }
+
+    console.log("Parsed organization data:", parsedOrganization);
+
     // Check if any required field is empty
     console.log("id ", id);
     if (!userData.name) {
@@ -2710,21 +2877,21 @@ const updateUser = async (req, res) => {
       }
     }
 
-    // Check if a user with the same mobile number already exists
-    const existingMobileUser = await Users.findOne({
-      where: {
-        phone: userData.phone,
-        id: {
-          [Op.ne]: id, // Exclude user with this ID
-        },
-      },
-    });
+    // // Check if a user with the same mobile number already exists
+    // const existingMobileUser = await Users.findOne({
+    //   where: {
+    //     phone: userData.phone,
+    //     id: {
+    //       [Op.ne]: id, // Exclude user with this ID
+    //     },
+    //   },
+    // });
 
-    if (existingMobileUser) {
-      return res
-        .status(400)
-        .json({ field: "phone", message: "Mobile number already registered" });
-    }
+    // if (existingMobileUser) {
+    //   return res
+    //     .status(400)
+    //     .json({ field: "phone", message: "Mobile number already registered" });
+    // }
 
     // Ensure "Others" category is always present
     let selectedCategories = userData.selectedCategories;
@@ -2759,12 +2926,17 @@ const updateUser = async (req, res) => {
     const updateData = {
       name: userData.name,
       email: userData.email,
-      phone: userData.phone,
       category: JSON.stringify(selectedCategories),
-      organization: userData.organization,
+      organization: JSON.stringify(parsedOrganization),
       address: userData.address,
       photo: photoUrl || userData.photo,
     };
+    // Only include phone if it's provided in the request
+    if (userData.phone !== undefined) {
+      updateData.phone = userData.phone.trim() || null;
+    }
+
+    console.log("Final update data:", updateData);
 
     // If email has changed, set verified to false
     if (emailChanged) {
@@ -2797,7 +2969,7 @@ const getAllActivitiesByCategoriesUser = async (req, res) => {
 
     const { categories, start: startDate, end: endDate, reportType } = req.body;
 
-    console.log("report type", reportType );
+    console.log("report type", reportType);
 
     // Validate categories input
     if (!Array.isArray(categories) || categories.length === 0) {
@@ -2828,7 +3000,6 @@ const getAllActivitiesByCategoriesUser = async (req, res) => {
       console.log("End Date:", dateFilter[Op.lte]); // Debug log
     }
 
-
     // Define base where condition
     const whereCondition = {
       ...(Object.getOwnPropertySymbols(dateFilter).length
@@ -2842,26 +3013,24 @@ const getAllActivitiesByCategoriesUser = async (req, res) => {
 
     // Add report type specific conditions
     switch (reportType) {
-      case 'approved':
+      case "approved":
         whereCondition.approved = true;
         break;
-      case 'endorsed':
+      case "endorsed":
         whereCondition.endorsementCounter = { [Op.gt]: 0 };
         break;
-        case 'unendorsed':
-        whereCondition.endorsementCounter = { [Op.eq]: 0 }; 
+      case "unendorsed":
+        whereCondition.endorsementCounter = { [Op.eq]: 0 };
         break;
       // 'all' case doesn't need any additional conditions
     }
-    
+
     // Debug log the dateFilter
     console.log("Date Filter:", dateFilter);
     console.log(
       "Date full in where:",
       Object.getOwnPropertySymbols(dateFilter).length
     );
-
-
 
     // Group and count activities by category
     const activitiesByCategories = await Posts.findAll({
@@ -3070,6 +3239,62 @@ const checkifAlreadyExist = async (req, res) => {
       .json({ message: "Internal server error.", error: error.message });
   }
 };
+
+const getUserPostsStats = async (req, res) => {
+  try {
+    const id = getUserIdFromToken(req);
+    console.log("user id", id);
+    const { start, end } = req.query;
+    console.log("start and end", start, end);
+    let dateCondition = {};
+    if (start && end) {
+      const startDate = new Date(start).toISOString().split('T')[0];
+      const endDate = new Date(end).toISOString().split('T')[0];
+      dateCondition = { [Op.between]: [startDate, endDate] };
+    } else {
+      const oneMonthAgo = new Date();
+      oneMonthAgo.setMonth(oneMonthAgo.getMonth() - 1);
+      const oneMonthAgoFormatted = oneMonthAgo.toISOString().split('T')[0];
+      const todayFormatted = new Date().toISOString().split('T')[0];
+      dateCondition = { 
+        [Op.between]: [oneMonthAgoFormatted, todayFormatted] 
+      };
+    }
+    console.log("date condition", dateCondition);
+
+    const allPosts = await db.Posts.count({
+      where: { UserId: id, Date: dateCondition }
+    });
+    console.log("all posts", allPosts);
+    const unendorsedPosts = await db.Posts.count({
+      where: { UserId: id, Date: dateCondition, endorsementCounter: 0 }
+    });
+    console.log("unendorsed posts", unendorsedPosts);
+    const endorsedPosts = await db.Posts.count({
+      where: { UserId: id, Date: dateCondition, endorsementCounter: { [Op.gt]: 0 } }
+    });
+    console.log("endorsed posts", endorsedPosts); 
+    const approvedPosts = await db.Posts.count({
+      where: { UserId: id, Date: dateCondition, approved: true }
+    });
+    console.log("approved posts", approvedPosts);
+    const rejectedPosts = await db.Posts.count({
+      where: { UserId: id, Date: dateCondition, rejected: true }
+    });
+    console.log("rejected posts", rejectedPosts);
+
+    res.json({
+      allPosts,
+      unendorsedPosts,
+      endorsedPosts,
+      approvedPosts,
+      rejectedPosts
+    });
+  } catch (error) {
+    logger.error("Error fetching user posts stats", error);
+    res.status(500).json({ error: "An error occurred while fetching the stats." });
+  }
+};
 module.exports = {
   output,
   varifybytoken,
@@ -3133,4 +3358,7 @@ module.exports = {
   submitFeedback,
   checkifAlreadyExist,
   getOrganizationsUser,
+  getUserCategories,
+  getUserReport,
+  getUserPostsStats
 };

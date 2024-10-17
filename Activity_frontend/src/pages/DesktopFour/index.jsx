@@ -232,7 +232,7 @@ const DesktopFourPage = () => {
           <div className="relative  w-4/12 h-full  flex items-start justify-center  sm:shadow-none  border-[1px]  rounded-lg sm:rounded-none  lg:h-full sm:w-full sm:h-full md:w-full md:h-full overflow-hidden scroller">
             <div className="flex flex-col  items-center justify-start w-full h-full md:w-full sm:w-full">
               <div className="bg-gray-50 flex flex-row items-center justify-between p-3 sm:px-2 w-full ">
-                <div className="flex flex-row gap-3 items-center justify-center ml-[5px]" onClick={openProfilePopup}>
+                <div className="flex flex-row gap-3 items-center justify-center ml-[5px]" >
                   {userData && userData.userData && (
                     userData.userData.photo && imageLoaded ? (
                       <Img
@@ -258,6 +258,7 @@ const DesktopFourPage = () => {
                       <Text
                         className="text-center text-gray-900 uppercase"
                         size="txtInterSemiBold16Gray900"
+                        onClick={() => { navigate("/users-profile") }}
                       >
                         {/* {userData && userData.userData.name} */}
                         {name}
