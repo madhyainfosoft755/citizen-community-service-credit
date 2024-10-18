@@ -69,6 +69,7 @@ const {
 } = require("../controllers/LoginController");
 const { upload } = require("../utils/util");
 const uploadMiddleWare = require("../Middlewere/uploadMiddleware");
+const upload1 = require("../Middlewere/uploadMiddleware")
 const extractToken = require("../Middlewere/Authentication");
 
 // Express route
@@ -140,6 +141,6 @@ router.get("/get-user-report-date", postsForDateRangeUser);
 router.get("/getOrgDetails/:org", getOrgDetails);
 router.post("/submitFeedback", submitFeedback);
 router.post("/check-exists", checkifAlreadyExist);
-router.post("/update-user", uploadMiddleWare.single("photo"), updateUser);
+router.post("/update-user", upload1.any(), updateUser);
 
 module.exports = router;

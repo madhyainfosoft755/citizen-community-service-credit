@@ -54,7 +54,8 @@ const {
   updateApprovedPosts
 } = require("../controllers/AdminController");
 const extractToken = require("../Middlewere/Authentication");
-const uploadMiddleWare = require("../Middlewere/uploadMiddleware");
+// const uploadMiddleWare = require("../Middlewere/uploadMiddleware");
+const upload = require("../Middlewere/uploadMiddleware");
 const router = express.Router();
 
 router.get("/test", extractToken, TestContoller);
@@ -150,13 +151,13 @@ router.post("/editCategory", extractToken, editCategory);
 router.post(
   "/addOrganization",
   extractToken,
-  uploadMiddleWare.single("logo"),
+  upload.any(),
   addOrganization
 );
 router.post(
   "/editOrganization",
   extractToken,
-  uploadMiddleWare.single("logo"),
+  upload.any(),
   editOrganization
 );
 router.post("/addApprover", extractToken, addApprover);
