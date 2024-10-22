@@ -531,6 +531,7 @@ const Createpost = () => {
     formsDATA.append("toTime", toTime); // Add toTime
     // formsDATA.append("userId", userData && userData.userData.id);
     // Append latitude and longitude to formData
+    
     formsDATA.append("latitude", formsData.latitude);
     formsDATA.append("longitude", formsData.longitude);
     formsDATA.append("description", description);

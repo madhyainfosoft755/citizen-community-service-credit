@@ -1728,7 +1728,7 @@ const processUnendorsedPosts = async (req, res) => {
     // logger.info('Processing unendorsed', postsToSend);
 
     const response = await axios.post(
-      "https://ai-model.helpersin.com/backend/bulk-posts",
+      "http://localhost:5000/api/bulk-posts",
       { postsToSend },
       {
         headers: {
@@ -1814,10 +1814,14 @@ const processUnapprovedPosts = async (req, res) => {
       }
     );
 
-    // console.log("what is the response", response);
+    console.log("what is the response", response);
 
     if (response.status === 200) {
-      res.status(200).send("Posts processed successfully");
+      res.status(200).send({
+        message: "Posts processed successfully",
+        aiMessage: response.data.message,
+        approvedPostsCount: response.data.approvedPostsCount
+      });
     } else {
       res.status(response.status).send("Failed to process posts");
     }

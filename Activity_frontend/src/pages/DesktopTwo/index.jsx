@@ -470,7 +470,7 @@ const Register = () => {
     formsDATA.append("email", e.target[1].value);
     formsDATA.append("phone", e.target[2].value);
     formsDATA.append("address", e.target[3].value);
-    formsDATA.append("aadhar", e.target[4].value || null);
+    // formsDATA.append("aadhar", e.target[4].value || null);
     formsDATA.append("password", e.target[5].value);
     formsDATA.append("cpassword", e.target[6].value);
     formsDATA.append("selectedCategories", JSON.stringify(selectedCategories));

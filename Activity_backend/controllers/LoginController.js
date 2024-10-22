@@ -1184,6 +1184,7 @@ const CreateActivity = async (req, res) => {
       latitude,
       longitude,
       organization,
+      description,
     } = req.body;
 
     const activityDate = new Date(date);
@@ -1303,6 +1304,7 @@ const CreateActivity = async (req, res) => {
       // location: JSON.stringify({ latitude, longitude }), // Store as JSON string in the database
       UserId: userId,
       organization: organization,
+      description: description,
     });
 
     res
