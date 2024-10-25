@@ -34,7 +34,7 @@ const Register = () => {
     selectedFile: "",
     categories: "",
   });
-  const [error, setError] = useState(); // State for error message
+  const [error, setError] = useState({}); // State for error message
   const [passwordError, setPasswordError] = useState(false);
   const [mobileError, setMobileError] = useState(""); // State for mobile number error
   const [aadharError, setAadharError] = useState(""); // State for Aadhar number error
@@ -83,7 +83,7 @@ const Register = () => {
       try {
         const response = await fetch(`${API_URL}/activity/getOrganizations`);
         const data = await response.json();
-        console.log("organizations", data);
+        // console.log("organizations", data);
         if (response.ok) {
           setOrganizations(
             data.map((orgName) => ({ value: orgName, label: orgName }))
@@ -319,6 +319,20 @@ const Register = () => {
       setFieldBeingEdited(name);
       setError({ ...error, [name]: null });
 
+      if (name === "phone") {
+        if (value === "" || value.length === 10) {
+          // Phone number is optional, so empty is fine
+          setError({ ...error, [name]: null });
+        } else if (!/^\d+$/.test(value)) {
+          setError({ ...error, [name]: "Sirf numbers allowed hain" });
+        } else if (value.length < 10) {
+          setError((prevError) => ({ ...prevError, [name]: "Please enter at least 10 digits" }));
+        } else {
+          setError({ ...error, [name]: null });
+          // checkIfExistPhone(value);
+        }
+      }
+
       // Check if mobile number is verified when it reaches 10 digits
       if (name === "name") {
         setError({ ...error, [name]: null });
@@ -422,6 +436,16 @@ const Register = () => {
     // Check if passwords match
     // console.log(error, "submit")
 
+    // Phone number ka special case, kyunki wo optional hai
+  const phoneError = formsData.phone && formsData.phone.length > 0 && formsData.phone.length !== 10;
+
+  if (phoneError) {
+    setError((prevError) => ({ ...prevError, phone: "Please enter a 10-digit number" }));
+    // notify("Please fix all errors and then submit.");
+    return; // Agar phone number error hai to form submit mat karo
+  }
+
+    
     // Validate all fields, including password
     const passwordErrors = validatePassword(formsData.password);
     if (passwordErrors.length > 0) {
@@ -635,7 +659,7 @@ const Register = () => {
                 </span>
               )}
             </div>
-            <div className="w-full flex-col h-7 relative mb-1">
+            <div className={`w-full flex-col h-7 relative ${error.phone ? "mb-2" : "mb-1"}`}>
               <InputWithIconAndText
                 icon={faPhone} // Change the icon as needed
                 iconColor={"#419f44"}
@@ -647,7 +671,7 @@ const Register = () => {
                 value={formsData.phone}
                 type="number"
               />
-              <h1 className="text-red-500 absolute -left-2 -top-1">*</h1>
+              {/* <h1 className="text-red-500 absolute -left-2 -top-1">*</h1> */}
               {error && error.phone && (
                 <span className="text-red-500 text-xs text-left">
                   {error.phone}

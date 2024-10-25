@@ -388,110 +388,173 @@ const getAllEndorseActivities = async (req, res) => {
   }
 };
 
+// const getAllActivitiesBy = async (req, res) => {
+//   try {
+//     const ifAdmin = await verifyIfAdmin(req.token);
+//     // console.log("not an admin", ifAdmin);
+
+//     if (!ifAdmin) {
+//       return res.json({ message: "not an admin" });
+//     }
+
+//     let { filter, startDate, endDate, category } = req.body;
+
+//     let AcitvityList = null;
+
+//     const selectedCategory = category == "All" ? false : category;
+
+//     const start = startDate !== "NaN-NaN-NaN";
+//     const end = endDate !== "NaN-NaN-NaN";
+//     console.log(filter, "filter");
+
+//     if (start && end) {
+//       console.log("both dates are present");
+
+//       let where = {
+//         Date: {
+//           [Op.between]: [startDate, endDate],
+//         },
+//         category: selectedCategory,
+//       };
+
+//       // Add filter condition only if filter is not null
+
+//       if (filter == "endorsed") {
+//         where["endorsementCounter"] = true;
+//       }
+//       if (filter == "waiting") {
+//         where["endorsementCounter"] = false;
+//       }
+//       AcitvityList = await Posts.findAll({
+//         where: where,
+//         order: [["id", "DESC"]],
+//       });
+//     } else {
+//       if (!end && !start) {
+//         let where;
+//         if (selectedCategory) {
+//           where = {
+//             category: selectedCategory,
+//           };
+//         }
+//         if (filter == "endorsed") {
+//           where["endorsementCounter"] = true;
+//         }
+//         if (filter == "waiting") {
+//           where["endorsementCounter"] = false;
+//         }
+//         AcitvityList = await Posts.findAll({
+//           where: where,
+//         });
+//       } else {
+//         if (start) {
+//           console.log("start date is present ");
+//           let where = {
+//             Date: { [Op.gt]: startDate },
+//             category: selectedCategory,
+//           };
+//           if (filter == "endorsed") {
+//             where["endorsementCounter"] = true;
+//           }
+//           if (filter == "waiting") {
+//             where["endorsementCounter"] = false;
+//           }
+//           AcitvityList = await Posts.findAll({
+//             where: where,
+//             order: [["id", "DESC"]],
+//           });
+//         }
+//         if (end) {
+//           let where = {
+//             Date: { [Op.gt]: endDate },
+//             category: selectedCategory,
+//           };
+//           if (filter == "endorsed") {
+//             where["endorsementCounter"] = true;
+//           }
+//           if (filter == "waiting") {
+//             where["endorsementCounter"] = false;
+//           }
+//           AcitvityList = await Posts.findAll({
+//             where: where,
+//             order: [["id", "DESC"]],
+//           });
+//         }
+//       }
+//     }
+
+//     console.log(req.body, "body Data");
+//     console.log(AcitvityList, "Activity List");
+
+//     // const AcitvityList = await Posts.findAll({ where: {} });
+//     res.json({ activities: AcitvityList });
+//   } catch (error) {
+//     logger.error(error);
+
+//     console.log(error);
+//   }
+// };
+
 const getAllActivitiesBy = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
-    // console.log("not an admin", ifAdmin);
-
     if (!ifAdmin) {
       return res.json({ message: "not an admin" });
     }
 
     let { filter, startDate, endDate, category } = req.body;
 
-    let AcitvityList = null;
+    const selectedCategory = category === "All" ? false : category;
 
-    const selectedCategory = category == "All" ? false : category;
-
-    const start = startDate !== "NaN-NaN-NaN";
-    const end = endDate !== "NaN-NaN-NaN";
+    const start = startDate && startDate !== "NaN-NaN-NaN";
+    const end = endDate && endDate !== "NaN-NaN-NaN";
     console.log(filter, "filter");
 
+    let where = {};
+
     if (start && end) {
-      console.log("both dates are present");
-
-      let where = {
-        Date: {
-          [Op.between]: [startDate, endDate],
-        },
-        category: selectedCategory,
+      where.Date = {
+        [Op.between]: [startDate, endDate],
       };
-
-      // Add filter condition only if filter is not null
-
-      if (filter == "endorsed") {
-        where["endorsementCounter"] = true;
-      }
-      if (filter == "waiting") {
-        where["endorsementCounter"] = false;
-      }
-      AcitvityList = await Posts.findAll({
-        where: where,
-        order: [["id", "DESC"]],
-      });
-    } else {
-      if (!end && !start) {
-        let where;
-        if (selectedCategory) {
-          where = {
-            category: selectedCategory,
-          };
-        }
-        if (filter == "endorsed") {
-          where["endorsementCounter"] = true;
-        }
-        if (filter == "waiting") {
-          where["endorsementCounter"] = false;
-        }
-        AcitvityList = await Posts.findAll({
-          where: where,
-        });
-      } else {
-        if (start) {
-          console.log("start date is present ");
-          let where = {
-            Date: { [Op.gt]: startDate },
-            category: selectedCategory,
-          };
-          if (filter == "endorsed") {
-            where["endorsementCounter"] = true;
-          }
-          if (filter == "waiting") {
-            where["endorsementCounter"] = false;
-          }
-          AcitvityList = await Posts.findAll({
-            where: where,
-            order: [["id", "DESC"]],
-          });
-        }
-        if (end) {
-          let where = {
-            Date: { [Op.gt]: endDate },
-            category: selectedCategory,
-          };
-          if (filter == "endorsed") {
-            where["endorsementCounter"] = true;
-          }
-          if (filter == "waiting") {
-            where["endorsementCounter"] = false;
-          }
-          AcitvityList = await Posts.findAll({
-            where: where,
-            order: [["id", "DESC"]],
-          });
-        }
-      }
+    } else if (start) {
+      where.Date = { [Op.gte]: startDate };
+    } else if (end) {
+      where.Date = { [Op.lte]: endDate };
     }
 
-    console.log(req.body, "body Data");
-    console.log(AcitvityList, "Activity List");
+    if (selectedCategory) {
+      where.category = selectedCategory;
+    }
 
-    // const AcitvityList = await Posts.findAll({ where: {} });
+    if (filter === "endorsed") {
+      where.endorsementCounter = { [Op.gt]: 0 };
+    } else if (filter === "waiting") {
+      where.endorsementCounter = 0;
+    } else if (filter === "approved") {
+      where.approved = true;
+    } else if (filter === "rejected") {
+      where.rejected = true;
+    }
+
+    const AcitvityList = await Posts.findAll({
+      where: where,
+      order: [["id", "DESC"]],
+      include: [
+        {
+          model: Users,
+          attributes: ["name", "email"],
+        },
+      ],
+    });
+
+    console.log(req.body, "body Data");
+    console.log(AcitvityList.length, "Activity List Length");
+
     res.json({ activities: AcitvityList });
   } catch (error) {
     logger.error(error);
-
-    console.log(error);
+    console.log(error, "error in getAllActivitiesBy");
+    res.status(500).json({ message: "Server error" });
   }
 };
 

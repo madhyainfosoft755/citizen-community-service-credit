@@ -618,6 +618,10 @@ const RegisterLinkedin = async (req, res) => {
     } catch (error) {
       console.error("Error parsing organization:", error);
     }
+    
+    if (!organizations || organizations.length === 0) {
+      organizations = ["Individual"];
+    }
 
     // Download and save profile picture
     const pictureUrl = userData.photo;
@@ -852,12 +856,16 @@ const updatePassword = async (req, res) => {
 const login = async (req, res) => {
   const { email, password } = req.body;
 
-  // console.log("email ", req.body);
+  console.log("email ", req.body);
 
   try {
     // Find the user based on the provided email
     const user = await Users.findOne({ where: { email } });
-    // console.log("**/*/*/* THIS IS USER /*/*/*/*/", user);
+    if (!user) {
+      return res.status(401).json({ error: "Email not found." });
+    }
+
+    console.log("**/*/*/* THIS IS USER /*/*/*/*/", user);
 
     let log = await LoginLog.create({ userId: user.id });
 

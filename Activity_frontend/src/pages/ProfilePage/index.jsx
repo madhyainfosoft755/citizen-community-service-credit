@@ -173,7 +173,9 @@ const ProfilePage = () => {
       "selectedCategories",
       JSON.stringify(selectedCategories)
     );
-    const organizationValues = selectedOrganization.map((org) => org.value);
+    const organizationValues = Array.isArray(selectedOrganization)
+    ? selectedOrganization.map((org) => org.value)
+    : selectedOrganization ? [selectedOrganization.value] : [];
     formDataToSubmit.append("organization", JSON.stringify(organizationValues));
 
     formDataToSubmit.append("photo", user.picture);
@@ -396,7 +398,7 @@ const ProfilePage = () => {
 
         <div className="w-4/6  sm:w-5/6 h-auto flex flex-col items-center justify-center  relative ">
           <label className="block font-bold mb-1">
-            <span className="text-red-500">*</span>Select Organization:
+            Select Organization:
           </label>
           <div className="w-full">
             {organizations && (
@@ -413,11 +415,7 @@ const ProfilePage = () => {
               />
             )}
           </div>
-          {formErrors.categories && (
-            <small className="error text-red-500">
-              {formErrors.categories}
-            </small>
-          )}
+          
         </div>
 
         <div className="w-4/6  sm:w-5/6 h-auto flex flex-col items-center justify-center  relative ">
