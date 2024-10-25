@@ -381,7 +381,7 @@ const DesktopOnePage = () => {
           <Location onLocationChange={handleLocationChange} />
         </div>
         <div
-          className="relative w-full h-full flex flex-col justify-center gap-1 items-center pt-2  sm:w-screen sm:h-screen overflow-hidden  bg-cover bg-center "
+          className="relative w-full h-full flex flex-col justify-center  items-center  sm:w-screen sm:h-screen overflow-hidden  bg-cover bg-center "
         >
         <div className="w-full flex items-center justify-start">
 

@@ -531,6 +531,7 @@ const Createpost = () => {
     formsDATA.append("toTime", toTime); // Add toTime
     // formsDATA.append("userId", userData && userData.userData.id);
     // Append latitude and longitude to formData
+    
     formsDATA.append("latitude", formsData.latitude);
     formsDATA.append("longitude", formsData.longitude);
     formsDATA.append("description", description);
@@ -837,7 +838,7 @@ const Createpost = () => {
                 <div className="flex flex-col items-center justify-center w-3/5">
                   <div className=" cursor-default flex flex-col items-start justify-center w-full">
                     <Text
-                      className="text-center text-gray-900 uppercase"
+                      className="text-center text-gray-900 uppercase cursor-pointer"
                       size="txtInterSemiBold16Gray900"
                       onClick={() => { navigate("/users-profile") }}
                     >
