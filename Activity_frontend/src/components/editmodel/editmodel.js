@@ -232,6 +232,7 @@ const EditUserModal = ({ userData, isOpen, onClose, onSave }) => {
       }));
       setSelectedPhoto(URL.createObjectURL(file));
     }
+    // setFormData((prev) => ({ ...prev, photo: file })); // Ensure you set the file in formData
   };
 
   const validateMobileNumber = (number) => {

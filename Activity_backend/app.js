@@ -7,7 +7,21 @@ const session = require("express-session");
 const dotenv = require("dotenv");
 const { User } = require("./models/LoginRouter");
 const { Strategy: GoogleStrategy } = require("passport-google-oauth20");
+const cron = require("node-cron");
+const { AutoEndorseScheduler } = require("./controllers/AdminController");
 dotenv.config();
+
+
+cron.schedule('21 * * * *', async () => {
+  console.log('Running AutoEndorseScheduler...');
+  try {
+    await AutoEndorseScheduler();
+    console.log('AutoEndorseScheduler completed successfully');
+  } catch (error) {
+    console.error('Error in AutoEndorseScheduler:', error);
+  }
+});
+
 
 passport.use(
   new GoogleStrategy(

@@ -2821,9 +2821,13 @@ const visitorCount = async (req, res) => {
 
 const updateUser = async (req, res) => {
   try {
+
+    console.log("Uploaded file:", req.file); // Check the uploaded file
     const userData = req.body;
     const id = getUserIdFromToken(req);
     console.log("here is the data", userData);
+
+    console.log("-=-=-=-=-=-=what is the photo=-=-=-=-=-=-=-=-", userData.photo)
 
     let parsedOrganization;
     try {
@@ -2857,7 +2861,7 @@ const updateUser = async (req, res) => {
     let photoUrl;
     if (req.file) {
       photoUrl = req.file.filename;
-    }
+    } 
 
     // Fetch the current user
     const currentUser = await Users.findByPk(id);
