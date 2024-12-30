@@ -51,7 +51,8 @@ const {
   fetchEndorsedPosts,
   updateEndorsedPosts,
   processUnapprovedPosts,
-  updateApprovedPosts
+  updateApprovedPosts,
+  AutoEndorseScheduler
 } = require("../controllers/AdminController");
 const extractToken = require("../Middlewere/Authentication");
 // const uploadMiddleWare = require("../Middlewere/uploadMiddleware");
@@ -62,6 +63,7 @@ router.get("/test", extractToken, TestContoller);
 router.get("/fetchEndorsedPosts", fetchEndorsedPosts);
 router.post("/updateEndorsedPosts", updateEndorsedPosts)
 router.post("/processUnapprovedPosts",  processUnapprovedPosts);
+router.post("/AutoEndorseScheduler", AutoEndorseScheduler);
 router.post("/updateApprovedPosts", updateApprovedPosts);
 router.post("/processUnendorsedPosts",processUnendorsedPosts);
 router.get("/fetchUnendorsedPosts", fetchUnendorsedPosts);

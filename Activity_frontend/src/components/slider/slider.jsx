@@ -11,7 +11,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleCheck, faCircleXmark } from "@fortawesome/free-solid-svg-icons";
 import Share from "components/shareComponent";
 
-const Slider1 = ({ items, isPopUpVisible, setIsPopUpVisible, setSelectedPost, selectedPost }) => {
+const Slider1 = ({ items = [], isPopUpVisible, setIsPopUpVisible, setSelectedPost, selectedPost }) => {
   const [locationData, setLocationData] = useState([]);
   const [showSplashScreen, setShowSplashScreen] = useState(true); // State to control splash screen visibility
   // console.log("kya endrose aa rha hai", items)
@@ -29,6 +29,11 @@ const Slider1 = ({ items, isPopUpVisible, setIsPopUpVisible, setSelectedPost, se
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!Array.isArray(items) || items.length === 0) {
+        setLocationData([]);
+        return;
+      }
+
       const updatedItems = await Promise.all(items &&
         items.map(async (item) => {
           try {
@@ -60,7 +65,7 @@ const Slider1 = ({ items, isPopUpVisible, setIsPopUpVisible, setSelectedPost, se
           }
         })
       );
-      setLocationData(updatedItems);
+      setLocationData(updatedItems.filter(Boolean));
     };
 
     fetchData();
@@ -105,7 +110,7 @@ const Slider1 = ({ items, isPopUpVisible, setIsPopUpVisible, setSelectedPost, se
             {locationData.map((item, index) => (
 
               <div key={index} className="relative">
-                <div className="w-full h-1/2 sm:h-1/2  md:h-1/2 flex items-center justify-center bg-gray-50">
+                <div className=" relative w-full h-1/2 sm:h-1/2  md:h-1/2 flex items-center justify-center bg-gray-50">
                   {item && item.firstPhoto && (
                     <img
                       className="w-auto h-5/6 object-cover object-top rounded"
@@ -114,6 +119,8 @@ const Slider1 = ({ items, isPopUpVisible, setIsPopUpVisible, setSelectedPost, se
                       onClick={() => handleViewPost(item)}
                     />
                   )}
+
+                  {item.organization !== undefined && <h1 className="absolute top-1 right-2  text-lg font-bold">{item.organization}</h1>}
                 </div>
                 {item && item.approved && <div className="flex justify-center items-center absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 px-3 py-5">
                   <Share postId={item && item.id} />

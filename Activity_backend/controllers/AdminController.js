@@ -1783,6 +1783,52 @@ const fetchUnendorsedPosts = async (req, res) => {
   }
 };
 
+const AutoEndorseScheduler = async (req, res) => {
+  try {
+    const postsToSend = await Posts.findAll({
+      where: {
+        endorsementCounter: 0,
+      },
+      include: [
+        {
+          model: Users,
+          attributes: ["name"],
+        },
+      ],
+    });
+
+    if (postsToSend.length === 0) {
+      console.log('No unendorsed posts to process');
+      return;
+    }
+    console.log("what are the posts to send", postsToSend);
+    console.log("Number of posts to send:", postsToSend.length);
+
+    // logger.info('Processing unendorsed', postsToSend);
+
+    const response = await axios.post(
+      "http://localhost:5000/api/bulk-posts",
+      { postsToSend },
+      {
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    console.log("what is the response", response);
+
+    if (response.status === 200) {
+      console.log("Posts processed successfully");
+    } else {
+      console.log("Failed to process posts");
+    }
+  } catch (error) {
+    console.error("Error processing posts:", error);
+    console.log("An error occurred while processing posts");
+  }
+};
+
 const processUnendorsedPosts = async (req, res) => {
   try {
     const postsToSend = req.body;
@@ -1803,7 +1849,7 @@ const processUnendorsedPosts = async (req, res) => {
     console.log("what is the response", response);
 
     if (response.status === 200) {
-      res.status(200).send("Posts processed successfully");
+      res.status(200).send({ message: "Posts processed successfully", aiMessage: response.data.message, endorsedPostsCount: response.data.endorsedPostsCount });
     } else {
       res.status(response.status).send("Failed to process posts");
     }
@@ -1973,4 +2019,5 @@ module.exports = {
   updateEndorsedPosts,
   processUnapprovedPosts,
   updateApprovedPosts,
+  AutoEndorseScheduler
 };

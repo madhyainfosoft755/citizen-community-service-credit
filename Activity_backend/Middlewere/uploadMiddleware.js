@@ -4,7 +4,7 @@ const path = require("path");
 // Configure storage for multer
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "uploads/"); // Saari files ek hi folder mein save hongi
+    cb(null, "uploads/photos/"); // Saari files ek hi folder mein save hongi
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
@@ -25,10 +25,10 @@ const fileFilter = (req, file, cb) => {
 };
 
 // Set up multer with the defined storage and file filter
-const upload = multer({ 
+const uploadMid = multer({ 
   storage: storage, 
   fileFilter: fileFilter 
 });
 
 // Export the middleware directly
-module.exports = upload;
+module.exports = uploadMid;
