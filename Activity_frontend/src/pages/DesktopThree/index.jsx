@@ -359,11 +359,12 @@ const Createpost = () => {
         );
 
         const data = await response.json();
+        console.log("data", data)
         if (response.ok) {
           // Individual option ko sabse pehle add karo
           const organizationOptions = [
             { value: "individual", label: "Individual" },
-            ...data.map((value) => {
+            ...data.organizations.map((value) => {
               return { value: value.id, label: value.name };
             }),
           ];
@@ -764,13 +765,13 @@ const Createpost = () => {
     navigate("/login");
   };
 
-  const customStyles = {
-    menu: (provided) => ({
-      ...provided,
-      maxHeight: 100, // Set the max height of the dropdown list
-      overflowY: "auto", // Enable vertical scrolling
-    }),
-  };
+  // const customStyles = {
+  //   menu: (provided) => ({
+  //     ...provided,
+  //     maxHeight: 100, // Set the max height of the dropdown list
+  //     overflowY: "auto", // Enable vertical scrolling
+  //   }),
+  // };
 
 
   return (
