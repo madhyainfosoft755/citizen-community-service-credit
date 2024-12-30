@@ -34,6 +34,8 @@ import { convertToHours } from "utils";
 import Select from "react-select";
 
 const Createpost = () => {
+  const [selectedOrg, setSelectedOrg] = useState("Individual");
+
   const [imageLoaded, setImageLoaded] = useState(true);
   const dateInputRef = useRef(null); // Ref for the date input
   const [showCalendar, setShowCalendar] = useState(false); // State for calendar visibility
@@ -113,6 +115,7 @@ const Createpost = () => {
       setDescription(inputText);
     }
   };
+  
   const remainingChars = 300 - description.length;
 
   // console.log("user categoriees", userData.userData.category)
@@ -123,23 +126,24 @@ const Createpost = () => {
       try {
         const response = await fetch(`${API_URL}/activity/getCategories`);
         const data = await response.json();
-
         if (response.ok) {
-          if (data.length > 0) {
+          const categoriesData = data.categories; // Access the categories array from response
+          
+          if (categoriesData && categoriesData.length > 0) {
             const userCategories = userData?.userData.category || [];
-            const filteredCategories = data.filter((cat) =>
+            const filteredCategories = categoriesData.filter((cat) =>
               userCategories.includes(cat.name)
             );
             const sortedCategories = filteredCategories.sort((a, b) =>
               a.name.localeCompare(b.name)
             );
             const limitedCategories = sortedCategories.slice(0, 6);
-
+  
             // Check if "Other" category is already included
             const hasOtherCategory = filteredCategories.some(
               (cat) => cat.name.toLowerCase() === "other"
             );
-
+  
             if (limitedCategories.length < 6 && !hasOtherCategory) {
               const othersCategory = { id: "other", name: "Other" };
               setCategories([...limitedCategories, othersCategory]);
@@ -147,7 +151,7 @@ const Createpost = () => {
               setCategories(limitedCategories);
             }
           } else {
-            console.log(data.message);
+            console.log("No categories found");
           }
         } else {
           console.error("Error fetching categories:", data.message);
@@ -535,7 +539,7 @@ const Createpost = () => {
     formsDATA.append("latitude", formsData.latitude);
     formsDATA.append("longitude", formsData.longitude);
     formsDATA.append("description", description);
-    formsDATA.append("organization", selectedOrganization);
+    formsDATA.append("organization", selectedOrg);
 
     // console.log(formsDATA.get("name"));
     // console.log("formData", formsDATA);
@@ -768,7 +772,6 @@ const Createpost = () => {
     }),
   };
 
-  const [selectedOrg, setSelectedOrg] = useState("Individual");
 
   return (
     <>

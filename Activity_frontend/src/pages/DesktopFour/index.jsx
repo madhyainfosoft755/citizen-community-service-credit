@@ -50,14 +50,16 @@ const DesktopFourPage = () => {
 
         const userPostsData = await response.json();
         if (response.ok) {
-          setUserPosts(userPostsData);
+          setUserPosts(Array.isArray(userPostsData) ? userPostsData : []);
         } else {
           console.error("Error fetching user posts:", response.status);
           setError("An error occurred while fetching user posts.");
+          setUserPosts([]); // Set empty array on error
         }
       } catch (error) {
         console.error("Error fetching user posts:", error);
         setError("An error occurred while fetching user posts.");
+        setUserPosts([]); // Set empty array on error
       }
     };
 
