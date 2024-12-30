@@ -50,11 +50,12 @@ const { count } = require("console");
 const organization = require("../models/organization");
 const CreatePost = require("../models/CreatePost");
 
-// Function to decode the post ID
+// Decodes a base64 encoded post ID into its original form
 function decodePostID(encodedID) {
   return Buffer.from(encodedID, "base64").toString("ascii");
 }
 
+// Handles LinkedIn OAuth login flow and user authentication
 const LinkedInLogin = async (req, res) => {
   const { code } = req.body;
   const linkedin_params = new URLSearchParams();
@@ -160,7 +161,7 @@ const getUserIdFromToken = (req) => {
   return null; // Return null if token extraction fails
 };
 
-// function to check the server is running or not by making a request to this api
+// Simple health check endpoint to verify server is running
 const output = async (req, res) => {
   try {
     return res.json({vaibhav: "vaibhav","abcd": "abcd"});
@@ -171,7 +172,7 @@ const output = async (req, res) => {
   }
 };
 
-// function to get the google user details
+// Fetches user profile data from Google API using access token
 const getUserProfile = async (accessToken) => {
   try {
     const response = await axios.get(
@@ -210,6 +211,7 @@ const generateRandomPassword = (length) => {
   return password;
 };
 
+// Generates a random phone number string of specified length 
 const PhoneNumberGenerator = (length) => {
   let PhoneNumber = "";
   for (let i = 0; i < length; i++) {
@@ -224,65 +226,9 @@ const passwordLength = 10;
 const generatePhoneNumber = PhoneNumberGenerator(10);
 // console.log('Generated number:', generatePhoneNumber);
 const generatedPassword = generateRandomPassword(passwordLength);
-// console.log('Generated Password:', generatedPassword);
 
-// const GoogleLogin = async (req, res) => {
-//   const { token } = req.body;
-// console.log("*****token********", token)
 
-//   if (!token) {
-//     return res.status(400).json({ error: 'ID token is missing' });
-//   }
-
-//   try {
-//     const userProfile = await getUserProfile(token);
-// console.log("ye rha user ka profile data", userProfile)
-
-//     // Check if user exists
-//     let user = await Users.findOne({ where: { email: userProfile.email } });
-
-//     if (!user) {
-//       // Download and save profile picture
-//       const pictureUrl = userProfile.picture;
-//       const fileExtension = path.extname(new URL(pictureUrl).pathname);
-//       const fileName = `${userProfile.id}${fileExtension}`;
-//       const filePath = path.join(__dirname, '../uploads/photos', fileName);
-
-//       // Dynamically import node-fetch
-//       const fetch = (await import('node-fetch')).default;
-//       const response = await fetch(pictureUrl);
-//       const buffer = await response.buffer();
-//       fs.writeFileSync(filePath, buffer);
-
-//       // Create new user if not found
-//       user = await Users.create({
-//         name: userProfile.name,
-//         email: userProfile.email,
-//         phone: null,
-//         password: generatedPassword, // Add password if needed
-//         photo: fileName, // Assuming you store the profile picture
-//         category: JSON.stringify(['Others']), // Assign "Others" category during user creation
-//         googleId: userProfile.id,
-//         role: "user",
-//         verified: true
-//       });
-
-//     }
-
-//     // Generate JWT token for the user
-//     // const jwtToken = Jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '1h' });
-//     const jwtToken = Jwt.sign({ userId: user.id }, jwtKey, { expiresIn: "1h" });
-
-// console.log("lo data le lo", user)
-
-//     res.status(200).set('Authorization', `Bearer ${jwtToken}`).json({ token: jwtToken, user: userProfile, redirectTo: '/create' });
-//   } catch (error) {
-//     logger.error("ye hai google ki error", error)
-// console.error('Google login error:', error);
-//     res.status(500).json({ error: 'Internal server error' });
-//   }
-// };
-
+// Handles Google OAuth login flow and user authentication
 const GoogleLogin = async (req, res) => {
   const { token } = req.body;
   // console.log("*****token********", token);
@@ -336,7 +282,8 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// this is Register Api
+
+// Creates new user account with provided registration data
 const Register = async (req, res) => {
   try {
     const userData = req.body;
@@ -497,7 +444,7 @@ const Register = async (req, res) => {
   }
 };
 
-//linkedin registration
+// Creates new user account using LinkedIn profile data
 const RegisterLinkedin = async (req, res) => {
   try {
     const userData = req.body;
@@ -623,7 +570,7 @@ const RegisterLinkedin = async (req, res) => {
   }
 };
 
-//Email verification API
+// Verifies user email using verification token
 const verify = async (req, res) => {
   try {
     const { token } = req.params;
@@ -651,7 +598,7 @@ const verify = async (req, res) => {
   }
 };
 
-//Forget Password API
+// Initiates password reset flow by sending PIN to user's email
 const forgetpassword = async (req, res) => {
   const { email } = req.body;
   console.log("this is the email", email);
@@ -689,7 +636,7 @@ const forgetpassword = async (req, res) => {
   });
 };
 
-//Verify Pin API
+// Verifies PIN entered during password reset flow
 const verifyPin = async (req, res) => {
   try {
     const { email, pin } = req.body;
@@ -719,7 +666,7 @@ const verifyPin = async (req, res) => {
   }
 };
 
-//Update Mobile Number API
+// Updates user's phone number
 const UpdatePhoneNumber = async (req, res) => {
   try {
     const { userId, phone } = req.body;
@@ -753,7 +700,7 @@ const UpdatePhoneNumber = async (req, res) => {
   }
 };
 
-//Update Password API
+// Updates user's password after successful verification
 const updatePassword = async (req, res) => {
   const { email, newPassword } = req.body;
 
@@ -793,6 +740,7 @@ const updatePassword = async (req, res) => {
   }
 };
 
+// Handles user login with email and password
 const login = async (req, res) => {
   const { email, password } = req.body;
 
@@ -854,6 +802,7 @@ const login = async (req, res) => {
   }
 };
 
+// Resends verification email to user
 const resendVerification = async (req, res) => {
   try {
     const { email } = req.body;
@@ -893,6 +842,7 @@ const resendVerification = async (req, res) => {
   }
 };
 
+// Verifies user token and checks authentication status
 const varifybytiken = async (req, res) => {
   const { userKey, token } = req.body;
   // console.log("userKey", userKey);
@@ -917,6 +867,7 @@ const varifybytiken = async (req, res) => {
   }
 };
 
+// Verifies Google OAuth token for authentication
 const varifybytoken = async (req, res) => {
   const { accessToken, name, id, clientId, Email, credential } = req.body;
   // console.log("email", Email);
@@ -939,6 +890,7 @@ const varifybytoken = async (req, res) => {
   }
 };
 
+// Middleware to verify JWT token in request headers
 const verifyToken = (req, res, next) => {
   const authorizationHeader = req.headers["authorization"];
 
@@ -962,6 +914,7 @@ const verifyToken = (req, res, next) => {
   }
 };
 
+// Fetches user profile data including posts and activity history
 const profile = async (req, res) => {
   // Extract user ID from JWT token
   const userId = getUserIdFromToken(req);
@@ -1045,6 +998,7 @@ const profile = async (req, res) => {
   }
 };
 
+// Updates user's total activity time in database
 const updateUserData = async (req, res) => {
   try {
     const authorizationHeader = req.headers["authorization"];
@@ -1110,6 +1064,7 @@ const updateUserData = async (req, res) => {
   }
 };
 
+// Creates new activity/post with photos and metadata
 const CreateActivity = async (req, res) => {
   try {
     // Check for validation errors from express-validator
@@ -1269,6 +1224,7 @@ const CreateActivity = async (req, res) => {
   }
 };
 
+// Fetches all activity details for a user including total time
 const AllDetails = async (req, res) => {
   try {
     // Extract userId from the token
@@ -1304,6 +1260,7 @@ const AllDetails = async (req, res) => {
   }
 };
 
+// Calculates total time spent on approved activities for a user
 const TotalTimeSpent = async (req, res) => {
   try {
     const all_posts = await db.Posts.findAll({
@@ -1337,6 +1294,7 @@ const TotalTimeSpent = async (req, res) => {
   }
 };
 
+// Fetches all categories user has posted in
 const getAllPostedCategories = async (req, res) => {
   const userId = req.params.id;
   try {
@@ -1377,6 +1335,7 @@ const convertSecondsToTime = (seconds) => {
     .padStart(2, "0")}`;
 };
 
+// Fetches all posts created by current user
 const postsdata = async (req, res) => {
   try {
     const userId = getUserIdFromToken(req);
@@ -1392,6 +1351,7 @@ const postsdata = async (req, res) => {
   }
 };
 
+// Handles endorsement of posts by other users
 const endorsePost = async (req, res) => {
   const postId = req.params.id;
   const userId = req.body.userId;
@@ -1434,6 +1394,7 @@ const endorsePost = async (req, res) => {
   }
 };
 
+// Fetches posts from users within specified geographic area
 const fetchPostsInArea = async (req, res) => {
   try {
     const { latitude, longitude, userId } = req.body;
@@ -1508,6 +1469,7 @@ const fetchPostsInArea = async (req, res) => {
   }
 };
 
+// Fetches all available activity categories
 const getCategories = async (req, res) => {
   try {
     const categories = await Categories.findAll({ where: { isEnabled: true } });
@@ -1522,6 +1484,7 @@ const getCategories = async (req, res) => {
   }
 };
 
+// Fetches categories assigned to current user
 const getUserCategories = async (req, res) => {
   try {
     // Get user ID from token
@@ -1559,7 +1522,7 @@ const getUserCategories = async (req, res) => {
   }
 };
 
-
+// Generates activity report for user based on filters
 const getUserReport = async (req, res) => {
   try {
     const id = getUserIdFromToken(req);
@@ -1614,7 +1577,7 @@ const getUserReport = async (req, res) => {
 
 //ADMINISTRATOR CONTROLLERS
 
-// adminAuthMiddleware.js
+// Middleware to check if user has admin privileges
 const adminAuthMiddleware = (req, res, next) => {
   // Assuming you have the user's role stored in req.user.role after authentication
   if (req.user && req.user.role === "admin") {
@@ -1624,6 +1587,7 @@ const adminAuthMiddleware = (req, res, next) => {
   }
 };
 
+// Middleware to verify admin role
 const isAdmin = (req, res, next) => {
   // Check if the user is authenticated and has the admin role
   const authorizationHeader = req.headers["authorization"];
@@ -1664,7 +1628,7 @@ const getCurrentYear = () => {
   return currentDate.getFullYear();
 };
 
-// Controller to fetch users with the most posts in the current year
+// Fetches users with most approved posts in current year
 const getUsersWithMostPostsInYear = async (req, res) => {
   try {
     const currentYear = getCurrentYear();
@@ -1730,7 +1694,7 @@ const getUsersWithMostPostsInYear = async (req, res) => {
   }
 };
 
-// Controller to fetch users with the most posts in the last six months
+// Fetches users with most posts in last 6 months
 const getUsersWithMostPostsInSixMonths = async (req, res) => {
   try {
     const currentDate = new Date();
@@ -1802,7 +1766,8 @@ const getUsersWithMostPostsInSixMonths = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
-// Controller to fetch users with the most posts in the last three months
+
+// Fetches users with most posts in last 3 months
 const getUsersWithMostPostsInQuater = async (req, res) => {
   try {
     const currentDate = new Date();
@@ -1873,7 +1838,8 @@ const getUsersWithMostPostsInQuater = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
-// Controller to fetch users with the most posts in the current month
+
+// Fetches users with most posts in current month
 const getUsersWithMostPostsInMonth = async (req, res) => {
   try {
     const currentDate = new Date();
@@ -1955,6 +1921,7 @@ const getUsersWithMostPostsInMonth = async (req, res) => {
   }
 };
 
+// Approves a pending activity post
 const approveHours = async (req, res) => {
   const { postId } = req.params;
 
@@ -1975,6 +1942,7 @@ const approveHours = async (req, res) => {
   }
 };
 
+// Rejects a pending activity post with reason
 const rejectHours = async (req, res) => {
   const { postId } = req.params;
   const { rejectionReason } = req.body;
@@ -1998,6 +1966,7 @@ const rejectHours = async (req, res) => {
   }
 };
 
+// Fetches all posts pending approval
 const pendingApproval = async (req, res) => {
   try {
     const posts = await Posts.findAll({
@@ -2026,6 +1995,7 @@ const pendingApproval = async (req, res) => {
   }
 };
 
+// Creates new activity category
 const createCategory = async (req, res) => {
   try {
     const { name, isEnabled } = req.body;
@@ -2046,6 +2016,7 @@ const createCategory = async (req, res) => {
   }
 };
 
+// Fetches all categories for admin view
 const getCategoriesAdmin = async (req, res) => {
   try {
     const { isEnabled } = req.query;
@@ -2065,6 +2036,7 @@ const getCategoriesAdmin = async (req, res) => {
   }
 };
 
+// Toggles category active/inactive status
 const toggleCategory = async (req, res) => {
   try {
     const { id } = req.params;
@@ -2090,6 +2062,7 @@ const toggleCategory = async (req, res) => {
   }
 };
 
+// Creates new organization
 const createOrganization = async (req, res) => {
   try {
     const { name } = req.body;
@@ -2114,6 +2087,7 @@ const createOrganization = async (req, res) => {
   }
 };
 
+// Fetches all organizations for admin view
 const getOrganizationsAdmin = async (req, res) => {
   try {
     const { isEnabled } = req.query;
@@ -2135,6 +2109,7 @@ const getOrganizationsAdmin = async (req, res) => {
   }
 };
 
+// Fetches active organizations list
 const getOrganizations = async (req, res) => {
   try {
     const organizations = await Organizations.findAll({
@@ -2153,32 +2128,7 @@ const getOrganizations = async (req, res) => {
   }
 };
 
-// const getOrganizationsUser = async (req, res) => {
-//   try {
-//     const id = getUserIdFromToken(req);
-//     // console.log("ye hai id", id);
-//     const organizations = await Users.findAll({
-//       include: [
-//         {
-//           // model: Users,
-//           where: { UserId: id },
-//         },
-//       ],
-//       where: { isEnabled: true },
-//     });
-
-//     console.log("ye hai organizations", organizations);
-
-//     if (organizations.length === 0) {
-//       return res.status(200).json({ message: "No organizations found" });
-//     }
-
-//     res.status(200).json(organizations);
-//   } catch (error) {
-//     res.status(500).json({ message: "Failed to fetch organizations", error });
-//   }
-// };
-
+// Fetches organizations associated with current user
 const getOrganizationsUser = async (req, res) => {
   try {
     const id = getUserIdFromToken(req);
@@ -2233,6 +2183,7 @@ const getOrganizationsUser = async (req, res) => {
   }
 };
 
+// Toggles organization active/inactive status
 const toggleOrganization = async (req, res) => {
   try {
     const { id } = req.params;
@@ -2253,6 +2204,7 @@ const toggleOrganization = async (req, res) => {
   }
 };
 
+// Adds new approver role user
 const addApprover = async (req, res) => {
   try {
     const approverData = req.body;
@@ -2313,6 +2265,7 @@ const addApprover = async (req, res) => {
   }
 };
 
+// Fetches all approvers list
 const fetchApprovers = async (req, res) => {
   try {
     const approvers = await Approver.findAll();
@@ -2332,8 +2285,7 @@ const fetchApprovers = async (req, res) => {
   }
 };
 
-// Update an approver
-
+// Updates approver details
 const updateApprover = async (req, res) => {
   const { id } = req.params;
   try {
@@ -2347,8 +2299,7 @@ const updateApprover = async (req, res) => {
   }
 };
 
-// Delete an approver
-
+// Deletes an approver
 const deleteApprover = async (req, res) => {
   const { id } = req.params;
   try {
@@ -2360,7 +2311,7 @@ const deleteApprover = async (req, res) => {
   }
 };
 
-// Controller to get all users
+// Fetches all regular users (non-admin)
 const getUsers = async (req, res) => {
   try {
     const users = await Users.findAll({
@@ -2378,7 +2329,7 @@ const getUsers = async (req, res) => {
   }
 };
 
-// Controller to delete a user
+// Deletes a user account
 const deleteUser = async (req, res) => {
   try {
     const userId = req.params.id;
@@ -2395,7 +2346,7 @@ const deleteUser = async (req, res) => {
   }
 };
 
-//controller for getting all posts on a particular date
+// Fetches posts within specified date range
 const postsForDateRange = async (req, res) => {
   try {
     const { start, end } = req.query;
@@ -2456,7 +2407,7 @@ const postsForDateRange = async (req, res) => {
   }
 };
 
-//controller that fetches posts from the past seven days based on a given category
+// Fetches posts by category with date filters
 const postsForCategory = async (req, res) => {
   try {
     const { categories, start, end } = req.body; // Assuming categories, start, and end dates are passed in the request body
@@ -2503,6 +2454,7 @@ const postsForCategory = async (req, res) => {
   }
 };
 
+// Fetches all posts by specific user
 const getPostsByUser = async (req, res) => {
   try {
     const userId = req.params.userId;
@@ -2555,6 +2507,7 @@ const getPostsByUser = async (req, res) => {
   }
 };
 
+// Fetches details of specific post
 const getPost = async (req, res) => {
   try {
     const postId = req.params.id;
@@ -2592,6 +2545,7 @@ const getPost = async (req, res) => {
   }
 };
 
+// Fetches post details for user review
 const reviewpostforuser = async (req, res) => {
   try {
     const { userId, postId } = req.params;
@@ -2647,6 +2601,7 @@ const reviewpostforuser = async (req, res) => {
   }
 };
 
+// Generates shareable link for a post with metadata
 const getLinkToSharePost = async (req, res) => {
   const encodedID = req.params.id;
   // console.log(encodedID, "encoded id");
@@ -2701,6 +2656,7 @@ const getLinkToSharePost = async (req, res) => {
   }
 };
 
+// Generates test share link for post preview
 const shareTestLink = async (req, res) => {
   const encodedID = req.params.id;
   // console.log(encodedID, "encoded id");
@@ -2750,6 +2706,7 @@ const shareTestLink = async (req, res) => {
   }
 };
 
+// Tracks visitor count for different pages
 const visitorCount = async (req, res) => {
   const { page } = req.params;
   try {
@@ -2764,6 +2721,7 @@ const visitorCount = async (req, res) => {
   }
 };
 
+// Updates user profile information including photo
 const updateUser = async (req, res) => {
   try {
 
@@ -2918,6 +2876,7 @@ const updateUser = async (req, res) => {
   }
 };
 
+// Fetches activity statistics by category for current user
 const getAllActivitiesByCategoriesUser = async (req, res) => {
   try {
     const id = getUserIdFromToken(req);
@@ -3018,6 +2977,7 @@ const getAllActivitiesByCategoriesUser = async (req, res) => {
   }
 };
 
+// Fetches posts filtered by category for current user
 const postsForCategoryUser = async (req, res) => {
   try {
     const id = getUserIdFromToken(req);
@@ -3068,6 +3028,7 @@ const postsForCategoryUser = async (req, res) => {
   }
 };
 
+// Fetches posts within date range for current user
 const postsForDateRangeUser = async (req, res) => {
   try {
     const { start, end } = req.query;
@@ -3130,6 +3091,7 @@ const postsForDateRangeUser = async (req, res) => {
   }
 };
 
+// Fetches organization details by name
 const getOrgDetails = async (req, res) => {
   try {
     const { org } = req.params;
@@ -3141,6 +3103,7 @@ const getOrgDetails = async (req, res) => {
   }
 };
 
+// Handles user feedback submission for activities
 const submitFeedback = async (req, res) => {
   try {
     const name = req.body.name;
@@ -3160,6 +3123,7 @@ const submitFeedback = async (req, res) => {
   }
 };
 
+// Checks if user email/phone already exists in system
 const checkifAlreadyExist = async (req, res) => {
   try {
     const { email, phone } = req.body;
@@ -3199,6 +3163,7 @@ const checkifAlreadyExist = async (req, res) => {
   }
 };
 
+// Fetches user's post statistics with various filters
 const getUserPostsStats = async (req, res) => {
   try {
     const id = getUserIdFromToken(req);
