@@ -30,6 +30,8 @@ const convertSecondsToTime = (seconds) => {
     .padStart(2, "0")}`;
 };
 
+
+
 const getUserIdFromToken = (token) => {
   //   const authorizationHeader = req.headers["authorization"];
 
@@ -76,7 +78,7 @@ const TestContoller = async (req, res) => {
   }
 };
 
-//DATA FETCHING API ...
+// Get total count of all users in the system
 const getTotalUsers = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
@@ -93,6 +95,7 @@ const getTotalUsers = async (req, res) => {
   }
 };
 
+// Get total count of active organizations
 const getTotalOrganisation = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
@@ -108,6 +111,7 @@ const getTotalOrganisation = async (req, res) => {
   }
 };
 
+// Get total count of active categories
 const getTotalCategories = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
@@ -123,6 +127,7 @@ const getTotalCategories = async (req, res) => {
   }
 };
 
+// Calculate total hours of approved activities
 const getTotalApprovedHours = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
@@ -147,6 +152,7 @@ const getTotalApprovedHours = async (req, res) => {
   }
 };
 
+// Calculate total hours of rejected activities 
 const getTotalRejectedHours = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
@@ -170,6 +176,7 @@ const getTotalRejectedHours = async (req, res) => {
   }
 };
 
+// Calculate total hours of pending/unopened activities
 const getTotalUnopenedHours = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
@@ -195,6 +202,7 @@ const getTotalUnopenedHours = async (req, res) => {
   }
 };
 
+// Get total count of all activities
 const getTotalActivities = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
@@ -210,6 +218,7 @@ const getTotalActivities = async (req, res) => {
   }
 };
 
+// Get list of all users with role="user"
 const getAllUsers = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
@@ -228,6 +237,7 @@ const getAllUsers = async (req, res) => {
   }
 };
 
+// Get list of all categories
 const getAllCategories = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
@@ -245,6 +255,7 @@ const getAllCategories = async (req, res) => {
   }
 };
 
+// Get categories filtered by enabled/disabled status
 const getAllCategoriesByStatus = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
@@ -264,6 +275,7 @@ const getAllCategoriesByStatus = async (req, res) => {
   }
 };
 
+// Get list of all organizations
 const getAllOrganization = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
@@ -281,6 +293,7 @@ const getAllOrganization = async (req, res) => {
   }
 };
 
+// Get organizations filtered by enabled/disabled status
 const getAllOrganizationByStatus = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
@@ -301,6 +314,7 @@ const getAllOrganizationByStatus = async (req, res) => {
   }
 };
 
+// Get list of all approvers
 const getAllApprovers = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
@@ -318,6 +332,7 @@ const getAllApprovers = async (req, res) => {
   }
 };
 
+// Get approvers filtered by enabled/disabled statu
 const getAllApproversByStatus = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
@@ -337,6 +352,8 @@ const getAllApproversByStatus = async (req, res) => {
     logger.error(error);
   }
 };
+
+// Get all activities with associated user details
 const getAllActivities = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
@@ -360,6 +377,7 @@ const getAllActivities = async (req, res) => {
   }
 };
 
+// Get all endorsed activities with user details
 const getAllEndorseActivities = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
@@ -388,113 +406,7 @@ const getAllEndorseActivities = async (req, res) => {
   }
 };
 
-// const getAllActivitiesBy = async (req, res) => {
-//   try {
-//     const ifAdmin = await verifyIfAdmin(req.token);
-//     // console.log("not an admin", ifAdmin);
-
-//     if (!ifAdmin) {
-//       return res.json({ message: "not an admin" });
-//     }
-
-//     let { filter, startDate, endDate, category } = req.body;
-
-//     let AcitvityList = null;
-
-//     const selectedCategory = category == "All" ? false : category;
-
-//     const start = startDate !== "NaN-NaN-NaN";
-//     const end = endDate !== "NaN-NaN-NaN";
-//     console.log(filter, "filter");
-
-//     if (start && end) {
-//       console.log("both dates are present");
-
-//       let where = {
-//         Date: {
-//           [Op.between]: [startDate, endDate],
-//         },
-//         category: selectedCategory,
-//       };
-
-//       // Add filter condition only if filter is not null
-
-//       if (filter == "endorsed") {
-//         where["endorsementCounter"] = true;
-//       }
-//       if (filter == "waiting") {
-//         where["endorsementCounter"] = false;
-//       }
-//       AcitvityList = await Posts.findAll({
-//         where: where,
-//         order: [["id", "DESC"]],
-//       });
-//     } else {
-//       if (!end && !start) {
-//         let where;
-//         if (selectedCategory) {
-//           where = {
-//             category: selectedCategory,
-//           };
-//         }
-//         if (filter == "endorsed") {
-//           where["endorsementCounter"] = true;
-//         }
-//         if (filter == "waiting") {
-//           where["endorsementCounter"] = false;
-//         }
-//         AcitvityList = await Posts.findAll({
-//           where: where,
-//         });
-//       } else {
-//         if (start) {
-//           console.log("start date is present ");
-//           let where = {
-//             Date: { [Op.gt]: startDate },
-//             category: selectedCategory,
-//           };
-//           if (filter == "endorsed") {
-//             where["endorsementCounter"] = true;
-//           }
-//           if (filter == "waiting") {
-//             where["endorsementCounter"] = false;
-//           }
-//           AcitvityList = await Posts.findAll({
-//             where: where,
-//             order: [["id", "DESC"]],
-//           });
-//         }
-//         if (end) {
-//           let where = {
-//             Date: { [Op.gt]: endDate },
-//             category: selectedCategory,
-//           };
-//           if (filter == "endorsed") {
-//             where["endorsementCounter"] = true;
-//           }
-//           if (filter == "waiting") {
-//             where["endorsementCounter"] = false;
-//           }
-//           AcitvityList = await Posts.findAll({
-//             where: where,
-//             order: [["id", "DESC"]],
-//           });
-//         }
-//       }
-//     }
-
-//     console.log(req.body, "body Data");
-//     console.log(AcitvityList, "Activity List");
-
-//     // const AcitvityList = await Posts.findAll({ where: {} });
-//     res.json({ activities: AcitvityList });
-//   } catch (error) {
-//     logger.error(error);
-
-//     console.log(error);
-//   }
-// };
-
+// Get all activities by filter, start date, end date, and category
 const getAllActivitiesBy = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
@@ -558,6 +470,7 @@ const getAllActivitiesBy = async (req, res) => {
   }
 };
 
+// Get all endorsed activities by filter, start date, end date, and category
 const getAllEndorseActivitiesBy = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
@@ -686,6 +599,7 @@ const getAllEndorseActivitiesBy = async (req, res) => {
   }
 };
 
+// Get details of a specific activity by ID (admin access)
 const getAllActivityById = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
@@ -712,6 +626,7 @@ const getAllActivityById = async (req, res) => {
   }
 };
 
+// Get details of a specific activity by ID (public access)
 const getActivityByIdOpen = async (req, res) => {
   try {
     const id = req.params.id;
@@ -731,7 +646,8 @@ const getActivityByIdOpen = async (req, res) => {
     console.log(error, "activity by id");
   }
 };
-//DATA UPDATING API ..
+
+// Approve a specific activity
 const approveActivity = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
@@ -752,6 +668,7 @@ const approveActivity = async (req, res) => {
   }
 };
 
+// Reject a specific activity
 const rejectActivity = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
@@ -772,6 +689,7 @@ const rejectActivity = async (req, res) => {
   }
 };
 
+// Mark an activity as endorsed
 const endorseActivity = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
@@ -796,6 +714,7 @@ const endorseActivity = async (req, res) => {
   }
 };
 
+// Verify a user's account
 const verifyUser = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
@@ -816,6 +735,7 @@ const verifyUser = async (req, res) => {
   }
 };
 
+// Remove verification from a user's account
 const unVerifyUser = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
@@ -836,6 +756,7 @@ const unVerifyUser = async (req, res) => {
   }
 };
 
+// Enable a specific category
 const enableCategory = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
@@ -856,6 +777,7 @@ const enableCategory = async (req, res) => {
   }
 };
 
+// Disable a specific category
 const disableCategory = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
@@ -870,9 +792,10 @@ const disableCategory = async (req, res) => {
       { where: { id: id } }
     );
     res.json({ categorylist: categorylist });
-  } catch (error) {}
+  } catch (error) { }
 };
 
+// Enable a specific organization
 const enableOrganisation = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
@@ -893,6 +816,7 @@ const enableOrganisation = async (req, res) => {
   }
 };
 
+// Disable a specific organization
 const disableOrganisation = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
@@ -912,6 +836,7 @@ const disableOrganisation = async (req, res) => {
   }
 };
 
+// Enable approver
 const enableApprover = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
@@ -932,6 +857,7 @@ const enableApprover = async (req, res) => {
   }
 };
 
+// Disable approver
 const disableApprover = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
@@ -951,6 +877,7 @@ const disableApprover = async (req, res) => {
   }
 };
 
+// Get monthly activity statistics for all activities
 const getAllActivitiesByMonth = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
@@ -1017,6 +944,7 @@ const getAllActivitiesByMonth = async (req, res) => {
   }
 };
 
+// Get monthly statistics for approved activities
 const getApproveActivitiesByMonth = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
@@ -1084,6 +1012,7 @@ const getApproveActivitiesByMonth = async (req, res) => {
   }
 };
 
+// Get monthly statistics for rejected activities
 const getRejectedActivitiesByMonth = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
@@ -1151,6 +1080,7 @@ const getRejectedActivitiesByMonth = async (req, res) => {
   }
 };
 
+// Getmonthly statistics for new user registrations
 const getAllUsersByMonth = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
@@ -1216,6 +1146,7 @@ const getAllUsersByMonth = async (req, res) => {
   }
 };
 
+// Add a new category to the system
 const addCategory = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
@@ -1251,6 +1182,7 @@ const addCategory = async (req, res) => {
   }
 };
 
+// Edit existing category details
 const editCategory = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
@@ -1291,6 +1223,7 @@ const editCategory = async (req, res) => {
   }
 };
 
+// Add a new organization to the system
 const addOrganization = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
@@ -1359,6 +1292,7 @@ const addOrganization = async (req, res) => {
   }
 };
 
+// Edit existing organization details
 const editOrganization = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
@@ -1416,6 +1350,7 @@ const editOrganization = async (req, res) => {
   }
 };
 
+// Add a new approver to the system
 const addApprover = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
@@ -1457,6 +1392,7 @@ const addApprover = async (req, res) => {
   }
 };
 
+// Edit existing approver details
 const editApprover = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
@@ -1505,6 +1441,7 @@ const editApprover = async (req, res) => {
   }
 };
 
+// Get activity statistics grouped by categories
 const getAllActivitiesByCategories = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
@@ -1591,6 +1528,7 @@ const getAllActivitiesByCategories = async (req, res) => {
   }
 };
 
+// Get rejected activity statistics grouped by categories
 const getRejectedActivitiesByCategories = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
@@ -1669,6 +1607,7 @@ const getRejectedActivitiesByCategories = async (req, res) => {
   }
 };
 
+// Get approved activity statistics grouped by categories
 const getApprovedActivitiesByCategories = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
@@ -1747,6 +1686,7 @@ const getApprovedActivitiesByCategories = async (req, res) => {
   }
 };
 
+// Verify if the provided token is valid and belongs to an admin
 const verifyToken = async (req, res) => {
   try {
     const user_id = getUserIdFromToken(req.token);
@@ -1762,6 +1702,7 @@ const verifyToken = async (req, res) => {
   }
 };
 
+// Fetch all posts that haven't been endorsed yet
 const fetchUnendorsedPosts = async (req, res) => {
   try {
     const unendorsedPosts = await Posts.findAll({
@@ -1783,6 +1724,7 @@ const fetchUnendorsedPosts = async (req, res) => {
   }
 };
 
+// Automated scheduler to process unendorsed posts
 const AutoEndorseScheduler = async (req, res) => {
   try {
     const postsToSend = await Posts.findAll({
@@ -1829,6 +1771,7 @@ const AutoEndorseScheduler = async (req, res) => {
   }
 };
 
+// Process posts that haven't been endorsed yet
 const processUnendorsedPosts = async (req, res) => {
   try {
     const postsToSend = req.body;
@@ -1859,6 +1802,7 @@ const processUnendorsedPosts = async (req, res) => {
   }
 };
 
+// Update posts that have been endorsed by the AI
 const updateEndorsedPosts = async (req, res) => {
   try {
     const { endorsedPosts } = req.body;
@@ -1883,6 +1827,7 @@ const updateEndorsedPosts = async (req, res) => {
   }
 };
 
+// Fetch all posts that have been endorsed but not approved
 const fetchEndorsedPosts = async (req, res) => {
   try {
     const unendorsedPosts = await Posts.findAll({
@@ -1906,6 +1851,8 @@ const fetchEndorsedPosts = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+// Process posts that are pending approval
 const processUnapprovedPosts = async (req, res) => {
   try {
     const postsToSend = req.body;
@@ -1941,6 +1888,7 @@ const processUnapprovedPosts = async (req, res) => {
   }
 };
 
+// Update posts that have been approved by the AI
 const updateApprovedPosts = async (req, res) => {
   try {
     const { approvedPosts } = req.body;
