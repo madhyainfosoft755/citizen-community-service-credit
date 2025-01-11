@@ -215,46 +215,47 @@ const Createpost = () => {
     setSelectedCategories(name);
   };
 
-  const checkTokenExpiry = async (token) => {
-    try {
-      const response = await fetch(`${API_URL}/activity/profile`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-      // console.log("ye rha response", response)
+  // const checkTokenExpiry = async (token) => {
+  //   try {
+  //     const response = await fetch(`${API_URL}/activity/profile`, {
+  //       method: "POST",
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //         "Content-Type": "application/json",
+  //       },
+  //     });
+  //     // console.log("ye rha response", response)
 
-      if (!response.ok) {
-        // Token might be expired or invalid, so log the user out
-        // handleLogout();
-        navigate("/login");
-        notify("Session time Out");
-      }
-    } catch (error) {
-      // notify(error)
-      console.error("Error checking token expiry:", error);
-    }
-  };
+  //     if (!response.ok) {
+  //       // Token might be expired or invalid, so log the user out
+  //       // handleLogout();
+  //       navigate("/login");
+  //       notify("Session time Out");
+  //     }
+  //   } catch (error) {
+  //     // notify(error)
+  //     console.error("Error checking token expiry:", error);
+  //   }
+  // };
 
-  useEffect(() => {
-    // Check if both token and user key are present in local storage
-    const token = localStorage.getItem("token");
-    const userKey = localStorage.getItem("userKey");
+  //commented by me 
+  // useEffect(() => {
+  //   // Check if both token and user key are present in local storage
+  //   const token = localStorage.getItem("token");
+  //   const userKey = localStorage.getItem("userKey");
 
-    // console.log("token", token)
-    // console.log("userkey", userKey)
-    if (!token || !userKey) {
-      // Redirect to the login page if either token or user key is missing
-      navigate("/login");
-    } else {
-      // Fetch user data when component mounts
-      // fetchUserData(token);
-      setAuthenticated(true);
-      checkTokenExpiry(token);
-    }
-  }, [userData]); // Empty dependency array ensures that this effect runs only once on mount
+  //   // console.log("token", token)
+  //   // console.log("userkey", userKey)
+  //   if (!token || !userKey) {
+  //     // Redirect to the login page if either token or user key is missing
+  //     navigate("/login");
+  //   } else {
+  //     // Fetch user data when component mounts
+  //     // fetchUserData(token);
+  //     setAuthenticated(true);
+  //     checkTokenExpiry(token);
+  //   }
+  // }, [userData]); // Empty dependency array ensures that this effect runs only once on mount
 
   useEffect(() => {
     const fetchUserData = async (token) => {
@@ -419,8 +420,7 @@ const Createpost = () => {
 
     return { hours, minutes, seconds };
   }
-  // console.log("what is the description", description)
-
+  
   useEffect(() => {
     const updateTimes = () => {
       const now = new Date();

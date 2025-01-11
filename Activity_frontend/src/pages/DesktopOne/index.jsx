@@ -110,17 +110,25 @@ const DesktopOnePage = () => {
     setValidationErrors(errors);
     return isValid;
   };
+
+
   const [emailvalue, setEmailvalue] = useState("");
 
   const handleSubmit = async (event) => {
+
     event.preventDefault();
-    const formsDATA = new FormData();
+    // const formsDATA = new FormData();
+    const formsDATA = new FormData(event.target);  
     const emailValue = event.target[0].value;
     setEmailvalue(emailValue);
-    const passwordValue = event.target[1].value;
-    formsDATA.append("email", emailValue);
-    // console.log(emailValue, passwordValue);
 
+    const passwordValue = event.target[1].value;
+
+    formsDATA.append("email", emailValue);
+
+    console.log("email : " , emailValue);
+    console.log("password : " , passwordValue);
+    
     // Clear any previous error message
     setError("");
 
@@ -132,11 +140,6 @@ const DesktopOnePage = () => {
     }
 
     formsDATA.append("password", passwordValue);
-    // console.log("from-data", formsDATA);
-
-    // for (var pair of formsDATA.entries()) {
-    //   // console.log(pair[0] + ", " + pair[1]);
-    // }
 
     try {
       setIsLoading(true);
@@ -147,6 +150,8 @@ const DesktopOnePage = () => {
         },
         body: new URLSearchParams(formsDATA).toString(),
       });
+
+      console.log("response : " , response );
 
       const data = await response.json();
 
@@ -199,6 +204,11 @@ const DesktopOnePage = () => {
       setIsLoading(false); // Stop loader
     }
   };
+
+
+
+  
+
 
   const handleLocationChange = async (latitude, longitude) => {
     try {
@@ -430,6 +440,8 @@ const DesktopOnePage = () => {
               className="outline-none text-sm border-0 ml-3 w-11/12 cursor-text"
               required
             />
+
+            
             <FontAwesomeIcon
               icon={eyeIcon}
               onClick={togglePasswordVisibility}

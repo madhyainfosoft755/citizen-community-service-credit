@@ -761,9 +761,11 @@ const login = async (req, res) => {
     if (!user && !log) {
       return res.status(401).json({ error: "Email not found." });
     }
+    // console.log( "user password : " , user.password )
 
-    // Check if the password matches
-    if (user.password !== password) {
+    if (user.password !== password[0] ) {
+      console.log( "user password : " , user.password )
+      console.log( " password : " ,  password )
       return res.status(401).json({ error: "Invalid  password." });
     }
 

@@ -107,8 +107,10 @@ const ProjectRoutes = () => {
           <Route path="/profile" element={<RestrictedRoute><ProfilePage /></RestrictedRoute>} />
           <Route path="/userprofile" element={<RestrictedRoute><Profile /></RestrictedRoute>} />
           <Route path="/login" element={<RestrictedRoute><DesktopOne /></RestrictedRoute>} />
+          {/* <Route path="/login" element={<DesktopOne />} /> */}
           <Route path="/register" element={<RestrictedRoute><DesktopTwo /></RestrictedRoute>} />
           <Route path="/create" element={<RestrictedRoute><DesktopThree /></RestrictedRoute>} />
+          {/* <Route path="/create"  element={ <DesktopThree /> } /> */}
           <Route path="/activity" element={<RestrictedRoute><DesktopFour /></RestrictedRoute>} />
           <Route path="/verify/:token" element={<RestrictedRoute><Verify /></RestrictedRoute>} />
           <Route path="/forget" element={<RestrictedRoute><Forget /></RestrictedRoute>} />

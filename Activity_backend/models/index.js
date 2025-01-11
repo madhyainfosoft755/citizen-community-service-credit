@@ -7,6 +7,7 @@ const sequelize = new Sequelize(config.DB, config.USER_DB, config.PASSWORD_DB, {
   host: "localhost",
   dialect: "mysql",
   pool: { min: 0, max: 10, idle: 10000 },
+  port : 3306
 });
 
 sequelize
