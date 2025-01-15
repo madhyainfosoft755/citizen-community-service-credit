@@ -115,7 +115,7 @@ const Createpost = () => {
       setDescription(inputText);
     }
   };
-  
+
   const remainingChars = 300 - description.length;
 
   // console.log("user categoriees", userData.userData.category)
@@ -128,7 +128,7 @@ const Createpost = () => {
         const data = await response.json();
         if (response.ok) {
           const categoriesData = data.categories; // Access the categories array from response
-          
+
           if (categoriesData && categoriesData.length > 0) {
             const userCategories = userData?.userData.category || [];
             const filteredCategories = categoriesData.filter((cat) =>
@@ -138,12 +138,12 @@ const Createpost = () => {
               a.name.localeCompare(b.name)
             );
             const limitedCategories = sortedCategories.slice(0, 6);
-  
+
             // Check if "Other" category is already included
             const hasOtherCategory = filteredCategories.some(
               (cat) => cat.name.toLowerCase() === "other"
             );
-  
+
             if (limitedCategories.length < 6 && !hasOtherCategory) {
               const othersCategory = { id: "other", name: "Other" };
               setCategories([...limitedCategories, othersCategory]);
@@ -238,7 +238,7 @@ const Createpost = () => {
   //   }
   // };
 
-  //commented by me 
+  //commented by me
   // useEffect(() => {
   //   // Check if both token and user key are present in local storage
   //   const token = localStorage.getItem("token");
@@ -360,7 +360,7 @@ const Createpost = () => {
         );
 
         const data = await response.json();
-        console.log("data", data)
+        console.log("data", data);
         if (response.ok) {
           // Individual option ko sabse pehle add karo
           const organizationOptions = [
@@ -420,7 +420,7 @@ const Createpost = () => {
 
     return { hours, minutes, seconds };
   }
-  
+
   useEffect(() => {
     const updateTimes = () => {
       const now = new Date();
@@ -536,7 +536,7 @@ const Createpost = () => {
     formsDATA.append("toTime", toTime); // Add toTime
     // formsDATA.append("userId", userData && userData.userData.id);
     // Append latitude and longitude to formData
-    
+
     formsDATA.append("latitude", formsData.latitude);
     formsDATA.append("longitude", formsData.longitude);
     formsDATA.append("description", description);
@@ -645,95 +645,21 @@ const Createpost = () => {
     const maxHours = String(maxToTimeDate.getHours()).padStart(2, "0");
     const maxMinutes = String(maxToTimeDate.getMinutes()).padStart(2, "0");
     const maxToTime = `${maxHours}:${maxMinutes}`;
-    console.log("form time", maxToTime);
+    console.log("Max possible time - ", maxToTime);
 
     setMaxToTime(maxToTime);
   };
-
-  // const onChangeToTime = (timeValue) => {
-  //   const toTimeDate = parse(toTime, 'HH:mm', new Date());
-
-  //   if (toTimeDate < fromTimeDate) {
-  //     // toast.error('Time must be within the selected date');
-  //     setError({ ...error, time: "To time can not be greater than from time" })
-  //     return;
-  //   }
-  //   if (isEqual(toTimeDate, fromTimeDate)) {
-  //     // toast.error('Both times cannot be the same. Please select a time later than the from time.');
-  //     setError({ ...error, time: "Both From & To time can not be same" })
-  //     return;
-  //   }
-
-  //   if (fromTimeDate > new Date()) {
-  //     // toast.error('Both times cannot be the same. Please select a time later than the from time.');
-  //     setError({ ...error, time: "Time can not be more than current time" })
-  //     return;
-  //   }
-
-  //   const timeDifference = differenceInHours(toTimeDate, fromTimeDate);
-
-  //   if (timeDifference <= 8 && timeDifference >= 0) {
-  //     console.log("to time", timeDifference);
-
-  //     setToTime(toTime);
-  //   } else {
-  //     setError({ ...error, time: "Time can not be more than 8 hours" })
-  //     return;
-  //   }
-
-  //   setError({ ...error, time: null })
-  // }
-
-  // const onChangeToTime = (timeValue) => {
-  //   const toTime = timeValue;
-  //   setToTime(toTime);
-
-  //   const toTimeDate = parse(toTime, 'HH:mm', new Date());
-  //   const fromTimeDate = parse(fromTime, 'HH:mm', new Date());
-  //   console.log(fromTimeDate, "from time");
-  //   console.log(toTimeDate, "to time");
-
-  //   if (toTimeDate < fromTimeDate) {
-  //     // toast.error('Time must be within the selected date');
-  //     setError({ ...error, time: "To time can not be greater than from time" })
-  //     return;
-  //   }
-  //   if (isEqual(toTimeDate, fromTimeDate)) {
-  //     // toast.error('Both times cannot be the same. Please select a time later than the from time.');
-  //     setError({ ...error, time: "Both From & To time can not be same" })
-  //     return;
-  //   }
-
-  //   if (toTimeDate > new Date()) {
-  //     // toast.error('Both times cannot be the same. Please select a time later than the from time.');
-  //     setError({ ...error, time: "Time can not be more than current time" })
-  //     return;
-  //   }
-
-  //   const timeDifference = differenceInHours(toTimeDate, fromTimeDate);
-
-  //   if (timeDifference <= 8 && timeDifference >= 0) {
-  //     console.log("to time", timeDifference);
-
-  //     setToTime(toTime);
-  //   } else {
-  //     setError({ ...error, time: "Time can not be more than 8 hours" })
-  //     return;
-  //   }
-
-  //   setError({ ...error, time: null })
-
-  // }
 
   const onChangeToTime = (timeValue) => {
     const toTime = timeValue;
     const toTimeDate = parse(toTime, "HH:mm", new Date());
     const fromTimeDate = parse(fromTime, "HH:mm", new Date());
     const maxAllowedDate = parse(maxAllowedTime, "HH:mm", new Date());
+    console.log("maxi " , maxAllowedDate);
 
     if (isAfter(toTimeDate, maxAllowedDate)) {
       toast.error(
-        "To time cannot be after the maximum allowed time for the selected date"
+        " 'To' time cannot be after the current time for the selected date"
       );
       return;
     }
@@ -772,7 +698,6 @@ const Createpost = () => {
   //     overflowY: "auto", // Enable vertical scrolling
   //   }),
   // };
-
 
   return (
     <>
@@ -844,7 +769,9 @@ const Createpost = () => {
                     <Text
                       className="text-center text-gray-900 uppercase cursor-pointer"
                       size="txtInterSemiBold16Gray900"
-                      onClick={() => { navigate("/users-profile") }}
+                      onClick={() => {
+                        navigate("/users-profile");
+                      }}
                     >
                       {Name}
                     </Text>
