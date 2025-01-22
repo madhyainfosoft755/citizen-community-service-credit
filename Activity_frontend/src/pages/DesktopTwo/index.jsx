@@ -58,14 +58,15 @@ const Register = () => {
         const response = await fetch(`${API_URL}/activity/getCategories`);
         const data = await response.json();
         if (response.ok) {
-          if (data.length > 0) {
+          if (data.length > 0 ) {
             // const sortedCategories = data.sort((a, b) => a.name.localeCompare(b.name));
             // const limitedCategories = sortedCategories.slice(0, 6);
             setCategories(
-              data.map((value) => {
+              data?.map((value) => {
                 return { value: value.name, label: value.name };
               })
             );
+          
             // setButtonStates(Array(limitedCategories.length).fill(false)); // Adjust button states based on categories length
           } else {
             // notify(data.message)
@@ -76,6 +77,7 @@ const Register = () => {
       } catch (error) {
         console.error("Error fetching categories:", error);
       }
+
     };
 
     // Fetch organizations from the database
@@ -95,7 +97,6 @@ const Register = () => {
         console.error("Error fetching organizations:", error);
       }
     };
-
     fetchCategories();
     fetchOrganizations();
   }, []);
@@ -165,12 +166,14 @@ const Register = () => {
     }
     setSelectedCategories(selectedOptions.map((value) => value.value));
     console.log("Selected Categories:", selectedOptions);
+
     setSelectedOrganizationMenu(
       selectedOptions.map((value) => ({
         label: value.label,
         value: value.value,
       }))
     );
+    
     setFormData((prevData) => ({
       ...prevData,
       categories: "selected",
@@ -620,7 +623,7 @@ const Register = () => {
           </h3>
 
           <form
-            autocomplete="off"
+            autoComplete="off"
             onSubmit={handleSubmit}
             className=" w-5/6 h-full sm:w-full sm:h-full md:w-full md:h-full flex flex-col items-center justify-between sm:justify-between gap-y-2.5 sm:gap-y-3 sm:mt-2 px-6 pb-4  "
           >
@@ -812,6 +815,7 @@ const Register = () => {
               </label>
 
               <div className="w-full">
+              {console.log("123123123123123" , categories)}
                 {categories && (
                   <Select
                     isMulti
