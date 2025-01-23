@@ -57,12 +57,14 @@ const Register = () => {
       try {
         const response = await fetch(`${API_URL}/activity/getCategories`);
         const data = await response.json();
+        const data_categories = data.categories
+        console.log("data length > 0 " , data_categories )  
         if (response.ok) {
-          if (data.length > 0 ) {
+          if (data_categories.length > 0 ) {
             // const sortedCategories = data.sort((a, b) => a.name.localeCompare(b.name));
             // const limitedCategories = sortedCategories.slice(0, 6);
             setCategories(
-              data?.map((value) => {
+              data_categories?.map((value) => {
                 return { value: value.name, label: value.name };
               })
             );
