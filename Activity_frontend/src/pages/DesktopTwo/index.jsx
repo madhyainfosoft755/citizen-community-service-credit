@@ -340,7 +340,14 @@ const Register = () => {
 
       // Check if mobile number is verified when it reaches 10 digits
       if (name === "name") {
-        setError({ ...error, [name]: null });
+        if (!/^[a-zA-Z\s]+$/.test(value)) {
+          setError((prevError) => ({
+            ...prevError,
+            [name]: "Name can only contain alphabets and spaces",
+          }));
+        } else {
+          setError({ ...error, [name]: null });
+        }
       }
 
       // if (name === "phone") {
