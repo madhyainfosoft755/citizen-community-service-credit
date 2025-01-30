@@ -601,9 +601,10 @@ const Createpost = () => {
 
   const Name = userName.split(" ")[0];
 
-  const direct = () => {
-    navigate("/activity");
-  };
+  // const direct = () => {
+  //   // navigate("/activity");
+  //   console.log("p")
+  // };
 
   const Endorse = () => {
     navigate("/endorse");
@@ -655,7 +656,7 @@ const Createpost = () => {
     const toTimeDate = parse(toTime, "HH:mm", new Date());
     const fromTimeDate = parse(fromTime, "HH:mm", new Date());
     const maxAllowedDate = parse(maxAllowedTime, "HH:mm", new Date());
-    console.log("maxi " , maxAllowedDate);
+    console.log("maxi ", maxAllowedDate);
 
     if (isAfter(toTimeDate, maxAllowedDate)) {
       toast.error(
@@ -783,7 +784,7 @@ const Createpost = () => {
                 type="button"
                 className="cursor-pointer font-semibold rounded-3xl  text-blue-500 bg-white-A700 text-xs"
                 // color="indigo_A200"
-                onClick={direct}
+                
               >
                 {`${totalTime || 0} Hrs | ${
                   totalTime && convertToHours(totalTime)
