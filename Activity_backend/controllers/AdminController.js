@@ -30,8 +30,6 @@ const convertSecondsToTime = (seconds) => {
     .padStart(2, "0")}`;
 };
 
-
-
 const getUserIdFromToken = (token) => {
   //   const authorizationHeader = req.headers["authorization"];
 
@@ -152,7 +150,7 @@ const getTotalApprovedHours = async (req, res) => {
   }
 };
 
-// Calculate total hours of rejected activities 
+// Calculate total hours of rejected activities
 const getTotalRejectedHours = async (req, res) => {
   try {
     const ifAdmin = await verifyIfAdmin(req.token);
@@ -792,7 +790,7 @@ const disableCategory = async (req, res) => {
       { where: { id: id } }
     );
     res.json({ categorylist: categorylist });
-  } catch (error) { }
+  } catch (error) {}
 };
 
 // Enable a specific organization
@@ -1545,6 +1543,11 @@ const getRejectedActivitiesByCategories = async (req, res) => {
       return res.status(400).json({ message: "Invalid categories provided" });
     }
 
+    // // Validate organization input
+    // if (!organization || typeof organization !== "string") {
+    //   return res.status(400).json({ message: "Invalid organization provided" });
+    // }
+
     // Initialize date filter
     const dateFilter = {};
 
@@ -1585,6 +1588,7 @@ const getRejectedActivitiesByCategories = async (req, res) => {
         category: {
           [Sequelize.Op.in]: categories,
         },
+        
       },
       group: ["category"],
     });
@@ -1686,6 +1690,8 @@ const getApprovedActivitiesByCategories = async (req, res) => {
   }
 };
 
+
+
 // Verify if the provided token is valid and belongs to an admin
 const verifyToken = async (req, res) => {
   try {
@@ -1740,7 +1746,7 @@ const AutoEndorseScheduler = async (req, res) => {
     });
 
     if (postsToSend.length === 0) {
-      console.log('No unendorsed posts to process');
+      console.log("No unendorsed posts to process");
       return;
     }
     console.log("what are the posts to send", postsToSend);
@@ -1792,7 +1798,13 @@ const processUnendorsedPosts = async (req, res) => {
     console.log("what is the response", response);
 
     if (response.status === 200) {
-      res.status(200).send({ message: "Posts processed successfully", aiMessage: response.data.message, endorsedPostsCount: response.data.endorsedPostsCount });
+      res
+        .status(200)
+        .send({
+          message: "Posts processed successfully",
+          aiMessage: response.data.message,
+          endorsedPostsCount: response.data.endorsedPostsCount,
+        });
     } else {
       res.status(response.status).send("Failed to process posts");
     }
@@ -1876,7 +1888,7 @@ const processUnapprovedPosts = async (req, res) => {
       res.status(200).send({
         message: "Posts processed successfully",
         aiMessage: response.data.message,
-        approvedPostsCount: response.data.approvedPostsCount
+        approvedPostsCount: response.data.approvedPostsCount,
       });
     } else {
       res.status(response.status).send("Failed to process posts");
@@ -1967,5 +1979,5 @@ module.exports = {
   updateEndorsedPosts,
   processUnapprovedPosts,
   updateApprovedPosts,
-  AutoEndorseScheduler
+  AutoEndorseScheduler,
 };

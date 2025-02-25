@@ -57,10 +57,10 @@ const Register = () => {
       try {
         const response = await fetch(`${API_URL}/activity/getCategories`);
         const data = await response.json();
-        const data_categories = data.categories
-        console.log("data length > 0 " , data_categories )  
+        const data_categories = data.categories;
+        console.log("data length > 0 ", data_categories);
         if (response.ok) {
-          if (data_categories.length > 0 ) {
+          if (data_categories.length > 0) {
             // const sortedCategories = data.sort((a, b) => a.name.localeCompare(b.name));
             // const limitedCategories = sortedCategories.slice(0, 6);
             setCategories(
@@ -68,7 +68,7 @@ const Register = () => {
                 return { value: value.name, label: value.name };
               })
             );
-          
+
             // setButtonStates(Array(limitedCategories.length).fill(false)); // Adjust button states based on categories length
           } else {
             // notify(data.message)
@@ -79,7 +79,6 @@ const Register = () => {
       } catch (error) {
         console.error("Error fetching categories:", error);
       }
-
     };
 
     // Fetch organizations from the database
@@ -87,10 +86,12 @@ const Register = () => {
       try {
         const response = await fetch(`${API_URL}/activity/getOrganizations`);
         const data = await response.json();
-        // console.log("organizations", data);
+        // console.log("org : ", data);
+        const orgData = data.organizationNames ;
+
         if (response.ok) {
           setOrganizations(
-            data.map((orgName) => ({ value: orgName, label: orgName }))
+            orgData.map((orgName) => ({ value: orgName, label: orgName }))
           ); // Ensure data is an array
         } else {
           console.error("Error fetching organizations:", data.message);
@@ -175,7 +176,7 @@ const Register = () => {
         value: value.value,
       }))
     );
-    
+
     setFormData((prevData) => ({
       ...prevData,
       categories: "selected",
@@ -331,7 +332,10 @@ const Register = () => {
         } else if (!/^\d+$/.test(value)) {
           setError({ ...error, [name]: "Sirf numbers allowed hain" });
         } else if (value.length < 10) {
-          setError((prevError) => ({ ...prevError, [name]: "Please enter at least 10 digits" }));
+          setError((prevError) => ({
+            ...prevError,
+            [name]: "Please enter at least 10 digits",
+          }));
         } else {
           setError({ ...error, [name]: null });
           // checkIfExistPhone(value);
@@ -350,20 +354,6 @@ const Register = () => {
         }
       }
 
-      // if (name === "phone") {
-      //   if (!/^\d+$/.test(value))
-      //     setError({ ...error, [name]: `Incorrect mobile number format` })
-      //   else {
-      //     setError({ ...error, [name]: null })
-      //     // checkIfExistPhone(value);
-      //   }
-
-      // }
-
-      // if (name == 'address') {
-      //   setError({ ...error, [name]: null })
-
-      // }
 
       // Email validation
       if (name === "email") {
@@ -449,15 +439,20 @@ const Register = () => {
     // console.log(error, "submit")
 
     // Phone number ka special case, kyunki wo optional hai
-  const phoneError = formsData.phone && formsData.phone.length > 0 && formsData.phone.length !== 10;
+    const phoneError =
+      formsData.phone &&
+      formsData.phone.length > 0 &&
+      formsData.phone.length !== 10;
 
-  if (phoneError) {
-    setError((prevError) => ({ ...prevError, phone: "Please enter a 10-digit number" }));
-    // notify("Please fix all errors and then submit.");
-    return; // Agar phone number error hai to form submit mat karo
-  }
+    if (phoneError) {
+      setError((prevError) => ({
+        ...prevError,
+        phone: "Please enter a 10-digit number",
+      }));
+      // notify("Please fix all errors and then submit.");
+      return; // Agar phone number error hai to form submit mat karo
+    }
 
-    
     // Validate all fields, including password
     const passwordErrors = validatePassword(formsData.password);
     if (passwordErrors.length > 0) {
@@ -511,16 +506,16 @@ const Register = () => {
     formsDATA.append("cpassword", e.target[6].value);
     formsDATA.append("selectedCategories", JSON.stringify(selectedCategories));
     selectedFile &&
-    formsDATA.append(
-      "photo",
-      compressedFile,
-      selectedFile && selectedFile.name
-    );
+      formsDATA.append(
+        "photo",
+        compressedFile,
+        selectedFile && selectedFile.name
+      );
     // const organizationValues = selectedOrganization.map(org => org.value);
     // console.log("organizationValues", organizationValues);
     formsDATA.append("organization", JSON.stringify(selectedOrganization));
     console.log("selectedOrganization", selectedOrganization);
-    
+
     try {
       setIsloading(true);
 
@@ -671,7 +666,11 @@ const Register = () => {
                 </span>
               )}
             </div>
-            <div className={`w-full flex-col h-7 relative ${error.phone ? "mb-2" : "mb-1"}`}>
+            <div
+              className={`w-full flex-col h-7 relative ${
+                error.phone ? "mb-2" : "mb-1"
+              }`}
+            >
               <InputWithIconAndText
                 icon={faPhone} // Change the icon as needed
                 iconColor={"#419f44"}
@@ -756,7 +755,7 @@ const Register = () => {
               <label className="block font-semibold mb-1 text-left w-full">
                 Organization:
               </label>
-
+              
               <div className="w-full">
                 {organizations && (
                   <Select
@@ -811,8 +810,7 @@ const Register = () => {
                   Selected: {selectedFile.name}
                 </p>
               ) : (
-                error &&
-                error.selectedFile && (
+                error && (
                   <p className="mt-2 text-sm text-red-500">No file selected</p>
                 )
               )}
@@ -824,7 +822,7 @@ const Register = () => {
               </label>
 
               <div className="w-full">
-              {console.log("123123123123123" , categories)}
+                {/* {console.log("123123123123123", categories)} */}
                 {categories && (
                   <Select
                     isMulti
@@ -836,6 +834,7 @@ const Register = () => {
                     id="category"
                     onChange={handleCategoryChange}
                     styles={customStyles}
+                    
                   />
                 )}
                 <div className="text-blue-500 mt-2">
