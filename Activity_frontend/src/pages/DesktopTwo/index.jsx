@@ -18,6 +18,7 @@ import { CirclesWithBar } from "react-loader-spinner";
 import imageCompression from "browser-image-compression";
 import Select from "react-select";
 import axios from "axios";
+
 const Register = () => {
   const notify = (e) => toast(e);
   const navigate = useNavigate();

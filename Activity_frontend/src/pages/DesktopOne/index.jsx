@@ -402,7 +402,7 @@ const DesktopOnePage = () => {
           />
         </div>
           <Text className=" cursor-default text-lg text-center text-blue-400  font-extrabold">
-            Welcome to Community Care 247
+            Welcome to Community Care 247 
           </Text>
           <Text className="cursor-default text-sm text-center text-orange-300 mt-2 mb-5 font-extrabold italic">
             Add, Track and Share Volunteer Activities

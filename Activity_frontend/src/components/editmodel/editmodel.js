@@ -331,7 +331,7 @@ const EditUserModal = ({ userData, isOpen, onClose, onSave }) => {
       <div className="relative top-5 mx-auto p-5 pt-5 pb-8 border w-96 px-5 shadow-lg rounded-lg bg-[#ffffff]">
         <form onSubmit={handleSubmit}>
           <div className="text-center text-xl font-bold mb-4 cursor-default">
-            Edit User Details
+              
           </div>
 
           {/* Name field */}

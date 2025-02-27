@@ -595,7 +595,7 @@ const ProfileForUser = () => {
                                     color="indigo_A200"
                                     onClick={handleLogout}
                                 >
-                                    LOGOUT
+                                    <LOGOUT>  </LOGOUT>
                                   
                                 </Button>
                             </div> */}
