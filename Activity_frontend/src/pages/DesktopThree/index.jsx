@@ -357,9 +357,9 @@ const Createpost = () => {
             },
           }
         );
-
+        
         const data = await response.json();
-        console.log("data", data);
+        console.log("data 123 ", response );
         if (response.ok) {
           // Individual option ko sabse pehle add karo
           const organizationOptions = [
@@ -368,6 +368,7 @@ const Createpost = () => {
               return { value: value.id, label: value.name };
             }),
           ];
+          // console.log("123123 " , organizationOptions)
           setOrganizations(organizationOptions);
         } else {
           console.error("Error fetching organizations:", data.message);
@@ -622,13 +623,13 @@ const Createpost = () => {
 
   // console.log("ye hai user data", userData)
 
-  const openProfilePopup = () => {
+  // const openProfilePopup = () => {
     // if (userData && userData.userData) {
     //   setSelectedPost({ photos: userData.userData.photo });
     //   setIsPopUpVisible(true);
     // }
     // navigate("/userprofile")
-  };
+  // };
 
   const onChangeFromTime = (timeValue) => {
     const fromTime = timeValue;
@@ -831,6 +832,7 @@ const Createpost = () => {
                         }}
                         className="w-full p-1 border-[1px] outline-[1px] border-gray-300 rounded-md focus:border-[#546ef6] focus:ring focus:ring-[#546ef6] focus:ring-opacity-50"
                       >
+                      
                         {organization &&
                           organization.map((org) => (
                             <option key={org.value} value={org.value}>

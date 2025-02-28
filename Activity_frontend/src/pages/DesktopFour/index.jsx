@@ -240,7 +240,7 @@ const DesktopFourPage = () => {
 
           { showQuote && (
             <LinkModal
-              onClose={() => {
+              onClose={() => {  
                 setShowQuoteModal(false);
                 localStorage.removeItem("hasShownQuoteModal");
               }}
