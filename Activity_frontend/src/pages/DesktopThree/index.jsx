@@ -357,11 +357,12 @@ const Createpost = () => {
             },
           }
         );
-        
+
         const data = await response.json();
-        console.log("data 123 ", response );
+        console.log("data 123 ", response);
         if (response.ok) {
           // Individual option ko sabse pehle add karo
+          console.log("1212123123 ")
           const organizationOptions = [
             { value: "individual", label: "Individual" },
             ...data.organizations.map((value) => {
@@ -370,6 +371,7 @@ const Createpost = () => {
           ];
           // console.log("123123 " , organizationOptions)
           setOrganizations(organizationOptions);
+          console.log("org 234 234 " , organization )
         } else {
           console.error("Error fetching organizations:", data.message);
         }
@@ -586,6 +588,7 @@ const Createpost = () => {
   const handleOrganizationChange = (selectedOptions) => {
     setSelectedOrganization(selectedOptions);
     console.log("Selected organizations:", selectedOptions);
+
     // You can perform other actions with selectedOptions here
   };
 
@@ -624,11 +627,11 @@ const Createpost = () => {
   // console.log("ye hai user data", userData)
 
   // const openProfilePopup = () => {
-    // if (userData && userData.userData) {
-    //   setSelectedPost({ photos: userData.userData.photo });
-    //   setIsPopUpVisible(true);
-    // }
-    // navigate("/userprofile")
+  // if (userData && userData.userData) {
+  //   setSelectedPost({ photos: userData.userData.photo });
+  //   setIsPopUpVisible(true);
+  // }
+  // navigate("/userprofile")
   // };
 
   const onChangeFromTime = (timeValue) => {
@@ -784,7 +787,6 @@ const Createpost = () => {
                 type="button"
                 className="cursor-pointer font-semibold rounded-3xl  text-blue-500 bg-white-A700 text-xs"
                 // color="indigo_A200"
-                
               >
                 {`${totalTime || 0} Hrs | ${
                   totalTime && convertToHours(totalTime)
@@ -822,7 +824,7 @@ const Createpost = () => {
                       <label className="block font-semibold  text-left">
                         Organization:
                       </label>
-
+                      {console.log("ORG!@#", selectedOrg)}
                       <select
                         id="organization"
                         value={selectedOrg}
@@ -832,7 +834,6 @@ const Createpost = () => {
                         }}
                         className="w-full p-1 border-[1px] outline-[1px] border-gray-300 rounded-md focus:border-[#546ef6] focus:ring focus:ring-[#546ef6] focus:ring-opacity-50"
                       >
-                      
                         {organization &&
                           organization.map((org) => (
                             <option key={org.value} value={org.value}>

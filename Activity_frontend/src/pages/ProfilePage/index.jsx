@@ -149,19 +149,20 @@ const ProfilePage = () => {
     }
   };
 
-  const checkIfExistPhone = async (mobile) => {
+  const checkIfExistPhone = async (e) => {
     // e.preventDefault();
     try {
       // Send a POST request to the API
+      console.log("opopopopopopop")
       const response = await axios.post(`${API_URL}/activity/check-exists`, {
-        phone: mobile ,
+        phone: e.target.value ,
       });
 
       console.log("llllll" , response)
 
       if (response.data.exists) {
         console.log("ppp")
-        setError({ ...error, phone: "Phone number already exist" });
+        setFormErrors({ ...error, phone: "Phone number already exist" });
       }
     } catch (error) {}
   };
@@ -369,11 +370,12 @@ const ProfilePage = () => {
             onBlur={checkIfExistPhone}
             // required
           />
-          {/* {formErrors.phone && (
+          
+          {formErrors.phone && (
             <small className="error absolute left-0 -bottom-4 text-red-500">
               {formErrors.phone}
             </small>
-          )} */}
+          )}
           {console.log("formERRRR" , formErrors)}
         </div>
         <div className="relative sm:w-5/6 w-4/6 h-10 bg-gray-50 flex items-center justify-center  p-2 rounded-xl border-[1px] border-white-A700 green-border">
