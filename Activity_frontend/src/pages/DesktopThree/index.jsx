@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-
 import { Button, Img, List, Text } from "components";
 import { API_URL, APP_PATH } from "Constant";
 // import { Card, Avatar } from "antd";
@@ -34,7 +33,7 @@ import { convertToHours } from "utils";
 import Select from "react-select";
 
 const Createpost = () => {
-  const [selectedOrg, setSelectedOrg] = useState("Individual");
+  const [selectedOrg, setSelectedOrg] = useState("individual");
 
   const [imageLoaded, setImageLoaded] = useState(true);
   const dateInputRef = useRef(null); // Ref for the date input
@@ -115,56 +114,143 @@ const Createpost = () => {
       setDescription(inputText);
     }
   };
-  
+
   const remainingChars = 300 - description.length;
 
   // console.log("user categoriees", userData.userData.category)
 
   // Fetch categories from the database
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const response = await fetch(`${API_URL}/activity/getCategories`);
-        const data = await response.json();
-        if (response.ok) {
-          const categoriesData = data.categories; // Access the categories array from response
-          
-          if (categoriesData && categoriesData.length > 0) {
-            const userCategories = userData?.userData.category || [];
-            const filteredCategories = categoriesData.filter((cat) =>
-              userCategories.includes(cat.name)
-            );
-            const sortedCategories = filteredCategories.sort((a, b) =>
-              a.name.localeCompare(b.name)
-            );
-            const limitedCategories = sortedCategories.slice(0, 6);
-  
-            // Check if "Other" category is already included
-            const hasOtherCategory = filteredCategories.some(
-              (cat) => cat.name.toLowerCase() === "other"
-            );
-  
-            if (limitedCategories.length < 6 && !hasOtherCategory) {
-              const othersCategory = { id: "other", name: "Other" };
-              setCategories([...limitedCategories, othersCategory]);
-            } else {
-              setCategories(limitedCategories);
+// Fetch categories from the database
+useEffect(() => {
+  const fetchCategories = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${API_URL}/activity/getCategories`, {
+        method: "GET",
+        headers: token
+          ? {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
             }
-          } else {
-            console.log("No categories found");
-          }
-        } else {
-          console.error("Error fetching categories:", data.message);
-        }
-      } catch (error) {
-        console.error("Error fetching categories:", error);
-      }
-    };
+          : { "Content-Type": "application/json" },
+      });
 
-    if (userData) {
-      fetchCategories();
+      // Debug: log status and raw text if not JSON
+      const contentType = res.headers.get("content-type") || "";
+      let data;
+      if (contentType.includes("application/json")) {
+        data = await res.json();
+      } else {
+        const text = await res.text();
+        console.warn("getCategories returned non-json:", text);
+        try {
+          data = JSON.parse(text);
+        } catch (err) {
+          data = null;
+        }
+      }
+
+      console.log("getCategories status:", res.status, "payload:", data);
+
+      if (!res.ok) {
+        console.error("Failed to fetch categories:", data?.message || res.status);
+        return;
+      }
+
+      // Accept several possible shapes (data.categories || data.data || data)
+      const categoriesData =
+        (data && (data.categories || data.data || data)) || [];
+
+      // Ensure it's an array
+      if (!Array.isArray(categoriesData)) {
+        console.warn("categoriesData is not an array:", categoriesData);
+      }
+
+      // user categories (from profile). Make safe guard: default to show all if empty
+      const userCategories = userData?.userData?.category || [];
+
+      // If userCategories is empty, show all categories instead of filtering to none
+      const filteredCategories =
+        Array.isArray(userCategories) && userCategories.length > 0
+          ? categoriesData.filter((cat) => userCategories.includes(cat.name))
+          : categoriesData; // show all if user has no specific categories
+
+      const sortedCategories = (filteredCategories || []).sort((a, b) =>
+        (a.name || "").localeCompare(b.name || "")
+      );
+
+      const limitedCategories = sortedCategories.slice(0, 6);
+
+      const hasOtherCategory = (filteredCategories || []).some(
+        (cat) => (cat.name || "").toLowerCase() === "other"
+      );
+
+      if (limitedCategories.length < 6 && !hasOtherCategory) {
+        const othersCategory = { id: "other", name: "Other" };
+        setCategories([...limitedCategories, othersCategory]);
+      } else {
+        setCategories(limitedCategories);
+      }
+    } catch (err) {
+      console.error("Error fetching categories:", err);
     }
-  }, [userData]);
+  };
+
+  // Only call when authenticated or when userData is fully loaded
+  if (authenticated) {
+    fetchCategories();
+  }
+}, [userData, authenticated]);
+
+
+
+
+
+
+  // useEffect(() => {
+  //   const fetchCategories = async () => {
+  //     try {
+  //       const response = await fetch(`${API_URL}/activity/getCategories`);
+  //       const data = await response.json();
+  //       if (response.ok) {
+  //         const categoriesData = data.categories; // Access the categories array from response
+
+  //         if (categoriesData && categoriesData.length > 0) {
+  //           const userCategories = userData?.userData.category || [];
+  //           const filteredCategories = categoriesData.filter((cat) =>
+  //             userCategories.includes(cat.name)
+  //           );
+  //           const sortedCategories = filteredCategories.sort((a, b) =>
+  //             a.name.localeCompare(b.name)
+  //           );
+  //           const limitedCategories = sortedCategories.slice(0, 6);
+
+  //           // Check if "Other" category is already included
+  //           const hasOtherCategory = filteredCategories.some(
+  //             (cat) => cat.name.toLowerCase() === "other"
+  //           );
+
+  //           if (limitedCategories.length < 6 && !hasOtherCategory) {
+  //             const othersCategory = { id: "other", name: "Other" };
+  //             setCategories([...limitedCategories, othersCategory]);
+  //           } else {
+  //             setCategories(limitedCategories);
+  //           }
+  //         } else {
+  //           console.log("No categories found");
+  //         }
+  //       } else {
+  //         console.error("Error fetching categories:", data.message);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching categories:", error);
+  //     }
+  //   };
+
+  //   if (userData) {
+  //     fetchCategories();
+  //   }
+  // }, [userData]);
 
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
@@ -177,84 +263,151 @@ const Createpost = () => {
     // console.log("Video file", videoFile.name);
   };
 
-  const handleLocationChange = async (latitude, longitude) => {
-    try {
-      const response = await axios.get(
-        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${process.env.REACT_APP_GoogleGeocode}`
-      );
+  // const handleLocationChange = async (latitude, longitude) => {
+  //   try {
+  //     const response = await axios.get(
+  //       // `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${process.env.REACT_APP_GoogleGeocode}`
+  //         `https://api.opencagedata.com/geocode/v1/json?q=${latitude}+${longitude}&key=${process.env.REACT_APP_OPENCAGE_KEY}`
+  //     );
 
-      if (response.data && response.data.results) {
-        const addressComponents = response.data.results[0].address_components;
-        const cityObj = addressComponents.find((component) =>
-          component.types.includes("locality")
-        );
-        const stateObj = addressComponents.find((component) =>
-          component.types.includes("administrative_area_level_1")
-        );
+  //     console.log('responaw'+response)
 
-        const city = cityObj ? cityObj.long_name : "Unknown City";
-        const state = stateObj ? stateObj.long_name : "Unknown State";
+  //     if (response.data && response.data.results) {
+  //       const addressComponents = response.data.results[0].address_components;
+  //       const cityObj = addressComponents.find((component) =>
+  //         component.types.includes("locality")
+  //       );
+  //       const stateObj = addressComponents.find((component) =>
+  //         component.types.includes("administrative_area_level_1")
+  //       );
 
-        setLocationData({ city, state });
+  //       const city = cityObj ? cityObj.long_name : "Unknown City";
+  //       const state = stateObj ? stateObj.long_name : "Unknown State";
 
-        // Update formData with latitude, longitude, city, and state
-        setFormData((prevData) => ({
-          ...prevData,
-          latitude: latitude,
-          longitude: longitude,
-        }));
-      } else {
-        console.error("Error fetching location data");
-      }
-    } catch (error) {
-      console.error("Error fetching location data:", error);
+  //       setLocationData({ city, state });
+
+        
+
+  //       // Update formData with latitude, longitude, city, and state
+  //       setFormData((prevData) => ({
+  //         ...prevData,
+  //         latitude: latitude,
+  //         longitude: longitude,
+  //       }));
+  //     } else {
+  //       console.error("Error fetching location data");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error fetching location data:", error);
+  //   }
+  // };
+
+const handleLocationChange = async (latitude, longitude) => {
+  try {
+    const q = encodeURIComponent(`${latitude},${longitude}`);
+    const url = `https://api.opencagedata.com/geocode/v1/json?q=${q}&key=${process.env.REACT_APP_OPENCAGE_KEY}`;
+
+    const response = await axios.get(url);
+    // defensive: ensure results exist and have at least one entry
+    const resultsArray = response?.data?.results;
+    if (!Array.isArray(resultsArray) || resultsArray.length === 0) {
+      console.error("No geocoding results returned");
+      return;
     }
-  };
+
+    // top is the first result object
+    const top = resultsArray[0];
+
+    // geometry lives under top.geometry
+    const { geometry = {}, formatted = "" } = top;
+    const { lat = null, lng = null } = geometry;
+
+    console.log("Geometry object:", geometry);
+    console.log("Latitude:", lat);
+    console.log("Longitude:", lng);
+
+    const components = top.components || {};
+    const city =
+      components.city ||
+      components._normalized_city ||
+      components.town ||
+      components.village ||
+      components.hamlet ||
+      components.city_district ||
+      components.county ||
+      "Unknown City";
+    const state = components.state || components.region || "Unknown State";
+    const postcode = components.postcode || "";
+    const country = components.country || "";
+
+    setLocationData({ city, state, postcode, country, formatted });
+
+    setFormData((prev) => ({
+      ...prev,
+      latitude: lat ?? prev.latitude,
+      longitude: lng ?? prev.longitude,
+      city,
+      state,
+      postcode,
+      country,
+      formattedAddress: formatted,
+    }));
+  } catch (error) {
+    console.error("Error fetching location data:", error);
+  }
+};
 
   const handleButtonClick = (name) => {
     setSelectedCategories(name);
   };
 
-  const checkTokenExpiry = async (token) => {
-    try {
-      const response = await fetch(`${API_URL}/activity/profile`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-      // console.log("ye rha response", response)
+  // Single-select dropdown change handler
+const handleCategoryChange = (e) => {
+  setSelectedCategories(e.target.value);
+};
 
-      if (!response.ok) {
-        // Token might be expired or invalid, so log the user out
-        // handleLogout();
-        navigate("/login");
-        notify("Session time Out");
-      }
-    } catch (error) {
-      // notify(error)
-      console.error("Error checking token expiry:", error);
-    }
-  };
 
-  useEffect(() => {
-    // Check if both token and user key are present in local storage
-    const token = localStorage.getItem("token");
-    const userKey = localStorage.getItem("userKey");
+  // const checkTokenExpiry = async (token) => {
+  //   try {
+  //     const response = await fetch(`${API_URL}/activity/profile`, {
+  //       method: "POST",
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //         "Content-Type": "application/json",
+  //       },
+  //     });
+  //     // console.log("ye rha response", response)
 
-    // console.log("token", token)
-    // console.log("userkey", userKey)
-    if (!token || !userKey) {
-      // Redirect to the login page if either token or user key is missing
-      navigate("/login");
-    } else {
-      // Fetch user data when component mounts
-      // fetchUserData(token);
-      setAuthenticated(true);
-      checkTokenExpiry(token);
-    }
-  }, [userData]); // Empty dependency array ensures that this effect runs only once on mount
+  //     if (!response.ok) {
+  //       // Token might be expired or invalid, so log the user out
+  //       // handleLogout();
+  //       navigate("/login");
+  //       notify("Session time Out");
+  //     }
+  //   } catch (error) {
+  //     // notify(error)
+  //     console.error("Error checking token expiry:", error);
+  //   }
+  // };
+
+  //commented by me
+  // useEffect(() => {
+  //   // Check if both token and user key are present in local storage
+  //   const token = localStorage.getItem("token");
+  //   const userKey = localStorage.getItem("userKey");
+
+  //   // console.log("token", token)
+  //   // console.log("userkey", userKey)
+  //   if (!token || !userKey) {
+  //     // Redirect to the login page if either token or user key is missing
+  //     navigate("/login");
+  //   } else {
+  //     // Fetch user data when component mounts
+  //     // fetchUserData(token);
+  //     setAuthenticated(true);
+  //     checkTokenExpiry(token);
+  //   }
+  // }, [userData]); // Empty dependency array ensures that this effect runs only once on mount
 
   useEffect(() => {
     const fetchUserData = async (token) => {
@@ -342,42 +495,106 @@ const Createpost = () => {
     }
   };
 
-  useEffect(() => {
-    checkUserConfirmation();
-    // Fetch organizations from the database
-    const fetchOrganizations = async () => {
-      try {
-        const response = await fetch(
-          `${API_URL}/activity/getOrganizationsofUser`,
-          {
-            method: "GET", // or 'POST' depending on your request type
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${localStorage.getItem("token")}`, // Add token from localStorage
-            },
-          }
-        );
+  // useEffect(() => {
+  //   checkUserConfirmation();
+  //   // Fetch organizations from the database
+  //   const fetchOrganizations = async () => {
+  //     try {
+  //       const response = await fetch(
+  //         `${API_URL}/activity/getOrganizationsofUser`,
+  //         {
+  //           method: "GET", // or 'POST' depending on your request type
+  //           headers: {
+  //             "Content-Type": "application/json",
+  //             Authorization: `Bearer ${localStorage.getItem("token")}`, // Add token from localStorage
+  //           },
+  //         }
+  //       );
 
-        const data = await response.json();
-        console.log("data", data)
-        if (response.ok) {
-          // Individual option ko sabse pehle add karo
-          const organizationOptions = [
-            { value: "individual", label: "Individual" },
-            ...data.organizations.map((value) => {
-              return { value: value.id, label: value.name };
-            }),
-          ];
-          setOrganizations(organizationOptions);
-        } else {
-          console.error("Error fetching organizations:", data.message);
+  //       const data = await response.json();
+  //       console.log("data 123 ", response);
+  //       if (response.ok) {
+  //         // Individual option ko sabse pehle add karo
+  //         console.log("1212123123 ")
+  //         const organizationOptions = [
+  //           { value: "individual", label: "Individual" },
+  //           ...data.organizations.map((value) => {
+  //             return { value: value.id, label: value.name };
+  //           }),
+  //         ];
+  //         // console.log("123123 " , organizationOptions)
+  //         setOrganizations(organizationOptions);
+  //         console.log("org 234 234 " , organization )
+  //       } else {
+  //         console.error("Error fetching organizations:", data.message);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching organizations:", error);
+  //     }
+  //   };
+  //   fetchOrganizations();
+  // }, []);
+
+
+  useEffect(() => {
+  checkUserConfirmation();
+
+  const fetchOrganizations = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${API_URL}/activity/getOrganizationsofUser`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : "",
+        },
+      });
+
+      // Debug: log status and response body
+      const contentType = res.headers.get("content-type") || "";
+      let data;
+      if (contentType.includes("application/json")) {
+        data = await res.json();
+      } else {
+        const text = await res.text();
+        console.warn("getOrganizationsofUser returned non-json:", text);
+        try {
+          data = JSON.parse(text);
+        } catch (err) {
+          data = null;
         }
-      } catch (error) {
-        console.error("Error fetching organizations:", error);
       }
-    };
-    fetchOrganizations();
-  }, []);
+      console.log("getOrganizationsofUser status:", res.status, "payload:", data);
+
+      if (!res.ok) {
+        console.error("Error fetching organizations:", data?.message || res.status);
+        return;
+      }
+
+      // Accept several shapes: data.organizations || data.data || data
+      const orgsArray =
+        (data && (data.organizations || data.data || data)) || [];
+
+      // Map to { value, label } for consistent usage in <select>
+      const organizationOptions = [
+        { value: "individual", label: "Individual" },
+        ...orgsArray.map((org) => ({
+          value: String(org.id ?? org.value ?? org._id ?? org.name),
+          label: org.name ?? org.label ?? String(org.value ?? org.id),
+        })),
+      ];
+
+      setOrganizations(organizationOptions);
+      // don't console.log(organization) here because state is async; instead log the options:
+      console.log("organizationOptions:", organizationOptions);
+    } catch (error) {
+      console.error("Error fetching organizations:", error);
+    }
+  };
+
+  fetchOrganizations();
+}, []); // keep empty deps if you only want to run once on mount
+
 
   const convertTo24HourFormat = (time) => {
     const [timePart, modifier] = time.split(" ");
@@ -419,7 +636,6 @@ const Createpost = () => {
 
     return { hours, minutes, seconds };
   }
-  // console.log("what is the description", description)
 
   useEffect(() => {
     const updateTimes = () => {
@@ -536,11 +752,13 @@ const Createpost = () => {
     formsDATA.append("toTime", toTime); // Add toTime
     // formsDATA.append("userId", userData && userData.userData.id);
     // Append latitude and longitude to formData
-    
+
     formsDATA.append("latitude", formsData.latitude);
     formsDATA.append("longitude", formsData.longitude);
     formsDATA.append("description", description);
     formsDATA.append("organization", selectedOrg);
+
+    console.log('form data log'+ formsData.latitude)
 
     // console.log(formsDATA.get("name"));
     // console.log("formData", formsDATA);
@@ -554,6 +772,8 @@ const Createpost = () => {
     const token = localStorage.getItem("token");
     try {
       setIsLoading(true);
+
+      console.log('form data'+ formsDATA)
       const response = await fetch(`${API_URL}/activity/CreateActivity`, {
         method: "POST",
         headers: {
@@ -583,11 +803,20 @@ const Createpost = () => {
     }
   };
 
-  const handleOrganizationChange = (selectedOptions) => {
-    setSelectedOrganization(selectedOptions);
-    console.log("Selected organizations:", selectedOptions);
-    // You can perform other actions with selectedOptions here
-  };
+  // const handleOrganizationChange = (selectedOptions) => {
+  //   setSelectedOrganization(selectedOptions);
+  //   console.log("Selected organizations:", selectedOptions);
+
+  //   // You can perform other actions with selectedOptions here
+  // };
+
+const handleOrganizationChange = (value) => {
+  // value is a string (option.value)
+  setSelectedOrganization(value);
+  setSelectedOrg(value);
+  console.log("Selected organization:", value);
+};
+
 
   const timeOptions = [];
   for (let i = 0; i < 24; i++) {
@@ -601,9 +830,10 @@ const Createpost = () => {
 
   const Name = userName.split(" ")[0];
 
-  const direct = () => {
-    navigate("/activity");
-  };
+  // const direct = () => {
+  //   // navigate("/activity");
+  //   console.log("p")
+  // };
 
   const Endorse = () => {
     navigate("/endorse");
@@ -622,13 +852,13 @@ const Createpost = () => {
 
   // console.log("ye hai user data", userData)
 
-  const openProfilePopup = () => {
-    // if (userData && userData.userData) {
-    //   setSelectedPost({ photos: userData.userData.photo });
-    //   setIsPopUpVisible(true);
-    // }
-    // navigate("/userprofile")
-  };
+  // const openProfilePopup = () => {
+  // if (userData && userData.userData) {
+  //   setSelectedPost({ photos: userData.userData.photo });
+  //   setIsPopUpVisible(true);
+  // }
+  // navigate("/userprofile")
+  // };
 
   const onChangeFromTime = (timeValue) => {
     const fromTime = timeValue;
@@ -645,95 +875,21 @@ const Createpost = () => {
     const maxHours = String(maxToTimeDate.getHours()).padStart(2, "0");
     const maxMinutes = String(maxToTimeDate.getMinutes()).padStart(2, "0");
     const maxToTime = `${maxHours}:${maxMinutes}`;
-    console.log("form time", maxToTime);
+    console.log("Max possible time - ", maxToTime);
 
     setMaxToTime(maxToTime);
   };
-
-  // const onChangeToTime = (timeValue) => {
-  //   const toTimeDate = parse(toTime, 'HH:mm', new Date());
-
-  //   if (toTimeDate < fromTimeDate) {
-  //     // toast.error('Time must be within the selected date');
-  //     setError({ ...error, time: "To time can not be greater than from time" })
-  //     return;
-  //   }
-  //   if (isEqual(toTimeDate, fromTimeDate)) {
-  //     // toast.error('Both times cannot be the same. Please select a time later than the from time.');
-  //     setError({ ...error, time: "Both From & To time can not be same" })
-  //     return;
-  //   }
-
-  //   if (fromTimeDate > new Date()) {
-  //     // toast.error('Both times cannot be the same. Please select a time later than the from time.');
-  //     setError({ ...error, time: "Time can not be more than current time" })
-  //     return;
-  //   }
-
-  //   const timeDifference = differenceInHours(toTimeDate, fromTimeDate);
-
-  //   if (timeDifference <= 8 && timeDifference >= 0) {
-  //     console.log("to time", timeDifference);
-
-  //     setToTime(toTime);
-  //   } else {
-  //     setError({ ...error, time: "Time can not be more than 8 hours" })
-  //     return;
-  //   }
-
-  //   setError({ ...error, time: null })
-  // }
-
-  // const onChangeToTime = (timeValue) => {
-  //   const toTime = timeValue;
-  //   setToTime(toTime);
-
-  //   const toTimeDate = parse(toTime, 'HH:mm', new Date());
-  //   const fromTimeDate = parse(fromTime, 'HH:mm', new Date());
-  //   console.log(fromTimeDate, "from time");
-  //   console.log(toTimeDate, "to time");
-
-  //   if (toTimeDate < fromTimeDate) {
-  //     // toast.error('Time must be within the selected date');
-  //     setError({ ...error, time: "To time can not be greater than from time" })
-  //     return;
-  //   }
-  //   if (isEqual(toTimeDate, fromTimeDate)) {
-  //     // toast.error('Both times cannot be the same. Please select a time later than the from time.');
-  //     setError({ ...error, time: "Both From & To time can not be same" })
-  //     return;
-  //   }
-
-  //   if (toTimeDate > new Date()) {
-  //     // toast.error('Both times cannot be the same. Please select a time later than the from time.');
-  //     setError({ ...error, time: "Time can not be more than current time" })
-  //     return;
-  //   }
-
-  //   const timeDifference = differenceInHours(toTimeDate, fromTimeDate);
-
-  //   if (timeDifference <= 8 && timeDifference >= 0) {
-  //     console.log("to time", timeDifference);
-
-  //     setToTime(toTime);
-  //   } else {
-  //     setError({ ...error, time: "Time can not be more than 8 hours" })
-  //     return;
-  //   }
-
-  //   setError({ ...error, time: null })
-
-  // }
 
   const onChangeToTime = (timeValue) => {
     const toTime = timeValue;
     const toTimeDate = parse(toTime, "HH:mm", new Date());
     const fromTimeDate = parse(fromTime, "HH:mm", new Date());
     const maxAllowedDate = parse(maxAllowedTime, "HH:mm", new Date());
+    console.log("maxi ", maxAllowedDate);
 
     if (isAfter(toTimeDate, maxAllowedDate)) {
       toast.error(
-        "To time cannot be after the maximum allowed time for the selected date"
+        " 'To' time cannot be after the current time for the selected date"
       );
       return;
     }
@@ -772,7 +928,6 @@ const Createpost = () => {
   //     overflowY: "auto", // Enable vertical scrolling
   //   }),
   // };
-
 
   return (
     <>
@@ -844,7 +999,9 @@ const Createpost = () => {
                     <Text
                       className="text-center text-gray-900 uppercase cursor-pointer"
                       size="txtInterSemiBold16Gray900"
-                      onClick={() => { navigate("/users-profile") }}
+                      onClick={() => {
+                        navigate("/users-profile");
+                      }}
                     >
                       {Name}
                     </Text>
@@ -856,7 +1013,6 @@ const Createpost = () => {
                 type="button"
                 className="cursor-pointer font-semibold rounded-3xl  text-blue-500 bg-white-A700 text-xs"
                 // color="indigo_A200"
-                onClick={direct}
               >
                 {`${totalTime || 0} Hrs | ${
                   totalTime && convertToHours(totalTime)
@@ -885,17 +1041,70 @@ const Createpost = () => {
                   </button>
                 </div>
 
+
+
                 <div className="w-full flex items-center justify-between">
-                  <Text className="text-sm text-gray-900 font-semibold">
-                    Select Category
-                  </Text>
+  {userData && (
+    <div className="w-1/2 h-auto flex items-center justify-end relative">
+      <label className="block font-semibold text-left">Organization:</label>
+
+      <select
+        id="organization"
+        value={selectedOrg || "individual"}
+        onChange={(e) => {
+          const val = e.target.value;
+          setSelectedOrg(val);
+          handleOrganizationChange(val);
+        }}
+        className="w-full p-1 border-[1px] outline-[1px] border-gray-300 rounded-md focus:border-[#546ef6] focus:ring focus:ring-[#546ef6] focus:ring-opacity-50"
+      >
+        {/* placeholder option to make it obvious when no orgs returned */}
+        <option value="individual">Individual</option>
+
+        {organization && organization.length > 0 ? (
+          organization.map((org) => (
+            <option key={org.value} value={org.value}>
+              {org.label}
+            </option>
+          ))
+        ) : (
+          <option disabled value="">
+            No organizations available
+          </option>
+        )}
+      </select>
+    </div>
+  )}
+</div>
+
+
+                {/* <div className="w-full flex items-center justify-between">
                   {userData && (
                     <div className="w-1/2 h-auto flex items-center justify-end relative">
                       <label className="block font-semibold  text-left">
                         Organization:
                       </label>
-
+                      {console.log("ORG!@#", selectedOrg)}
                       <select
+                        id="organization"
+                        value={selectedOrg}
+                        onChange={(e) => {
+                          setSelectedOrg(e.target.value);
+                          handleOrganizationChange(e.target.value);
+                      }}
+                      className="w-full p-1 border-[1px] outline-[1px] border-gray-300 rounded-md focus:border-[#546ef6] focus:ring focus:ring-[#546ef6] focus:ring-opacity-50"
+                        >
+                       {organization &&
+                          organization.map((org) => (
+                            <option key={org.value} value={org.value}>
+                               {org.label}
+                            </option>
+                        ))}
+                      </select>
+                    </div>
+                  )} */}
+
+                      {/* <select
                         id="organization"
                         value={selectedOrg}
                         onChange={(e) => {
@@ -910,36 +1119,39 @@ const Createpost = () => {
                               {org.label}
                             </option>
                           ))}
-                      </select>
-                    </div>
-                  )}
+                      </select> */}
+                    {/* </div>
+                  )} */}
+                {/* </div> */}
+
+                
+                <div className="w-full">
+                  <label
+                    htmlFor="categorySelect"
+                    className="block text-sm font-semibold mb-2"
+                  >
+                  Select Category
+                  </label>
+
+                  <select
+                    id="categorySelect"
+                    value={selectedCategories || ""}
+                    onChange={handleCategoryChange}
+                    className="w-full p-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-[#546ef6]"
+                    required
+                  >
+                  <option value="" disabled>
+                    -- Choose a category --
+                  </option>
+
+                  {categories.map((category) => (
+                  <option key={category.id} value={category.name}>
+                      {category.name}
+                  </option>
+                  ))}
+                  </select>
                 </div>
-                <div className="flex flex-wrap items-center justify-between w-full">
-                  {categories.length > 0 ? (
-                    categories.map((category) => (
-                      <label
-                        key={category.id}
-                        className={`flex flex-wrap text-xs text-center rounded-lg items-center justify-center border-2 overflow-hidden border-double border-white mt-1 w-5/12 px-5 py-2 sm:px-5 sm:py-2 cursor-pointer ${
-                          selectedCategories === category.name
-                            ? "border-[1px] border-[#546ef6]  bg-green-500/40 "
-                            : ""
-                        }`}
-                      >
-                        <input
-                          type="radio"
-                          name="radioButtons"
-                          className="hidden"
-                          onClick={() => handleButtonClick(category.name)}
-                        />
-                        <span className="font-medium">{category.name}</span>
-                      </label>
-                    ))
-                  ) : (
-                    <div className="w-full text-center py-4">
-                      No categories to display
-                    </div>
-                  )}
-                </div>
+
 
                 <div className="w-full flex items-center justify-center border-[1px] px-1 rounded-md">
                   <small className="font-bold inline">Description:</small>

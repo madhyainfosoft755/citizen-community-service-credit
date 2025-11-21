@@ -235,6 +235,7 @@ const EditUserModal = ({ userData, isOpen, onClose, onSave }) => {
     // setFormData((prev) => ({ ...prev, photo: file })); // Ensure you set the file in formData
   };
 
+
   const validateMobileNumber = (number) => {
     if (!number) return true; // Empty is valid
     return /^\d{10}$/.test(number); // Must be exactly 10 digits if not empty
@@ -319,6 +320,8 @@ const EditUserModal = ({ userData, isOpen, onClose, onSave }) => {
     } catch (error) {
       console.error("Error submitting the form:", error);
     }
+
+    window.location.reload();
   };
 
   if (!isOpen) return null;
@@ -328,7 +331,7 @@ const EditUserModal = ({ userData, isOpen, onClose, onSave }) => {
       <div className="relative top-5 mx-auto p-5 pt-5 pb-8 border w-96 px-5 shadow-lg rounded-lg bg-[#ffffff]">
         <form onSubmit={handleSubmit}>
           <div className="text-center text-xl font-bold mb-4 cursor-default">
-            Edit User Details
+              
           </div>
 
           {/* Name field */}

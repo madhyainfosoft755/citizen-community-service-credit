@@ -14,6 +14,8 @@ import { toast } from "react-toastify";
 import { CirclesWithBar } from "react-loader-spinner";
 import { useAuth } from "components/AuthProvider/AuthProvider";
 import Select from "react-select";
+import axios from "axios";
+
 
 const ProfilePage = () => {
   const { setAuthenticated, setIsAdmin } = useAuth();
@@ -23,6 +25,7 @@ const ProfilePage = () => {
   const { user } = location.state || {};
 
   //   console.log("kya hai user", user);
+  
   const [categories, setCategories] = useState([]);
   const [organizations, setOrganizations] = useState([]);
   const [buttonStates, setButtonStates] = useState(Array(6).fill(false));
@@ -50,8 +53,9 @@ const ProfilePage = () => {
       try {
         const response = await fetch(`${API_URL}/activity/getCategories`);
         const data = await response.json();
+       
         if (response.ok) {
-          const sortedCategories = data.sort((a, b) =>
+          const sortedCategories = data.categories.sort((a, b) =>
             a.name.localeCompare(b.name)
           );
           setCategories(
@@ -76,9 +80,10 @@ const ProfilePage = () => {
         const data = await response.json();
         if (response.ok) {
           // Yahan pe data ko format kiya hai Select component ke liye
-          const formattedOrganizations = Array.isArray(data)
-            ? data.map((org) => ({ value: org, label: org }))
+          const formattedOrganizations = Array.isArray(data.organizationNames )
+            ? data.organizationNames.map((org) => ({ value: org, label: org }))
             : [];
+            
           setOrganizations(formattedOrganizations);
         } else {
           console.error("Error fetching organizations:", data.message);
@@ -144,6 +149,24 @@ const ProfilePage = () => {
     }
   };
 
+  const checkIfExistPhone = async (e) => {
+    // e.preventDefault();
+    try {
+      // Send a POST request to the API
+      console.log("opopopopopopop")
+      const response = await axios.post(`${API_URL}/activity/check-exists`, {
+        phone: e.target.value ,
+      });
+
+      console.log("llllll" , response)
+
+      if (response.data.exists) {
+        console.log("ppp")
+        setFormErrors({ ...error, phone: "Phone number already exist" });
+      }
+    } catch (error) {}
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -189,11 +212,11 @@ const ProfilePage = () => {
       });
 
       const data = await response.json();
-      console.log("kya data mila : ", data);
+      console.log("kya data mila 123: ", data);
 
-      //   if (data.message == "Mobile number already registered") {
-      //     setFormErrors({ phone: "Mobile number already registered" });
-      //   }
+        if (data.message == "Mobile number already registered") {
+          setFormErrors({ phone: "Mobile number already registered" });
+        }
       const { token, userKey } = data.data;
 
       // console.log("user key :", userKey)
@@ -344,13 +367,16 @@ const ProfilePage = () => {
             placeholder="Phone Number"
             value={formData.phone}
             onChange={handleInputChange}
+            onBlur={checkIfExistPhone}
             // required
           />
+          
           {formErrors.phone && (
             <small className="error absolute left-0 -bottom-4 text-red-500">
               {formErrors.phone}
             </small>
           )}
+          {console.log("formERRRR" , formErrors)}
         </div>
         <div className="relative sm:w-5/6 w-4/6 h-10 bg-gray-50 flex items-center justify-center  p-2 rounded-xl border-[1px] border-white-A700 green-border">
           <FontAwesomeIcon icon={faLocation} className="text-gray-500" />

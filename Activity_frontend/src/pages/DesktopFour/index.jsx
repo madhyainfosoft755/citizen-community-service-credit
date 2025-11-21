@@ -25,7 +25,7 @@ const DesktopFourPage = () => {
   const navigate = useNavigate();
   const [locationData, setLocationData] = useState(null);
   const [totalTime, setTotalTime] = useState(null); // Added state for total time
-  const [userName, setUserName] = useState("")
+  const [userName, setUserName] = useState("");
   const { state } = useLocation();
   const [showQuote, setShowQuoteModal] = useState(false);
   // console.log("state create activity", state);
@@ -50,7 +50,10 @@ const DesktopFourPage = () => {
 
         const userPostsData = await response.json();
         if (response.ok) {
-          setUserPosts(Array.isArray(userPostsData) ? userPostsData : []);
+          console.log("ok fetching .", userPostsData);
+          // console.log("122222" , Array.isArray(userPostsData.posts))
+          setUserPosts(Array.isArray(userPostsData.posts) ? userPostsData.posts : []);
+          console.log("users posts 123  " , userPosts );
         } else {
           console.error("Error fetching user posts:", response.status);
           setError("An error occurred while fetching user posts.");
@@ -73,25 +76,26 @@ const DesktopFourPage = () => {
       try {
         if (userData && userData.userData) {
           const token = localStorage.getItem("token");
-          const response = await fetch(`${API_URL}/activity/TotalTimeSpent/${userData.userData.id}`, {
-            method: "POST",
-            headers: { Authorization: `Bearer ${token}` },
-          });
+          const response = await fetch(
+            `${API_URL}/activity/TotalTimeSpent/${userData.userData.id}`,
+            {
+              method: "POST",
+              headers: { Authorization: `Bearer ${token}` },
+            }
+          );
 
           const data = await response.json();
           if (response.ok) {
-            setTotalTime(data.totalTimeSum)
+            setTotalTime(data.totalTimeSum);
           }
         }
-      }
-      catch (error) {
+      } catch (error) {
         console.error("Error fetching user total time", error);
         setError("An error occurred while fetching users Time.");
       }
-    }
-    totalTimeSpent()
-  }, [userData])
-
+    };
+    totalTimeSpent();
+  }, [userData]);
 
   const checkTokenExpiry = async (token) => {
     try {
@@ -99,7 +103,7 @@ const DesktopFourPage = () => {
         method: "POST",
         headers: {
           Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
       });
       // console.log("ye rha response", response)
@@ -107,11 +111,11 @@ const DesktopFourPage = () => {
       if (!response.ok) {
         // Token might be expired or invalid, so log the user out
         // handleLogout();
-        navigate("/login")
-        notify("Session time Out")
+        navigate("/login");
+        notify("Session time Out");
       }
     } catch (error) {
-      notify(error)
+      notify(error);
       console.error("Error checking token expiry:", error);
     }
   };
@@ -128,7 +132,6 @@ const DesktopFourPage = () => {
       // Fetch user data when component mounts
       fetchUserData(token);
       checkTokenExpiry(token);
-
     }
 
     // You may also want to check the validity of the token here if needed
@@ -157,7 +160,7 @@ const DesktopFourPage = () => {
         const contentType = response.headers.get("content-type");
         if (contentType && contentType.includes("application/json")) {
           const userData = await response.json();
-          setUserName(userData.userData.name)
+          setUserName(userData.userData.name);
           setUserData(userData); // Update user data in the state
         } else {
           console.error("Error fetching user data: Response is not JSON");
@@ -175,7 +178,6 @@ const DesktopFourPage = () => {
   };
 
   const name = userName.split(" ")[0];
-
 
   // console.log("here is the data you are looking for", userData);
 
@@ -197,7 +199,6 @@ const DesktopFourPage = () => {
   //   return () => clearInterval(interval);
   // }, []);
 
-
   const openProfilePopup = () => {
     if (userData && userData.userData) {
       setSelectedPost({ photos: userData.userData.photo });
@@ -208,15 +209,21 @@ const DesktopFourPage = () => {
   const createpage = () => {
     console.log("clicked");
     navigate("/create");
-  }
+  };
 
   useEffect(() => {
     // This effect will run whenever the location changes
-
-    if (userData && userData.userData && userData.userData.organization !== 'NA') {
-      if (state && state.timeSpent) {
-        setShowQuoteModal(true);
-      }
+    const hasShownModal = localStorage.getItem("hasShownQuoteModal");
+    if (
+      userData &&
+      userData.userData &&
+      userData.userData.organization !== "NA" &&
+      !hasShownModal &&
+      state &&
+      state.timeSpent
+    ) {
+      setShowQuoteModal(true);
+      localStorage.setItem("hasShownQuoteModal", "true");
     }
   }, [userData, navigate]);
 
@@ -225,42 +232,58 @@ const DesktopFourPage = () => {
       {authenticated && (
         <div className="w-screen h-screen  bg-white-A700 flex items-start justify-center sm:w-screen sm:h-screen md:w-screen md:h-screen p-5 sm:p-0 md:p-0">
           {isPopUpVisible && (
-            <PopupComponent post={selectedPost} onClose={() => setIsPopUpVisible(false)} />
+            <PopupComponent
+              post={selectedPost}
+              onClose={() => setIsPopUpVisible(false)}
+            />
           )}
 
-          {showQuote && (
-            <LinkModal onClose={() => setShowQuoteModal(false)} timeSpent={state && state.timeSpent} postId={state && state.data.created_post.id} />
+          { showQuote && (
+            <LinkModal
+              onClose={() => {  
+                setShowQuoteModal(false);
+                localStorage.removeItem("hasShownQuoteModal");
+              }}
+              timeSpent={state && state.timeSpent}
+              postId={state && state.data.created_post.id}
+            />
           )}
           <div className="relative  w-4/12 h-full  flex items-start justify-center  sm:shadow-none  border-[1px]  rounded-lg sm:rounded-none  lg:h-full sm:w-full sm:h-full md:w-full md:h-full overflow-hidden scroller">
             <div className="flex flex-col  items-center justify-start w-full h-full md:w-full sm:w-full">
               <div className="bg-gray-50 flex flex-row items-center justify-between p-3 sm:px-2 w-full ">
-                <div className="flex flex-row gap-3 items-center justify-center ml-[5px]" >
-                  {userData && userData.userData && (
-                    userData.userData.photo && imageLoaded ? (
+                <div className="flex flex-row gap-3 items-center justify-center ml-[5px]">
+                  {console.log("user data ", userData)}
+                  {userData &&
+                    userData.userData &&
+                    (userData.userData.photo && imageLoaded ? (
                       <Img
                         className="cursor-pointer w-14 h-14 rounded-full object-cover object-top"
                         src={`${API_URL}/image/${userData.userData.photo}`}
                         alt="User Photo"
-                        onClick={() => { navigate("/users-profile") }}
+                        onClick={() => {
+                          navigate("/users-profile");
+                        }}
                         onError={() => setImageLoaded(false)}
                       />
                     ) : (
                       <div className="bg-white-A700 w-16 h-14 rounded-full flex items-center justify-center">
-
                         <FontAwesomeIcon
                           icon={faUser}
                           className="ri-user-fill h-1/2 cursor-pointer text-gray-600"
-                          onClick={() => { navigate("/users-profile") }}
+                          onClick={() => {
+                            navigate("/users-profile");
+                          }}
                         />
                       </div>
-                    )
-                  )}
+                    ))}
                   <div className="flex flex-col items-center justify-center w-3/5 ">
                     <div className=" cursor-default flex flex-col items-start justify-center w-full ">
                       <Text
                         className="text-center text-gray-900 uppercase cursor-pointer"
                         size="txtInterSemiBold16Gray900"
-                        onClick={() => { navigate("/users-profile") }}
+                        onClick={() => {
+                          navigate("/users-profile");
+                        }}
                       >
                         {/* {userData && userData.userData.name} */}
                         {name}
@@ -273,32 +296,35 @@ const DesktopFourPage = () => {
                 </div>
                 <Button
                   className="cursor-pointer font-semibold rounded-3xl   text-blue-500 bg-white-A700 text-xs"
-
                   // shape="round"
                   onClick={direct}
                 >
-                  {`${totalTime || 0} Hrs | ${totalTime && convertToHours(totalTime)} Pts`}
+                  {`${totalTime || 0} Hrs | ${
+                    totalTime && convertToHours(totalTime)
+                  } Pts`}
                 </Button>
-                <img onClick={createpage} src={APP_PATH + "images/2.png"} className="cursor-pointer w-14 h-14 rounded-full" alt="" />
-
+                <img
+                  onClick={createpage}
+                  src={APP_PATH + "images/2.png"}
+                  className="cursor-pointer w-14 h-14 rounded-full"
+                  alt=""
+                />
               </div>
               <div className="w-full h-full flex items-center justify-start flex-col overflow-hidden">
-
-                <Text
-                  className=" text-base font-semibold text-gray-900"
-                >
+                <Text className=" text-base font-semibold text-gray-900">
                   My Activities
                 </Text>
 
                 <div className="flex  sm:flex-col flex-col gap-1 items-center justify-between w-5/6 h-full sm:w-11/12  sm:h-full  p-2 overflow-hidden">
                   <div className=" w-full h-5/6 sm:w-full sm:h-5/6 rounded-xl border-[1px] border-gray overflow-hidden scroller">
-                  {/* {console.log("userPosts:", JSON.stringify(userPosts, null, 2))} */}
-                    <Slider1 items={userPosts} isPopUpVisible={isPopUpVisible}
+                    {/* {console.log("userPosts:", JSON.stringify(userPosts, null, 2))} */}
+                    <Slider1
+                      items={userPosts}
+                      isPopUpVisible={isPopUpVisible}
                       setIsPopUpVisible={setIsPopUpVisible}
                       setSelectedPost={setSelectedPost}
                       selectedPost={selectedPost}
                     />
-
                   </div>
                   <div>
                     {/* <FontAwesomeIcon
@@ -324,7 +350,6 @@ const DesktopFourPage = () => {
                       LOGOUT
                     </Button> */}
                   </div>
-
                 </div>
               </div>
             </div>

@@ -36,7 +36,10 @@ const ActivityDetails = () => {
 
     const fetchAddress = async (lat, lng) => {
         try {
-            const response = await axios.get(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${process.env.REACT_APP_GoogleGeocode}`);
+            const response = await axios.get(
+                // `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${process.env.REACT_APP_GoogleGeocode}`
+                `https://api.opencagedata.com/geocode/v1/json?q=${lat}+${lng}&key=${process.env.REACT_APP_OPENCAGE_KEY}`
+            );
             const address = response.data.results[0]?.formatted_address;
             setLocationAddress(address || 'Address not found');
         } catch (error) {

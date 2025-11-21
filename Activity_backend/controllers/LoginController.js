@@ -164,7 +164,7 @@ const getUserIdFromToken = (req) => {
 // Simple health check endpoint to verify server is running
 const output = async (req, res) => {
   try {
-    return res.json({vaibhav: "vaibhav","abcd": "abcd"});
+    return res.json({"abcd": "abcd"});
   } catch (error) {
     logger.error("here is the error from output", error);
     console.error("Failed to fetch user profile:", error);
@@ -428,7 +428,7 @@ const Register = async (req, res) => {
     // You can add more error handling and validation as needed
 
     return res.status(201).json({
-      vaibhav: "vaibhav",
+      
       status: "success",
       message:
         "Registration successful. Please check your email for verification.",
@@ -552,7 +552,7 @@ const RegisterLinkedin = async (req, res) => {
     // console.log("this is the token********************-------------------",token)
 
     return res.status(201).json({
-      vaibhav: "vaibhav",
+      
       status: "success",
       message: "Registration successful.",
       data: {
@@ -590,11 +590,11 @@ const verify = async (req, res) => {
     // Update user's verified status
     await user.update({ verified: true, verificationToken: null });
 
-    return res.status(200).json({vaibhav: "vaibhav", message: "Email verification successful" });
+    return res.status(200).json({ message: "Email verification successful" });
   } catch (error) {
     logger.error("Email verification failed:", error);
     console.error("Email verification failed:", error);
-    return res.status(500).json({vaibhav: "vaibhav", message: "Email verification failed" });
+    return res.status(500).json({ message: "Email verification failed" });
   }
 };
 
@@ -631,7 +631,7 @@ const forgetpassword = async (req, res) => {
       return res.status(500).json({ message: "Error sending PIN email" });
     } else {
       // console.log('Email sent:', info.response);
-      return res.status(200).json({vaibhav: "vaibhav", message: "PIN sent to your email" });
+      return res.status(200).json({ message: "PIN sent to your email" });
     }
   });
 };
@@ -655,7 +655,7 @@ const verifyPin = async (req, res) => {
       return res.status(400).json({ message: "Invalid PIN" });
     }
     user.resetPin = null;
-    return res.status(200).json({vaibhav: "vaibhav", message: "PIN verified successfully" });
+    return res.status(200).json({ message: "PIN verified successfully" });
   } catch (error) {
     logger.error("Here is the error", error);
     // console.error("PIN verification failed:", error);
@@ -733,7 +733,7 @@ const updatePassword = async (req, res) => {
     // user.resetPin = null; // Clear the resetPin after successful password reset
     await user.save();
 
-    return res.status(200).json({vaibhav: "vaibhav", message: "Password updated successfully" });
+    return res.status(200).json({ message: "Password updated successfully" });
   } catch (error) {
     console.error("Update password error:", error);
     return res.status(500).json({ message: "Internal server error" });
@@ -761,9 +761,11 @@ const login = async (req, res) => {
     if (!user && !log) {
       return res.status(401).json({ error: "Email not found." });
     }
+    // console.log( "user password : " , user.password )
 
-    // Check if the password matches
-    if (user.password !== password) {
+    if (user.password !== password[0] ) {
+      console.log( "user password : " , user.password )
+      console.log( " password : " ,  password )
       return res.status(401).json({ error: "Invalid  password." });
     }
 
@@ -792,7 +794,7 @@ const login = async (req, res) => {
       userKey: userKey, // Assuming userKey is the user's ID
       role: user.role, // Assuming user's role is stored in the 'role' field of the User model
       redirectTo: user.role === "admin" ? "/admin" : "/create", // Define redirection URL based on role
-      vaibhav: "vaibhav",
+      
     });
     // Successful login
   } catch (error) {
@@ -831,7 +833,7 @@ const resendVerification = async (req, res) => {
     return res.status(200).json({
       status: "success",
       message: "Verification email sent successfully.",
-      vaibhav: "vaibhav",
+      
     });
   } catch (error) {
     console.error("Error sending verification email:", error);
@@ -964,7 +966,7 @@ const profile = async (req, res) => {
           res.json({
             status: "success",
             userData: userData,
-            vaibhav: "vaibhav",
+            
           });
         } else {
           res.status(404).json({
@@ -1043,7 +1045,7 @@ const updateUserData = async (req, res) => {
           res.json({
             status: "success",
             message: "User data updated successfully",
-            vaibhav: "vaibhav",
+            
           });
         } else {
           res.status(404).json({
@@ -1078,7 +1080,7 @@ const CreateActivity = async (req, res) => {
     // console.log("YE HAI USER KI ID", userId);
 
     if (userId === null || userId === undefined) {
-      // console.log("no user id found");
+      console.log("no user id found");
       logger.error("userid not found while creating activity", errors);
       return;
     }
@@ -1093,6 +1095,8 @@ const CreateActivity = async (req, res) => {
       organization,
       description,
     } = req.body;
+
+    console.log('latitude'+latitude)
 
     const activityDate = new Date(date);
     const currentDate = new Date();
@@ -1208,15 +1212,114 @@ const CreateActivity = async (req, res) => {
       latitude,
       longitude,
       fromTime,
-      // location: JSON.stringify({ latitude, longitude }), // Store as JSON string in the database
+      location: JSON.stringify({ latitude, longitude }), // Store as JSON string in the database
       UserId: userId,
       organization: organization,
-      description: description,
+      description: description || '',
+      rejectionReason:'',  
+      endorser_name:'',
     });
+
+
+    // ------------------ START REPLACEMENT ------------------
+// Extract from body
+// const {
+//   selectedCategories,
+//   date,
+//   fromTime,
+//   toTime,
+//   latitude: rawLatitude,
+//   longitude: rawLongitude,
+//   organization,
+//   description,
+// } = req.body;
+
+// // sanitize numeric coordinates: use Number() and accept only finite numbers, else null
+// function safeNumber(x) {
+//   const n = Number(x);
+//   return Number.isFinite(n) ? n : null;
+// }
+// const latitudeNum = safeNumber(rawLatitude);
+// const longitudeNum = safeNumber(rawLongitude);
+
+// // Format the date to yyyy-mm-dd (you already did this later — keep as-is)
+// const activityDate = new Date(date);
+// const formattedDate = format(activityDate, "yyyy-MM-dd");
+
+// // validate times / compute total minutes
+// const fromTimeDate = parse(fromTime, "HH:mm", activityDate);
+// const toTimeDate = parse(toTime, "HH:mm", activityDate);
+
+// // Check if toTime is after current time for today's date
+// const currentDate = new Date();
+// if (isSameDay(activityDate, currentDate) && isAfter(toTimeDate, currentDate)) {
+//   return res.status(400).json({ error: "To time cannot be in the future" });
+// }
+
+// const timeDifferenceInMinutes = differenceInMinutes(toTimeDate, fromTimeDate);
+// if (timeDifferenceInMinutes <= 0 || timeDifferenceInMinutes > 480) {
+//   return res.status(400).json({ error: "Invalid time range" });
+// }
+
+// // produce a human readable H:MM string and also keep minutes for arithmetic
+// const totalMinutes = timeDifferenceInMinutes;
+// const hours = Math.floor(totalMinutes / 60);
+// const minutes = totalMinutes % 60;
+// const totalTimeFormatted = `${hours}:${minutes}`; // e.g. "2:5" (you may pad minutes below if desired)
+// const totalTimeForDB = totalMinutes; // store numeric minutes for Users.totalTime
+
+// // Check if files were uploaded and build photos array (you already had this)
+// if (!Array.isArray(req.files.photo)) {
+//   return res.status(400).json({ error: "Photos should be an array" });
+// }
+// const photos = req.files.photo.reduce((acc, file) => {
+//   acc.push(file.filename);
+//   return acc;
+// }, []);
+
+// // Check for missing fields; treat 0 as valid, but require non-null/undefined
+// const missingFields = [];
+// if (!selectedCategories) missingFields.push("selectedCategories");
+// if (!date) missingFields.push("date");
+// if (!fromTime) missingFields.push("fromTime");
+// if (!toTime) missingFields.push("toTime");
+// if (latitudeNum === null) missingFields.push("latitude");
+// if (longitudeNum === null) missingFields.push("longitude");
+// if (!photos || photos.length === 0) missingFields.push("photos");
+
+// if (missingFields.length > 0) {
+//   return res.status(400).json({
+//     error: `Missing required fields: ${missingFields.join(", ")}`,
+//   });
+// }
+
+// // Update user's stored time (ensure storedTime is numeric; default 0)
+// const user = await Users.findByPk(userId);
+// const storedTime = user && Number.isFinite(Number(user.totalTime)) ? Number(user.totalTime) : 0;
+// const updatedStoredTime = storedTime + totalTimeForDB;
+// await Users.update({ totalTime: updatedStoredTime }, { where: { id: userId } });
+
+// // prepare payload and insert — ensure latitude/longitude are numbers or null
+// let created_post = await Posts.create({
+//   category: selectedCategories,
+//   photos: JSON.stringify(photos),
+//   Date: formattedDate,
+//   totalTime: totalTimeFormatted,       // kept for display in posts table
+//   totalTimeMinutes: totalTimeForDB,    // optional: store numeric minutes if model has this column
+//   latitude: latitudeNum,               // Number or null
+//   longitude: longitudeNum,             // Number or null
+//   fromTime,
+//   location: JSON.stringify({ latitude: latitudeNum, longitude: longitudeNum }), // JSON string
+//   UserId: userId,
+//   organization: organization,
+//   description: description,
+// });
+// ------------------ END REPLACEMENT ------------------
+
 
     res
       .status(201)
-      .json({vaibhav: "vaibhav", message: "Activity created successfully", created_post });
+      .json({ message: "Activity created successfully", created_post });
   } catch (error) {
     logger.error("here is the error", error);
     console.error("Error creating activity:", error);
@@ -1253,7 +1356,7 @@ const AllDetails = async (req, res) => {
       await user.save();
     }
 
-    res.status(200).json({vaibhav: "vaibhav", all_posts, totalTimeSum: formattedTotalTimeSum });
+    res.status(200).json({ all_posts, totalTimeSum: formattedTotalTimeSum });
   } catch (error) {
     console.error("Here is the error:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -1312,7 +1415,7 @@ const getAllPostedCategories = async (req, res) => {
     // });
     // console.log(categoriesArray);
 
-    res.status(200).json({vaibhav: "vaibhav", categoriesArray });
+    res.status(200).json({ categoriesArray });
   } catch (error) {
     console.error("Here is the error:", error);
     res.status(500).json({ error: "Internal server error" });
@@ -1343,7 +1446,7 @@ const postsdata = async (req, res) => {
       where: { UserId: userId },
     });
 
-    res.json({vaibhav: "vaibhav", posts});
+    res.json({ posts});
   } catch (error) {
     logger.error("here is the error", error);
     console.error(error);
@@ -1385,7 +1488,7 @@ const endorsePost = async (req, res) => {
     return res.status(200).json({
       message: "Post endorsed successfully",
       post: { id: post.id, endorsementCounter: post.endorsementCounter },
-      vaibhav: "vaibhav",
+      
     });
   } catch (error) {
     logger.error("Error endorsing post:", error);
@@ -1462,7 +1565,7 @@ const fetchPostsInArea = async (req, res) => {
       (post) => !endorsedPostIds.includes(post.id)
     );
 
-    res.json({vaibhav: "vaibhav",postsInArea});
+    res.json({postsInArea});
   } catch (error) {
     logger.error("Error fetching posts in area:", error);
     res.status(500).json({ error: "Internal Server Error" });
@@ -1478,7 +1581,7 @@ const getCategories = async (req, res) => {
       return res.status(200).json({ message: "No categories found" });
     }
 
-    res.status(200).json({vaibhav: "vaibhav", categories});
+    res.status(200).json({ categories});
   } catch (error) {
     res.status(500).json({ message: "Failed to fetch categories", error });
   }
@@ -1515,7 +1618,7 @@ const getUserCategories = async (req, res) => {
     }
 
     // User ki categories return karna
-    res.status(200).json({vaibhav: "vaibhav", userCategories});
+    res.status(200).json({ userCategories});
   } catch (error) {
     console.error("Error fetching user categories:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -1567,7 +1670,7 @@ const getUserReport = async (req, res) => {
       return acc;
     }, {});
 
-    res.json({vaibhav: "vaibhav", result});
+    res.json({ result});
   } catch (error) {
     logger.error("Error fetching user report", error);
     res.status(500).json({ error: "An error occurred while fetching the report." });
@@ -1686,7 +1789,7 @@ const getUsersWithMostPostsInYear = async (req, res) => {
     );
     console.log("ye hain top users", topUserNames);
 
-    res.status(200).json({vaibhav: "vaibhav", topUserNames });
+    res.status(200).json({ topUserNames });
   } catch (error) {
     logger.error("error from fetching maximum number of post by users", error);
     console.error("Error fetching users with most posts in the year:", error);
@@ -1757,7 +1860,7 @@ const getUsersWithMostPostsInSixMonths = async (req, res) => {
       })
     );
 
-    res.status(200).json({vaibhav: "vaibhav", topUserNames });
+    res.status(200).json({ topUserNames });
   } catch (error) {
     logger.error(
       "Error fetching users with most posts in the past six months",
@@ -1829,7 +1932,7 @@ const getUsersWithMostPostsInQuater = async (req, res) => {
       })
     );
 
-    res.status(200).json({vaibhav: "vaibhav", topUserNames });
+    res.status(200).json({ topUserNames });
   } catch (error) {
     logger.error(
       "Error fetching users with most posts in the past six months",
@@ -1911,7 +2014,7 @@ const getUsersWithMostPostsInMonth = async (req, res) => {
       })
     );
 
-    res.status(200).json({vaibhav: "vaibhav", topUserNames });
+    res.status(200).json({ topUserNames });
   } catch (error) {
     logger.error(
       "Error fetching users with most posts in the current month",
@@ -1935,7 +2038,7 @@ const approveHours = async (req, res) => {
     post.approved = true;
     await post.save();
 
-    res.status(200).json({vaibhav: "vaibhav", message: "Post approved successfully." });
+    res.status(200).json({ message: "Post approved successfully." });
   } catch (error) {
     logger.error("Error approving post:", error);
     res.status(500).json({ error: "Internal server error." });
@@ -1959,7 +2062,7 @@ const rejectHours = async (req, res) => {
     post.rejected = true;
     await post.save();
 
-    res.status(200).json({vaibhav: "vaibhav", message: "Post rejected successfully." });
+    res.status(200).json({ message: "Post rejected successfully." });
   } catch (error) {
     console.error("Error rejecting post:", error);
     res.status(500).json({ error: "Internal server error." });
@@ -1989,7 +2092,7 @@ const pendingApproval = async (req, res) => {
         .status(404)
         .json({ message: "No posts pending for approval." });
     }
-    res.json({vaibhav: "vaibhav", posts});
+    res.json({ posts});
   } catch (error) {
     res.status(500).send(error.message);
   }
@@ -2010,7 +2113,7 @@ const createCategory = async (req, res) => {
     const category = await Categories.create({ name, isEnabled });
     res
       .status(201)
-      .json({vaibhav: "vaibhav", message: "Category created successfully", category });
+      .json({ message: "Category created successfully", category });
   } catch (error) {
     res.status(500).json({ message: "Failed to create category", error });
   }
@@ -2030,7 +2133,7 @@ const getCategoriesAdmin = async (req, res) => {
     if (categories.length === 0) {
       return res.status(200).json({ message: "No categories found" });
     }
-    res.status(200).json({vaibhav: "vaibhav", categories});
+    res.status(200).json({ categories});
   } catch (error) {
     res.status(500).json(error);
   }
@@ -2055,7 +2158,7 @@ const toggleCategory = async (req, res) => {
 
     res
       .status(200)
-      .json({vaibhav: "vaibhav", message: "Category status updated successfully", category });
+      .json({ message: "Category status updated successfully", category });
   } catch (error) {
     console.error("Error toggling category:", error);
     res.status(500).json({ message: "Failed to toggle category", error });
@@ -2081,7 +2184,7 @@ const createOrganization = async (req, res) => {
     const organization = await Organizations.create({ name });
     res
       .status(201)
-      .json({vaibhav: "vaibhav", message: "Organization created successfully", organization });
+      .json({ message: "Organization created successfully", organization });
   } catch (error) {
     res.status(500).json({ message: "Failed to create organization", error });
   }
@@ -2103,7 +2206,7 @@ const getOrganizationsAdmin = async (req, res) => {
     if (organizations.length === 0) {
       return res.status(200).json({ message: "No organization found" });
     }
-    res.status(200).json({vaibhav: "vaibhav", organizations});
+    res.status(200).json({ organizations});
   } catch (error) {
     res.status(500).json(error);
   }
@@ -2122,7 +2225,7 @@ const getOrganizations = async (req, res) => {
     }
 
     const organizationNames = organizations.map((org) => org.name);
-    res.status(200).json({vaibhav: "vaibhav", organizationNames});
+    res.status(200).json({ organizationNames});
   } catch (error) {
     res.status(500).json({ message: "Failed to fetch organizations", error });
   }
@@ -2174,7 +2277,7 @@ const getOrganizationsUser = async (req, res) => {
         .json({ message: "No data found for the organizations" });
     }
 
-    res.status(200).json({vaibhav: "vaibhav", organizations});
+    res.status(200).json({ organizations});
   } catch (error) {
     console.error("Error fetching organizations:", error);
     res
@@ -2198,7 +2301,7 @@ const toggleOrganization = async (req, res) => {
 
     res
       .status(200)
-      .json({vaibhav: "vaibhav", message: "Organization toggled successfully", organization });
+      .json({ message: "Organization toggled successfully", organization });
   } catch (error) {
     res.status(500).json({ message: "Failed to toggle organization", error });
   }

@@ -110,17 +110,25 @@ const DesktopOnePage = () => {
     setValidationErrors(errors);
     return isValid;
   };
+
+
   const [emailvalue, setEmailvalue] = useState("");
 
   const handleSubmit = async (event) => {
+
     event.preventDefault();
-    const formsDATA = new FormData();
+    // const formsDATA = new FormData();
+    const formsDATA = new FormData(event.target);  
     const emailValue = event.target[0].value;
     setEmailvalue(emailValue);
-    const passwordValue = event.target[1].value;
-    formsDATA.append("email", emailValue);
-    // console.log(emailValue, passwordValue);
 
+    const passwordValue = event.target[1].value;
+
+    formsDATA.append("email", emailValue);
+
+    console.log("email : " , emailValue);
+    console.log("password : " , passwordValue);
+    
     // Clear any previous error message
     setError("");
 
@@ -132,11 +140,6 @@ const DesktopOnePage = () => {
     }
 
     formsDATA.append("password", passwordValue);
-    // console.log("from-data", formsDATA);
-
-    // for (var pair of formsDATA.entries()) {
-    //   // console.log(pair[0] + ", " + pair[1]);
-    // }
 
     try {
       setIsLoading(true);
@@ -147,6 +150,8 @@ const DesktopOnePage = () => {
         },
         body: new URLSearchParams(formsDATA).toString(),
       });
+
+      console.log("response : " , response );
 
       const data = await response.json();
 
@@ -200,10 +205,16 @@ const DesktopOnePage = () => {
     }
   };
 
+
+
+  
+
+
   const handleLocationChange = async (latitude, longitude) => {
     try {
       const response = await axios.get(
-        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${process.env.REACT_APP_GoogleGeocode}`
+        // `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${process.env.REACT_APP_GoogleGeocode}`
+        `https://api.opencagedata.com/geocode/v1/json?q=${latitude},${longitude}&key=${process.env.REACT_APP_OPENCAGE_KEY}`
       );
 
       if (response.data && response.data.results) {
@@ -392,7 +403,7 @@ const DesktopOnePage = () => {
           />
         </div>
           <Text className=" cursor-default text-lg text-center text-blue-400  font-extrabold">
-            Welcome to Community Care 247
+            Welcome to Community Care 247 
           </Text>
           <Text className="cursor-default text-sm text-center text-orange-300 mt-2 mb-5 font-extrabold italic">
             Add, Track and Share Volunteer Activities
@@ -430,6 +441,8 @@ const DesktopOnePage = () => {
               className="outline-none text-sm border-0 ml-3 w-11/12 cursor-text"
               required
             />
+
+            
             <FontAwesomeIcon
               icon={eyeIcon}
               onClick={togglePasswordVisibility}

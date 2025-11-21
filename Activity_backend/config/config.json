@@ -1,23 +1,26 @@
 {
   "development": {
     "username": "root",
-    "password": null,
+    "password": "admin123",
     "database": "activity",
     "host": "127.0.0.1",
+    "port": 3307,
     "dialect": "mysql"
   },
   "test": {
     "username": "root",
-    "password": null,
-    "database": "database_test",
+    "password": "admin123",
+    "database": "valetpoi_cch247",
     "host": "127.0.0.1",
+    "port": 3307,
     "dialect": "mysql"
   },
   "production": {
     "username": "root",
-    "password": null,
-    "database": "database_production",
+    "password": "admin123",
+    "database": "valetpoi_cch247",
     "host": "127.0.0.1",
+    "port": 3307,
     "dialect": "mysql"
   }
 }

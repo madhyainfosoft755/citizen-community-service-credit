@@ -38,7 +38,8 @@ const Slider1 = ({ items = [], isPopUpVisible, setIsPopUpVisible, setSelectedPos
         items.map(async (item) => {
           try {
             const response = await axios.get(
-              `https://maps.googleapis.com/maps/api/geocode/json?latlng=${item.latitude},${item.longitude}&key=${process.env.REACT_APP_GoogleGeocode}`
+              // `https://maps.googleapis.com/maps/api/geocode/json?latlng=${item.latitude},${item.longitude}&key=${process.env.REACT_APP_GoogleGeocode}`
+              `https://api.opencagedata.com/geocode/v1/json?q=${item.latitude},${item.longitude}&key=${process.env.REACT_APP_OPENCAGE_KEY}`
             );
             // console.log("ye hai location ka data",response)
 

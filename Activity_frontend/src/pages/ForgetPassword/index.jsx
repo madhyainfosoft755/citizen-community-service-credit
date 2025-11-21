@@ -4,7 +4,12 @@ import { API_URL, APP_PATH } from "Constant";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faEnvelope, faEye, faLock, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import {
+  faEnvelope,
+  faEye,
+  faLock,
+  faEyeSlash,
+} from "@fortawesome/free-solid-svg-icons";
 
 const Forget = () => {
   const notify = (e) => toast(e);
@@ -21,8 +26,6 @@ const Forget = () => {
 
   const [isValid, setIsValid] = useState(true);
   const [passwordError, setPasswordError] = useState("");
-
-
 
   const validatePassword = (password) => {
     const errors = [];
@@ -48,7 +51,6 @@ const Forget = () => {
   // };
 
   // const eyeIcon = showPassword ? faEyeSlash : faEye;
-
 
   const handlePasswordChange = (e) => {
     const password = e.target.value;
@@ -87,7 +89,7 @@ const Forget = () => {
 
   const handleForgotPassword = async () => {
     if (!email) {
-      notify("Please enter your email")
+      notify("Please enter your email");
       return;
     }
     try {
@@ -112,7 +114,7 @@ const Forget = () => {
 
   const handleVerifyPin = async () => {
     if (!pin) {
-      notify("Please enter the PIN")
+      notify("Please enter the PIN");
       return;
     }
 
@@ -124,16 +126,17 @@ const Forget = () => {
       // console.log("horray")
       setMessage("");
       // console.log("haiyaaa")
-      notify(response.data.message)
+      notify(response.data.message);
       setStep(3);
       // Show password update form
       setNewPassword("");
       setConfirmNewPassword("");
     } catch (error) {
       setMessage(error.response.data.message || "Invalid PIN");
-      notify(error.response.data.message)
+      notify(error.response.data.message);
     }
   };
+
 
   const handleUpdatePassword = async () => {
     if (!newPassword.trim()) {
@@ -148,11 +151,18 @@ const Forget = () => {
       notify("Password should be at least 8 characters long");
       return;
     }
+  
+    const errors = validatePassword(newPassword);
+    if (errors.length > 0) {
+      notify(`Password must contain at least: ${errors.join(", ")}`);
+      return;
+    }
+  
     if (newPassword !== confirmNewPassword) {
       notify("Passwords do not match");
       return;
     }
-
+  
     try {
       const response = await axios.post(`${API_URL}/activity/updatePassword`, {
         email,
@@ -162,38 +172,43 @@ const Forget = () => {
       // Clear form fields after successful password update
       setNewPassword("");
       setConfirmNewPassword("");
-      notify(response.data.message)
-      navigate("/login")
+      notify(response.data.message);
+      navigate("/login");
     } catch (error) {
-      setMessage(error.response.data.message || "An error occurred");
-      notify(error.response.data.message)
+      setMessage(error.response?.data?.message || "An error occurred");
+      notify(error.response?.data?.message || "An error occurred");
     }
   };
-
+  
   const login = () => {
-    navigate("/login")
-
-  }
+    navigate("/login");
+  };
   return (
     <div className="w-screen h-screen sm:w-screen sm:h-screen md:w-screen md:h-screen flex items-start justify-center p-4  sm:p-0">
-
       <div className="relative overflow-hidden w-4/12 h-full sm:w-full md:w-7/12 flex items-center justify-center  border-[1px] rounded-lg">
-        <img src={APP_PATH + "images/2.png"} className="w-32 h-32 absolute top-1 left-1 rounded-full" alt="" />
+        <img
+          src={APP_PATH + "images/2.png"}
+          className="w-32 h-32 absolute top-1 left-1 rounded-full"
+          alt=""
+        />
 
         <div className="w-64 h-64 absolute rounded-full -top-10 -right-20 bg-blue-200/20"></div>
         <div className="w-64 h-64 absolute rounded-full -bottom-10 -left-20 bg-blue-200/20"></div>
         <div className="relative p-8 flex flex-col items-center justify-center  w-full h-full sm:w-full sm:h-full ">
           {step === 1 && (
             <>
-
-              <div className={`border-[1px] border-gray-400 p-1 w-full  rounded-xl bg-inherit mb-2 focus:border-blue-400 focus:ring-2 focus:ring-blue-400 ${email && 'focus:border-blue-400'}`}>
+              <div
+                className={`border-[1px] border-gray-400 p-1 w-full  rounded-xl bg-inherit mb-2 focus:border-blue-400 focus:ring-2 focus:ring-blue-400 ${
+                  email && "focus:border-blue-400"
+                }`}
+              >
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="Enter email"
                   className="border-none bg-inherit w-full h-full text-sm"
-                  onFocus={() => setMessage('')}
+                  onFocus={() => setMessage("")}
                   required
                 />
               </div>
@@ -209,8 +224,11 @@ const Forget = () => {
           <br />
           {step === 2 && (
             <>
-
-              <div className={`border-[1px] border-gray-400 p-1 w-full  rounded-xl bg-inherit mb-2 focus:border-blue-400 focus:ring-2 focus:ring-blue-400 ${email && 'focus:border-blue-400'}`}>
+              <div
+                className={`border-[1px] border-gray-400 p-1 w-full  rounded-xl bg-inherit mb-2 focus:border-blue-400 focus:ring-2 focus:ring-blue-400 ${
+                  email && "focus:border-blue-400"
+                }`}
+              >
                 <input
                   type="password"
                   value={pin}
@@ -232,7 +250,11 @@ const Forget = () => {
           {step === 3 && (
             <div className="flex flex-col items-center justify-center mt-5">
               <div>
-                <div className={`flex items-center justify-center border-[1px] border-gray-400 p-1 rounded-xl ${!isValid ? 'border-red-500' : ''}`}>
+                <div
+                  className={`flex items-center justify-center border-[1px] border-gray-400 p-1 rounded-xl ${
+                    !isValid ? "border-red-500" : ""
+                  }`}
+                >
                   <input
                     className="border-none bg-inherit text-sm"
                     type={showPassword ? "text" : "password"}
@@ -241,14 +263,16 @@ const Forget = () => {
                     onBlur={handlePasswordBlur}
                     placeholder="Enter new password"
                   />
-                  <FontAwesomeIcon icon={eyeIcon} onClick={togglePasswordVisibility} className="text-gray-700 cursor-pointer" />
+                  <FontAwesomeIcon
+                    icon={eyeIcon}
+                    onClick={togglePasswordVisibility}
+                    className="text-gray-700 cursor-pointer"
+                  />
                 </div>
                 {passwordError && (
-                  <p className="text-red-500 text-xs mt-1">
-                    {passwordError}
-                  </p>
+                  <p className="text-red-500 text-xs mt-1">{passwordError}</p>
                 )}
-              </div>
+              </div>  
 
               <div className="mt-2 flex items-center justify-center border-[1px] border-gray-400 p-1 rounded-xl">
                 <input
@@ -258,7 +282,11 @@ const Forget = () => {
                   onChange={(e) => setConfirmNewPassword(e.target.value)}
                   placeholder="Confirm new password"
                 />
-                <FontAwesomeIcon icon={eyeIconC} onClick={togglePasswordVisibility1} className="text-gray-700 cursor-pointer" />
+                <FontAwesomeIcon
+                  icon={eyeIconC}
+                  onClick={togglePasswordVisibility1}
+                  className="text-gray-700 cursor-pointer"
+                />
               </div>
 
               <button
@@ -270,12 +298,15 @@ const Forget = () => {
             </div>
           )}
 
-          <button className="mt-5 mb-2 border-2 border-blue-400 px-6 py-2 bg-blue-400 text-white-A700 text-sm rounded-full" onClick={login}>Go to Login Page</button>
+          <button
+            className="mt-5 mb-2 border-2 border-blue-400 px-6 py-2 bg-blue-400 text-white-A700 text-sm rounded-full"
+            onClick={login}
+          >
+            Go to Login Page
+          </button>
         </div>
-
       </div>
     </div>
-
   );
 };
 

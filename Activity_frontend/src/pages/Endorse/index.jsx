@@ -207,7 +207,7 @@ const Endorse = () => {
 
       });
       // console.log("kya response aa rha hai", latitude, longitude);
-
+     
       if (response.ok) {
         const postsData = await response.json();
         setUserPosts(postsData);
@@ -317,7 +317,8 @@ const Endorse = () => {
   const fetchCityName = async (latitude, longitude) => {
     try {
       const response = await axios.get(
-        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${process.env.REACT_APP_GoogleGeocode}`
+        // `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${process.env.REACT_APP_GoogleGeocode}`
+          `https://api.opencagedata.com/geocode/v1/json?q=${latitude},${longitude}&key=${process.env.REACT_APP_OPENCAGE_KEY}`
       );
 
       if (response.data && response.data.results) {
@@ -404,7 +405,9 @@ const Endorse = () => {
     navigate("/create");
   }
 
+  
   // console.log("all filtered post", filteredPosts);
+  
   return (
     <>
       {authenticated && (
@@ -475,6 +478,7 @@ const Endorse = () => {
                   <div className="relative">
                     <button
                       onClick={() => {
+
                         setIsOpen(!isOpen);
                       }}
                       className="absolute z-20  right-2 top-1 flex items-center justify-center bg-blue-500 text-white rounded-full w-8 h-8 focus:outline-none"
@@ -509,9 +513,9 @@ const Endorse = () => {
                             >
                               <option className="sm:text-xs" value="">All Categories</option>
                               {/* Map over categories and render options */}
-                              {categories.map((category) => (
+                              {categories?.map((category) => (
                                 <option className="sm:text-xs" key={category.id} value={category.name}>
-                                  {category.name}
+                                  {category?.name}
                                 </option>
                               ))}
                             </select>
@@ -547,6 +551,7 @@ const Endorse = () => {
                     <table className="w-52 border-collapse border-2 cursor-default">
                       <thead className="">
                         <tr className="border">
+                          <th className="border p-3">S.No.</th>
                           <th className="border p-3">Category</th>
                           <th className="border p-3">Name</th>
                           <th className="border px-8">Date</th>
@@ -557,8 +562,9 @@ const Endorse = () => {
                         </tr>
                       </thead>
                       <tbody className=" ">
-                        {filteredPosts.map((post) => (
+                        {filteredPosts?.map((post , index ) => (
                           <tr key={post.id} className=" border">
+                          <td className="border p-3 text-center">{index + 1}</td>
                             <td className="border p-3 text-center" >{post.category}</td>
                             <td className="border p-3 text-center">{post.user ? post.user.name : 'Unknown'}</td>
                             <td className="border p-1 text-center ">

@@ -7,7 +7,7 @@ import { toast } from "react-toastify";
 import { API_URL, APP_PATH } from "Constant";
 import * as Switch from '@radix-ui/react-switch';
 import "./style.css"
-//
+
 const OrganizationManagementPage = () => {
   const notify = (e) => toast(e);
   const navigate = useNavigate();
