@@ -205,36 +205,93 @@
 
 
 
+// // Location.js
+// import React, { useEffect, useState } from 'react';
+
+// function Location({ onLocationChange }) {
+//   const [currentLocation, setCurrentLocation] = useState(null);
+//   const [error, setError] = useState(null);
+
+//   useEffect(() => {
+//     if ('geolocation' in navigator) {
+//       navigator.geolocation.getCurrentPosition(
+//         async (position) => {
+//           const { latitude, longitude } = position.coords;
+//           try {
+//             const response = await fetch(
+//               // `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&bounds=lat1,long1|lat2,long2&key=${process.env.REACT_APP_GOOGLE_GEOCODE_KEY}`
+//               `https://api.opencagedata.com/geocode/v1/json?q=${latitude},${longitude}&key=${process.env.REACT_APP_OPENCAGE_KEY}`
+
+//             );
+//             // console.log(response);
+//             if (response.ok) {
+//               // console.log(response);
+//               const data = await response.json();
+//               // console.log("the location data is here",data)
+
+//               const address = data.results[0]?.formatted_address || 'Address not found';
+//               // const latitude = data.results[5]?.geometry.location.lat || 'latitude not found'
+//               setCurrentLocation({ latitude, longitude, address });
+//               onLocationChange(latitude,longitude); // Notify parent component about the address change
+//             } else {
+//               console.error('Error fetching address:', response.statusText);
+//             }
+//           } catch (error) {
+//             console.error('Error fetching address:', error);
+//           }
+//         },
+//         (error) => {
+//           console.error('Error getting location:', error);
+//         }
+//       );
+//     } else {
+//       console.error('Geolocation is not supported by your browser');
+//     }
+//   }, []);
+
+//   return (
+//     <div style={{ height: '', width: '' }}>
+//       {currentLocation ? (
+//         <p>
+//           {currentLocation.latitude}, <br />
+//           {currentLocation.longitude} <br />
+
+//         </p>
+//       ) : (
+//         <p>Loading location...</p>
+//       )}
+//     </div>
+//   );
+// }
+
+// export default Location;
+
+
+
+
 // Location.js
 import React, { useEffect, useState } from 'react';
 
 function Location({ onLocationChange }) {
   const [currentLocation, setCurrentLocation] = useState(null);
-  const [error, setError] = useState(null);
 
   useEffect(() => {
     if ('geolocation' in navigator) {
       navigator.geolocation.getCurrentPosition(
         async (position) => {
           const { latitude, longitude } = position.coords;
+
           try {
             const response = await fetch(
-              // `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&bounds=lat1,long1|lat2,long2&key=${process.env.REACT_APP_GOOGLE_GEOCODE_KEY}`
               `https://api.opencagedata.com/geocode/v1/json?q=${latitude},${longitude}&key=${process.env.REACT_APP_OPENCAGE_KEY}`
-
             );
-            // console.log(response);
-            if (response.ok) {
-              // console.log(response);
-              const data = await response.json();
-              // console.log("the location data is here",data)
 
+            if (response.ok) {
+              const data = await response.json();
               const address = data.results[0]?.formatted_address || 'Address not found';
-              // const latitude = data.results[5]?.geometry.location.lat || 'latitude not found'
+
               setCurrentLocation({ latitude, longitude, address });
-              onLocationChange(latitude,longitude); // Notify parent component about the address change
-            } else {
-              console.error('Error fetching address:', response.statusText);
+              onLocationChange(latitude, longitude); // Send coords to parent
             }
           } catch (error) {
             console.error('Error fetching address:', error);
@@ -249,19 +306,8 @@ function Location({ onLocationChange }) {
     }
   }, []);
 
-  return (
-    <div style={{ height: '', width: '' }}>
-      {currentLocation ? (
-        <p>
-          {currentLocation.latitude}, <br />
-          {currentLocation.longitude} <br />
-
-        </p>
-      ) : (
-        <p>Loading location...</p>
-      )}
-    </div>
-  );
+  // IMPORTANT: Render NOTHING (so the lat/lon do not appear on screen)
+  return null;
 }
 
 export default Location;

@@ -62,7 +62,8 @@ const router = express.Router();
 router.get("/test", extractToken, TestContoller);
 router.get("/fetchEndorsedPosts", fetchEndorsedPosts);
 router.post("/updateEndorsedPosts", updateEndorsedPosts)
-router.post("/processUnapprovedPosts",  processUnapprovedPosts);
+// router.post("/processUnapprovedPosts",  processUnapprovedPosts);
+router.post("/processUnapprovedPosts", processUnapprovedPosts);
 router.post("/AutoEndorseScheduler", AutoEndorseScheduler);
 router.post("/updateApprovedPosts", updateApprovedPosts);
 router.post("/processUnendorsedPosts",processUnendorsedPosts);

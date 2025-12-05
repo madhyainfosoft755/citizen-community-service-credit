@@ -2070,33 +2070,72 @@ const rejectHours = async (req, res) => {
 };
 
 // Fetches all posts pending approval
+
 const pendingApproval = async (req, res) => {
   try {
     const posts = await Posts.findAll({
       where: {
-        endorsementCounter: {
-          [Op.gt]: 0, // will find all posts with endorsementCounter greater than 0
-        },
+        endorsementCounter: { [Op.gt]: 0 },
         approved: false,
         rejected: false,
       },
       include: [
         {
           model: Users,
-          attributes: ["name"], // Include only the name attribute from the Users table
+          attributes: ["id", "name", "photo"],
         },
       ],
     });
-    if (posts.length === 0) {
-      return res
-        .status(404)
-        .json({ message: "No posts pending for approval." });
-    }
-    res.json({ posts});
+
+    return res.status(200).json({
+      success: true,
+      count: posts.length,
+      posts,
+    });
+
   } catch (error) {
-    res.status(500).send(error.message);
+    console.error("pendingApproval ERROR:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Server error fetching pending approvals",
+      error: error.message,
+    });
   }
 };
+
+
+
+
+
+
+
+// const pendingApproval = async (req, res) => {
+//   try {
+//     const posts = await Posts.findAll({
+//       where: {
+//         endorsementCounter: {
+//           [Op.gt]: 0, // will find all posts with endorsementCounter greater than 0
+//         },
+//         approved: false,
+//         rejected: false,
+//       },
+//       include: [
+//         {
+//           model: Users,
+//           attributes: ["name"], // Include only the name attribute from the Users table
+//         },
+//       ],
+//     });
+//     if (posts.length === 0) {
+//       return res
+//         .status(404)
+//         .json({ message: "No posts pending for approval." });
+//     }
+//     res.json({ posts});
+//   } catch (error) {
+//     res.status(500).send(error.message);
+//   }
+// };
 
 // Creates new activity category
 const createCategory = async (req, res) => {

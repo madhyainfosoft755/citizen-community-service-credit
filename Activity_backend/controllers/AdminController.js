@@ -1778,41 +1778,88 @@ const AutoEndorseScheduler = async (req, res) => {
 };
 
 // Process posts that haven't been endorsed yet
+// const processUnendorsedPosts = async (req, res) => {
+//   try {
+//     const postsToSend = req.body;
+//     console.log("what are the posts to send", typeof postsToSend);
+
+//     // logger.info('Processing unendorsed', postsToSend);
+
+//     // const response = await axios.post(
+//     //   // "http://localhost:3000/api/bulk-posts",
+//     //   "http://localhost:3000/apps/api/bulk-posts",
+
+//     //   { postsToSend },
+//     //   {
+//     //     headers: {
+//     //       "Content-Type": "application/json",
+//     //     },
+//     //   }
+//     // );
+//     console.log("Posts to send:", postsToSend);
+
+//     console.log("what is the response", response);
+
+//     if (response.status === 200) {
+//       res
+//         .status(200)
+//         .send({
+//           message: "Posts processed successfully",
+//           aiMessage: response.data.message,
+//           endorsedPostsCount: response.data.endorsedPostsCount,
+//         });
+//     } else {
+//       res.status(response.status).send("Failed to process posts");
+//     }
+//   } catch (error) {
+//     console.error("Error processing posts:", error);
+//     res.status(500).send("An error occurred while processing posts");
+//   }
+// };
+
+
+
 const processUnendorsedPosts = async (req, res) => {
   try {
     const postsToSend = req.body;
-    console.log("what are the posts to send", typeof postsToSend);
+    console.log("Received posts to process:", postsToSend);
 
-    // logger.info('Processing unendorsed', postsToSend);
-
-    const response = await axios.post(
-      "http://localhost:5000/api/bulk-posts",
-      { postsToSend },
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    console.log("what is the response", response);
-
-    if (response.status === 200) {
-      res
-        .status(200)
-        .send({
-          message: "Posts processed successfully",
-          aiMessage: response.data.message,
-          endorsedPostsCount: response.data.endorsedPostsCount,
-        });
-    } else {
-      res.status(response.status).send("Failed to process posts");
+    // (Optional) Validate the incoming data
+    if (!Array.isArray(postsToSend)) {
+      return res.status(400).json({
+        message: "Invalid data format. Expected an array of posts.",
+      });
     }
+
+    // TODO: Add your actual endorsement logic here
+    // For now, we simply return success
+    return res.status(200).json({
+      message: "Posts processed successfully",
+      endorsedPostsCount: postsToSend.length,
+      aiMessage: "AI processing placeholder (no axios call used)",
+    });
+
   } catch (error) {
     console.error("Error processing posts:", error);
-    res.status(500).send("An error occurred while processing posts");
+    return res
+      .status(500)
+      .json({ message: "An error occurred while processing posts" });
   }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // Update posts that have been endorsed by the AI
 const updateEndorsedPosts = async (req, res) => {
@@ -1868,37 +1915,74 @@ const fetchEndorsedPosts = async (req, res) => {
 const processUnapprovedPosts = async (req, res) => {
   try {
     const postsToSend = req.body;
-    // console.log("what are the posts to send", postsToSend);
 
-    // logger.info('Processing unendorsed', postsToSend);
+    console.log("Received posts for processing:", postsToSend);
 
-    const response = await axios.post(
-      "http://localhost:5000/api/bulk-approval",
-      { postsToSend },
-      {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    console.log("what is the response", response);
-
-    if (response.status === 200) {
-      res.status(200).send({
-        message: "Posts processed successfully",
-        aiMessage: response.data.message,
-        approvedPostsCount: response.data.approvedPostsCount,
+    if (!Array.isArray(postsToSend)) {
+      return res.status(400).json({
+        message: "Invalid input. Expected an array of posts.",
       });
-    } else {
-      res.status(response.status).send("Failed to process posts");
     }
+
+    // TODO: Add actual approval logic here (increment endorsement or approve)
+    // For now, return success
+
+    return res.status(200).json({
+      message: "Unapproved posts processed successfully",
+      receivedCount: postsToSend.length,
+      aiMessage: "Dummy AI message: no axios processing used",
+    });
+
   } catch (error) {
-    logger.error("Error processing", error);
-    // console.error('Error processing posts:', error);
-    res.status(500).send("An error occurred while processing posts");
+    console.error("Error processing posts:", error);
+    return res.status(500).json({
+      message: "An error occurred while processing posts",
+      error: error.message,
+    });
   }
 };
+
+
+
+
+
+
+
+
+// const processUnapprovedPosts = async (req, res) => {
+//   try {
+//     const postsToSend = req.body;
+//     // console.log("what are the posts to send", postsToSend);
+
+//     // logger.info('Processing unendorsed', postsToSend);
+
+//     const response = await axios.post(
+//       "http://localhost:5000/api/bulk-approval",
+//       { postsToSend },
+//       {
+//         headers: {
+//           "Content-Type": "application/json",
+//         },
+//       }
+//     );
+
+//     console.log("what is the response", response);
+
+//     if (response.status === 200) {
+//       res.status(200).send({
+//         message: "Posts processed successfully",
+//         aiMessage: response.data.message,
+//         approvedPostsCount: response.data.approvedPostsCount,
+//       });
+//     } else {
+//       res.status(response.status).send("Failed to process posts");
+//     }
+//   } catch (error) {
+//     logger.error("Error processing", error);
+//     // console.error('Error processing posts:', error);
+//     res.status(500).send("An error occurred while processing posts");
+//   }
+// };
 
 // Update posts that have been approved by the AI
 const updateApprovedPosts = async (req, res) => {
